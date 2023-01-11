@@ -19,11 +19,6 @@ fun NotificationScreen(navController: NavHostController) {
             .fillMaxSize()
             .background(Color.White)
     ) {
-        Text(
-            text = "Notification",
-            fontSize = 20.sp,
-            modifier = Modifier
-                .align(Alignment.Center)
-        )
+        NotificationCommunicationScreen()
     }
 }
