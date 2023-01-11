@@ -53,7 +53,7 @@ fun SignupInfoScreen(navController: NavHostController, email: String, password: 
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(text = "닉네임과 생년월일을 알려주세요.", fontSize = 15.sp, color = moduGray_strong)
                 Spacer(modifier = Modifier.height(40.dp))
-                EditText(title = "이름", data = textFieldName, isTextFieldFocused = isTextFieldNameFocused, singleLine = true)
+                EditText(title = "닉네임", data = textFieldName, isTextFieldFocused = isTextFieldNameFocused, singleLine = true)
                 Spacer(modifier = Modifier.height(20.dp))
                 EditText(title = "생년월일", data = textFieldBirthday, isTextFieldFocused = isTextFieldBirthdayFocused, singleLine = true)
             }
