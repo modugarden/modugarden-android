@@ -10,6 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.modugarden.main.discover.search.Categories
+import com.example.modugarden.main.discover.search.DiscoverSearchScreen
+
 
 @Composable
 fun DiscoverScreen(navController: NavHostController) {
@@ -18,11 +21,7 @@ fun DiscoverScreen(navController: NavHostController) {
             .fillMaxSize()
             .background(Color.White)
     ) {
-        Text(
-            text = "Discover Feed",
-            fontSize = 20.sp,
-            modifier = Modifier
-                .align(Alignment.Center)
-        )
+        //탐색 메인화면 부름
+        DiscoverSearchScreen()
     }
 }
