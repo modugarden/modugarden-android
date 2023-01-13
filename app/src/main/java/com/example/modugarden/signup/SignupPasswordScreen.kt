@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,8 +30,10 @@ import com.example.modugarden.ui.theme.*
 fun SignupPasswordScreen(navController: NavHostController, email: String) {
     val textFieldPw = remember { mutableStateOf("") } //비밀번호 입력 데이터
     val isTextFieldPwFocused = remember { mutableStateOf(false) }
+    val isTextFieldError = remember { mutableStateOf(false) } //비밀번호 조건이 틀린지 여부.
     val textFieldPwCheck = remember { mutableStateOf("") } //비밀번호 확인 입력 데이터
     val isTextFieldPwCheckFocused = remember { mutableStateOf(false) }
+    val textFieldDescription = remember { mutableStateOf("8자 이상 입력해야 해요") }
     val focusManager = LocalFocusManager.current
     val keyboard by keyboardAsState()
     val dpScale = animateDpAsState(if(keyboard.toString() == "Closed") 18.dp else 0.dp)
@@ -51,26 +54,27 @@ fun SignupPasswordScreen(navController: NavHostController, email: String) {
             ) {
                 Text("로그인에 사용할\n비밀번호를 입력하세요", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = moduBlack)
                 Spacer(modifier = Modifier.height(40.dp))
-                EditText(title = "비밀번호", data = textFieldPw, isTextFieldFocused = isTextFieldPwFocused, singleLine = true)
+                EditText(title = "비밀번호", data = textFieldPw, isTextFieldFocused = isTextFieldPwFocused, singleLine = true, keyboardType = KeyboardType.Password, errorListener = isTextFieldError, description = textFieldDescription.value)
                 Spacer(modifier = Modifier.height(20.dp))
-                EditText(title = "비밀번호 확인", data = textFieldPwCheck, isTextFieldFocused = isTextFieldPwCheckFocused, singleLine = true)
+                EditText(title = "비밀번호 확인", data = textFieldPwCheck, isTextFieldFocused = isTextFieldPwCheckFocused, singleLine = true, keyboardType = KeyboardType.Password, errorListener = isTextFieldError)
             }
             Spacer(modifier = Modifier.weight(1f))
             Card(
                 modifier = Modifier
                     .bounceClick {
-                        if (textFieldPw.value != "" && textFieldPwCheck.value != "") { //비밀번호와 비밀번호 확인이 빈칸이 아니고,
+                        if (textFieldPw.value.length >= 8 && textFieldPwCheck.value.length >= 8) { //비밀번호와 비밀번호 확인이 빈칸이 아니고,
                             if (textFieldPw.value == textFieldPwCheck.value) { //서로 같을때,
                                 navController.navigate(NAV_ROUTE_SIGNUP.TERMS.routeName+"/${email}/${textFieldPw.value}") //이용 약관으로 넘어감.
                             }
                             else {
-                                Toast.makeText(mContext, "비밀번호와 비밀번호 확인이 달라요", Toast.LENGTH_SHORT).show()
+                                isTextFieldError.value = true
+                                textFieldDescription.value = "비밀번호와 비밀번호 확인이 달라요"
                             }
                         }
                     }
                     .padding(dpScale.value)
                     .fillMaxWidth()
-                    .alpha(if (textFieldPw.value != "" && textFieldPwCheck.value != "") 1f else 0.4f),
+                    .alpha(if (textFieldPw.value.length >= 8 && textFieldPwCheck.value.length >= 8) 1f else 0.4f),
                 shape = RoundedCornerShape(shapeScale.value),
                 backgroundColor = moduPoint,
                 elevation = 0.dp

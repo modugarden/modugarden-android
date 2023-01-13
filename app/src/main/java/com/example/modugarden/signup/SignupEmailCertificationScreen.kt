@@ -31,6 +31,8 @@ fun SignupEmailCertificationScreen(navController: NavHostController, certNumber:
     val certNumberNow = remember { mutableStateOf(certNumber) }//현재 스크린의 certNumber.
     val textFieldCert = remember { mutableStateOf("") }
     val isTextFieldCertFocused = remember { mutableStateOf(false) }
+    val isTextFieldError = remember { mutableStateOf(false) } //에러 저장.
+    val textFieldDescription = remember { mutableStateOf("") } //설명 저장.
     val mContext = LocalContext.current
     val focusManager = LocalFocusManager.current
     val keyboard by keyboardAsState()
@@ -58,7 +60,9 @@ fun SignupEmailCertificationScreen(navController: NavHostController, certNumber:
                     title = "인증번호",
                     data = textFieldCert,
                     isTextFieldFocused = isTextFieldCertFocused,
-                    keyboardType = KeyboardType.Number
+                    keyboardType = KeyboardType.Number,
+                    description = textFieldDescription.value,
+                    errorListener = isTextFieldError
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Card(
@@ -85,7 +89,8 @@ fun SignupEmailCertificationScreen(navController: NavHostController, certNumber:
                             if (textFieldCert.value == certNumberNow.value) //인증번호와 입력한 값이 맞다면
                                 navController.navigate(NAV_ROUTE_SIGNUP.PASSWORD.routeName+"/${email}")
                             else {
-                                Toast.makeText(mContext, "인증번호가 틀렸어요", Toast.LENGTH_SHORT).show()
+                                isTextFieldError.value = true
+                                textFieldDescription.value = "인증번호가 틀렸어요"
                             }
                         }
                     }

@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,12 +31,14 @@ import com.example.modugarden.ui.theme.*
 
 @Composable
 fun SignupEmailScreen(navController: NavHostController) {
-    val textFieldMail = remember { mutableStateOf("") }
-    val isTextFieldMailFocused = remember { mutableStateOf(false) }
+    val textFieldMail = remember { mutableStateOf("") } //textField 데이터 값.
+    val isTextFieldMailFocused = remember { mutableStateOf(false) } //textField가 포커싱 되어 있는지 여부.
+    val isTextFieldError = remember { mutableStateOf(false) } //textField에 조건이 틀린 값이 들어갔는지 여부.
+    var textFieldDescription = remember { mutableStateOf("") } //textField 설명.
     val focusManager = LocalFocusManager.current
     val keyboard by keyboardAsState()
-    val dpScale = animateDpAsState(if(keyboard.toString() == "Closed") 18.dp else 0.dp)
-    val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 10.dp else 0.dp)
+    val dpScale = animateDpAsState(if(keyboard.toString() == "Closed") 18.dp else 0.dp) //버튼 애니메이션 처리.
+    val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 10.dp else 0.dp) //버튼 애니메이션 처리.
     var certNumber = "" //API에서 받아온 이메일 인증번호를 저장
     val mContext = LocalContext.current
     Box(
@@ -52,29 +55,19 @@ fun SignupEmailScreen(navController: NavHostController) {
             ) {
                 Text("본인 인증을 위해\n이메일을 입력해주세요", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = moduBlack)
                 Spacer(modifier = Modifier.height(40.dp))
-                EditText(title = "메일 주소", data = textFieldMail, isTextFieldFocused = isTextFieldMailFocused, singleLine = true)
+                EditText(title = "메일 주소", data = textFieldMail, isTextFieldFocused = isTextFieldMailFocused, singleLine = true, keyboardType = KeyboardType.Email, errorListener = isTextFieldError, description = textFieldDescription.value)
             }
             Spacer(modifier = Modifier.weight(1f))
             Card(
                 modifier = Modifier
                     .bounceClick {
-                        if ("@" in textFieldMail.value) {
-                            if ( //이메일 주소 조건을 만족하면
-                                textFieldMail.value.split("@")[0].isNotEmpty()
-                                && textFieldMail.value.split("@")[1].isNotEmpty()
-                                && ".." !in textFieldMail.value
-                                && "++" !in textFieldMail.value
-                                && "--" !in textFieldMail.value
-                            ) {
-                                //이메일 중복 확인 API 연결
-                                //if (이메일이 중복되지 않았다면)
-                                //해당 이메일에 인증번호를 전송하는 API 연결, certNumber에 인증번호 반환 값 저장.
-                                    certNumber = "123456"
-                                    navController.navigate(NAV_ROUTE_SIGNUP.EMAIL_CERT.routeName+"/"+certNumber+"/${textFieldMail.value}")
-                            }
-                            else {
-                                Toast.makeText(mContext, "이메일 형식에 맞게 입력해요", Toast.LENGTH_SHORT).show()
-                            }
+                        if (android.util.Patterns.EMAIL_ADDRESS.matcher(textFieldMail.value).matches()) {
+                                certNumber = "123456" //인증번호 생성 API에서 반환된 값을 저장하여 '이메일 인증' 화면으로 넘긴다.
+                                navController.navigate(NAV_ROUTE_SIGNUP.EMAIL_CERT.routeName+"/"+certNumber+"/${textFieldMail.value}")
+                        }
+                        else {
+                            isTextFieldError.value = true
+                            textFieldDescription.value = "이메일 형식에 맞게 입력해야 해요"
                         }
                     }
                     .padding(dpScale.value)

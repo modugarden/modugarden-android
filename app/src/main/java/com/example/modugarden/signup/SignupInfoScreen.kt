@@ -1,29 +1,38 @@
 package com.example.modugarden.signup
 
+import android.app.DatePickerDialog
 import android.util.Log
+import android.widget.DatePicker
 import android.widget.Toast
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Card
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.*
+import java.util.*
 
 @Composable
 fun SignupInfoScreen(navController: NavHostController, email: String, password: String) {
@@ -47,7 +56,9 @@ fun SignupInfoScreen(navController: NavHostController, email: String, password: 
             modifier = Modifier
         ) {
             Column(
-                modifier = Modifier.padding(horizontal = 18.dp).padding(top = 50.dp)
+                modifier = Modifier
+                    .padding(horizontal = 18.dp)
+                    .padding(top = 50.dp)
             ) {
                 Text("똑똑, 누구세요?☺️", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = moduBlack)
                 Spacer(modifier = Modifier.height(5.dp))
@@ -55,26 +66,14 @@ fun SignupInfoScreen(navController: NavHostController, email: String, password: 
                 Spacer(modifier = Modifier.height(40.dp))
                 EditText(title = "닉네임", data = textFieldName, isTextFieldFocused = isTextFieldNameFocused, singleLine = true)
                 Spacer(modifier = Modifier.height(20.dp))
-                EditText(title = "생년월일", data = textFieldBirthday, isTextFieldFocused = isTextFieldBirthdayFocused, singleLine = true)
+                ButtonLikeEditText(title = "생년월일", data = textFieldBirthday, isTextFieldFocused = isTextFieldBirthdayFocused)
             }
             Spacer(modifier = Modifier.weight(1f))
             Card(
                 modifier = Modifier
                     .bounceClick {
-                        if(textFieldName.value != "" && textFieldBirthday.value != "") {
-                            if(textFieldBirthday.value.count { it == '.' } == 2) {
-                                if(textFieldBirthday.value.split(".")[0].length == 4
-                                    && ((textFieldBirthday.value.split(".")[1].toInt() >= 1) && (textFieldBirthday.value.split(".")[1].toInt() <= 12))
-                                    && (textFieldBirthday.value.split(".")[2].toInt() >= 1 && (textFieldBirthday.value.split(".")[2].toInt() <= 31))) {
-                                    navController.navigate(NAV_ROUTE_SIGNUP.CATEGORY.routeName+"/${email}/${password}/${textFieldName.value}/${textFieldBirthday.value}")
-                                }
-                                else {
-                                    Toast.makeText(mContext, "생년월일을 조건에 맞게 입력해야 해요", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                            else {
-                                Toast.makeText(mContext, "생년월일을 조건에 맞게 입력해야 해요", Toast.LENGTH_SHORT).show()
-                            }
+                        if (textFieldName.value != "" && textFieldBirthday.value != "") {
+                                    navController.navigate(NAV_ROUTE_SIGNUP.CATEGORY.routeName + "/${email}/${password}/${textFieldName.value}/${textFieldBirthday.value}")
                         }
                     }
                     .padding(dpScale.value)
@@ -94,6 +93,57 @@ fun SignupInfoScreen(navController: NavHostController, email: String, password: 
                     textAlign = TextAlign.Center
                 )
             }
+        }
+    }
+}
+
+//DatePicker
+@Composable
+fun ButtonLikeEditText(
+    title: String,
+    data: MutableState<String>,
+    isTextFieldFocused: MutableState<Boolean>,
+) {
+    val mContext = LocalContext.current
+    
+    val mCalendar = Calendar.getInstance()
+    val mYear = mCalendar.get(Calendar.YEAR)
+    val mMonth = mCalendar.get(Calendar.MONTH)
+    val mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
+
+    mCalendar.time = Date()
+
+    val mDate = remember { mutableStateOf("20/12/2003") }
+    val mDatePickerDialog = DatePickerDialog(
+        mContext,
+        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
+            mDate.value = "$mDayOfMonth/${mMonth+1}/$mYear"
+        }, mYear, mMonth, mDay
+    )
+
+    data.value = "${mDate.value.split("/")[2]}.${mDate.value.split("/")[1]}.${mDate.value.split("/")[0]}"
+
+    val focusRequester = remember { FocusRequester() }
+    Column {
+        Text(title, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = if (isTextFieldFocused.value) moduPoint else moduGray_strong)
+        Spacer(modifier = Modifier.height(5.dp))
+        Card(
+            modifier = Modifier
+                .clickable {
+                           mDatePickerDialog.show()
+                }
+                .focusRequester(focusRequester)
+                .fillMaxWidth(),
+            elevation = 0.dp,
+            backgroundColor = if(isTextFieldFocused.value) moduTextFieldPoint else moduBackground,
+            shape = RoundedCornerShape(10.dp),
+        ) {
+            Text(
+                "${data.value.split(".")[0]}년 ${data.value.split(".")[1]}월 ${data.value.split(".")[2]}일",
+                color = moduBlack,
+                fontSize = 20.sp,
+                modifier = Modifier.padding(15.dp)
+            )
         }
     }
 }
