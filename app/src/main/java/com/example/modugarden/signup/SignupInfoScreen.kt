@@ -60,7 +60,7 @@ fun SignupInfoScreen(navController: NavHostController, email: String, password: 
                     .padding(horizontal = 18.dp)
                     .padding(top = 50.dp)
             ) {
-                Text("똑똑, 누구세요?☺️", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = moduBlack)
+                Text("똑똑, 누구세요?☺️", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = moduBlack)
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(text = "닉네임과 생년월일을 알려주세요.", fontSize = 15.sp, color = moduGray_strong)
                 Spacer(modifier = Modifier.height(40.dp))

@@ -49,7 +49,7 @@ fun SignupTermsScreen(navController: NavHostController, email: String, password:
                     .padding(horizontal = 18.dp)
                     .padding(top = 50.dp)
             ) {
-                Text("이용 약관", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = moduBlack)
+                Text("이용 약관", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = moduBlack)
                 Spacer(modifier = Modifier.height(40.dp))
                 Card(
                     modifier = Modifier

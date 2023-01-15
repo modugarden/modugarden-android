@@ -52,12 +52,15 @@ fun MainLoginScreen() {
         Column(
             modifier = Modifier.padding(top = 50.dp)
         ) {
-            Text(text = "로그인", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = moduBlack)
+            Text(text = "로그인", fontWeight = FontWeight.Bold, fontSize = 24.sp, color = moduBlack)
             Spacer(modifier = Modifier.height(40.dp))
+            //아이디 입력 textField
             EditText(title = "아이디", data = textFieldId, isTextFieldFocused = isTextFieldFocusedId)
             Spacer(modifier = Modifier.height(20.dp))
+            //비밀번호 입력 textField
             EditText(title = "비밀번호", data = textFieldPw, isTextFieldFocused = isTextFieldFocusedPw)
             Spacer(modifier = Modifier.height(30.dp))
+            //로그인 버튼
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -83,11 +86,11 @@ fun MainLoginScreen() {
                         .fillMaxWidth(),
                     textAlign = TextAlign.Center
                 )
-
             }
             Spacer(modifier = Modifier.height(50.dp))
             Text("소셜 로그인", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduBlack, modifier = Modifier.align(Alignment.CenterHorizontally))
             Spacer(modifier = Modifier.weight(1f))
+            //계정 새로 만들기 버튼
             Card(
                 modifier = Modifier
                     .bounceClick {

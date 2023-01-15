@@ -52,7 +52,7 @@ fun SignupEmailCertificationScreen(navController: NavHostController, certNumber:
                     .padding(horizontal = 18.dp)
                     .padding(top = 50.dp)
             ) {
-                Text("인증번호를 입력해주세요", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = moduBlack)
+                Text("인증번호를 입력해주세요", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = moduBlack)
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(text = "입력한 이메일로 인증번호를 전송했어요.", fontSize = 15.sp, color = moduGray_strong)
                 Spacer(modifier = Modifier.height(40.dp))

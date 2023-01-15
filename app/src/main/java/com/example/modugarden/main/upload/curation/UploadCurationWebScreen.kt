@@ -4,6 +4,7 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -12,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -54,28 +56,39 @@ fun UploadCurationWebScreen(navController: NavHostController, url: String) {
                 it.loadUrl(url)
             })
         }
-        Card(
+        Box(
             modifier = Modifier
-                .bounceClick {
-
-                }
-                .padding(18.dp)
-                .fillMaxWidth()
-                .alpha(1f)
-                .align(Alignment.BottomCenter),
-            shape = RoundedCornerShape(10.dp),
-            backgroundColor = moduPoint,
-            elevation = 0.dp
+                .align(Alignment.BottomCenter)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color.White.copy(alpha = 0f), Color.White),
+                        startY = 0f,
+                        endY = 50f
+                    )
+                )
         ) {
-            Text(
-                "다음",
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = Color.White,
+            Card(
                 modifier = Modifier
-                    .padding(18.dp),
-                textAlign = TextAlign.Center
-            )
+                    .bounceClick {
+
+                    }
+                    .padding(18.dp)
+                    .fillMaxWidth()
+                    .alpha(1f),
+                shape = RoundedCornerShape(10.dp),
+                backgroundColor = moduPoint,
+                elevation = 0.dp
+            ) {
+                Text(
+                    "다음",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    modifier = Modifier
+                        .padding(18.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }

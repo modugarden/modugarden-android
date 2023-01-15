@@ -1,5 +1,6 @@
 package com.example.modugarden.signup
 
+import android.content.Intent
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -20,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.modugarden.MainActivity
 import com.example.modugarden.R
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.bounceClick
@@ -29,7 +31,7 @@ import com.example.modugarden.ui.theme.moduPoint
 
 @Composable
 fun SignupEndScreen(navController: NavHostController, name: String = "") {
-    val mcontext = LocalContext.current
+    val mContext = LocalContext.current
     var currentRotation by remember { mutableStateOf(-5f) }
     val rotation = remember { Animatable(currentRotation) }
     var state = remember { mutableStateOf(true) }
@@ -74,6 +76,12 @@ fun SignupEndScreen(navController: NavHostController, name: String = "") {
                 modifier = Modifier
                     .bounceClick {
                         //로그인 API 불러와서 팔로우 피드로 넘어감.
+                        mContext.startActivity(
+                            Intent(mContext, MainActivity::class.java)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        )
                     }
                     .padding(18.dp)
                     .fillMaxWidth()

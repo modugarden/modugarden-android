@@ -53,7 +53,7 @@ fun SignupEmailScreen(navController: NavHostController) {
             Column(
                 modifier = Modifier.padding(horizontal = 18.dp).padding(top = 50.dp)
             ) {
-                Text("본인 인증을 위해\n이메일을 입력해주세요", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = moduBlack)
+                Text("본인 인증을 위해\n이메일을 입력해주세요", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = moduBlack)
                 Spacer(modifier = Modifier.height(40.dp))
                 EditText(title = "메일 주소", data = textFieldMail, isTextFieldFocused = isTextFieldMailFocused, singleLine = true, keyboardType = KeyboardType.Email, errorListener = isTextFieldError, description = textFieldDescription.value)
             }

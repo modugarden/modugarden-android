@@ -52,7 +52,7 @@ fun SignupPasswordScreen(navController: NavHostController, email: String) {
             Column(
                 modifier = Modifier.padding(horizontal = 18.dp).padding(top = 50.dp)
             ) {
-                Text("로그인에 사용할\n비밀번호를 입력하세요", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = moduBlack)
+                Text("로그인에 사용할\n비밀번호를 입력하세요", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = moduBlack)
                 Spacer(modifier = Modifier.height(40.dp))
                 EditText(title = "비밀번호", data = textFieldPw, isTextFieldFocused = isTextFieldPwFocused, singleLine = true, keyboardType = KeyboardType.Password, errorListener = isTextFieldError, description = textFieldDescription.value)
                 Spacer(modifier = Modifier.height(20.dp))
