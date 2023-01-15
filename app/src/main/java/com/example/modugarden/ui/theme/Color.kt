@@ -13,3 +13,5 @@ val moduGray_light = Color(0xFFEBEEED) //연한 회색 (ex: 선)
 val moduBackground = Color(0xFFF3F5F4) //배경색
 val moduPoint = Color(0xFF6CD09A) //포인트 색
 val moduTextFieldPoint = Color(0xFFEDF5F0) //TextField 포커싱 색
+val moduErrorPoint = Color(0xFFFF7272) //오류 포인트 색
+val moduErrorBackgroundPoint = Color(0xFFFAF4F4) //오류 배경 포인트 색

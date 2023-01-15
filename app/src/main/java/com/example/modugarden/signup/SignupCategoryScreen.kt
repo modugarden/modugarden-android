@@ -47,7 +47,7 @@ import kotlinx.coroutines.flow.onEach
 fun SignupCategoryScreen(navController: NavHostController, email: String, password: String, name: String, birthday: String) {
     val mContext = LocalContext.current
     val isTermsCheck = remember { mutableStateOf(false) } //이용 약관에 동의했는지 여부.
-    var categoryCheck = remember { mutableStateOf(listOf(0)) }
+    var categoryCheck = remember { mutableStateListOf(false, false, false) }
     Log.d("certnumber", "${email}/${password}/${name}/${birthday}")
     Box(
         modifier = Modifier
@@ -69,9 +69,8 @@ fun SignupCategoryScreen(navController: NavHostController, email: String, passwo
                 Card(
                     modifier = Modifier
                         .bounceClick {
-                            if (1 in categoryCheck.value) categoryCheck.value =
-                                categoryCheck.value + 1
-                            else categoryCheck.value -= 1
+                            categoryCheck[0] = !(categoryCheck[0])
+                            Log.d("tagforme", (categoryCheck[0]).toString())
                         }
                         .fillMaxWidth(),
                     backgroundColor = if(isTermsCheck.value) moduGray_light else Color.White,
@@ -80,7 +79,6 @@ fun SignupCategoryScreen(navController: NavHostController, email: String, passwo
                 ) {
                     Row(
                         modifier = Modifier
-                            .padding(18.dp)
                     ) {
                         Image(
                             painter = painterResource(R.drawable.ic_potted_plant),
@@ -90,10 +88,80 @@ fun SignupCategoryScreen(navController: NavHostController, email: String, passwo
                                 .width(40.dp)
                                 .align(Alignment.CenterVertically)
                         )
-                        Text("식물 가꾸기", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduBlack)
+                        Text("가드닝", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduBlack, modifier = Modifier.align(Alignment.CenterVertically).padding(start = 18.dp))
                         Spacer(modifier = Modifier.weight(1f))
                         Image(
-                            painter = painterResource(if(1 in categoryCheck.value) R.drawable.ic_check_solid else R.drawable.ic_check_line),
+                            painter = painterResource(if(categoryCheck[0]) R.drawable.ic_check_solid else R.drawable.ic_check_line),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .height(30.dp)
+                                .width(30.dp)
+                                .align(Alignment.CenterVertically)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(18.dp))
+                Card(
+                    modifier = Modifier
+                        .bounceClick {
+                            categoryCheck[1] = !(categoryCheck[1])
+                            Log.d("tagforme", (categoryCheck[1]).toString())
+                        }
+                        .fillMaxWidth(),
+                    backgroundColor = if(isTermsCheck.value) moduGray_light else Color.White,
+                    elevation = 0.dp,
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.ic_house_with_garden),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .height(40.dp)
+                                .width(40.dp)
+                                .align(Alignment.CenterVertically)
+                        )
+                        Text("플랜테리어", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduBlack, modifier = Modifier.align(Alignment.CenterVertically).padding(start = 18.dp))
+                        Spacer(modifier = Modifier.weight(1f))
+                        Image(
+                            painter = painterResource(if(categoryCheck[1]) R.drawable.ic_check_solid else R.drawable.ic_check_line),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .height(30.dp)
+                                .width(30.dp)
+                                .align(Alignment.CenterVertically)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(18.dp))
+                Card(
+                    modifier = Modifier
+                        .bounceClick {
+                            categoryCheck[2] = !(categoryCheck[2])
+                            Log.d("tagforme", (categoryCheck[2]).toString())
+                        }
+                        .fillMaxWidth(),
+                    backgroundColor = if(isTermsCheck.value) moduGray_light else Color.White,
+                    elevation = 0.dp,
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.ic_tent),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .height(40.dp)
+                                .width(40.dp)
+                                .align(Alignment.CenterVertically)
+                        )
+                        Text("여행/나들이", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduBlack, modifier = Modifier.align(Alignment.CenterVertically).padding(start = 18.dp))
+                        Spacer(modifier = Modifier.weight(1f))
+                        Image(
+                            painter = painterResource(if(categoryCheck[2]) R.drawable.ic_check_solid else R.drawable.ic_check_line),
                             contentDescription = null,
                             modifier = Modifier
                                 .height(30.dp)
@@ -107,13 +175,20 @@ fun SignupCategoryScreen(navController: NavHostController, email: String, passwo
             Card(
                 modifier = Modifier
                     .bounceClick {
-                        if (isTermsCheck.value) {
-                            navController.navigate(NAV_ROUTE_SIGNUP.INFO.routeName + "/${email}/${password}")
+                        if(categoryCheck[0] || categoryCheck[1] || categoryCheck[2]) {
+                            //회원가입 API 연결 (email, name, password, category)
+                            Toast.makeText(mContext, "${email}, ${name}, ${password}, 카테고리 : ${categoryCheck[0]}, ${categoryCheck[1]}, ${categoryCheck[2]} 정보로 회원가입을 진행해요", Toast.LENGTH_SHORT).show()
+                            //회원가입 API에서 회원가입 성공 리턴값을 받으면 가입 축하 화면으로 넘어갑니다.
+                            navController.navigate(NAV_ROUTE_SIGNUP.END.routeName+"/${name}") {
+                                popUpTo(NAV_ROUTE_SIGNUP.EMAIL.routeName) {
+                                    inclusive = true
+                                }
+                            }
                         }
                     }
                     .padding(18.dp)
                     .fillMaxWidth()
-                    .alpha(if (isTermsCheck.value) 1f else 0.4f),
+                    .alpha(if(categoryCheck[0] || categoryCheck[1] || categoryCheck[2]) 1f else 0.4f),
                 shape = RoundedCornerShape(10.dp),
                 backgroundColor = moduPoint,
                 elevation = 0.dp

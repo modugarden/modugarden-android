@@ -82,6 +82,14 @@ fun NavigationGraphSignup(navController: NavHostController) {
             val birthday = backStackEntry.arguments?.getString("birthday") ?: ""
             SignupCategoryScreen(navController, email, password, name, birthday)
         }
-        composable(NAV_ROUTE_SIGNUP.END.routeName) { SignupEndScreen(navController) }
+        composable(
+            NAV_ROUTE_SIGNUP.END.routeName+"/{name}",
+            arguments = listOf(
+                navArgument("name") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val name = backStackEntry.arguments?.getString("name") ?: ""
+            SignupEndScreen(navController, name)
+        }
     }
 }
