@@ -66,9 +66,11 @@ fun SignupInfoScreen(navController: NavHostController, email: String, password: 
                 Spacer(modifier = Modifier.height(40.dp))
                 EditText(title = "닉네임", data = textFieldName, isTextFieldFocused = isTextFieldNameFocused, singleLine = true)
                 Spacer(modifier = Modifier.height(20.dp))
-                ButtonLikeEditText(title = "생년월일", data = textFieldBirthday, isTextFieldFocused = isTextFieldBirthdayFocused)
+                EditTextLikeButtonDatePicker(title = "생년월일", data = textFieldBirthday, isTextFieldFocused = isTextFieldBirthdayFocused)
             }
             Spacer(modifier = Modifier.weight(1f))
+
+            //다음 버튼
             Card(
                 modifier = Modifier
                     .bounceClick {
@@ -99,7 +101,7 @@ fun SignupInfoScreen(navController: NavHostController, email: String, password: 
 
 //DatePicker
 @Composable
-fun ButtonLikeEditText(
+fun EditTextLikeButtonDatePicker(
     title: String,
     data: MutableState<String>,
     isTextFieldFocused: MutableState<Boolean>,
@@ -129,7 +131,7 @@ fun ButtonLikeEditText(
         Spacer(modifier = Modifier.height(5.dp))
         Card(
             modifier = Modifier
-                .clickable {
+                .bounceClick {
                            mDatePickerDialog.show()
                 }
                 .focusRequester(focusRequester)

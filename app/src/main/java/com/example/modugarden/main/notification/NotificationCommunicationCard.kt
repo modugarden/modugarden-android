@@ -18,23 +18,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
-import com.example.modugarden.ui.theme.moduBlack
-import com.example.modugarden.ui.theme.moduErrorPoint
-import com.example.modugarden.ui.theme.moduGray_light
-import com.example.modugarden.ui.theme.moduGray_strong
+import com.example.modugarden.ui.theme.*
 
 @Composable
-fun NotificationCommunicationCard(data: NotificationData) {
+fun NotificationCommunicationCard(data: NotificationData, lastItem: Boolean) {
     Row(
         modifier = Modifier
-            .padding(9.dp)
-            .padding(horizontal = 9.dp)
+            .padding(top = 18.dp)
+            .padding(horizontal = 18.dp)
+            .padding(bottom = if(lastItem) 18.dp else 0.dp)
+            .fillMaxWidth()
+            .bounceClick {
+            }
     ) {
         Card(
             modifier = Modifier
                 .wrapContentSize(),
             shape = CircleShape,
-            border = BorderStroke(5.dp, if(data.type == 3) moduErrorPoint else moduGray_light)
+            border = BorderStroke(3.dp, if(data.type == 3) moduErrorPoint else moduGray_light),
+            elevation = 0.dp
         ) {
             Image(
                 painter = painterResource(id = if(data.type == 3) R.drawable.ic_launcher_foreground else data.image),
@@ -60,8 +62,8 @@ fun NotificationCommunicationCard(data: NotificationData) {
                 Text(
                     text = when(data.type) {
                             0 -> "님이 회원님을 팔로우 했어요."
-                            1 -> "님이 댓글을 달았어요."
-                            2 -> "님이 덧글을 달았어요."
+                            1 -> "님이 댓글을 남겼어요."
+                            2 -> "님이 답글을 남겼어요."
                             3 -> ""
                             else -> "알림 오류"
                     },
