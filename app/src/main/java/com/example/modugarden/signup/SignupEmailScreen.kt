@@ -26,12 +26,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
+import com.example.modugarden.data.Signup
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.*
+import com.example.modugarden.viewmodel.SignupViewModel
 
 @Composable
-fun SignupEmailScreen(navController: NavHostController) {
-    val textFieldMail = remember { mutableStateOf("") } //textField 데이터 값.
+fun SignupEmailScreen(navController: NavHostController, data: Signup, signupViewModel: SignupViewModel) {
+    val textFieldMail = remember { mutableStateOf(data.email) } //textField 데이터 값.
     val isTextFieldMailFocused = remember { mutableStateOf(false) } //textField가 포커싱 되어 있는지 여부.
     val isTextFieldError = remember { mutableStateOf(false) } //textField에 조건이 틀린 값이 들어갔는지 여부.
     var textFieldDescription = remember { mutableStateOf("") } //textField 설명.
@@ -63,6 +65,7 @@ fun SignupEmailScreen(navController: NavHostController) {
                     .bounceClick {
                         if (android.util.Patterns.EMAIL_ADDRESS.matcher(textFieldMail.value).matches()) {
                                 certNumber = "123456" //인증번호 생성 API에서 반환된 값을 저장하여 '이메일 인증' 화면으로 넘긴다.
+                                signupViewModel.saveEmail(textFieldMail.value)
                                 navController.navigate(NAV_ROUTE_SIGNUP.EMAIL_CERT.routeName+"/"+certNumber+"/${textFieldMail.value}")
                         }
                         else {

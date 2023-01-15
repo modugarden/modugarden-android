@@ -30,12 +30,14 @@ import androidx.navigation.NavHostController
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.R
+import com.example.modugarden.data.Signup
+import com.example.modugarden.viewmodel.SignupViewModel
 
 @Composable
-fun SignupTermsScreen(navController: NavHostController, email: String, password: String) {
-    val isTermsCheck = remember { mutableStateOf(false) } //이용 약관에 동의했는지 여부.
+fun SignupTermsScreen(navController: NavHostController, data: Signup, signupViewModel: SignupViewModel) {
+    val isTermsCheck = remember { mutableStateOf(data.isTermsCheck) } //이용 약관에 동의했는지 여부.
     val mContext = LocalContext.current
-    Log.d("certnumber", "${email}/${password}")
+    Log.d("certnumber", "${data.email}/${data.password}")
     Box(
         modifier = Modifier
             .background(Color.White)
@@ -76,6 +78,7 @@ fun SignupTermsScreen(navController: NavHostController, email: String, password:
                                 .width(40.dp)
                                 .bounceClick {
                                     isTermsCheck.value = !isTermsCheck.value
+                                    signupViewModel.saveIsTermsCheck(isTermsCheck.value)
                                 }
                                 .align(Alignment.CenterVertically)
                         )
@@ -103,7 +106,7 @@ fun SignupTermsScreen(navController: NavHostController, email: String, password:
                 modifier = Modifier
                     .bounceClick {
                         if (isTermsCheck.value) {
-                            navController.navigate(NAV_ROUTE_SIGNUP.INFO.routeName+"/${email}/${password}")
+                            navController.navigate(NAV_ROUTE_SIGNUP.INFO.routeName+"/${data.email}/${data.password}")
                         }
                     }
                     .padding(18.dp)

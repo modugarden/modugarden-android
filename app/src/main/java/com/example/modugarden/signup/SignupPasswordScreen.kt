@@ -23,15 +23,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.modugarden.data.Signup
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.*
+import com.example.modugarden.viewmodel.SignupViewModel
 
 @Composable
-fun SignupPasswordScreen(navController: NavHostController, email: String) {
-    val textFieldPw = remember { mutableStateOf("") } //비밀번호 입력 데이터
+fun SignupPasswordScreen(navController: NavHostController, data: Signup, signupViewModel: SignupViewModel) {
+    val textFieldPw = remember { mutableStateOf(data.password) } //비밀번호 입력 데이터
     val isTextFieldPwFocused = remember { mutableStateOf(false) }
     val isTextFieldError = remember { mutableStateOf(false) } //비밀번호 조건이 틀린지 여부.
-    val textFieldPwCheck = remember { mutableStateOf("") } //비밀번호 확인 입력 데이터
+    val textFieldPwCheck = remember { mutableStateOf(data.password) } //비밀번호 확인 입력 데이터
     val isTextFieldPwCheckFocused = remember { mutableStateOf(false) }
     val textFieldDescription = remember { mutableStateOf("8자 이상 입력해야 해요") }
     val focusManager = LocalFocusManager.current
@@ -39,7 +41,7 @@ fun SignupPasswordScreen(navController: NavHostController, email: String) {
     val dpScale = animateDpAsState(if(keyboard.toString() == "Closed") 18.dp else 0.dp)
     val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 10.dp else 0.dp)
     val mContext = LocalContext.current
-    Log.d("certnumber", email)
+    Log.d("certnumber", data.email)
     Box(
         modifier = Modifier
             .background(Color.White)
@@ -64,7 +66,8 @@ fun SignupPasswordScreen(navController: NavHostController, email: String) {
                     .bounceClick {
                         if (textFieldPw.value.length >= 8 && textFieldPwCheck.value.length >= 8) { //비밀번호와 비밀번호 확인이 빈칸이 아니고,
                             if (textFieldPw.value == textFieldPwCheck.value) { //서로 같을때,
-                                navController.navigate(NAV_ROUTE_SIGNUP.TERMS.routeName+"/${email}/${textFieldPw.value}") //이용 약관으로 넘어감.
+                                signupViewModel.savePassword(textFieldPw.value)
+                                navController.navigate(NAV_ROUTE_SIGNUP.TERMS.routeName+"/${data.email}/${textFieldPw.value}") //이용 약관으로 넘어감.
                             }
                             else {
                                 isTextFieldError.value = true

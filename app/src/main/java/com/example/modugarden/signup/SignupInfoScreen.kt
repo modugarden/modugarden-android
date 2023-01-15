@@ -30,22 +30,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.modugarden.data.Signup
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.*
+import com.example.modugarden.viewmodel.SignupViewModel
 import java.util.*
 
 @Composable
-fun SignupInfoScreen(navController: NavHostController, email: String, password: String) {
-    val textFieldName = remember { mutableStateOf("") } //비밀번호 입력 데이터
+fun SignupInfoScreen(navController: NavHostController, data: Signup, signupViewModel: SignupViewModel) {
+    val textFieldName = remember { mutableStateOf(data.name) } //비밀번호 입력 데이터
     val isTextFieldNameFocused = remember { mutableStateOf(false) }
-    val textFieldBirthday = remember { mutableStateOf("") } //비밀번호 확인 입력 데이터
+    val textFieldBirthday = remember { mutableStateOf(data.birthday) } //비밀번호 확인 입력 데이터
     val isTextFieldBirthdayFocused = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val keyboard by keyboardAsState()
     val dpScale = animateDpAsState(if(keyboard.toString() == "Closed") 18.dp else 0.dp)
     val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 10.dp else 0.dp)
     val mContext = LocalContext.current
-    Log.d("certnumber", "${email}/${password}")
+    Log.d("certnumber", "${data.email}/${data.password}")
     Box(
         modifier = Modifier
             .background(Color.White)
@@ -66,7 +68,7 @@ fun SignupInfoScreen(navController: NavHostController, email: String, password: 
                 Spacer(modifier = Modifier.height(40.dp))
                 EditText(title = "닉네임", data = textFieldName, isTextFieldFocused = isTextFieldNameFocused, singleLine = true)
                 Spacer(modifier = Modifier.height(20.dp))
-                EditTextLikeButtonDatePicker(title = "생년월일", data = textFieldBirthday, isTextFieldFocused = isTextFieldBirthdayFocused)
+                EditTextLikeButtonDatePicker(title = "생년월일", data = textFieldBirthday, isTextFieldFocused = isTextFieldBirthdayFocused, data)
             }
             Spacer(modifier = Modifier.weight(1f))
 
@@ -75,7 +77,9 @@ fun SignupInfoScreen(navController: NavHostController, email: String, password: 
                 modifier = Modifier
                     .bounceClick {
                         if (textFieldName.value != "" && textFieldBirthday.value != "") {
-                                    navController.navigate(NAV_ROUTE_SIGNUP.CATEGORY.routeName + "/${email}/${password}/${textFieldName.value}/${textFieldBirthday.value}")
+                            signupViewModel.saveName(textFieldName.value)
+                            signupViewModel.saveBirthday("${textFieldBirthday.value.split(".")[2]}/${textFieldBirthday.value.split(".")[1]}/${textFieldBirthday.value.split(".")[0]}")
+                            navController.navigate(NAV_ROUTE_SIGNUP.CATEGORY.routeName + "/${data.email}/${data.password}/${textFieldName.value}/${textFieldBirthday.value}")
                         }
                     }
                     .padding(dpScale.value)
@@ -105,6 +109,7 @@ fun EditTextLikeButtonDatePicker(
     title: String,
     data: MutableState<String>,
     isTextFieldFocused: MutableState<Boolean>,
+    viewModelData: Signup
 ) {
     val mContext = LocalContext.current
     
@@ -115,7 +120,7 @@ fun EditTextLikeButtonDatePicker(
 
     mCalendar.time = Date()
 
-    val mDate = remember { mutableStateOf("20/12/2003") }
+    val mDate = remember { mutableStateOf(viewModelData.birthday) }
     val mDatePickerDialog = DatePickerDialog(
         mContext,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
@@ -132,7 +137,7 @@ fun EditTextLikeButtonDatePicker(
         Card(
             modifier = Modifier
                 .bounceClick {
-                           mDatePickerDialog.show()
+                    mDatePickerDialog.show()
                 }
                 .focusRequester(focusRequester)
                 .fillMaxWidth(),

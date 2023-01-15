@@ -38,17 +38,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
+import com.example.modugarden.data.Category
+import com.example.modugarden.data.Signup
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.*
+import com.example.modugarden.viewmodel.SignupViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 @Composable //회원가입 할 때 카테고리를 묻는 화면.
-fun SignupCategoryScreen(navController: NavHostController, email: String, password: String, name: String, birthday: String) {
+fun SignupCategoryScreen(navController: NavHostController, data: Signup, signupViewModel: SignupViewModel) {
     val mContext = LocalContext.current
-    val isTermsCheck = remember { mutableStateOf(false) } //이용 약관에 동의했는지 여부.
     var categoryCheck = remember { mutableStateListOf(false, false, false) }
-    Log.d("certnumber", "${email}/${password}/${name}/${birthday}")
     Box(
         modifier = Modifier
             .background(Color.White)
@@ -70,10 +71,10 @@ fun SignupCategoryScreen(navController: NavHostController, email: String, passwo
                     modifier = Modifier
                         .bounceClick {
                             categoryCheck[0] = !(categoryCheck[0])
-                            Log.d("tagforme", (categoryCheck[0]).toString())
+                            signupViewModel.saveCategory(categoryCheck)
                         }
                         .fillMaxWidth(),
-                    backgroundColor = if(isTermsCheck.value) moduGray_light else Color.White,
+                    backgroundColor = Color.White,
                     elevation = 0.dp,
                     shape = RoundedCornerShape(10.dp)
                 ) {
@@ -105,10 +106,10 @@ fun SignupCategoryScreen(navController: NavHostController, email: String, passwo
                     modifier = Modifier
                         .bounceClick {
                             categoryCheck[1] = !(categoryCheck[1])
-                            Log.d("tagforme", (categoryCheck[1]).toString())
+                            signupViewModel.saveCategory(categoryCheck)
                         }
                         .fillMaxWidth(),
-                    backgroundColor = if(isTermsCheck.value) moduGray_light else Color.White,
+                    backgroundColor = Color.White,
                     elevation = 0.dp,
                     shape = RoundedCornerShape(10.dp)
                 ) {
@@ -140,10 +141,10 @@ fun SignupCategoryScreen(navController: NavHostController, email: String, passwo
                     modifier = Modifier
                         .bounceClick {
                             categoryCheck[2] = !(categoryCheck[2])
-                            Log.d("tagforme", (categoryCheck[2]).toString())
+                            signupViewModel.saveCategory(categoryCheck)
                         }
                         .fillMaxWidth(),
-                    backgroundColor = if(isTermsCheck.value) moduGray_light else Color.White,
+                    backgroundColor = Color.White,
                     elevation = 0.dp,
                     shape = RoundedCornerShape(10.dp)
                 ) {
@@ -176,10 +177,10 @@ fun SignupCategoryScreen(navController: NavHostController, email: String, passwo
                 modifier = Modifier
                     .bounceClick {
                         if(categoryCheck[0] || categoryCheck[1] || categoryCheck[2]) {
-                            //회원가입 API 연결 (email, name, password, category)
-                            Toast.makeText(mContext, "${email}, ${name}, ${password}, 카테고리 : ${categoryCheck[0]}, ${categoryCheck[1]}, ${categoryCheck[2]} 정보로 회원가입을 진행해요", Toast.LENGTH_SHORT).show()
+                                //회원가입 API 연결 (email, name, password, category)
+                            Toast.makeText(mContext, "${data.email}, ${data.name}, ${data.password}, 카테고리 : ${categoryCheck[0]}, ${categoryCheck[1]}, ${categoryCheck[2]} 정보로 회원가입을 진행해요", Toast.LENGTH_SHORT).show()
                             //회원가입 API에서 회원가입 성공 리턴값을 받으면 가입 축하 화면으로 넘어갑니다.
-                            navController.navigate(NAV_ROUTE_SIGNUP.END.routeName+"/${name}") {
+                            navController.navigate(NAV_ROUTE_SIGNUP.END.routeName+"/${data.name}") {
                                 popUpTo(NAV_ROUTE_SIGNUP.EMAIL.routeName) {
                                     inclusive = true
                                 }

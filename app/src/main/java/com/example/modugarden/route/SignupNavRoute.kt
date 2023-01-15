@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.modugarden.signup.*
+import com.example.modugarden.viewmodel.SignupViewModel
 
 enum class NAV_ROUTE_SIGNUP(val routeName: String, val description: String) { //signup 패키지 루트.
     EMAIL("SIGNUP_EMAIL", "이메일"),
@@ -20,11 +21,15 @@ enum class NAV_ROUTE_SIGNUP(val routeName: String, val description: String) { //
     END("SIGNUP_END", "가입 축하")
 }
 @Composable
-fun NavigationGraphSignup(navController: NavHostController) {
+fun NavigationGraphSignup(
+    navController: NavHostController,
+    signupViewModel: SignupViewModel
+) {
+    val data = signupViewModel.getAllData()
     NavHost(navController, startDestination = NAV_ROUTE_SIGNUP.EMAIL.routeName,
         modifier = Modifier.fillMaxSize()
     ) {
-        composable(NAV_ROUTE_SIGNUP.EMAIL.routeName) { SignupEmailScreen(navController) }
+        composable(NAV_ROUTE_SIGNUP.EMAIL.routeName) { SignupEmailScreen(navController, data, signupViewModel) }
         composable(
             NAV_ROUTE_SIGNUP.EMAIL_CERT.routeName+"/{certNumber}/{email}",
             arguments = listOf(
@@ -34,7 +39,7 @@ fun NavigationGraphSignup(navController: NavHostController) {
         ) { backStackEntry ->
             val certNumber = backStackEntry.arguments?.getString("certNumber") ?: ""
             val email = backStackEntry.arguments?.getString("email") ?: ""
-            SignupEmailCertificationScreen(navController, certNumber, email)
+            SignupEmailCertificationScreen(navController, certNumber, data, signupViewModel)
         }
         composable(
             NAV_ROUTE_SIGNUP.PASSWORD.routeName+"/{email}",
@@ -43,7 +48,7 @@ fun NavigationGraphSignup(navController: NavHostController) {
             )
         ) { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email") ?: ""
-            SignupPasswordScreen(navController, email)
+            SignupPasswordScreen(navController, data, signupViewModel)
         }
         composable(
             NAV_ROUTE_SIGNUP.TERMS.routeName+"/{email}/{password}",
@@ -54,7 +59,7 @@ fun NavigationGraphSignup(navController: NavHostController) {
         ) { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email") ?: ""
             val password = backStackEntry.arguments?.getString("password") ?: ""
-            SignupTermsScreen(navController, email, password)
+            SignupTermsScreen(navController, data, signupViewModel)
         }
         composable(
             NAV_ROUTE_SIGNUP.INFO.routeName+"/{email}/{password}",
@@ -65,7 +70,7 @@ fun NavigationGraphSignup(navController: NavHostController) {
         ) { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email") ?: ""
             val password = backStackEntry.arguments?.getString("password") ?: ""
-            SignupInfoScreen(navController, email, password)
+            SignupInfoScreen(navController, data, signupViewModel)
         }
         composable(
             NAV_ROUTE_SIGNUP.CATEGORY.routeName+"/{email}/{password}/{name}/{birthday}",
@@ -80,7 +85,7 @@ fun NavigationGraphSignup(navController: NavHostController) {
             val password = backStackEntry.arguments?.getString("password") ?: ""
             val name = backStackEntry.arguments?.getString("name") ?: ""
             val birthday = backStackEntry.arguments?.getString("birthday") ?: ""
-            SignupCategoryScreen(navController, email, password, name, birthday)
+            SignupCategoryScreen(navController, data, signupViewModel)
         }
         composable(
             NAV_ROUTE_SIGNUP.END.routeName+"/{name}",
@@ -89,7 +94,7 @@ fun NavigationGraphSignup(navController: NavHostController) {
             )
         ) { backStackEntry ->
             val name = backStackEntry.arguments?.getString("name") ?: ""
-            SignupEndScreen(navController, name)
+            SignupEndScreen(navController, data, signupViewModel)
         }
     }
 }

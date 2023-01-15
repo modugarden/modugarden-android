@@ -23,14 +23,16 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.MainActivity
 import com.example.modugarden.R
+import com.example.modugarden.data.Signup
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.ui.theme.moduPoint
+import com.example.modugarden.viewmodel.SignupViewModel
 
 @Composable
-fun SignupEndScreen(navController: NavHostController, name: String = "") {
+fun SignupEndScreen(navController: NavHostController, data: Signup, signupViewModel: SignupViewModel) {
     val mContext = LocalContext.current
     var currentRotation by remember { mutableStateOf(-5f) }
     val rotation = remember { Animatable(currentRotation) }
@@ -69,7 +71,7 @@ fun SignupEndScreen(navController: NavHostController, name: String = "") {
             Text("회원가입 완료", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduGray_strong, textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.CenterHorizontally))
             Spacer(modifier = Modifier.height(5.dp))
-            Text("${name}님, 환영해요!", fontWeight = FontWeight.Bold, fontSize = 24.sp, color = moduBlack, textAlign = TextAlign.Center,
+            Text("${data.name}님, 환영해요!", fontWeight = FontWeight.Bold, fontSize = 24.sp, color = moduBlack, textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.CenterHorizontally))
             Spacer(modifier = Modifier.weight(1f))
             Card(
