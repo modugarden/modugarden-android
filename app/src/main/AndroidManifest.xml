@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.modugarden">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:allowBackup="true"
@@ -16,17 +16,25 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Modugarden"
-        tools:targetApi="31"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        tools:targetApi="31">
+        <activity
+            android:name="com.example.modugarden.main.profile.follow.ProfileFollowActivity"
+            android:exported="false"
+            android:label="@string/title_activity_profile_follow"
+            android:theme="@style/Theme.Modugarden">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
         <activity
             android:name="com.example.modugarden.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Modugarden"
-            android:windowSoftInputMode="adjustResize">
-
-        </activity>
-        <activity android:name=".login.LoginActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".login.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,13 +42,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.modugarden.main.settings.SettingsActivity"/>
-        <activity android:name=".signup.SignupActivity"
-            android:windowSoftInputMode="adjustResize"/>
-        <activity android:name=".main.upload.post.UploadPostActivity"
-            android:windowSoftInputMode="adjustResize"/>
-        <activity android:name=".main.upload.curation.UploadCurationActivity"
-            android:windowSoftInputMode="adjustResize"/>
+        <activity android:name="com.example.modugarden.main.settings.SettingsActivity" />
+        <activity
+            android:name=".signup.SignupActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".main.upload.post.UploadPostActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".main.upload.curation.UploadCurationActivity"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

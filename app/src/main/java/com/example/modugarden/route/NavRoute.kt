@@ -32,7 +32,7 @@ fun NavigationGraphBNB(navController: NavHostController) {
         composable(NAV_ROUTE_BNB.DISCOVER.routeName) { DiscoverScreen(navController) }
         composable(NAV_ROUTE_BNB.UPLOAD.routeName) { UploadScreen(navController) }
         composable(NAV_ROUTE_BNB.NOTIFICATION.routeName) { NotificationScreen(navController) }
-        composable(NAV_ROUTE_BNB.MYPROFILE.routeName) { MyProfileScreen(navController) }
+        composable(NAV_ROUTE_BNB.MYPROFILE.routeName) { MyProfileScreen() }
     }
 }
 
