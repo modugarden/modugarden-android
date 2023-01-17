@@ -41,6 +41,9 @@
         <activity
             android:name=".main.upload.curation.UploadCurationActivity"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".main.profile.follow.ProfileFollowActivity"
+            android:windowSoftInputMode="adjustResize"/>
     </application>
 
 </manifest>

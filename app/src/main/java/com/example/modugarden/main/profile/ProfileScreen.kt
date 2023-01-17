@@ -55,7 +55,7 @@ fun MyProfileScreen() {
             // 설정(내 프로필) 또는 메뉴
             Icon(
                 painter =
-                    if(userId != myId)
+                    if(userId == myId)
                         painterResource(id = R.drawable.cog_8_tooth)
                     else
                         painterResource(id = R.drawable.ellipsis_vertical),
