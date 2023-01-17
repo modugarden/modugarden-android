@@ -7,16 +7,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-
 @Composable
-fun DiscoverSearchUser(searchStr : String){
-
+fun DiscoverSearchBefore() {
     LazyColumn(modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp)
     ) {
         items(
             count = 8,
-            itemContent = { DiscoverSearchUserCard(searchStr) }
+            itemContent = { DiscoverSearchBeforeCard() }
         )
     }
 }
