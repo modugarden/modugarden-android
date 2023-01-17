@@ -6,10 +6,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyColumn
@@ -111,20 +108,15 @@ fun UploadPostImageListScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 Text("사진을 고르면 이곳에 표시돼요\n지금 사진을 골라보세요", fontSize = 15.sp, color = moduGray_strong, modifier = Modifier.align(Alignment.CenterHorizontally), textAlign = TextAlign.Center)
                 Spacer(modifier = Modifier.height(24.dp))
-                Card(
-                    backgroundColor = moduPoint,
-                    elevation = 0.dp,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .bounceClick {
+                Box(
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    SmallButton(
+                        text = "사진 고르기",
+                        onClick = {
                             galleryLauncher.launch("image/*")
                         },
-                    shape = RoundedCornerShape(7.dp)
-                ) {
-                    Text("사진 고르기", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier
-                        .padding(8.dp)
-                        .padding(horizontal = 10.dp)
-                        .align(Alignment.CenterHorizontally))
+                    )
                 }
                 Spacer(modifier = Modifier.weight(1f))
             }
@@ -157,7 +149,8 @@ fun UploadPostImageListScreen(
                                     modifier = Modifier
                                         .padding(8.dp)
                                         .aspectRatio(1f)
-                                        .clip(RoundedCornerShape(10.dp)),
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .border(BorderStroke(1.dp, moduGray_light)),
                                     requestOptions = {
                                         RequestOptions()
                                             .override(256,256)
@@ -183,7 +176,7 @@ fun UploadPostImageListScreen(
             Card(
                 modifier = Modifier
                     .bounceClick {
-                        if(imageData.isNotEmpty()) {
+                        if (imageData.isNotEmpty()) {
                             navController.navigate(NAV_ROUTE_UPLOAD_POST.IMAGEEDIT.routeName)
                         }
                     }

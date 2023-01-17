@@ -15,6 +15,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusManager
@@ -31,10 +33,12 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -42,10 +46,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.toColorInt
 import com.example.modugarden.R
+import com.example.modugarden.main.content.categoryItem
+import com.example.modugarden.main.follow.moduBold
 import kotlinx.coroutines.launch
 import kotlin.math.pow
 
@@ -61,7 +69,7 @@ fun Modifier.bounceClick(onClick: () -> Unit) = composed {
     val scale = remember {
         Animatable(1f)
     }
-    val scaleDown = 0.93f
+    val scaleDown = 0.95f
     val animationDuration = 150
     val mContext = LocalContext.current
 
@@ -198,7 +206,7 @@ fun TopBar(
     title: String, //상단 조작 바 제목.
     titleIcon: Int = 0, //제목 버튼 아이콘.
     titleIconOnClick: () -> Unit = {}, //제목 버튼을 눌렀을 때.
-    titleIconSize: Dp = 16.dp,
+    titleIconSize: Dp = 20.dp,
     main: Boolean = false, //주요 화면인지.
     icon1: Int = 0, //오른쪽에 아이콘 버튼이 추가됨. (아이콘)
     icon2: Int = 0, //오른쪽에 아이콘 버튼이 추가됨. (아이콘)
@@ -272,4 +280,186 @@ fun TopBar(
             }
         }
     }
+}
+
+//바텀 모달 시트
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ModalBottomSheet(
+    title: String,
+    bottomSheetState: ModalBottomSheetState,
+    uiScreen: @Composable() () -> Unit,
+    sheetScreen: @Composable() () -> Unit,
+) {
+    ModalBottomSheetLayout(
+        sheetElevation = 0.dp,
+        sheetBackgroundColor = Color.Transparent,
+        sheetState = bottomSheetState,
+        sheetContent = {
+            Card(modifier = Modifier
+                .padding(10.dp),
+                shape = RoundedCornerShape(15.dp))
+            {
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 18.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    // 회색 홀드
+                    Box(modifier = Modifier
+                        .width(40.dp)
+                        .height(5.dp)
+                        .background(moduGray_normal, RoundedCornerShape(30.dp))
+                        .alpha(0.2f)
+                    )
+                    Spacer(modifier = Modifier.size(30.dp))
+                    Text(text = title, style = moduBold, fontSize = 20.sp, modifier = Modifier.align(Alignment.Start).padding(start = 20.dp))
+                    Spacer(modifier = Modifier.height(30.dp))
+                    // 리스트
+                    LazyColumn(modifier = Modifier
+                        .padding(horizontal = 18.dp) ){
+                        item {
+                            sheetScreen.invoke()
+                        }
+                    }
+                    Spacer(modifier = Modifier.size(18.dp))
+                }
+            }
+        }) {
+        uiScreen.invoke()
+    }
+}
+//Modal Bottom Sheet item
+@Composable
+fun ModalBottomSheetItem(
+    icon: Int = 0,
+    text: String,
+    trailing: Boolean = true,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        elevation = 0.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(vertical = 10.dp)
+        ) {
+            if(icon != 0) {
+                Image(
+                    painter = painterResource(id = icon),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(30.dp)
+                )
+                Spacer(modifier = Modifier.width(18.dp))
+                Text(text, fontSize = 16.sp, color = moduBlack, modifier = Modifier.align(Alignment.CenterVertically))
+                Spacer(modifier = Modifier.weight(1f))
+                if(trailing) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_chevron_right),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(15.dp)
+                            .height(15.dp)
+                    )
+                }
+            }
+         }
+    }
+}
+//18.8 버튼
+@Composable
+fun SmallButton(
+    backgroundColor: Color = moduPoint,
+    text: String,
+    textColor: Color = Color.White,
+    onClick: () -> Unit,
+) {
+    Card(
+        modifier = Modifier
+            .bounceClick { onClick.invoke() },
+        backgroundColor = backgroundColor,
+        elevation = 0.dp,
+        shape = RoundedCornerShape(7.dp)
+    ) {
+        Text(text, fontSize = 14.sp, color = textColor, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 18.dp).padding(vertical = 8.dp), textAlign = TextAlign.Center)
+    }
+}
+//하단 버튼
+@Composable
+fun BottomButton(
+    title: String,
+    onClick: () -> Unit,
+    dpScale: Dp = 18.dp,
+    alpha: Float = 1f,
+    shapeScale: Dp = 10.dp
+) {
+    Box(
+        modifier = Modifier
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color.White.copy(alpha = 0f), Color.White),
+                    startY = 0f,
+                    endY = 50f
+                )
+            )
+    ) {
+        Card(
+            modifier = Modifier
+                .bounceClick {
+                    onClick.invoke()
+                }
+                .padding(dpScale)
+                .fillMaxWidth()
+                .alpha(alpha),
+            shape = RoundedCornerShape(shapeScale),
+            backgroundColor = moduPoint,
+            elevation = 0.dp
+        ) {
+            Text(
+                title,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = Color.White,
+                modifier = Modifier
+                    .padding(18.dp),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+//스낵바
+@Composable
+fun SnackBar(
+    snackbarHostState: SnackbarHostState,
+) {
+    SnackbarHost(
+        hostState = snackbarHostState,
+        snackbar = { snackbarData: SnackbarData ->
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .background(Color("#62766B".toColorInt()), RoundedCornerShape(10.dp))
+            ) {
+                Row(
+                    Modifier
+                        .padding(12.dp, 17.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_check_solid),
+                        contentDescription = "체크",
+                        Modifier.size(18.dp),
+                    )
+                    Spacer(modifier = Modifier.size(12.dp))
+                    Text(
+                        text = snackbarData.message,
+                        color = Color.White,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+            }
+        })
 }
