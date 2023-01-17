@@ -6,16 +6,15 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -29,8 +28,12 @@ import com.example.modugarden.main.upload.EditTextLikeButton
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.UploadPostViewModel
 import com.example.modugarden.R
+import com.example.modugarden.main.content.categoryItem
 import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun UploadPostInfoScreen(
     navController: NavHostController,
@@ -38,6 +41,8 @@ fun UploadPostInfoScreen(
     data: UploadPost
 ) {
     val charactersLen = 40
+
+    val focusManager = LocalFocusManager.current
 
     val titleData = remember { mutableStateOf(data.title) }
     val titleFocused = remember { mutableStateOf(false) }
@@ -51,69 +56,122 @@ fun UploadPostInfoScreen(
     val dpScale = animateDpAsState(if(keyboard.toString() == "Closed") 18.dp else 0.dp)
     val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 10.dp else 0.dp)
 
-    val mContext = LocalContext.current
+    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val showModalSheet = rememberSaveable{ mutableStateOf(false) }
 
+    val mContext = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     titleError.value = titleData.value.length > charactersLen
 
-    Column(
-        modifier = Modifier
-            .background(Color.White)
-    ) {
-        //상단 조작 바
-        TopBar(
-            title = "포스트 정보",
-            titleIcon = R.drawable.ic_arrow_left_bold,
-            titleIconSize = 20.dp,
-            titleIconOnClick = {
-                (mContext as Activity).finish()
-            },
-            main = false,
-        )
-        Box(modifier = Modifier.padding(18.dp)) {
-            Column {
-                //제목 textField
-                EditText(
-                    title = "제목",
-                    data = titleData,
-                    isTextFieldFocused = titleFocused,
-                    description = titleDescription,
-                    errorListener = titleError,
-                    singleLine = false,
-                    textStyle = TextStyle(fontSize = 16.sp, color = moduBlack)
+    ModalBottomSheet(
+        title = "카테고리",
+        bottomSheetState = bottomSheetState,
+        sheetScreen = {
+            ModalBottomSheetItem(text = "식물 가꾸기", icon = R.drawable.ic_house_with_garden, trailing = true, modifier = Modifier.bounceClick {
+                uploadPostViewModel.saveCategory(Category.GARDENING)
+                scope.launch {
+                    bottomSheetState.hide()
+                }
+            })
+            ModalBottomSheetItem(text = "플랜테리어", icon = R.drawable.ic_potted_plant, trailing = true, modifier = Modifier.bounceClick {
+                uploadPostViewModel.saveCategory(Category.PLANTERIOR)
+                scope.launch {
+                    bottomSheetState.hide()
+                }
+            })
+            ModalBottomSheetItem(text = "여행/나들이", icon = R.drawable.ic_tent, trailing = true, modifier = Modifier.bounceClick {
+                uploadPostViewModel.saveCategory(Category.TRIP)
+                scope.launch {
+                    bottomSheetState.hide()
+                }
+            })
+        },
+        uiScreen = {
+            Column(
+                modifier = Modifier
+                    .background(Color.White)
+                    .addFocusCleaner(focusManager)
+            ) {
+                //상단 조작 바
+                TopBar(
+                    title = "포스트 정보",
+                    titleIcon = R.drawable.ic_arrow_left_bold,
+                    titleIconSize = 20.dp,
+                    titleIconOnClick = {
+                        (mContext as Activity).finish()
+                    },
+                    main = false,
                 )
-                Spacer(modifier = Modifier.height(18.dp))
-                //카테고리 설정 Button
-                EditTextLikeButton(title = "카테고리", data = categoryData, isTextFieldFocused = categoryFocused)
-            }
-        }
-        Spacer(modifier = Modifier.weight(1f))
-        //다음 버튼
-        Card(
-            modifier = Modifier
-                .bounceClick {
-                    if(titleData.value.length in (1..charactersLen)) { //제목 글자 수가 1~25자라면
-                        uploadPostViewModel.saveTitle(titleData.value)
-                        uploadPostViewModel.saveCategory(categoryData.value)
-                        navController.navigate(NAV_ROUTE_UPLOAD_POST.IMAGELIST.routeName)
+                Box(modifier = Modifier.padding(18.dp)) {
+                    Column {
+                        //제목 textField
+                        EditText(
+                            title = "제목",
+                            data = titleData,
+                            isTextFieldFocused = titleFocused,
+                            description = titleDescription,
+                            errorListener = titleError,
+                            singleLine = false,
+                            textStyle = TextStyle(fontSize = 16.sp, color = moduBlack)
+                        )
+                        Spacer(modifier = Modifier.height(18.dp))
+                        //카테고리 설정 Button
+                        Column() {
+                            Text("카테고리", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = moduGray_strong)
+                            Spacer(modifier = Modifier.height(5.dp))
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .bounceClick {
+                                        focusManager.clearFocus()
+                                        showModalSheet.value = !showModalSheet.value
+                                        scope.launch {
+                                            bottomSheetState.show()
+                                        }
+                                    },
+                                elevation = 0.dp,
+                                backgroundColor = moduBackground,
+                                shape = RoundedCornerShape(10.dp),
+                            ) {
+                                Text(
+                                    text = data.category.category,
+                                    color = moduBlack,
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.padding(15.dp)
+                                )
+                            }
+                        }
                     }
                 }
-                .padding(dpScale.value)
-                .fillMaxWidth()
-                .alpha(if (titleData.value.length in (1..charactersLen)) 1f else 0.4f),
-            shape = RoundedCornerShape(shapeScale.value),
-            backgroundColor = moduPoint,
-            elevation = 0.dp
-        ) {
-            Text(
-                "다음",
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = Color.White,
-                modifier = Modifier
-                    .padding(18.dp),
-                textAlign = TextAlign.Center
-            )
+                Spacer(modifier = Modifier.weight(1f))
+                //다음 버튼
+                Card(
+                    modifier = Modifier
+                        .bounceClick {
+                            if (titleData.value.length in (1..charactersLen)) { //제목 글자 수가 1~25자라면
+                                uploadPostViewModel.saveTitle(titleData.value)
+                                navController.navigate(NAV_ROUTE_UPLOAD_POST.IMAGELIST.routeName)
+                            }
+                        }
+                        .padding(dpScale.value)
+                        .fillMaxWidth()
+                        .alpha(if (titleData.value.length in (1..charactersLen)) 1f else 0.4f),
+                    shape = RoundedCornerShape(shapeScale.value),
+                    backgroundColor = moduPoint,
+                    elevation = 0.dp
+                ) {
+                    Text(
+                        "다음",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = Color.White,
+                        modifier = Modifier
+                            .padding(18.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         }
-    }
+    )
 }

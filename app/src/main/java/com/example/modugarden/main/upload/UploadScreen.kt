@@ -156,8 +156,6 @@ fun EditTextLikeButton(
                 .focusRequester(focusRequester)
                 .fillMaxWidth()
                 .bounceClick {
-                    data.value =
-                        if (data.value == Category.GARDENING) Category.TRIP else Category.GARDENING //임시 코드
                 },
             elevation = 0.dp,
             backgroundColor = if(isTextFieldFocused.value) moduTextFieldPoint else moduBackground,
