@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.main.discover.search.Categories
-import com.example.modugarden.main.discover.search.DiscoverSearchEnterScreen
+
 import com.example.modugarden.main.discover.search.DiscoverSearchScreen
 
 

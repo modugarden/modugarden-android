@@ -9,14 +9,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.modugarden.R
 import com.example.modugarden.login.MainLoginScreen
+import com.example.modugarden.main.content.PostContentCommentScreen
+import com.example.modugarden.main.content.PostContentScreen
 import com.example.modugarden.main.discover.DiscoverScreen
 import com.example.modugarden.main.follow.FollowScreen
+import com.example.modugarden.main.follow.NoFollowingScreen
 import com.example.modugarden.main.notification.NotificationScreen
 import com.example.modugarden.main.profile.MyProfileScreen
 import com.example.modugarden.main.upload.UploadScreen
 import com.example.modugarden.signup.*
 
 enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val icon: Int) { //main 패키지 루트.
+
     FOLLOW("FOLLOW", "팔로우", R.drawable.ic_home),
     DISCOVER("DISCOVER", "탐색", R.drawable.ic_search),
     UPLOAD("UPLOAD", "업로드", R.drawable.ic_plus_solid),
