@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -41,6 +42,7 @@ fun UploadCurationInfoScreen(
     val titleFocused = remember { mutableStateOf(false) }
     val titleDescription = "글자 수 ${titleData.value.length}/${charactersLen}"
     val titleError = remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
 
     val categoryData = remember { mutableStateOf(data.category) }
     val categoryFocused = remember { mutableStateOf(false) }
@@ -57,6 +59,7 @@ fun UploadCurationInfoScreen(
     Column(
         modifier = Modifier
             .background(Color.White)
+            .addFocusCleaner(focusManager)
     ) {
         //상단 조작 바
         TopBar(
