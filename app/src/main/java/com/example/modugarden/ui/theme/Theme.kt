@@ -14,8 +14,8 @@ private val DarkColorPalette = darkColors(
 
 private val LightColorPalette = lightColors(
     primary = moduPoint,
-    primaryVariant = Purple700,
-    secondary = Teal200
+    primaryVariant = moduPoint,
+    secondary = moduBlack
 
     /* Other default colors to override
     background = Color.White,

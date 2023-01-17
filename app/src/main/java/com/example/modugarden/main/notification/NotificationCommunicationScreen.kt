@@ -29,17 +29,17 @@ fun NotificationCommunicationScreen() {
 
 
     var notificationData = listOf(
-        NotificationData(R.drawable.ic_launcher_background, 0, "follo_me", "", "2022-12-31", "101"),
-        NotificationData(R.drawable.ic_launcher_background, 1, "bbak__daegari", "야 생각좀 하고 살아라 요즘에는 왜이리 생각 없이 사는 애들이 많냐?", "2022-12-31", "102"),
-        NotificationData(R.drawable.ic_launcher_background, 2, "na_nim_god", "관악산에서 밥머거도 대나여", "2022-12-31", "103"),
+        NotificationData(R.drawable.test_image1, 0, "follo_me", "", "2022-12-31", "101"),
+        NotificationData(R.drawable.test_image2, 1, "bbak__daegari", "야 생각좀 하고 살아라 요즘에는 왜이리 생각 없이 사는 애들이 많냐?", "2022-12-31", "102"),
+        NotificationData(R.drawable.test_image5, 2, "na_nim_god", "관악산에서 밥머거도 대나여", "2022-12-31", "103"),
+        NotificationData(R.drawable.test_image3, 3, "", "서비스 이용이 제한되었어요.", "2022-12-31", ""),
+        NotificationData(R.drawable.test_image1, 0, "follo_me", "", "2022-12-31", "101"),
+        NotificationData(R.drawable.test_image2, 1, "bbak__daegari", "야 생각좀 하고 살아라 요즘에는 왜이리 생각 없이 사는 애들이 많냐?", "2022-12-31", "102"),
+        NotificationData(R.drawable.test_image5, 2, "na_nim_god", "관악산에서 밥머거도 대나여", "2022-12-31", "103"),
         NotificationData(R.drawable.ic_launcher_background, 3, "", "서비스 이용이 제한되었어요.", "2022-12-31", ""),
-        NotificationData(R.drawable.ic_launcher_background, 0, "follo_me", "", "2022-12-31", "101"),
-        NotificationData(R.drawable.ic_launcher_background, 1, "bbak__daegari", "야 생각좀 하고 살아라 요즘에는 왜이리 생각 없이 사는 애들이 많냐?", "2022-12-31", "102"),
-        NotificationData(R.drawable.ic_launcher_background, 2, "na_nim_god", "관악산에서 밥머거도 대나여", "2022-12-31", "103"),
-        NotificationData(R.drawable.ic_launcher_background, 3, "", "서비스 이용이 제한되었어요.", "2022-12-31", ""),
-        NotificationData(R.drawable.ic_launcher_background, 0, "follo_me", "", "2022-12-31", "101"),
-        NotificationData(R.drawable.ic_launcher_background, 1, "bbak__daegari", "야 생각좀 하고 살아라 요즘에는 왜이리 생각 없이 사는 애들이 많냐?", "2022-12-31", "102"),
-        NotificationData(R.drawable.ic_launcher_background, 2, "na_nim_god", "관악산에서 밥머거도 대나여", "2022-12-31", "103"),
+        NotificationData(R.drawable.test_image1, 0, "follo_me", "", "2022-12-31", "101"),
+        NotificationData(R.drawable.test_image2, 1, "bbak__daegari", "야 생각좀 하고 살아라 요즘에는 왜이리 생각 없이 사는 애들이 많냐?", "2022-12-31", "102"),
+        NotificationData(R.drawable.test_image5, 2, "na_nim_god", "관악산에서 밥머거도 대나여", "2022-12-31", "103"),
         NotificationData(R.drawable.ic_launcher_background, 3, "", "서비스 이용이 제한되었어요.", "2022-12-31", "")
     )
 

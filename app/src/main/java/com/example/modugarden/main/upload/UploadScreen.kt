@@ -5,9 +5,12 @@ import android.content.Intent
 import android.util.Log
 import android.widget.DatePicker
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
@@ -18,8 +21,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -27,10 +32,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
+import com.bumptech.glide.request.RequestOptions
+import com.example.modugarden.R
 import com.example.modugarden.data.Category
 import com.example.modugarden.main.upload.curation.UploadCurationActivity
+import com.example.modugarden.main.upload.post.UploadPostActivity
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
+import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
 import com.example.modugarden.ui.theme.*
+import com.skydoves.landscapist.glide.GlideImage
 import java.util.*
 
 @Composable //업로드.
@@ -49,76 +59,81 @@ fun UploadScreen(navController: NavHostController) {
 
 @Composable
 fun UploadInfoScreen() {
-    val charactersLen = 40
-
-    val titleData = remember { mutableStateOf("") }
-    val titleFocused = remember { mutableStateOf(false) }
-    val titleDescription = "글자 수 ${titleData.value.length}/${charactersLen}"
-    val titleError = remember { mutableStateOf(false) }
-
-    val categoryData = remember { mutableStateOf(Category.GARDENING) }
-    val categoryFocused = remember { mutableStateOf(false) }
-
-    val keyboard by keyboardAsState()
-    val dpScale = animateDpAsState(if(keyboard.toString() == "Closed") 18.dp else 0.dp)
-    val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 10.dp else 0.dp)
-
     val mContext = LocalContext.current
 
-
-    titleError.value = titleData.value.length > charactersLen
-
-    Column {
-        //상단 조작 바
+    Column() {
         TopBar(
-            title = "게시물 업로드",
+            title = "업로드",
             main = true,
+            bottomLine = false
         )
-        Box(modifier = Modifier.padding(18.dp)) {
-            Column {
-                //제목 textField
-                EditText(
-                    title = "제목",
-                    data = titleData,
-                    isTextFieldFocused = titleFocused,
-                    description = titleDescription,
-                    errorListener = titleError,
-                    singleLine = false,
-                    textStyle = TextStyle(fontSize = 16.sp, color = moduBlack)
-                )
-                Spacer(modifier = Modifier.height(18.dp))
-                //카테고리 설정 Button
-                EditTextLikeButton(title = "카테고리", data = categoryData, isTextFieldFocused = categoryFocused)
-            }
-        }
-        Spacer(modifier = Modifier.weight(1f))
-        //다음 버튼
+        //포스트 작성 버튼
         Card(
             modifier = Modifier
-                .bounceClick {
-                    if(titleData.value.length in (1..charactersLen)) { //제목 글자 수가 1~25자라면
-                        val intent = Intent(mContext, UploadCurationActivity::class.java) //임시 코드 : 큐레이션 정보 추가 화면으로 넘어감.
-                        intent.putExtra("title", titleData.value)
-                        intent.putExtra("category", categoryData.value.toString())
-                        mContext.startActivity(intent)
-                    }
-                }
-                .padding(dpScale.value)
-                .fillMaxWidth()
-                .alpha(if (titleData.value.length in (1..charactersLen)) 1f else 0.4f),
-            shape = RoundedCornerShape(shapeScale.value),
-            backgroundColor = moduPoint,
+                .wrapContentSize(),
+            shape = CircleShape,
             elevation = 0.dp
         ) {
-            Text(
-                "다음",
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = Color.White,
+            Row(
                 modifier = Modifier
-                    .padding(18.dp),
-                textAlign = TextAlign.Center
-            )
+                    .padding(top = 25.dp)
+                    .padding(horizontal = 18.dp)
+                    .fillMaxWidth()
+                    .bounceClick {
+                        mContext.startActivity(Intent(mContext, UploadPostActivity::class.java))
+                    }
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_upload_post),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .height(60.dp)
+                        .width(60.dp),
+                )
+                Spacer(modifier = Modifier.width(18.dp))
+                Column(
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                ) {
+                    Text("포스트 작성", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = moduBlack)
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Text("카드 형식으로 넘겨볼 수 있어요", fontSize = 14.sp, color = moduGray_strong)
+                }
+            }
+        }
+        //큐레이션 작성 버튼
+        Card(
+            modifier = Modifier
+                .wrapContentSize(),
+            shape = CircleShape,
+            elevation = 0.dp
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(top = 25.dp)
+                    .padding(horizontal = 18.dp)
+                    .fillMaxWidth()
+                    .bounceClick {
+                        mContext.startActivity(Intent(mContext, UploadCurationActivity::class.java))
+                    }
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_upload_curation),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .height(60.dp)
+                        .width(60.dp),
+                )
+                Spacer(modifier = Modifier.width(18.dp))
+                Column(
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                ) {
+                    Text("큐레이션 작성", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = moduBlack)
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Text("외부 게시물을 소개할 수 있어요", fontSize = 14.sp, color = moduGray_strong)
+                }
+            }
         }
     }
 }

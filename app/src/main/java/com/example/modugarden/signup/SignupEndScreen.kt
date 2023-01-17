@@ -1,5 +1,6 @@
 package com.example.modugarden.signup
 
+import android.content.Intent
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -20,16 +21,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.modugarden.MainActivity
 import com.example.modugarden.R
+import com.example.modugarden.data.Signup
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.ui.theme.moduPoint
+import com.example.modugarden.viewmodel.SignupViewModel
 
 @Composable
-fun SignupEndScreen(navController: NavHostController, name: String = "") {
-    val mcontext = LocalContext.current
+fun SignupEndScreen(navController: NavHostController, data: Signup, signupViewModel: SignupViewModel) {
+    val mContext = LocalContext.current
     var currentRotation by remember { mutableStateOf(-5f) }
     val rotation = remember { Animatable(currentRotation) }
     var state = remember { mutableStateOf(true) }
@@ -67,13 +71,19 @@ fun SignupEndScreen(navController: NavHostController, name: String = "") {
             Text("회원가입 완료", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduGray_strong, textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.CenterHorizontally))
             Spacer(modifier = Modifier.height(5.dp))
-            Text("${name}님, 환영해요!", fontWeight = FontWeight.Bold, fontSize = 24.sp, color = moduBlack, textAlign = TextAlign.Center,
+            Text("${data.name}님, 환영해요!", fontWeight = FontWeight.Bold, fontSize = 24.sp, color = moduBlack, textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.CenterHorizontally))
             Spacer(modifier = Modifier.weight(1f))
             Card(
                 modifier = Modifier
                     .bounceClick {
                         //로그인 API 불러와서 팔로우 피드로 넘어감.
+                        mContext.startActivity(
+                            Intent(mContext, MainActivity::class.java)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        )
                     }
                     .padding(18.dp)
                     .fillMaxWidth()

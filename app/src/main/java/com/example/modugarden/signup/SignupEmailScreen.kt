@@ -1,5 +1,6 @@
 package com.example.modugarden.signup
 
+import android.app.Activity
 import android.graphics.Rect
 import android.view.ViewTreeObserver
 import android.view.WindowInsets
@@ -26,12 +27,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
+import com.example.modugarden.R
+import com.example.modugarden.data.Signup
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.*
+import com.example.modugarden.viewmodel.SignupViewModel
 
 @Composable
-fun SignupEmailScreen(navController: NavHostController) {
-    val textFieldMail = remember { mutableStateOf("") } //textField 데이터 값.
+fun SignupEmailScreen(navController: NavHostController, data: Signup, signupViewModel: SignupViewModel) {
+    val textFieldMail = remember { mutableStateOf(data.email) } //textField 데이터 값.
     val isTextFieldMailFocused = remember { mutableStateOf(false) } //textField가 포커싱 되어 있는지 여부.
     val isTextFieldError = remember { mutableStateOf(false) } //textField에 조건이 틀린 값이 들어갔는지 여부.
     var textFieldDescription = remember { mutableStateOf("") } //textField 설명.
@@ -50,10 +54,21 @@ fun SignupEmailScreen(navController: NavHostController) {
         Column(
             modifier = Modifier
         ) {
+            TopBar(
+                title = "",
+                titleIcon = R.drawable.ic_arrow_left_bold,
+                titleIconSize = 24.dp,
+                titleIconOnClick = {
+                    (mContext as Activity).finish()
+                },
+                bottomLine = false
+            )
             Column(
-                modifier = Modifier.padding(horizontal = 18.dp).padding(top = 50.dp)
+                modifier = Modifier
+                    .padding(horizontal = 18.dp)
+                    .padding(top = 20.dp)
             ) {
-                Text("본인 인증을 위해\n이메일을 입력해주세요", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = moduBlack)
+                Text("본인 인증을 위해\n이메일을 입력해주세요", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = moduBlack)
                 Spacer(modifier = Modifier.height(40.dp))
                 EditText(title = "메일 주소", data = textFieldMail, isTextFieldFocused = isTextFieldMailFocused, singleLine = true, keyboardType = KeyboardType.Email, errorListener = isTextFieldError, description = textFieldDescription.value)
             }
@@ -61,11 +76,14 @@ fun SignupEmailScreen(navController: NavHostController) {
             Card(
                 modifier = Modifier
                     .bounceClick {
-                        if (android.util.Patterns.EMAIL_ADDRESS.matcher(textFieldMail.value).matches()) {
-                                certNumber = "123456" //인증번호 생성 API에서 반환된 값을 저장하여 '이메일 인증' 화면으로 넘긴다.
-                                navController.navigate(NAV_ROUTE_SIGNUP.EMAIL_CERT.routeName+"/"+certNumber+"/${textFieldMail.value}")
-                        }
-                        else {
+                        if (android.util.Patterns.EMAIL_ADDRESS
+                                .matcher(textFieldMail.value)
+                                .matches()
+                        ) {
+                            certNumber = "123456" //인증번호 생성 API에서 반환된 값을 저장하여 '이메일 인증' 화면으로 넘긴다.
+                            signupViewModel.saveEmail(textFieldMail.value)
+                            navController.navigate(NAV_ROUTE_SIGNUP.EMAIL_CERT.routeName + "/" + certNumber + "/${textFieldMail.value}")
+                        } else {
                             isTextFieldError.value = true
                             textFieldDescription.value = "이메일 형식에 맞게 입력해야 해요"
                         }
