@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.modugarden.R
 import com.example.modugarden.data.Signup
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.*
@@ -49,10 +50,19 @@ fun SignupEmailCertificationScreen(navController: NavHostController, certNumber:
         Column(
             modifier = Modifier
         ) {
+            TopBar(
+                title = "",
+                titleIcon = R.drawable.ic_arrow_left_bold,
+                titleIconSize = 24.dp,
+                titleIconOnClick = {
+                    navController.popBackStack()
+                },
+                bottomLine = false
+            )
             Column(
                 modifier = Modifier
                     .padding(horizontal = 18.dp)
-                    .padding(top = 50.dp)
+                    .padding(top = 20.dp)
             ) {
                 Text("인증번호를 입력해주세요", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = moduBlack)
                 Spacer(modifier = Modifier.height(5.dp))

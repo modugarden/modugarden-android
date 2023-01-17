@@ -32,6 +32,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -41,6 +42,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
@@ -58,7 +60,7 @@ fun Modifier.bounceClick(onClick: () -> Unit) = composed {
         Animatable(1f)
     }
     val scaleDown = 0.93f
-    val animationDuration = 200
+    val animationDuration = 150
     val mContext = LocalContext.current
 
     this
@@ -68,7 +70,8 @@ fun Modifier.bounceClick(onClick: () -> Unit) = composed {
                 .pow((1 - scale.value).toDouble())
                 .toFloat()
         )
-        .clickable(interactionSource = interactionSource, indication = null, onClick = {})
+        .clickable(
+            interactionSource = interactionSource, indication = null, onClick = {})
         .pointerInput(Unit) {
             while (true)
                 awaitPointerEventScope {
@@ -83,7 +86,7 @@ fun Modifier.bounceClick(onClick: () -> Unit) = composed {
                     coroutineScope.launch {
                         scale.animateTo(
                             scaleDown,
-                            animationSpec = tween(50),
+                            animationSpec = tween(40),
                         )
                         scale.animateTo(
                             1f,
@@ -109,7 +112,7 @@ fun EditText(
     singleLine: Boolean = false, //textField를 한 줄 고정할 것인지 여부.
     description: String = "", //textField 아래에 들어갈 설명.
     errorListener: MutableState<Boolean> = mutableStateOf(false), //textField에 들어갈 값의 조건이 틀렸는지 여부.
-    textStyle: TextStyle = TextStyle(fontSize = 20.sp, color = moduBlack) //textField의 글자 스타일 설정.
+    textStyle: TextStyle = TextStyle(fontSize = 20.sp, color = moduBlack), //textField의 글자 스타일 설정.
 ) {
     val focusRequester = remember { FocusRequester() }
     Column {
@@ -186,11 +189,14 @@ fun TopBar(
     title: String, //상단 조작 바 제목.
     titleIcon: Int = 0, //제목 버튼 아이콘.
     titleIconOnClick: () -> Unit = {}, //제목 버튼을 눌렀을 때.
+    titleIconSize: Dp = 16.dp,
     main: Boolean = false, //주요 화면인지.
     icon1: Int = 0, //오른쪽에 아이콘 버튼이 추가됨. (아이콘)
     icon2: Int = 0, //오른쪽에 아이콘 버튼이 추가됨. (아이콘)
     onClick1: () -> Unit = {}, //오른쪽에 아이콘 버튼이 추가됨. (눌렸을 때 수행할 것)
     onClick2: () -> Unit = {}, //오른쪽에 아이콘 버튼이 추가됨. (눌렀을 때 수행할 것)
+    iconTint1: Color = moduGray_normal,
+    iconTint2: Color = moduGray_normal,
     bottomLine: Boolean = true, //밑줄 여부.
     backgroundColor: Color = Color.White //상단 조작 바 색.
 ) {
@@ -200,7 +206,7 @@ fun TopBar(
             .wrapContentHeight()
             .background(backgroundColor)
             .drawBehind {
-                if(bottomLine)
+                if (bottomLine)
                     drawLine(
                         color = moduGray_light,
                         start = Offset(0f, size.height),
@@ -210,15 +216,17 @@ fun TopBar(
             }
     ) {
         Row(
-            modifier = Modifier.padding(18.dp)
+            modifier = Modifier
+                .padding(18.dp)
+                .padding(top = if (main) 40.dp else 0.dp)
         ) {
             if(titleIcon != 0) {
                 Image(
                     painter = painterResource(id = titleIcon),
                     contentDescription = null,
                     modifier = Modifier
-                        .height(16.dp)
-                        .width(16.dp)
+                        .height(titleIconSize)
+                        .width(titleIconSize)
                         .align(Alignment.CenterVertically)
                         .bounceClick {
                             titleIconOnClick.invoke()
@@ -226,13 +234,18 @@ fun TopBar(
                 )
                 Spacer(modifier = Modifier.width(18.dp))
             }
-            Text(title, fontSize = if(main) 20.sp else 16.sp, color = moduBlack, modifier = Modifier.align(Alignment.CenterVertically), fontWeight = if(main) FontWeight.Bold else FontWeight.Normal)
+            Text(title, fontSize = if(main) 24.sp else 16.sp, color = moduBlack, modifier = Modifier.align(Alignment.CenterVertically), fontWeight = if(main) FontWeight.Bold else FontWeight.Normal)
             Spacer(modifier = Modifier.weight(1f))
             if(icon2 != 0) {
                 Image(
                     painter = painterResource(id = icon2),
                     contentDescription = null,
-                    modifier = Modifier.height(25.dp).width(25.dp).bounceClick { onClick2.invoke() }.align(Alignment.CenterVertically)
+                    modifier = Modifier
+                        .height(20.dp)
+                        .width(20.dp)
+                        .bounceClick { onClick2.invoke() }
+                        .align(Alignment.CenterVertically),
+                    colorFilter = ColorFilter.tint(iconTint2)
                 )
             }
             if(icon1 != 0) {
@@ -240,7 +253,12 @@ fun TopBar(
                 Image(
                     painter = painterResource(id = icon1),
                     contentDescription = null,
-                    modifier = Modifier.height(25.dp).width(25.dp).bounceClick { onClick1.invoke() }.align(Alignment.CenterVertically)
+                    modifier = Modifier
+                        .height(20.dp)
+                        .width(20.dp)
+                        .bounceClick { onClick1.invoke() }
+                        .align(Alignment.CenterVertically),
+                    colorFilter = ColorFilter.tint(iconTint1)
                 )
             }
         }

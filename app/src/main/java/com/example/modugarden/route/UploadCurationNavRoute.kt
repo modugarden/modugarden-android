@@ -9,38 +9,46 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.modugarden.main.upload.curation.UploadCurationImageInfoScreen
 import com.example.modugarden.main.upload.curation.UploadCurationInfoScreen
 import com.example.modugarden.main.upload.curation.UploadCurationWebScreen
 import com.example.modugarden.viewmodel.UploadCurationViewModel
 
-enum class NAV_ROUTE_UPLOAD(val routeName: String, val description: String) { //upload 패키지 루트.
-    CURATION_INFO("UPLOAD_CURATION_INFO", "큐레이션 업로드 정보 입력창"),
-    CURATION_WEB("UPLOAD_CURATION_WEB", "큐레이션 업로드 미리보기 창")
+enum class NAV_ROUTE_UPLOAD_CURATION(val routeName: String, val description: String) { //upload 패키지 루트.
+    INFO("UPLOAD_CURATION_INFO", "큐레이션 업로드 제목, 카테고리 입력창"),
+    IMAGEINFO("UPLOAD_CURATION_IMAGEINFO", "큐레이션 업로드 정보 입력창"),
+    WEB("UPLOAD_CURATION_WEB", "큐레이션 업로드 미리보기 창")
 }
 @Composable
-fun NavigationGraphUpload(
+fun NavigationGraphUploadCuration(
     navController: NavHostController,
-    title: String,
-    category: String,
     uploadCurationViewModel: UploadCurationViewModel = viewModel()
 ) {
-    NavHost(navController, startDestination = NAV_ROUTE_UPLOAD.CURATION_INFO.routeName,
+    val data = uploadCurationViewModel.getAllData()
+
+    NavHost(navController, startDestination = NAV_ROUTE_UPLOAD_CURATION.INFO.routeName,
         modifier = Modifier.fillMaxSize()
     ) {
         composable(
-            NAV_ROUTE_UPLOAD.CURATION_INFO.routeName
+            NAV_ROUTE_UPLOAD_CURATION.INFO.routeName
         ) {
-            val data = uploadCurationViewModel.getAllData()
             UploadCurationInfoScreen(
+                navController = navController,
+                uploadCurationViewModel = uploadCurationViewModel,
+                data = data
+            )
+        }
+        composable(
+            NAV_ROUTE_UPLOAD_CURATION.IMAGEINFO.routeName
+        ) {
+            UploadCurationImageInfoScreen(
                 navController,
-                title,
-                category,
                 uploadCurationViewModel,
                 data
             )
         }
         composable(
-            NAV_ROUTE_UPLOAD.CURATION_WEB.routeName+"/{url}",
+            NAV_ROUTE_UPLOAD_CURATION.WEB.routeName+"/{url}",
             arguments = listOf(
                 navArgument("url") { type = NavType.StringType }
             )

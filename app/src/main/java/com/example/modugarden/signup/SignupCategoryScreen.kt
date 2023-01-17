@@ -58,10 +58,19 @@ fun SignupCategoryScreen(navController: NavHostController, data: Signup, signupV
         Column(
             modifier = Modifier
         ) {
+            TopBar(
+                title = "",
+                titleIcon = R.drawable.ic_arrow_left_bold,
+                titleIconSize = 24.dp,
+                titleIconOnClick = {
+                    navController.popBackStack()
+                },
+                bottomLine = false
+            )
             Column(
                 modifier = Modifier
                     .padding(horizontal = 18.dp)
-                    .padding(top = 50.dp)
+                    .padding(top = 20.dp)
             ) {
                 Text("무엇에 관심이 있나요? \uD83D\uDCAD", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = moduBlack)
                 Spacer(modifier = Modifier.height(5.dp))

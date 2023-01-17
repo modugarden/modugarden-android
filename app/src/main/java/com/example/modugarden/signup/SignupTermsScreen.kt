@@ -1,5 +1,6 @@
 package com.example.modugarden.signup
 
+import android.app.Activity
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.animateDpAsState
@@ -46,10 +47,19 @@ fun SignupTermsScreen(navController: NavHostController, data: Signup, signupView
         Column(
             modifier = Modifier
         ) {
+            TopBar(
+                title = "",
+                titleIcon = R.drawable.ic_arrow_left_bold,
+                titleIconSize = 24.dp,
+                titleIconOnClick = {
+                    navController.popBackStack()
+                },
+                bottomLine = false
+            )
             Column(
                 modifier = Modifier
                     .padding(horizontal = 18.dp)
-                    .padding(top = 50.dp)
+                    .padding(top = 20.dp)
             ) {
                 Text("이용 약관", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = moduBlack)
                 Spacer(modifier = Modifier.height(40.dp))

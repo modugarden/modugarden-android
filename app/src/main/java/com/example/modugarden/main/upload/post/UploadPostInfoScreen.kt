@@ -1,6 +1,7 @@
-package com.example.modugarden.main.upload.curation
+package com.example.modugarden.main.upload.post
 
 import android.app.Activity
+import android.content.Intent
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,20 +21,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import com.example.modugarden.R
-import com.example.modugarden.data.UploadCuration
+import com.example.modugarden.data.Category
+import com.example.modugarden.data.UploadPost
 import com.example.modugarden.main.upload.EditTextLikeButton
-import com.example.modugarden.route.NAV_ROUTE_UPLOAD_CURATION
-import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
 import com.example.modugarden.ui.theme.*
-import com.example.modugarden.viewmodel.UploadCurationViewModel
+import com.example.modugarden.viewmodel.UploadPostViewModel
+import com.example.modugarden.R
+import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
 
 @Composable
-fun UploadCurationInfoScreen(
+fun UploadPostInfoScreen(
     navController: NavHostController,
-    uploadCurationViewModel: UploadCurationViewModel,
-    data: UploadCuration
+    uploadPostViewModel: UploadPostViewModel,
+    data: UploadPost
 ) {
     val charactersLen = 40
 
@@ -60,11 +62,11 @@ fun UploadCurationInfoScreen(
     ) {
         //상단 조작 바
         TopBar(
-            title = "큐레이션 정보",
+            title = "포스트 정보",
             titleIcon = R.drawable.ic_arrow_left_bold,
             titleIconSize = 20.dp,
             titleIconOnClick = {
-                (mContext as Activity).finish() //UploadCurationActivity 창 끄기.
+                (mContext as Activity).finish()
             },
             main = false,
         )
@@ -91,9 +93,9 @@ fun UploadCurationInfoScreen(
             modifier = Modifier
                 .bounceClick {
                     if(titleData.value.length in (1..charactersLen)) { //제목 글자 수가 1~25자라면
-                        uploadCurationViewModel.saveTitle(titleData.value)
-                        uploadCurationViewModel.saveCategory(categoryData.value)
-                        navController.navigate(NAV_ROUTE_UPLOAD_CURATION.IMAGEINFO.routeName)
+                        uploadPostViewModel.saveTitle(titleData.value)
+                        uploadPostViewModel.saveCategory(categoryData.value)
+                        navController.navigate(NAV_ROUTE_UPLOAD_POST.IMAGELIST.routeName)
                     }
                 }
                 .padding(dpScale.value)

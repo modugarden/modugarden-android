@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
 import com.example.modugarden.ui.theme.*
 import com.skydoves.landscapist.glide.GlideImage
@@ -46,7 +47,10 @@ fun NotificationCommunicationCard(data: NotificationData, lastItem: Boolean) {
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .height(60.dp)
-                    .width(60.dp)
+                    .width(60.dp),
+                requestOptions = {
+                    RequestOptions().override(256, 256)
+                }
             )
         }
         Spacer(modifier = Modifier.width(18.dp))

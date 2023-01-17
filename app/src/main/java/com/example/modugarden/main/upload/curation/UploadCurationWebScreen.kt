@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
-import com.example.modugarden.route.NAV_ROUTE_UPLOAD
 import com.example.modugarden.ui.theme.TopBar
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduPoint
@@ -36,10 +35,11 @@ fun UploadCurationWebScreen(navController: NavHostController, url: String) {
         Column {
             TopBar(
                 title = "큐레이션 미리보기",
-                titleIcon = R.drawable.ic_arrow_left,
+                titleIcon = R.drawable.ic_arrow_left_bold,
                 titleIconOnClick = {
                     navController.popBackStack()
                 },
+                titleIconSize = 20.dp,
                 bottomLine = true
             )
             AndroidView(factory = {
