@@ -134,7 +134,7 @@ fun MyProfileScreen() {
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
-                    painter = painterResource(id = R.drawable.chevron_right),
+                    painter = painterResource(id = R.drawable.ic_chevron_right),
                     contentDescription = null,
                     modifier = Modifier
                         .clickable(

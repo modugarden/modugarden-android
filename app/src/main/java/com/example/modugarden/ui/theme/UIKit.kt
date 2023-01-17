@@ -50,6 +50,8 @@ import kotlinx.coroutines.launch
 import kotlin.math.pow
 
 //바운스 버튼
+enum class ButtonState { Pressed, Idle }
+//바운스 버튼
 fun Modifier.bounceClick(onClick: () -> Unit) = composed {
 
     val interactionSource = MutableInteractionSource()
@@ -103,7 +105,7 @@ fun Modifier.bounceClick(onClick: () -> Unit) = composed {
 //커스텀 TextField
 @Composable
 fun EditText(
-    title: String, //textField 위에 들어갈 제목.
+    title: String?, //textField 위에 들어갈 제목.
     data: MutableState<String>, //textField의 데이터 값을 저장.
     isTextFieldFocused: MutableState<Boolean>, //textField가 포커싱 되어 있는지 여부.
     modifier: Modifier = Modifier
@@ -116,8 +118,15 @@ fun EditText(
 ) {
     val focusRequester = remember { FocusRequester() }
     Column {
-        Text(title, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = if(errorListener.value) moduErrorPoint else if (isTextFieldFocused.value) moduPoint else moduGray_strong)
-        Spacer(modifier = Modifier.height(5.dp))
+        if (title!!.isNotEmpty()) {
+            Text(
+                title,
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                color = if(errorListener.value) moduErrorPoint else if (isTextFieldFocused.value) moduPoint else moduGray_strong
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+        }
         TextField(
             modifier = modifier
                 .focusRequester(focusRequester)
