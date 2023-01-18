@@ -27,7 +27,7 @@ import com.example.modugarden.ui.theme.moduBlack
 
 //포스트, 큐레이션에 표시되는 카드들로 데이터 형식 알려주면 그때 넣겠삼삼
 @Composable
-fun DiscoverSearchCard() {
+fun DiscoverSearchCard(searchStr: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -53,7 +53,7 @@ fun DiscoverSearchCard() {
         Spacer(modifier = Modifier.width(18.dp))
 
         Column {
-            Text(text = "제목제목제목제목",
+            Text(text = searchStr,
                 style = TextStyle(color = moduBlack,
                     fontWeight = FontWeight(700),
                     fontSize = 14.sp)

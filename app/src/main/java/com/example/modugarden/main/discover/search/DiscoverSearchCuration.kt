@@ -18,7 +18,7 @@ fun DiscoverSearchCuration(){
     ) {
         items(
             count = 8,
-            itemContent = { DiscoverSearchCard() }
+            itemContent = { DiscoverSearchCard("큐레이션 제목 큐레이션 제목") }
         )
     }
 }
