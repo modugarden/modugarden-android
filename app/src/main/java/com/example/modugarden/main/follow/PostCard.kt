@@ -60,11 +60,6 @@ fun PostCard(userID:String,
         Card(
                 modifier = Modifier
                         .padding(start = 18.dp, end = 18.dp, top = 9.dp, bottom = 9.dp)
-                        .bounceClick {
-                                mContext.startActivity(
-                                        Intent(mContext, PostContentActivity::class.java)
-                                )
-                        }
                         .clip(RoundedCornerShape(20.dp)),
                 elevation = 0.dp
         ) {
@@ -72,90 +67,95 @@ fun PostCard(userID:String,
                         modifier = Modifier
                                 .background(Color.White)
                 ) {
-                        Row(
-                                modifier = Modifier
-                                        .padding(18.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                        ) {
-                                Image(
-                                        painter = painterResource(id = R.drawable.ic_user),
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                                .size(26.dp)
-                                                .clip(CircleShape)
-                                )
-                                Spacer(modifier = Modifier.width(18.dp))
-                                Text(
-                                        text = "$userID",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 14.sp,
-                                )
-                        }
 
-                        Box() {
-                                
-                        }
-                        // 포스트 카드 이미지 배열
-                        val images = listOf(
-                               R.drawable.plant1,
-                                R.drawable.plant2,
-                                R.drawable.plant3
-                        )
-                        // 포스트 카드 이미지 슬라이드
-                        HorizontalPager(
-                                count = images.size,
-                                state = order,
-                                modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(1f),
-                        ) {page ->
-                                Image(
-                                        painter = painterResource(id = images[page]),
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Crop,
+
+                        Column(Modifier.bounceClick {
+                                mContext.startActivity(
+                                        Intent(mContext, PostContentActivity::class.java))
+                        }) {
+                                Row(
+                                        modifier = Modifier
+                                                .padding(18.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                        Image(
+                                                painter = painterResource(id = R.drawable.ic_user),
+                                                contentDescription = null,
+                                                contentScale = ContentScale.Crop,
+                                                modifier = Modifier
+                                                        .size(26.dp)
+                                                        .clip(CircleShape)
+                                        )
+                                        Spacer(modifier = Modifier.width(18.dp))
+                                        Text(
+                                                text = "$userID",
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 14.sp,
+                                        )
+                                }
+
+                                // 포스트 카드 이미지 배열
+                                val images = listOf(
+                                        R.drawable.plant1,
+                                        R.drawable.plant2,
+                                        R.drawable.plant3
+                                )
+                                // 포스트 카드 이미지 슬라이드
+                                HorizontalPager(
+                                        count = images.size,
+                                        state = order,
                                         modifier = Modifier
                                                 .fillMaxWidth()
                                                 .aspectRatio(1f),
-                                )
-                        }
-
-                        // 포스트 카드 이미지 슬라이드 인디케이터
-                        DotsIndicator(
-                                totalDots = images.size,
-                                selectedIndex = order.currentPage,
-                                unSelectedColor = Color("#75807A66".toColorInt())
-                        )
-
-                        Box(modifier = Modifier
-                                .background(Color.White)
-                                // 구분선
-                                .drawBehind {
-                                        val strokeWidth = 1 * density
-                                        val y = size.height - strokeWidth
-                                        drawLine(
-                                                Color("#EBEEED".toColorInt()),
-                                                Offset(0f, y),
-                                                Offset(size.width, y),
-                                                strokeWidth
+                                ) {page ->
+                                        Image(
+                                                painter = painterResource(id = images[page]),
+                                                contentDescription = null,
+                                                contentScale = ContentScale.Crop,
+                                                modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .aspectRatio(1f),
                                         )
                                 }
-                        ) {
-                                // 포스트 정보 (제목, 카테고리, 업로드 시간 )
-                                Column(
-                                        modifier = Modifier
-                                                .padding(18.dp)
-                                ) {
-                                        Text("Title", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color("#17291F".toColorInt()))
-                                        Row(Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.SpaceBetween) {
-                                                Text("category", fontSize = 12.sp, color = Color("#75807A".toColorInt()))
-                                                Text("upload time", fontSize = 12.sp, color = Color("#75807A".toColorInt()))
+
+                                // 포스트 카드 이미지 슬라이드 인디케이터
+                                DotsIndicator(
+                                        totalDots = images.size,
+                                        selectedIndex = order.currentPage,
+                                        unSelectedColor = Color("#75807A66".toColorInt())
+                                )
+
+                                Box(modifier = Modifier
+                                        .background(Color.White)
+                                        // 구분선
+                                        .drawBehind {
+                                                val strokeWidth = 1 * density
+                                                val y = size.height - strokeWidth
+                                                drawLine(
+                                                        Color("#EBEEED".toColorInt()),
+                                                        Offset(0f, y),
+                                                        Offset(size.width, y),
+                                                        strokeWidth
+                                                )
                                         }
+                                ) {
+                                        // 포스트 정보 (제목, 카테고리, 업로드 시간 )
+                                        Column(
+                                                modifier = Modifier
+                                                        .padding(18.dp)
+                                        ) {
+                                                Text("Title", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color("#17291F".toColorInt()))
+                                                Row(Modifier.fillMaxWidth(),
+                                                        horizontalArrangement = Arrangement.SpaceBetween) {
+                                                        Text("category", fontSize = 12.sp, color = Color("#75807A".toColorInt()))
+                                                        Text("upload time", fontSize = 12.sp, color = Color("#75807A".toColorInt()))
+                                                }
 
                                         }
 
                                 }
+                        }
+
 
                                Row(
                                        Modifier.padding(18.dp)) {

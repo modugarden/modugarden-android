@@ -19,10 +19,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
+import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -47,9 +50,14 @@ import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_light
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable //팔로우 피드에 표시되는 큐레이션 카드 item.
-fun CurationCard(userID:String) {
+fun CurationCard(userID:String,
+                 scope: CoroutineScope,
+                 snackbarHostState: SnackbarHostState
+) {
     val mContext = LocalContext.current
     Card(
         modifier = Modifier
@@ -102,8 +110,7 @@ fun CurationCard(userID:String) {
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .drawWithContent { //ContentDrawScope
-                            clipRect(top = size.height / 1.11f) { // DrawScope
-                                // val colors = listOf(Color.Transparent, Color.White)
+                            clipRect(top = size.height / 1.11f) {
                                 this@drawWithContent.drawContent()
                                 drawRect(
                                     moduBlack,
@@ -194,10 +201,16 @@ fun CurationCard(userID:String) {
                 // 스크랩
                 Icon(modifier = Modifier
                     .bounceClick {
-                        if (isButtonClickedSave.value)
-                            isButtonClickedSave.value = false
-                        else
-                            isButtonClickedSave.value = true
+                        isButtonClickedSave.value = !isButtonClickedSave.value
+
+                        if (isButtonClickedSave.value){
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    "게시물을 저장하였습니다.",
+                                    duration = SnackbarDuration.Short
+                                )
+                            }
+                        }
                     }
                     ,painter = painterResource
                         (id =
@@ -213,7 +226,7 @@ fun CurationCard(userID:String) {
                 Box(Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.CenterEnd) {
                     Icon(modifier = Modifier.bounceClick {  },
-                        painter = painterResource(id = R.drawable.ic_star_line),
+                        painter = painterResource(id = R.drawable.ic_dot3_vertical),
                         contentDescription = "신고",
                         tint = moduBlack)
                 }
@@ -227,5 +240,9 @@ fun CurationCard(userID:String) {
 @Preview
 @Composable
 fun CurationPreview(){
-    CurationCard("user1")
+    // 팔로우 스낵바 메세지 띄울 때 필요
+    val scope = rememberCoroutineScope()
+    // 팔로우 스낵바 메세지 상태 변수
+    val snackbarHostState = remember { SnackbarHostState() }
+    CurationCard("user1",scope,snackbarHostState)
 }

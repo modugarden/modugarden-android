@@ -85,7 +85,7 @@ fun FollowScreen(navController: NavHostController) {
                         PostCard(item,scope,snackbarHostState)
                     }
                     // 큐레이션 카드
-                    item { CurationCard("user1")}
+                    item { CurationCard("user1",scope,snackbarHostState)}
                     // 팔로우 피드 맨 끝
                     item { FollowEndCard() }
                 }
