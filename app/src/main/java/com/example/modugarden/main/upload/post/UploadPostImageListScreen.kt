@@ -19,6 +19,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -49,6 +51,7 @@ import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.UploadPostViewModel
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.launch
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -64,7 +67,8 @@ fun UploadPostImageListScreen(
     val mContext = LocalContext.current
 
     val deleteState = remember { mutableStateOf(false) } //이미지를 삭제할 수 있는 상태인지.
-
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     val imageData = data.image
 
@@ -88,12 +92,13 @@ fun UploadPostImageListScreen(
         ) {
             TopBar(
                 main = false,
-                title = "선택한 사진",
+                title = "",
                 titleIcon = R.drawable.ic_arrow_left_bold,
                 titleIconSize = 20.dp,
                 titleIconOnClick = {
                     navController.popBackStack()
                 },
+                bottomLine = false,
                 icon1 = R.drawable.ic_topbar_plus,
                 onClick1 = {
                     galleryLauncher.launch("image/*")
@@ -105,6 +110,26 @@ fun UploadPostImageListScreen(
                 },
                 iconTint2 = moduGray_strong
             )
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 18.dp)
+                    .padding(top = 18.dp)
+            ) {
+                Text("사진 선택", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = moduBlack)
+                Spacer(modifier = Modifier.width(10.dp))
+                Card(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically),
+                    shape = RoundedCornerShape(10.dp),
+                    backgroundColor = moduGray_light
+                ) {
+                    Text(data.image.size.toString(), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = moduGray_strong,
+                    modifier = Modifier
+                        .padding(3.dp)
+                        .padding(horizontal = 5.dp))
+                }
+            }
+            Spacer(modifier = Modifier.height(18.dp))
             if(imageData.isEmpty()) { //아직 이미지를 고르지 않았을때 표시할 화면.
                 Spacer(modifier = Modifier.weight(1f))
                 Image(
@@ -121,13 +146,11 @@ fun UploadPostImageListScreen(
                 Box(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
-                    SmallButton(
-                        text = "사진 고르기",
-                        onClick = {
-                            galleryLauncher.launch("image/*")
-                        },
-                    )
+                    SmallButton(text = "사진 고르기") {
+                        galleryLauncher.launch("image/*")
+                    }
                 }
+                Spacer(modifier = Modifier.height(80.dp))
                 Spacer(modifier = Modifier.weight(1f))
             }
             else {
@@ -173,8 +196,10 @@ fun UploadPostImageListScreen(
                                                 .align(Alignment.TopEnd)
                                                 .bounceClick {
                                                     if (deleteState.value) {
-                                                        if(data.description.size - 1 >= index) {
-                                                            uploadPostViewModel.removeDescription(index)
+                                                        if (data.description.size - 1 >= index) {
+                                                            uploadPostViewModel.removeDescription(
+                                                                index
+                                                            )
                                                         }
                                                         uploadPostViewModel.removeImage(index) //누른 사진을 삭제합니다.
                                                     }
@@ -208,13 +233,28 @@ fun UploadPostImageListScreen(
         ) {
             BottomButton(
                 title = "다음",
+                alpha = if(imageData.isNotEmpty()) 1f else 0.4f,
                 onClick = {
                     if(imageData.isNotEmpty()) {
-                        navController.navigate(NAV_ROUTE_UPLOAD_POST.IMAGEEDIT.routeName)
-                        uploadPostViewModel.savePage(data.image.size) //이미지 수 만큼 description 리스트 초기화.
+                        if(imageData.size <= 10) {
+                            navController.navigate(NAV_ROUTE_UPLOAD_POST.IMAGEEDIT.routeName)
+                            uploadPostViewModel.savePage(data.image.size) //이미지 수 만큼 description 리스트 초기화.
+                        }
+                        else {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("사진은 10개까지 추가할 수 있어요", duration = SnackbarDuration.Short)
+                            }
+                        }
                     }
                 }
             )
+        }
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(30.dp)
+        ) {
+            SnackBar(snackbarHostState = snackbarHostState)
         }
     }
 }
