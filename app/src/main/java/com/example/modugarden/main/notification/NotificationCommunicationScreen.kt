@@ -59,6 +59,7 @@ fun NotificationCommunicationScreen() {
                 onClick1 = {
                     Toast.makeText(mContext, "알림 설정으로 들어가요", Toast.LENGTH_SHORT).show()
                 },
+                bottomLine = false
             )
             LazyColumn {
                 itemsIndexed(

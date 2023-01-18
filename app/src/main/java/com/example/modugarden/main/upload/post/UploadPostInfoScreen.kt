@@ -3,18 +3,21 @@ package com.example.modugarden.main.upload.post
 import android.app.Activity
 import android.content.Intent
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -95,16 +98,19 @@ fun UploadPostInfoScreen(
             ) {
                 //상단 조작 바
                 TopBar(
-                    title = "포스트 정보",
+                    title = "",
                     titleIcon = R.drawable.ic_arrow_left_bold,
                     titleIconSize = 20.dp,
                     titleIconOnClick = {
                         (mContext as Activity).finish()
                     },
                     main = false,
+                    bottomLine = false
                 )
                 Box(modifier = Modifier.padding(18.dp)) {
                     Column {
+                        Text("어떤 포스트인가요?", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = moduBlack)
+                        Spacer(modifier = Modifier.height(18.dp))
                         //제목 textField
                         EditText(
                             title = "제목",
@@ -134,12 +140,24 @@ fun UploadPostInfoScreen(
                                 backgroundColor = moduBackground,
                                 shape = RoundedCornerShape(10.dp),
                             ) {
-                                Text(
-                                    text = data.category.category,
-                                    color = moduBlack,
-                                    fontSize = 16.sp,
+                                Row(
                                     modifier = Modifier.padding(15.dp)
-                                )
+                                ) {
+                                    Text(
+                                        text = data.category.category,
+                                        color = moduBlack,
+                                        fontSize = 16.sp,
+                                    )
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_chevron_right),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .width(10.dp)
+                                            .height(10.dp)
+                                            .align(Alignment.CenterVertically)
+                                    )
+                                }
                             }
                         }
                     }
@@ -149,8 +167,9 @@ fun UploadPostInfoScreen(
                 Card(
                     modifier = Modifier
                         .bounceClick {
+                            titleData.value = titleData.value.replace("\n", "")
                             if (titleData.value.length in (1..charactersLen)) { //제목 글자 수가 1~25자라면
-                                uploadPostViewModel.saveTitle(titleData.value)
+                                uploadPostViewModel.saveTitle(titleData.value.replace("\n", ""))
                                 navController.navigate(NAV_ROUTE_UPLOAD_POST.IMAGELIST.routeName)
                             }
                         }

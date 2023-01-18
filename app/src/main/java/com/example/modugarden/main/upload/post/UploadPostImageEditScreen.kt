@@ -2,6 +2,7 @@ package com.example.modugarden.main.upload.post
 
 import android.util.Log
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,9 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -56,14 +60,6 @@ fun UploadPostImageEditScreen(
             .background(Color.White)
     ) {
         Column {
-            TopBar(
-                title = "설명 추가",
-                titleIcon = R.drawable.ic_arrow_left_bold,
-                titleIconSize = 20.dp,
-                titleIconOnClick = {
-                    navController.popBackStack()
-                },
-            )
             Column(
                 modifier = Modifier
                     .verticalScroll(scrollState, reverseScrolling = true)
@@ -92,6 +88,36 @@ fun UploadPostImageEditScreen(
                         Spacer(modifier = Modifier.height(80.dp))
                     }
                 }
+            }
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            moduBlack.copy(alpha = 0.4f),
+                            moduBlack.copy(alpha = 0f)
+                        )
+                    )
+                )
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(18.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_arrow_left_bold),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(20.dp)
+                        .width(20.dp)
+                        .align(Alignment.CenterVertically)
+                        .bounceClick {
+                            navController.popBackStack()
+                        },
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
             }
         }
         Box(

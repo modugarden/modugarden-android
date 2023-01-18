@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
@@ -19,10 +20,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.LinearGradient
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -81,14 +79,6 @@ fun UploadCurationImageInfoScreen(
                 .background(Color.White)
                 .addFocusCleaner(focusManager)
         ) {
-            TopBar(
-                title = "큐레이션 업로드",
-                titleIcon = R.drawable.ic_arrow_left_bold,
-                titleIconSize = 20.dp,
-                titleIconOnClick = {
-                    navController.popBackStack()
-                }
-            )
             Column(
                 modifier = Modifier
                     .verticalScroll(scrollState, reverseScrolling = true)
@@ -157,16 +147,25 @@ fun UploadCurationImageInfoScreen(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
                                 .padding(18.dp)
+                                .width(50.dp)
+                                .height(50.dp)
                                 .bounceClick {
                                     galleryLauncher.launch("image/*")
                                 },
-                            shape = RoundedCornerShape(7.dp),
-                            backgroundColor = moduPoint,
+                            shape = CircleShape,
+                            backgroundColor = Color.White,
+                            border = BorderStroke(1.dp, moduGray_light),
                             elevation = 2.dp
                         ) {
-                            Text("사진 바꾸기", modifier = Modifier
-                                .padding(8.dp)
-                                .padding(horizontal = 10.dp), color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_photo),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .width(15.dp)
+                                    .height(15.dp)
+                                    .padding(15.dp)
+                                    .align(Alignment.Center)
+                            )
                         }
                     }
                 }
@@ -202,6 +201,36 @@ fun UploadCurationImageInfoScreen(
                     )
                 }
                 Spacer(modifier = Modifier.height(50.dp))
+            }
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            moduBlack.copy(alpha = if(imageData.isNotEmpty()) 0.4f else 0f),
+                            moduBlack.copy(alpha = 0f)
+                        )
+                    )
+                )
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(18.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_arrow_left_bold),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(20.dp)
+                        .width(20.dp)
+                        .align(Alignment.CenterVertically)
+                        .bounceClick {
+                            navController.popBackStack()
+                        },
+                    colorFilter = ColorFilter.tint(if(imageData.isNotEmpty()) Color.White else moduBlack)
+                )
             }
         }
         Box(
