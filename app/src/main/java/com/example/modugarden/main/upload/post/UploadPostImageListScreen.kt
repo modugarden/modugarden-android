@@ -5,7 +5,11 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
@@ -24,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -47,7 +52,7 @@ import com.skydoves.landscapist.glide.GlideImage
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun UploadPostImageListScreen(
     navController: NavHostController,
@@ -58,6 +63,9 @@ fun UploadPostImageListScreen(
     val keyboard by keyboardAsState()
     val mContext = LocalContext.current
 
+    val deleteState = remember { mutableStateOf(false) } //이미지를 삭제할 수 있는 상태인지.
+
+
     val imageData = data.image
 
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { //이미지 저장.
@@ -65,7 +73,9 @@ fun UploadPostImageListScreen(
             uploadPostViewModel.addImage(i)
         }
     }
-    
+
+    if(data.image.isEmpty()) deleteState.value = false
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -89,9 +99,9 @@ fun UploadPostImageListScreen(
                     galleryLauncher.launch("image/*")
                 },
                 iconTint1 = moduGray_strong,
-                icon2 = R.drawable.ic_topbar_xmark,
+                icon2 = if(data.image.isNotEmpty()) R.drawable.ic_topbar_xmark else 0,
                 onClick2 = {
-                    uploadPostViewModel.removeRangeImage(data.image.size - 1)
+                    deleteState.value = !deleteState.value
                 },
                 iconTint2 = moduGray_strong
             )
@@ -134,28 +144,56 @@ fun UploadPostImageListScreen(
                     ),
                     content = {
                         itemsIndexed(data.image) { index, item ->
-                            Card(
-                                backgroundColor = Color.White,
-                                elevation = 0.dp,
-                                modifier = Modifier
-                                    .bounceClick {
-                                        uploadPostViewModel.removeImage(index) //선택한 사진에서 누른 사진을 지우기.
-                                    },
-                            ) {
-                                GlideImage(
-                                    imageModel = item,
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
+                            Box() {
+                                Card(
                                     modifier = Modifier
-                                        .padding(8.dp)
-                                        .aspectRatio(1f)
-                                        .clip(RoundedCornerShape(10.dp))
-                                        .border(BorderStroke(1.dp, moduGray_light)),
-                                    requestOptions = {
-                                        RequestOptions()
-                                            .override(256,256)
+                                        .bounceClick {
+                                        }
+                                        .padding(8.dp),
+                                    shape = RoundedCornerShape(10.dp),
+                                    border = BorderStroke(1.dp, moduGray_light)
+                                ) {
+                                    GlideImage(
+                                        imageModel = item,
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .aspectRatio(1f),
+                                        requestOptions = {
+                                            RequestOptions()
+                                                .override(256,256)
+                                        }
+                                    )
+                                    if(deleteState.value) {
+                                        Card(
+                                            modifier = Modifier
+                                                .width(40.dp)
+                                                .height(40.dp)
+                                                .padding(5.dp)
+                                                .align(Alignment.TopEnd)
+                                                .bounceClick {
+                                                    if (deleteState.value) {
+                                                        uploadPostViewModel.removeDescription(index)
+                                                        uploadPostViewModel.removeImage(index) //누른 사진을 삭제합니다.
+                                                    }
+                                                },
+                                            backgroundColor = Color.White,
+                                            border = BorderStroke(1.dp, moduGray_light),
+                                            shape = CircleShape
+                                        ) {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.ic_xmark),
+                                                contentDescription = null,
+                                                modifier = Modifier
+                                                    .width(20.dp)
+                                                    .height(20.dp)
+                                                    .padding(5.dp)
+                                                    .align(Alignment.Center),
+                                                colorFilter = ColorFilter.tint(moduErrorPoint)
+                                            )
+                                        }
                                     }
-                                )
+                                }
                             }
                         }
                     }
@@ -165,38 +203,16 @@ fun UploadPostImageListScreen(
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color.White.copy(alpha = 0f), Color.White),
-                        startY = 0f,
-                        endY = 50f
-                    )
-                )
         ) {
-            Card(
-                modifier = Modifier
-                    .bounceClick {
-                        if (imageData.isNotEmpty()) {
-                            navController.navigate(NAV_ROUTE_UPLOAD_POST.IMAGEEDIT.routeName)
-                        }
+            BottomButton(
+                title = "다음",
+                onClick = {
+                    if(imageData.isNotEmpty()) {
+                        navController.navigate(NAV_ROUTE_UPLOAD_POST.IMAGEEDIT.routeName)
+                        uploadPostViewModel.savePage(data.image.size) //이미지 수 만큼 description 리스트 초기화.
                     }
-                    .padding(18.dp)
-                    .fillMaxWidth()
-                    .alpha(if (imageData.isNotEmpty()) 1f else 0.4f),
-                shape = RoundedCornerShape(15.dp),
-                backgroundColor = moduPoint,
-                elevation = 0.dp
-            ) {
-                Text(
-                    "다음",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = Color.White,
-                    modifier = Modifier
-                        .padding(18.dp),
-                    textAlign = TextAlign.Center
-                )
-            }
+                }
+            )
         }
     }
 }
