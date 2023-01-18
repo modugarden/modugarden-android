@@ -13,7 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -133,13 +136,21 @@ fun PostContentCommentScreen(navController: NavHostController) {
                     // 신고 카테고리 리스트
                     LazyColumn(modifier = Modifier
                         .padding(horizontal = 18.dp) ){
-                        item {
-                            categoryItem("욕설/비하")
-                            categoryItem( "낚시/놀람/도배")
-                            categoryItem(category = "음란물/불건전한 만남 및 대화")
-                            categoryItem(category = "유출/사칭/사기")
-                            categoryItem(category = "게시판 성격에 부적절함")
+                        itemsIndexed(
+                            listOf("욕설/비하",
+                                "낚시/놀람/도배",
+                                "음란물/불건전한 만남 및 대화",
+                                "유출/사칭/사기",
+                                "게시판 성격에 부적절함")) { index, item ->
+                                categoryItem(category = item)
                         }
+                        /*item {
+                            categoryItem("욕설/비하")
+                            categoryItem("낚시/놀람/도배")
+                            categoryItem("음란물/불건전한 만남 및 대화")
+                            categoryItem("유출/사칭/사기")
+                            categoryItem("게시판 성격에 부적절함")
+                        }*/
                     }
                     Spacer(modifier = Modifier.size(18.dp))
                     // 구분선
@@ -172,7 +183,9 @@ fun PostContentCommentScreen(navController: NavHostController) {
                         .addFocusCleaner(focusManager)
                 )
                 {
-                    Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
+                    Column(modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White)) {
                         Row(
                             modifier = Modifier
                                 .padding(18.dp)
@@ -379,6 +392,7 @@ fun PostContentCommentScreen(navController: NavHostController) {
                                 //댓글 입력 텍스트 필드
                                 TextField(
                                     modifier = Modifier
+                                        .weight(weight = 1f,true)
                                         .focusRequester(focusRequester)
                                         .onFocusChanged {
                                             isTextFieldCommentFocused.value = it.isFocused
@@ -402,12 +416,12 @@ fun PostContentCommentScreen(navController: NavHostController) {
                                     },
                                     textStyle = TextStyle(fontSize = 12.sp, color = moduBlack),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                                    singleLine = true
+                                    maxLines = 3
                                 )
-                                Spacer(modifier = Modifier.weight(1f))
                                 // 댓글 작성 아이콘, 댓글 입력중이면 진해짐(변경 필요)
                                 Icon(
-                                    modifier = Modifier.alpha(
+                                    modifier = Modifier
+                                        .alpha(
                                         if (textFieldComment.value.isNotEmpty()) 1f
                                         else 0.4f
                                     ),

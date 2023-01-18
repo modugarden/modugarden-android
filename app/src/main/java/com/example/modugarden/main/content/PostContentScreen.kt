@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -161,238 +162,103 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
             Box(modifier = Modifier
                 .fillMaxSize()
                 .background(moduBackground)) {
-                Column(
-                    Modifier
-                        .verticalScroll(scrollState)
-                        .background(Color.White)
-                ) {
-                    // 포스트 카드 이미지 배열
-                    val images = listOf(
-                        R.drawable.plant1,
-                        R.drawable.plant2,
-                        R.drawable.plant3
-                    )
-                    // 포스트 카드 이미지 슬라이드
-                    HorizontalPager(
-                        count = images.size,
-                        state = order,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f),
-                    ) { page ->
-                        Image(
-                            painter = painterResource(id = images[page]),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
+                Column() {
+                    Column(
+                        Modifier
+                            .weight(1f,true)
+                            .verticalScroll(scrollState)
+                            .background(Color.White)
+                    ) {
+                        // 포스트 카드 이미지 배열
+                        val images = listOf(
+                            R.drawable.plant1,
+                            R.drawable.plant2,
+                            R.drawable.plant3
+                        )
+                        // 포스트 카드 이미지 슬라이드
+                        HorizontalPager(
+                            count = images.size,
+                            state = order,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .aspectRatio(1f),
-                        )
-                    }
-
-                    // 포스트 카드 이미지 슬라이드 인디케이터
-                    DotsIndicator(
-                        totalDots = images.size,
-                        selectedIndex = order.currentPage,
-                        unSelectedColor = Color("#75807A66".toColorInt())
-                    )
-                    // 제목, 카테고리, 업로드 시간
-                    Column(
-                        modifier = Modifier
-                            .background(Color.White)
-                            .padding(18.dp)
-                    ) {
-                        Text(
-                            "Title",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color("#17291F".toColorInt())
-                        )
-                        Row() {
-                            Text("category", fontSize = 12.sp, color = Color("#75807A".toColorInt()))
-                            Spacer(modifier = Modifier.weight(1f))
-                            Text("upload time", fontSize = 12.sp, color = Color("#75807A".toColorInt()))
-                        }
-
-                    }
-                    // 구분선
-                    Divider(
-                        color = moduGray_light, modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                    )
-                    // 포스트 작성자 영역
-                    Column(modifier = Modifier
-                        .background(Color.White)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(18.dp, 18.dp, 18.dp, 0.dp)
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        )
-                        {
-                            Text(text = "작성자", style = moduBold, fontSize = 16.sp)
-                            // 작성자 프로필 더보기 버튼
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_chevron_right),
-                                contentDescription = "프로필 더보기 버튼",
-                                tint = moduBlack
-                            )
-                        }
-
-                        Row(modifier = Modifier
-                            .padding(18.dp)
-                            .bounceClick {
-                                //  포스트 작성자 프로필로
-                            }
-                        )
-                        {
-                            // 작성자 프로필 사진
+                        ) { page ->
                             Image(
-                                painter = painterResource(id = R.drawable.ic_user),
-                                contentDescription = "",
+                                painter = painterResource(id = images[page]),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
                                 modifier = Modifier
-                                    .size(50.dp)
-                                    .clip(CircleShape),
-                                contentScale = ContentScale.Crop
-                            )
-                            Spacer(modifier = Modifier.width(18.dp))
-                            Column(
-                                modifier = Modifier
-                                    .align(Alignment.CenterVertically)
-                            ) {
-                                // 작성자 아이디
-                                Text(text = "userID", style = moduBold, fontSize = 12.sp,)
-                                // 작성자 카테고리
-                                Text(text = "category", fontSize = 14.sp, color = Color.Gray)
-                            }
-                            Column(
-                                modifier =
-                                Modifier
                                     .fillMaxWidth()
-                                    .align(Alignment.CenterVertically), horizontalAlignment = Alignment.End
-                            ) {
-                                //팔로우 버튼
-                                Card(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(5.dp))
-                                        .bounceClick {
-                                            // 누르면 스낵바 메세지 띄워짐
-                                            scope.launch {
-                                                snackbarHostState.showSnackbar(
-                                                    "$userID 님을 팔로우 하였습니다.",
-                                                    duration = SnackbarDuration.Short
-                                                )
-                                            }
-                                        },
-                                    backgroundColor = moduPoint
-                                ) {
-                                    Text(
-                                        modifier = Modifier.padding(10.dp, 4.dp),
-                                        text = "팔로우",
-                                        color = Color.White,
-                                        fontSize = 11.sp
-                                    )
-                                }
+                                    .aspectRatio(1f),
+                            )
+                        }
+
+                        // 포스트 카드 이미지 슬라이드 인디케이터
+                        DotsIndicator(
+                            totalDots = images.size,
+                            selectedIndex = order.currentPage,
+                            unSelectedColor = Color("#75807A66".toColorInt())
+                        )
+                        // 제목, 카테고리, 업로드 시간
+                        Column(
+                            modifier = Modifier
+                                .background(Color.White)
+                                .padding(18.dp)
+                        ) {
+                            Text(
+                                "Title",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color("#17291F".toColorInt())
+                            )
+                            Row() {
+                                Text("category", fontSize = 12.sp, color = Color("#75807A".toColorInt()))
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text("upload time", fontSize = 12.sp, color = Color("#75807A".toColorInt()))
                             }
 
                         }
-                    }
-
-                    // 구분선
-                    Divider(color = moduGray_light, modifier = Modifier.fillMaxWidth().height(1.dp))
-                    // 댓글 영역
-                    Column(modifier = Modifier
-                        .background(Color.White)
-                        ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(18.dp, 18.dp, 18.dp, 0.dp)
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        )
-                        {
-                            Text(text = "댓글", style = moduBold, fontSize = 16.sp)
-                            Spacer(modifier = Modifier.size(10.dp))
-                            // 댓글 갯수
-                            Text(text = "2", color = moduGray_strong, fontSize = 16.sp)
-                            Spacer(modifier = Modifier.weight(1f))
-                            // 댓글 더보기 아이콘
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_chevron_right),
-                                contentDescription = "프로필 더보기 버튼",
-                                tint = moduBlack
-                            )
-                        }
-                        Row(
-                            modifier = Modifier
-                                .padding(18.dp)
+                        // 구분선
+                        Divider(
+                            color = moduGray_light, modifier = Modifier
                                 .fillMaxWidth()
-                                .bounceClick { navController.navigate(NAV_ROUTE_POSTCONTENT.COMMENT.routeName)},
-                            verticalAlignment = Alignment.CenterVertically
+                                .height(1.dp)
+                        )
+                        // 포스트 작성자 영역
+                        Column(modifier = Modifier
+                            .background(Color.White)
                         ) {
-                            // 댓글 작성자 프로필 사진
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_user),
-                                contentDescription = "",
+                            Row(
                                 modifier = Modifier
-                                    .size(30.dp)
-                                    .clip(CircleShape),
-                                contentScale = ContentScale.Crop
+                                    .padding(18.dp, 18.dp, 18.dp, 0.dp)
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             )
-                            Spacer(modifier = Modifier.size(10.dp))
-                            // 댓글 내용
-                            Text(text = "comment", color = moduBlack)
-                        }
-                    }
-
-                    // 구분선
-                    Divider(
-                        color = moduGray_light,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                    )
-                    // 상품 태그 영역
-                    Column(modifier = Modifier
-                        .background(Color.White)) {
-                        Row(
-                            modifier = Modifier
-                                .padding(18.dp, 18.dp, 18.dp, 0.dp)
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        )
-                        {
-                            Text(text = "상품 태그", style = moduBold, fontSize = 16.sp)
-                            Spacer(modifier = Modifier.size(10.dp))
-                            // 상품 태그 갯수
-                            Text(text = "2", color = moduGray_strong, fontSize = 16.sp)
-                            Spacer(modifier = Modifier.weight(1f))
-                            // 상품 더보기 아이콘
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_chevron_right),
-                                contentDescription = "상품 더보기 아이콘",
-                                tint = moduBlack
-                            )
-
-                        }
-                        Column() {
-                            Row(modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(18.dp)
-                                .bounceClick {  })
                             {
-                                // 상품 1 사진
+                                Text(text = "작성자", style = moduBold, fontSize = 16.sp)
+                                // 작성자 프로필 더보기 버튼
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_chevron_right),
+                                    contentDescription = "프로필 더보기 버튼",
+                                    tint = moduBlack
+                                )
+                            }
+
+                            Row(modifier = Modifier
+                                .padding(18.dp)
+                                .bounceClick {
+                                    //  포스트 작성자 프로필로
+                                }
+                            )
+                            {
+                                // 작성자 프로필 사진
                                 Image(
-                                    painter = painterResource(id = R.drawable.plant1),
+                                    painter = painterResource(id = R.drawable.ic_user),
                                     contentDescription = "",
                                     modifier = Modifier
                                         .size(50.dp)
-                                        .clip(CircleShape)
-                                        .border(0.5.dp, Color(0xFFCCCCCC), CircleShape)
-                                    ,
+                                        .clip(CircleShape),
                                     contentScale = ContentScale.Crop
                                 )
                                 Spacer(modifier = Modifier.width(18.dp))
@@ -400,39 +266,158 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                                     modifier = Modifier
                                         .align(Alignment.CenterVertically)
                                 ) {
-                                    // 상품 이름
-                                    Text(text = "Name", style = moduBold, fontSize = 12.sp,)
-                                    // 상품 구매처 ?
+                                    // 작성자 아이디
+                                    Text(text = "userID", style = moduBold, fontSize = 12.sp,)
+                                    // 작성자 카테고리
                                     Text(text = "category", fontSize = 14.sp, color = Color.Gray)
+                                }
+                                Column(
+                                    modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .align(Alignment.CenterVertically), horizontalAlignment = Alignment.End
+                                ) {
+                                    //팔로우 버튼
+                                    Card(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(5.dp))
+                                            .bounceClick {
+                                                // 누르면 스낵바 메세지 띄워짐
+                                                scope.launch {
+                                                    snackbarHostState.showSnackbar(
+                                                        "$userID 님을 팔로우 하였습니다.",
+                                                        duration = SnackbarDuration.Short
+                                                    )
+                                                }
+                                            },
+                                        backgroundColor = moduPoint
+                                    ) {
+                                        Text(
+                                            modifier = Modifier.padding(10.dp, 4.dp),
+                                            text = "팔로우",
+                                            color = Color.White,
+                                            fontSize = 11.sp
+                                        )
+                                    }
                                 }
 
                             }
                         }
+
+                        // 구분선
+                        Divider(color = moduGray_light, modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp))
+                        // 댓글 영역
+                        Column(modifier = Modifier
+                            .background(Color.White)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .padding(18.dp, 18.dp, 18.dp, 0.dp)
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            )
+                            {
+                                Text(text = "댓글", style = moduBold, fontSize = 16.sp)
+                                Spacer(modifier = Modifier.size(10.dp))
+                                // 댓글 갯수
+                                Text(text = "2", color = moduGray_strong, fontSize = 16.sp)
+                                Spacer(modifier = Modifier.weight(1f))
+                                // 댓글 더보기 아이콘
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_chevron_right),
+                                    contentDescription = "프로필 더보기 버튼",
+                                    tint = moduBlack
+                                )
+                            }
+                            Row(
+                                modifier = Modifier
+                                    .padding(18.dp)
+                                    .fillMaxWidth()
+                                    .bounceClick { navController.navigate(NAV_ROUTE_POSTCONTENT.COMMENT.routeName) },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // 댓글 작성자 프로필 사진
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_user),
+                                    contentDescription = "",
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                                Spacer(modifier = Modifier.size(10.dp))
+                                // 댓글 내용
+                                Text(text = "comment", color = moduBlack)
+                            }
+                        }
+
+                        // 구분선
+                        Divider(
+                            color = moduGray_light,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                        )
+                        // 상품 태그 영역
+                        Column(modifier = Modifier
+                            .background(Color.White)) {
+                            Row(
+                                modifier = Modifier
+                                    .padding(18.dp, 18.dp, 18.dp, 0.dp)
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            )
+                            {
+                                Text(text = "상품 태그", style = moduBold, fontSize = 16.sp)
+                                Spacer(modifier = Modifier.size(10.dp))
+                                // 상품 태그 갯수
+                                Text(text = "2", color = moduGray_strong, fontSize = 16.sp)
+                                Spacer(modifier = Modifier.weight(1f))
+                                // 상품 더보기 아이콘
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_chevron_right),
+                                    contentDescription = "상품 더보기 아이콘",
+                                    tint = moduBlack
+                                )
+
+                            }
+                            Column() {
+                                Row(modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(18.dp)
+                                    .bounceClick { })
+                                {
+                                    // 상품 1 사진
+                                    Image(
+                                        painter = painterResource(id = R.drawable.plant1),
+                                        contentDescription = "",
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .clip(CircleShape)
+                                            .border(0.5.dp, Color(0xFFCCCCCC), CircleShape)
+                                        ,
+                                        contentScale = ContentScale.Crop
+                                    )
+                                    Spacer(modifier = Modifier.width(18.dp))
+                                    Column(
+                                        modifier = Modifier
+                                            .align(Alignment.CenterVertically)
+                                    ) {
+                                        // 상품 이름
+                                        Text(text = "Name", style = moduBold, fontSize = 12.sp,)
+                                        // 상품 구매처 ?
+                                        Text(text = "category", fontSize = 14.sp, color = Color.Gray)
+                                    }
+
+                                }
+                            }
+                        }
                     }
-
-                }
-                // 뒤로 가기 버튼 (변경 필요)
-                Icon(
-                    modifier = Modifier
-                        .padding(18.dp)
-                        .bounceClick { activity?.finish() },
-                    painter = painterResource(id = R.drawable.ic_arrow_left_bold),
-                    contentDescription = "뒤로가기",
-                    tint = moduBlack
-                )
-                var visible by remember { mutableStateOf(false) }
-
-                if (scrollState.value > 0) visible =! visible
-
-                AnimatedVisibility(
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                    visible = visible,
-                    enter = fadeIn(),
-                    exit = fadeOut() ) {
                     // 좋아요, 댓글, 스크랩, 더보기
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth()
                             .background(Color.White)
                     ) {
                         // 구분선
@@ -519,6 +504,17 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                         }
                     }
                 }
+
+                // 뒤로 가기 버튼 (변경 필요)
+                Icon(
+                    modifier = Modifier
+                        .padding(18.dp)
+                        .bounceClick { activity?.finish() },
+                    painter = painterResource(id = R.drawable.ic_arrow_left_bold),
+                    contentDescription = "뒤로가기",
+                    tint = moduBlack
+                )
+
 
                 // 커스텀한 알림
                 SnackbarHost(

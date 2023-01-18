@@ -57,11 +57,11 @@ fun FollowScreen(navController: NavHostController) {
                             .fillMaxWidth()
                             .padding(30.dp, 30.dp, 30.dp, 8.dp),
                             ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                            Row() {
                                 Image(painter = painterResource(id = R.drawable.ic_house_with_garden),
                                     contentDescription =null )
                                 Text(
-                                    text = "모두의 정원",
+                                    text = " 모두의 정원",
                                     color = moduGray_strong,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 16.sp)

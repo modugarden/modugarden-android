@@ -94,6 +94,7 @@ fun PostCard(userID:String,
                                         )
                                 }
 
+
                                 // 포스트 카드 이미지 배열
                                 val images = listOf(
                                         R.drawable.plant1,
