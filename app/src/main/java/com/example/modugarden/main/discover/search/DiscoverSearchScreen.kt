@@ -25,8 +25,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.modugarden.R
 import com.example.modugarden.data.Category
+import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
 import com.example.modugarden.ui.theme.*
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -39,7 +41,7 @@ import kotlinx.coroutines.launch
 //viewPager쓰면 넣어줘야하는 어노테이션
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun DiscoverSearchScreen() {
+fun DiscoverSearchScreen(navController: NavHostController) {
     //ViewPager쓸때 어디 페이지의 state를 확인할 변수
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
@@ -173,29 +175,41 @@ fun DiscoverSearchScreen() {
                             }
                         }
 
-                        this@Row.AnimatedVisibility(
-                            visible = isTextFieldVisible,
-                            modifier = Modifier,
-//                    enter = slideInVertically(initialOffsetY = {
-//                        -it
-//                    }),
-//                    exit = slideOutVertically(targetOffsetY = {
-//                        -it
-//                    })
-                            enter = slideInHorizontally(initialOffsetX = {
-                                +it
-                            }),
-                            exit = slideOutHorizontally(targetOffsetX = {
-                                +it
-                            })
+                        //검색창이 떠있을 경우 나올 뒤로가기 이미지로 이거 누르면 isTextFieldVisible값을 변경해줘서 검색창을 없어지게 해줌
+                        if(isTextFieldVisible){
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_arrow_left_bold),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .bounceClick {
+                                        isTextFieldVisible = isTextFieldVisible.not()
+                                    }
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                        }
 
-                        ) {
+//                        애니매이션 안하는게 더 나을듯
+//                        this@Row.AnimatedVisibility(
+//                            visible = isTextFieldVisible,
+//                            modifier = Modifier,
+//                            enter = slideInHorizontally(initialOffsetX = {
+//                                +it
+//                            }),
+//                            exit = slideOutHorizontally(targetOffsetX = {
+//                                +it
+//                            })
+//
+//                        ) {
+//
+//                        }
+
+                        if(isTextFieldVisible) {
                             TextField(
                                 value = textFieldSearch.value,
                                 onValueChange = { textValue -> textFieldSearch.value = textValue },
                                 modifier = Modifier
-                                    .padding(vertical = 0.dp, horizontal = 10.dp)
-                                    .fillMaxWidth(1f)
+                                    .padding(vertical = 0.dp, horizontal = 0.dp)
+                                    .fillMaxWidth(0.9f)
                                     .height(52.dp)
                                     .onFocusChanged {
                                         isTextFieldSearchFocused.value = it.isFocused
@@ -216,19 +230,25 @@ fun DiscoverSearchScreen() {
                                     keyboardType = KeyboardType.Text
                                 ),
                                 singleLine = true,
-
-                                )
+                            )
                         }
                         Spacer(modifier = Modifier.weight(1f))
 
-                        //검색버튼
+
+                        //검색버튼으로 이미 한번 눌러서 검색창이 떠있을 경우에는 내용을 입력하고 누르면 검색 결과창으로 navigate 될 수 있게 해줌
+                        //처음 누를때는 tisTextFieldVisible을 바꿔서 현재 화면을 알맞게 변경시켜줌
                         Image(
                             painter = painterResource(id = R.drawable.ic_search),
                             contentDescription = null,
                             modifier = Modifier
                                 .bounceClick {
-                                    if(isTextFieldVisible) textFieldSearch.value = ""
-                                    isTextFieldVisible = isTextFieldVisible.not()
+                                    if(isTextFieldVisible) {
+                                        if(textFieldSearch.value != "" ) {
+                                            navController.navigate(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHING.routeName + "/" + textFieldSearch.value)
+                                            textFieldSearch.value = ""
+                                        }
+                                    }
+                                    else isTextFieldVisible = isTextFieldVisible.not()
                                 }
 
                         )
@@ -284,16 +304,8 @@ fun DiscoverSearchScreen() {
 
                         }
                     }
-                    else{  //만약 검색하는 창인 경우에 나올 화면
-
-                        if(textFieldSearch.value == ""){
+                    else{  //만약 검색하는 창인 경우에 나올 최근 검색 목록 화면
                             DiscoverSearchBefore()
-                        }
-                        else{
-                            DiscoverSearchResult(textFieldSearch.value)
-                        }
-
-
                     }
 
                 }
