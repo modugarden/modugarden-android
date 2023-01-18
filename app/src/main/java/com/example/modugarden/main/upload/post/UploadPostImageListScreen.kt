@@ -173,7 +173,9 @@ fun UploadPostImageListScreen(
                                                 .align(Alignment.TopEnd)
                                                 .bounceClick {
                                                     if (deleteState.value) {
-                                                        uploadPostViewModel.removeDescription(index)
+                                                        if(data.description.size - 1 >= index) {
+                                                            uploadPostViewModel.removeDescription(index)
+                                                        }
                                                         uploadPostViewModel.removeImage(index) //누른 사진을 삭제합니다.
                                                     }
                                                 },
