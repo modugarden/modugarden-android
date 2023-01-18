@@ -224,13 +224,10 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                     // 포스트 작성자 영역
                     Column(modifier = Modifier
                         .background(Color.White)
-                        .bounceClick {
-                            //  포스트 작성자 프로필로
-                        }
                     ) {
                         Row(
                             modifier = Modifier
-                                .padding(18.dp)
+                                .padding(18.dp, 18.dp, 18.dp, 0.dp)
                                 .fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
@@ -245,7 +242,12 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                             )
                         }
 
-                        Row(modifier = Modifier.padding(18.dp, 0.dp, 18.dp, 18.dp))
+                        Row(modifier = Modifier
+                            .padding(18.dp)
+                            .bounceClick {
+                                //  포스트 작성자 프로필로
+                            }
+                        )
                         {
                             // 작성자 프로필 사진
                             Image(
@@ -304,12 +306,10 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                     // 댓글 영역
                     Column(modifier = Modifier
                         .background(Color.White)
-                        .bounceClick {
-                            navController.navigate(NAV_ROUTE_POSTCONTENT.COMMENT.routeName)
-                        }) {
+                        ) {
                         Row(
                             modifier = Modifier
-                                .padding(18.dp)
+                                .padding(18.dp, 18.dp, 18.dp, 0.dp)
                                 .fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         )
@@ -317,7 +317,7 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                             Text(text = "댓글", style = moduBold, fontSize = 16.sp)
                             Spacer(modifier = Modifier.size(10.dp))
                             // 댓글 갯수
-                            Text(text = "3", color = moduGray_strong, fontSize = 16.sp)
+                            Text(text = "2", color = moduGray_strong, fontSize = 16.sp)
                             Spacer(modifier = Modifier.weight(1f))
                             // 댓글 더보기 아이콘
                             Icon(
@@ -328,8 +328,9 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                         }
                         Row(
                             modifier = Modifier
-                                .padding(18.dp, 0.dp, 18.dp, 18.dp)
-                                .fillMaxWidth(),
+                                .padding(18.dp)
+                                .fillMaxWidth()
+                                .bounceClick { navController.navigate(NAV_ROUTE_POSTCONTENT.COMMENT.routeName)},
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             // 댓글 작성자 프로필 사진
@@ -356,11 +357,10 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                     )
                     // 상품 태그 영역
                     Column(modifier = Modifier
-                        .background(Color.White)
-                        .bounceClick { }) {
+                        .background(Color.White)) {
                         Row(
                             modifier = Modifier
-                                .padding(18.dp)
+                                .padding(18.dp, 18.dp, 18.dp, 0.dp)
                                 .fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         )
@@ -381,7 +381,8 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                         Column() {
                             Row(modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(18.dp, 0.dp, 18.dp, 18.dp))
+                                .padding(18.dp)
+                                .bounceClick {  })
                             {
                                 // 상품 1 사진
                                 Image(
@@ -415,7 +416,7 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                     modifier = Modifier
                         .padding(18.dp)
                         .bounceClick { activity?.finish() },
-                    painter = painterResource(id = R.drawable.ic_arrow_right),
+                    painter = painterResource(id = R.drawable.ic_arrow_left_bold),
                     contentDescription = "뒤로가기",
                     tint = moduBlack
                 )

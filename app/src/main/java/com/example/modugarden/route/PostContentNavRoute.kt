@@ -20,9 +20,6 @@ enum class NAV_ROUTE_POSTCONTENT(val routeName: String, val description: String)
 }
 @Composable
 fun NavigationGraphPostContent(navController: NavHostController) {
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-
     NavHost(navController = navController, startDestination = NAV_ROUTE_POSTCONTENT.MAIN.routeName) {
         composable(NAV_ROUTE_POSTCONTENT.MAIN.routeName) { PostContentScreen(navController,"USER") }
         composable(NAV_ROUTE_POSTCONTENT.COMMENT.routeName) { PostContentCommentScreen(navController) }

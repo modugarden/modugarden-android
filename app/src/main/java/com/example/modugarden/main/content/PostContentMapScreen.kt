@@ -43,65 +43,6 @@ import com.example.modugarden.ui.theme.moduGray_strong
 @Composable
 fun PostContentMapScreen(navController: NavHostController) {
     val focusManager = LocalFocusManager.current
-    Scaffold(topBar =
-    { TopAppBar(
-        title = { Text(text = "위치 태그", style = moduBold, fontSize = 16.sp)
-                    Spacer(modifier = Modifier.size(5.dp))
-                    // 위치 태그 갯수
-                    Text(text = "2", color = moduGray_strong, fontSize = 16.sp)
-                },
-        backgroundColor = Color.White,
-        navigationIcon = {
-            Icon(modifier = Modifier
-                .bounceClick { navController.popBackStack() }
-                .padding(start = 18.dp),
-            painter = painterResource(id = R.drawable.ic_arrow_right),
-            contentDescription = "뒤로 가기", tint = moduBlack
-        )},
-        elevation = 0.dp
-    ) }
-    ) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .addFocusCleaner(focusManager)){
-
-            // 구분선
-            Divider(color = moduGray_light, modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp))
-
-            //하단
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White)
-                .padding(18.dp)
-                .align(Alignment.BottomCenter))
-            { // 위치 사진
-                Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_background),
-                    contentDescription = "",
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .size(50.dp)
-                        .border(0.5.dp, Color(0xFFCCCCCC), CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-                Spacer(modifier = Modifier.width(18.dp))
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                ) {
-                    // 위치
-                    Text(text = "location", style = moduBold, fontSize = 12.sp,)
-                    // 상세 주소
-                    Text(text = "adress", fontSize = 14.sp, color = Color.Gray)
-                }
-
-            }
-        }
-    }
-    /*
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -121,18 +62,18 @@ fun PostContentMapScreen(navController: NavHostController) {
                 verticalAlignment = Alignment.CenterVertically
             )
             {
-                // 뒤로가기 아이콘 (변경 필요)
+                // 뒤로가기
                 Icon(
                     modifier = Modifier
                         .bounceClick { navController.popBackStack() },
-                    painter = painterResource(id = R.drawable.ic_arrow_right),
+                    painter = painterResource(id = R.drawable.ic_arrow_left_bold),
                     contentDescription = "뒤로 가기", tint = moduBlack
                 )
                 Spacer(modifier = Modifier.size(18.dp))
                 Text(text = "위치 태그", style = moduBold, fontSize = 16.sp)
                 Spacer(modifier = Modifier.size(5.dp))
                 // 위치 태그 갯수
-                Text(text = "2", color = moduGray_strong, fontSize = 16.sp)
+                Text(text = "1", color = moduGray_strong, fontSize = 16.sp)
                 Spacer(modifier = Modifier.weight(1f))
 
             }
@@ -171,8 +112,10 @@ fun PostContentMapScreen(navController: NavHostController) {
 
         }
 
-    }*/
-}
+    }
+
+    }
+
 @Preview
 @Composable
 fun PostContentMapPreview() {

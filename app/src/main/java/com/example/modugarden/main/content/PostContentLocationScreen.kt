@@ -66,7 +66,7 @@ fun PostContentLocationScreen(navController: NavHostController) {
                 Icon(
                     modifier = Modifier
                         .bounceClick { navController.popBackStack() },
-                    painter = painterResource(id = R.drawable.ic_arrow_right),
+                    painter = painterResource(id = R.drawable.ic_arrow_left_bold),
                     contentDescription = "뒤로 가기", tint = moduBlack
                 )
                 Spacer(modifier = Modifier.size(18.dp))

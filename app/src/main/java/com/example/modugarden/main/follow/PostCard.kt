@@ -47,7 +47,9 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalPagerApi::class)
 @Composable //팔로우 피드에 표시되는 포스트 카드 item.
 
-fun PostCard(userID:String, scope: CoroutineScope, snackbarHostState: SnackbarHostState) {
+fun PostCard(userID:String,
+             scope: CoroutineScope,
+             snackbarHostState: SnackbarHostState) {
         // 버튼 바
         val isButtonClickedLike = remember { mutableStateOf(false) }
         val isButtonClickedSave = remember { mutableStateOf(false) }
@@ -58,7 +60,7 @@ fun PostCard(userID:String, scope: CoroutineScope, snackbarHostState: SnackbarHo
         Card(
                 modifier = Modifier
                         .padding(start = 18.dp, end = 18.dp, top = 9.dp, bottom = 9.dp)
-                        .clickable {
+                        .bounceClick {
                                 mContext.startActivity(
                                         Intent(mContext, PostContentActivity::class.java)
                                 )
@@ -89,6 +91,10 @@ fun PostCard(userID:String, scope: CoroutineScope, snackbarHostState: SnackbarHo
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp,
                                 )
+                        }
+
+                        Box() {
+                                
                         }
                         // 포스트 카드 이미지 배열
                         val images = listOf(
@@ -180,7 +186,8 @@ fun PostCard(userID:String, scope: CoroutineScope, snackbarHostState: SnackbarHo
                                        // 댓글
                                        Icon(modifier = Modifier
                                                .padding(end = 18.dp)
-                                               .bounceClick { },painter = painterResource(id = R.drawable.ic_chat_line),
+                                               .bounceClick { },
+                                               painter = painterResource(id = R.drawable.ic_chat_line),
                                                contentDescription = "댓글",
                                                tint = moduBlack
                                        )
@@ -301,7 +308,11 @@ fun moduSnackbar(modifier: Modifier){
 @Preview
 @Composable
 fun PostPreview(){
-
+        // 팔로우 스낵바 메세지 띄울 때 필요
+        val scope = rememberCoroutineScope()
+        // 팔로우 스낵바 메세지 상태 변수
+        val snackbarHostState = remember { SnackbarHostState() }
+        PostCard(userID = "userID", scope =scope , snackbarHostState = snackbarHostState)
 
 }
 

@@ -49,16 +49,11 @@ import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_light
 
 @Composable //팔로우 피드에 표시되는 큐레이션 카드 item.
-fun CurationCard() {
+fun CurationCard(userID:String) {
     val mContext = LocalContext.current
     Card(
         modifier = Modifier
             .padding(start = 18.dp, end = 18.dp, top = 9.dp, bottom = 9.dp)
-            .clickable {
-                mContext.startActivity(
-                    Intent(mContext, CurationContentActivity::class.java)
-                )
-            }
             .clip(RoundedCornerShape(20.dp)),
         elevation = 0.dp
     ) {
@@ -81,7 +76,7 @@ fun CurationCard() {
                 )
                 Spacer(modifier = Modifier.width(18.dp))
                 Text(
-                    text = "userID",
+                    text = "$userID",
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                 )
@@ -123,7 +118,12 @@ fun CurationCard() {
                     // 안내 문구 및 아이콘
                 Row(modifier = Modifier
                     .fillMaxWidth()
-                    .height(36.dp),
+                    .height(36.dp)
+                    .clickable {
+                        mContext.startActivity(
+                            Intent(mContext, CurationContentActivity::class.java)
+                        )
+                    },
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween ) {
                     Text(modifier=Modifier.padding(start = 18.dp),
@@ -227,5 +227,5 @@ fun CurationCard() {
 @Preview
 @Composable
 fun CurationPreview(){
-    CurationCard()
+    CurationCard("user1")
 }

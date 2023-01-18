@@ -60,7 +60,8 @@ fun FollowEndCard() {
 
             // 탐색 버튼
             Card(modifier = Modifier
-                .bounceClick { },
+                .bounceClick { }
+                .padding(10.dp,8.dp),
                 backgroundColor = moduPoint,
                 shape = RoundedCornerShape(10.dp),
                 elevation = 0.dp

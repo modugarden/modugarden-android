@@ -43,7 +43,6 @@ import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.google.accompanist.pager.ExperimentalPagerApi
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable //팔로우 피드.
 fun FollowScreen(navController: NavHostController) {
     val scope = rememberCoroutineScope()
@@ -56,16 +55,22 @@ fun FollowScreen(navController: NavHostController) {
                     item{
                         Box(modifier = Modifier
                             .fillMaxWidth()
-                            .padding(30.dp,30.dp,30.dp,8.dp),
+                            .padding(30.dp, 30.dp, 30.dp, 8.dp),
                             ) {
-                            Text(
-                                text = "\uD83C\uDFE1 모두의 정원",
-                                color = moduGray_strong,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Image(painter = painterResource(id = R.drawable.ic_house_with_garden),
+                                    contentDescription =null )
+                                Text(
+                                    text = "모두의 정원",
+                                    color = moduGray_strong,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp)
+                            }
+
                             Icon(
-                                modifier = Modifier.align(Alignment.CenterEnd)
-                                    .bounceClick {  },
+                                modifier = Modifier
+                                    .align(Alignment.CenterEnd)
+                                    .bounceClick { },
                                 painter = painterResource(id = R.drawable.ic_notification),
                                 contentDescription = "알림",
                                 tint = moduBlack
@@ -75,18 +80,19 @@ fun FollowScreen(navController: NavHostController) {
                     }
                     //포스트 카드
                     itemsIndexed(
-                        listOf("user1","user2","user3")){
+                        listOf("user1")){
                             index, item ->
                         PostCard(item,scope,snackbarHostState)
                     }
                     // 큐레이션 카드
-                    item { CurationCard() }
+                    item { CurationCard("user1")}
                     // 팔로우 피드 맨 끝
                     item { FollowEndCard() }
                 }
         // 커스텀한 스낵바
         SnackbarHost(
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
                 .padding(30.dp),
             hostState = snackbarHostState,
             snackbar = { snackbarData: SnackbarData ->

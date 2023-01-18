@@ -184,14 +184,14 @@ fun PostContentCommentScreen(navController: NavHostController) {
                             Icon(
                                 modifier = Modifier
                                     .bounceClick { navController.popBackStack() },
-                                painter = painterResource(id = R.drawable.ic_arrow_right),
+                                painter = painterResource(id = R.drawable.ic_arrow_left_bold),
                                 contentDescription = "뒤로가기 아이콘", tint = moduBlack
                             )
                             Spacer(modifier = Modifier.size(18.dp))
                             Text(text = "댓글", style = moduBold, fontSize = 16.sp)
                             Spacer(modifier = Modifier.size(5.dp))
                             // 댓글 갯수
-                            Text(text = "3", color = moduGray_strong, fontSize = 16.sp)
+                            Text(text = "2", color = moduGray_strong, fontSize = 16.sp)
                             Spacer(modifier = Modifier.weight(1f))
 
                         }
@@ -234,7 +234,7 @@ fun PostContentCommentScreen(navController: NavHostController) {
                                     Column() {
                                         Row() {
                                             Text(
-                                                text = "user1 ∙ ",
+                                                text = "user4 ∙ ",
                                                 color = moduGray_strong,
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.Bold
@@ -289,7 +289,7 @@ fun PostContentCommentScreen(navController: NavHostController) {
                                 Column() {
                                     Row() {
                                         Text(
-                                            text = "user2 ∙ ",
+                                            text = "user5 ∙ ",
                                             color = moduGray_strong,
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold
