@@ -14,6 +14,7 @@ import com.example.modugarden.main.upload.curation.UploadCurationWebScreen
 import com.example.modugarden.main.upload.post.UploadPostImageEditScreen
 import com.example.modugarden.main.upload.post.UploadPostImageListScreen
 import com.example.modugarden.main.upload.post.UploadPostInfoScreen
+import com.example.modugarden.main.upload.post.UploadPostTagScreen
 import com.example.modugarden.viewmodel.UploadCurationViewModel
 import com.example.modugarden.viewmodel.UploadPostViewModel
 
@@ -21,6 +22,7 @@ enum class NAV_ROUTE_UPLOAD_POST(val routeName: String, val description: String)
     IMAGELIST("UPLOAD_POST_IMAGELIST", "포스트 업로드 사진 리스트 창"),
     IMAGEEDIT("UPLOAD_POST_IMAGEEDIT", "포스트 업로드 사진 편집창"),
     INFO("UPLOAD_POST_INFO", "포스트 업로드 정보 입력창"),
+    TAG("UPLOAD_POST_TAG", "포스트 업로드 태그 추가 창"),
     TAGLOCATION("UPLOAD_POST_TAGLOCATION", "포스트 업로드 위치 태그 추가 창"),
 }
 @Composable
@@ -41,6 +43,11 @@ fun NavigationGraphUploadPost(
             NAV_ROUTE_UPLOAD_POST.IMAGEEDIT.routeName,
         ) {
             UploadPostImageEditScreen(navController = navController, data = data, uploadPostViewModel = uploadPostViewModel)
+        }
+        composable(
+            NAV_ROUTE_UPLOAD_POST.TAG.routeName
+        ) {
+            UploadPostTagScreen(navController = navController, uploadPostViewModel = uploadPostViewModel, data = data)
         }
         composable(
             NAV_ROUTE_UPLOAD_POST.INFO.routeName,

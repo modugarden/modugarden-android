@@ -158,13 +158,15 @@ fun UploadCurationImageInfoScreen(
                                 .align(Alignment.BottomEnd)
                                 .padding(18.dp)
                                 .bounceClick {
-                                             galleryLauncher.launch("image/*")
+                                    galleryLauncher.launch("image/*")
                                 },
                             shape = RoundedCornerShape(7.dp),
                             backgroundColor = moduPoint,
                             elevation = 2.dp
                         ) {
-                            Text("사진 바꾸기", modifier = Modifier.padding(8.dp).padding(horizontal = 10.dp), color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            Text("사진 바꾸기", modifier = Modifier
+                                .padding(8.dp)
+                                .padding(horizontal = 10.dp), color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -205,39 +207,19 @@ fun UploadCurationImageInfoScreen(
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color.White.copy(alpha = 0f), Color.White),
-                        startY = 0f,
-                        endY = 50f
-                    )
-                )
         ) {
-            Card(
-                modifier = Modifier
-                    .bounceClick {
-                        if (uriData.value != "" && imageData.isNotEmpty()) {
-                            val encodedUrl = URLEncoder.encode(uriData.value, StandardCharsets.UTF_8.toString())
-                            navController.navigate(NAV_ROUTE_UPLOAD_CURATION.WEB.routeName + "/${encodedUrl}")
-                        }
+            BottomButton(
+                title = "다음",
+                dpScale = dpScale.value,
+                shapeScale = shapeScale.value,
+                alpha = if(uriData.value != "" && imageData.isNotEmpty()) 1f else 0.4f,
+                onClick = {
+                    if (uriData.value != "" && imageData.isNotEmpty()) {
+                        val encodedUrl = URLEncoder.encode(uriData.value.trim(), StandardCharsets.UTF_8.toString()) //trim: 공백 제거.
+                        navController.navigate(NAV_ROUTE_UPLOAD_CURATION.WEB.routeName + "/${encodedUrl}")
                     }
-                    .padding(dpScale.value)
-                    .fillMaxWidth()
-                    .alpha(if (uriData.value != "" && imageData.isNotEmpty()) 1f else 0.4f),
-                shape = RoundedCornerShape(shapeScale.value),
-                backgroundColor = moduPoint,
-                elevation = 0.dp
-            ) {
-                Text(
-                    "다음",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = Color.White,
-                    modifier = Modifier
-                        .padding(18.dp),
-                    textAlign = TextAlign.Center
-                )
-            }
+                }
+            )
         }
     }
 }
