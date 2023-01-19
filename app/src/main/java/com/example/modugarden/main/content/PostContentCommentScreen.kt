@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,6 +36,8 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -54,12 +58,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
+import com.example.modugarden.data.Comment
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.ui.theme.addFocusCleaner
 import com.example.modugarden.ui.theme.bounceClick
@@ -69,13 +76,20 @@ import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.ui.theme.moduPoint
+import com.example.modugarden.viewmodel.CommentViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun PostContentCommentScreen(navController: NavHostController) {
+fun PostContentCommentScreen(navController: NavHostController,
+                             comments:List<Comment>,
+                             onAddComment:(Comment)->Unit,
+                             onRemoveComment:(Comment)->Unit) {
+
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
     val isTextFieldCommentFocused = remember { mutableStateOf(false) }
+
     val isButtonReplyClicked = remember { mutableStateOf(false) }
     val isButtonCloseReplyClicked = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
@@ -204,7 +218,7 @@ fun PostContentCommentScreen(navController: NavHostController) {
                             Text(text = "댓글", style = moduBold, fontSize = 16.sp)
                             Spacer(modifier = Modifier.size(5.dp))
                             // 댓글 갯수
-                            Text(text = "2", color = moduGray_strong, fontSize = 16.sp)
+                            Text(text = "${comments.size}", color = moduGray_strong, fontSize = 16.sp)
                             Spacer(modifier = Modifier.weight(1f))
 
                         }
@@ -216,114 +230,19 @@ fun PostContentCommentScreen(navController: NavHostController) {
                                 .height(1.dp)
                         )
                         // 댓글 영역
-                        Column() {
-                            //댓글
-                            Box(
-                                modifier = Modifier
-                                    .background(
-                                        if (isButtonReplyClicked.value == true and
-                                            isButtonCloseReplyClicked.value == false
-                                        ) moduBackground
-                                        else Color.Transparent
-                                    )
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .padding(18.dp)
-                                        .fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    // 댓글 작성자 프로필 사진
-                                    Image(
-                                        painter = painterResource(id = R.drawable.ic_user),
-                                        contentDescription = "",
-                                        modifier = Modifier
-                                            .size(30.dp)
-                                            .clip(CircleShape),
-                                        contentScale = ContentScale.Crop
-                                    )
-                                    Spacer(modifier = Modifier.size(10.dp))
-                                    // 댓글 내용
-                                    Column() {
-                                        Row() {
-                                            Text(
-                                                text = "user4 ∙ ",
-                                                color = moduGray_strong,
-                                                fontSize = 11.sp,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                            Text(text = "time", color = moduGray_strong, fontSize = 11.sp)
-                                        }
-                                        Text(text = "comment", color = moduBlack, fontSize = 12.sp)
-                                    }
-                                    Spacer(modifier = Modifier.weight(1f))
-                                    // 댓글 버튼들
-                                    Icon(modifier = Modifier.bounceClick {
-                                        keyboardController?.show()
-                                        if (isButtonReplyClicked.value)
-                                            isButtonReplyClicked.value = false
-                                        else isButtonReplyClicked.value = true
-                                    }, painter = painterResource(id = R.drawable.ic_chat_line),
-                                        contentDescription = "답글", tint = moduGray_strong)
-                                    Spacer(modifier = Modifier.size(18.dp))
-                                    Icon(
-                                        modifier = Modifier.bounceClick {
-                                            //버튼 클릭하면 바텀 모달 상태 변수 바뀜
-                                            showModalSheet.value= !showModalSheet.value
-                                            scope.launch {
-                                                bottomSheetState.show()
-                                            }
-                                        },
-                                        painter = painterResource(id = R.drawable.ic_dot3_vertical),
-                                        contentDescription = "더보기", tint = moduGray_strong
-                                    )
-                                }
-                            }
-
-                            // 답글
-                            Row(
-                                modifier = Modifier
-                                    .padding(18.dp)
-                                    .fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Spacer(modifier = Modifier.size(18.dp))
-                                // 댓글 작성자 프로필 사진
-                                Image(
-                                    painter = painterResource(id = R.drawable.ic_user),
-                                    contentDescription = "",
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
-                                )
-                                Spacer(modifier = Modifier.size(10.dp))
-                                // 댓글 내용
-                                Column() {
-                                    Row() {
-                                        Text(
-                                            text = "user5 ∙ ",
-                                            color = moduGray_strong,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        Text(text = "time", color = moduGray_strong, fontSize = 11.sp)
-                                    }
-                                    Text(text = "reply", color = moduBlack, fontSize = 12.sp)
-                                }
-                                Spacer(modifier = Modifier.weight(1f))
-                                Icon(
-                                    modifier = Modifier.bounceClick {
-                                        //버튼 클릭하면 바텀 모달 상태 변수 바뀜
-                                        showModalSheet.value= !showModalSheet.value
-                                        scope.launch {
-                                            bottomSheetState.show()
-                                        }
-                                    }, painter = painterResource(id = R.drawable.ic_dot3_vertical),
-                                    contentDescription = "더보기", tint = moduGray_strong
+                        LazyColumn{
+                            items(comments){comment->
+                                commentItem(
+                                    comment = comment,
+                                    isButtonReplyClicked = isButtonReplyClicked,
+                                    isButtonCloseReplyClicked = isButtonCloseReplyClicked,
+                                    showModalSheet = showModalSheet,
+                                    scope = scope,
+                                    bottomSheetState = bottomSheetState
                                 )
                             }
                         }
+
 
                     }
                     // 댓글 입력창
@@ -364,6 +283,7 @@ fun PostContentCommentScreen(navController: NavHostController) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .wrapContentHeight()
                         ) {
                             // 구분선
                             Divider(
@@ -392,7 +312,7 @@ fun PostContentCommentScreen(navController: NavHostController) {
                                 //댓글 입력 텍스트 필드
                                 TextField(
                                     modifier = Modifier
-                                        .weight(weight = 1f,true)
+                                        .weight(weight = 1f, true)
                                         .focusRequester(focusRequester)
                                         .onFocusChanged {
                                             isTextFieldCommentFocused.value = it.isFocused
@@ -418,13 +338,21 @@ fun PostContentCommentScreen(navController: NavHostController) {
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                                     maxLines = 3
                                 )
-                                // 댓글 작성 아이콘, 댓글 입력중이면 진해짐(변경 필요)
+                                // 댓글 작성 아이콘, 댓글 입력중이면  (변경 필요)
                                 Icon(
                                     modifier = Modifier
+                                        .bounceClick {
+                                            if (textFieldComment.value.isNotEmpty()) {
+                                                onAddComment(
+                                                    Comment("test", textFieldComment.value, 1)
+                                                )
+                                            }
+                                            textFieldComment.value=""
+                                        }
                                         .alpha(
-                                        if (textFieldComment.value.isNotEmpty()) 1f
-                                        else 0.4f
-                                    ),
+                                            if (textFieldComment.value.isNotEmpty()) 1f
+                                            else 0.4f
+                                        ),
                                     painter = painterResource(id = R.drawable.ic_plus_solid),
                                     contentDescription = "댓글 작성",
                                     tint = moduPoint
@@ -436,8 +364,26 @@ fun PostContentCommentScreen(navController: NavHostController) {
 
                 }
         }
-    @Composable
-    fun commentItem(){
+
+}
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun commentItem(comment: Comment,
+                isButtonReplyClicked:MutableState<Boolean>,
+                isButtonCloseReplyClicked:MutableState<Boolean>,
+                showModalSheet:MutableState<Boolean>,
+                scope:CoroutineScope,
+                bottomSheetState:ModalBottomSheetState){
+    Box(
+        modifier = Modifier
+            .background(
+                if (isButtonReplyClicked.value == true and
+                    isButtonCloseReplyClicked.value == false
+                ) moduBackground
+                else Color.Transparent
+            )
+    ) {
+
         Box(
             modifier = Modifier
                 .background(
@@ -467,29 +413,31 @@ fun PostContentCommentScreen(navController: NavHostController) {
                 Column() {
                     Row() {
                         Text(
-                            text = "user1 ∙ ",
+                            text = "${comment.userId} ∙ ",
                             color = moduGray_strong,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
                         )
-                        Text(text = "time", color = moduGray_strong, fontSize = 11.sp)
+                        Text(text = "${comment.time}", color = moduGray_strong, fontSize = 11.sp)
                     }
-                    Text(text = "comment", color = moduBlack, fontSize = 12.sp)
+                    Text(text = comment.description, color = moduBlack, fontSize = 12.sp)
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 // 댓글 버튼들
-                Icon(modifier = Modifier.bounceClick {
-                    keyboardController?.show()
-                    if (isButtonReplyClicked.value)
-                        isButtonReplyClicked.value = false
-                    else isButtonReplyClicked.value = true
-                }, painter = painterResource(id = R.drawable.ic_chat_line),
-                    contentDescription = "답글", tint = moduGray_strong)
+                Icon(
+                    modifier = Modifier.bounceClick {
+                        if (isButtonReplyClicked.value)
+                            isButtonReplyClicked.value = false
+                        else isButtonReplyClicked.value = true
+
+                    }, painter = painterResource(id = R.drawable.ic_chat_line),
+                    contentDescription = "답글", tint = moduGray_strong
+                )
                 Spacer(modifier = Modifier.size(18.dp))
                 Icon(
                     modifier = Modifier.bounceClick {
                         //버튼 클릭하면 바텀 모달 상태 변수 바뀜
-                        showModalSheet.value= !showModalSheet.value
+                        showModalSheet.value = !showModalSheet.value
                         scope.launch {
                             bottomSheetState.show()
                         }
@@ -501,7 +449,6 @@ fun PostContentCommentScreen(navController: NavHostController) {
         }
     }
 }
-
 
 
 
@@ -525,5 +472,9 @@ fun categoryItem(category:String){
 @Composable
 fun PostContentCommentPreview(){
     val navController = rememberNavController()
-    PostContentCommentScreen(navController = navController )
+    val commentViewModel:CommentViewModel= viewModel()
+    val commentList = commentViewModel.getAllComments()
+    PostContentCommentScreen(navController = navController,commentList,
+    onAddComment = commentViewModel::addComment,
+    onRemoveComment = commentViewModel::removeComment)
 }
