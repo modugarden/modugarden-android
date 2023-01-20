@@ -50,11 +50,10 @@ import kotlinx.coroutines.launch
 fun PostCard(userID:String,
              scope: CoroutineScope,
              snackbarHostState: SnackbarHostState) {
-        // 버튼 바
-        val isButtonClickedLike = remember { mutableStateOf(false) }
+
+        val isButtonClickedLike = remember { mutableStateOf(false) } // 버튼 바
         val isButtonClickedSave = remember { mutableStateOf(false) }
-        //뷰페이저, 인디케이터 페이지 상태 변수
-        val order: PagerState = rememberPagerState()
+        val order: PagerState = rememberPagerState() //뷰페이저, 인디케이터 페이지 상태 변수
         val mContext = LocalContext.current
 
         Card(
@@ -217,7 +216,7 @@ fun PostCard(userID:String,
                                        )
                                        Spacer(modifier = Modifier.weight(1f))
                                                Icon(modifier = Modifier.bounceClick {  },
-                                                       painter = painterResource(id = R.drawable.ic_star_line),
+                                                       painter = painterResource(id = R.drawable.ic_dot3_vertical),
                                                        contentDescription = "신고",
                                                        tint = moduBlack)
 

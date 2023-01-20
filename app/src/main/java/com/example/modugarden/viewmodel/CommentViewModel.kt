@@ -6,16 +6,12 @@ import androidx.lifecycle.ViewModel
 import com.example.modugarden.data.Comment
 
 class CommentViewModel : ViewModel() {
-    private var commentList = mutableStateListOf<Comment>()
 
-    fun addComment(comment: Comment){
+    fun addComment(comment: Comment,commentList: MutableList<Comment>){
         commentList.add(comment)
     }
-    fun removeComment(comment: Comment){
+    fun removeComment(comment: Comment,commentList: MutableList<Comment>){
         commentList.remove(comment)
-    }
-    fun getAllComments(): List<Comment> {
-        return commentList
     }
 }
 

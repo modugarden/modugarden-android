@@ -63,11 +63,11 @@ fun FollowEndCard() {
                 .bounceClick { }
                 .padding(10.dp,8.dp),
                 backgroundColor = moduPoint,
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(7.dp),
                 elevation = 0.dp
             ) {
                 Text(
-                    modifier = Modifier.padding(15.dp,4.dp),
+                    modifier = Modifier.padding(18.dp,8.dp),
                     text = "탐색하러 가기",
                     color = Color.White ,
                     fontSize = 16.sp,
