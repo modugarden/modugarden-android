@@ -203,6 +203,7 @@ fun TopBar(
     titleIcon: Int = 0, //제목 버튼 아이콘.
     titleIconOnClick: () -> Unit = {}, //제목 버튼을 눌렀을 때.
     titleIconSize: Dp = 20.dp,
+    titleIconTint: Color = moduBlack,
     main: Boolean = false, //주요 화면인지.
     icon1: Int = 0, //오른쪽에 아이콘 버튼이 추가됨. (아이콘)
     icon2: Int = 0, //오른쪽에 아이콘 버튼이 추가됨. (아이콘)
@@ -243,7 +244,8 @@ fun TopBar(
                         .align(Alignment.CenterVertically)
                         .bounceClick {
                             titleIconOnClick.invoke()
-                        }
+                        },
+                    colorFilter = ColorFilter.tint(titleIconTint)
                 )
                 Spacer(modifier = Modifier.width(18.dp))
             }

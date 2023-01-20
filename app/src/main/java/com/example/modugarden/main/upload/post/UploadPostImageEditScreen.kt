@@ -1,14 +1,21 @@
 package com.example.modugarden.main.upload.post
 
 import android.util.Log
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
@@ -16,9 +23,12 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -37,13 +47,17 @@ import com.example.modugarden.data.UploadPost
 import com.example.modugarden.viewmodel.UploadPostViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
-import com.skydoves.landscapist.glide.GlideImage
 import com.example.modugarden.R
+import com.example.modugarden.main.follow.DotsIndicator
 import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.ui.theme.EditText
+import com.google.accompanist.pager.HorizontalPagerIndicator
+import com.google.accompanist.pager.rememberPagerState
+import com.skydoves.landscapist.glide.GlideImage
+import kotlin.math.absoluteValue
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalPagerApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun UploadPostImageEditScreen(
     navController: NavHostController,
@@ -54,49 +68,150 @@ fun UploadPostImageEditScreen(
     val focusManager = LocalFocusManager.current
     val descriptionData = remember { data.description }
 
+    val pagerState = rememberPagerState()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        Column {
-            Column(
-                modifier = Modifier
-                    .verticalScroll(scrollState, reverseScrolling = true)
-                    .addFocusCleaner(focusManager)
-                    .background(Color.White)
-            ) {
-                HorizontalPager(
-                    count = data.image.size,
+        Column(
+            modifier = Modifier
+                .verticalScroll(scrollState, reverseScrolling = true)
+        ) {
+            Box() {
+                Column(
                     modifier = Modifier
-                        .wrapContentSize()
-                ) { page ->
-                    Column() {
-                        GlideImage(
-                            imageModel = data.image[page],
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(1f),
-                            requestOptions = {
-                                RequestOptions()
-                                    .override(1000,1000)
-                                    .downsample(DownsampleStrategy.FIT_CENTER)
+                        .addFocusCleaner(focusManager)
+                        .background(Color.White)
+                        .fillMaxSize()
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    HorizontalPager(
+                        count = data.image.size,
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.Top,
+                        state = pagerState
+                    ) { page ->
+                        Box(
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .align(Alignment.TopCenter)
+                            ) {
+                                Box(
+                                    modifier = Modifier.wrapContentSize()
+                                ) {
+                                    GlideImage(
+                                        imageModel = data.image[page],
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .aspectRatio(1f),
+                                        requestOptions = {
+                                            RequestOptions()
+                                                .override(1000,1000)
+                                                .downsample(DownsampleStrategy.FIT_CENTER)
+                                        }
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(Color.White)
+                                        .drawBehind {
+                                            drawLine(
+                                                color = moduGray_light,
+                                                start = Offset(0f, size.height),
+                                                end = Offset(size.width, size.height),
+                                                strokeWidth = 1.dp.toPx()
+                                            )
+                                        }
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .padding(18.dp)
+                                            .bounceClick {
+                                                //위치 태그 추가 창으로 이동
+                                                navController.navigate(NAV_ROUTE_UPLOAD_POST.TAGLOCATION.routeName)
+                                            }
+                                    ) {
+                                        GlideImage(
+                                            imageModel = R.drawable.ic_plus_curation,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                        )
+                                        Spacer(Modifier.size(18.dp))
+                                        Text("위치 태그 추가", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = moduBlack, modifier = Modifier.align(Alignment.CenterVertically))
+                                        Spacer(Modifier.weight(1f))
+                                        Image(
+                                            painter = painterResource(id = R.drawable.ic_chevron_right_bold),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(20.dp).align(Alignment.CenterVertically)
+                                        )
+                                    }
+                                }
+                                //전용 EditText 필요함. (임시 코드)
+                                EditTextUploadPost(hint = "내용을 입력하세요", data = descriptionData, page = page, viewModel = uploadPostViewModel)
+                                Spacer(modifier = Modifier.height(80.dp))
                             }
-                        )
-                        //전용 EditText 필요함. (임시 코드)
-                        EditTextUploadPost(hint = "내용을 입력하세요", data = descriptionData, page = page, viewModel = uploadPostViewModel)
-                        Spacer(modifier = Modifier.height(80.dp))
+                        }
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+                //사진 인디케이터
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                ) {
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 18.dp)
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        moduBlack.copy(alpha = 0f),
+                                        moduBlack.copy(alpha = 0.2f)
+                                    )
+                                )
+                            )
+                            .align(Alignment.BottomCenter)
+                            .padding(25.dp), horizontalArrangement = Arrangement.Center
+
+                    ) {
+                        items(data.image.size) { index ->
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(
+                                        if (index == pagerState.currentPage) Color.White else Color.White.copy(
+                                            alpha = 0.4f
+                                        )
+                                    )
+                            )
+
+                            if (index != data.image.size - 1) {
+                                Spacer(modifier = Modifier.padding(horizontal = 3.dp))
+                            }
+                        }
                     }
                 }
             }
         }
+        //상단 바
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            moduBlack.copy(alpha = 0.4f),
+                            moduBlack.copy(alpha = 0.2f),
                             moduBlack.copy(alpha = 0f)
                         )
                     )
@@ -120,13 +235,15 @@ fun UploadPostImageEditScreen(
                 )
             }
         }
+        //하단 바
         Box(
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
         ) {
             BottomButton(
-                title = "다음",
+                title = "업로드",
                 onClick = {
-                    navController.navigate(NAV_ROUTE_UPLOAD_POST.TAG.routeName)
+                    //포스트 업로드 데이터 전달 API 연결.
                 }
             )
         }
@@ -156,7 +273,6 @@ fun EditTextUploadPost(
                 viewModel.saveDescription(data[page], page)
                 Log.d("composedata", data[page])
             },
-            shape = RectangleShape,
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = Color.White,
                 focusedIndicatorColor = Color.Transparent,
@@ -166,7 +282,7 @@ fun EditTextUploadPost(
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             placeholder = {
                 Text(hint, fontSize = 16.sp, color = moduGray_normal)
-            }
+            },
         )
     }
 }

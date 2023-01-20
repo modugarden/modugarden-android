@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -99,6 +100,16 @@ fun UploadInfoScreen() {
                     Spacer(modifier = Modifier.height(5.dp))
                     Text("카드 형식으로 넘겨볼 수 있어요", fontSize = 14.sp, color = moduGray_strong)
                 }
+                Spacer(modifier = Modifier.weight(1f))
+                Image(
+                    painter = painterResource(id = R.drawable.ic_chevron_right),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(15.dp)
+                        .height(15.dp)
+                        .align(Alignment.CenterVertically),
+                    colorFilter = ColorFilter.tint(moduGray_normal)
+                )
             }
         }
         //큐레이션 작성 버튼
@@ -133,6 +144,16 @@ fun UploadInfoScreen() {
                     Spacer(modifier = Modifier.height(5.dp))
                     Text("외부 게시물을 소개할 수 있어요", fontSize = 14.sp, color = moduGray_strong)
                 }
+                Spacer(modifier = Modifier.weight(1f))
+                Image(
+                    painter = painterResource(id = R.drawable.ic_chevron_right),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(15.dp)
+                        .height(15.dp)
+                        .align(Alignment.CenterVertically),
+                    colorFilter = ColorFilter.tint(moduGray_normal)
+                )
             }
         }
     }

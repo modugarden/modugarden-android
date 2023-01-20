@@ -2,14 +2,15 @@ package com.example.modugarden.main.upload.post
 
 import android.app.Activity
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.*
+import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
@@ -128,6 +129,17 @@ fun UploadPostImageListScreen(
                         .padding(3.dp)
                         .padding(horizontal = 5.dp))
                 }
+                Spacer(modifier = Modifier.weight(1f))
+                SmallButton(
+                    text = "모두 삭제",
+                    backgroundColor = if(deleteState.value) moduErrorBackgroundPoint else Color.White,
+                    textColor = if(deleteState.value) moduErrorPoint else Color.White,
+                    onClick = {
+                        if(imageData.isNotEmpty()) {
+                            uploadPostViewModel.removeRangeImage(imageData.size)
+                        }
+                    }
+                )
             }
             Spacer(modifier = Modifier.height(18.dp))
             if(imageData.isEmpty()) { //아직 이미지를 고르지 않았을때 표시할 화면.
@@ -167,61 +179,13 @@ fun UploadPostImageListScreen(
                     ),
                     content = {
                         itemsIndexed(data.image) { index, item ->
-                            Box() {
-                                Card(
-                                    modifier = Modifier
-                                        .bounceClick {
-                                        }
-                                        .padding(8.dp),
-                                    shape = RoundedCornerShape(10.dp),
-                                    border = BorderStroke(1.dp, moduGray_light)
-                                ) {
-                                    GlideImage(
-                                        imageModel = item,
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .aspectRatio(1f),
-                                        requestOptions = {
-                                            RequestOptions()
-                                                .override(256,256)
-                                        }
-                                    )
-                                    if(deleteState.value) {
-                                        Card(
-                                            modifier = Modifier
-                                                .width(40.dp)
-                                                .height(40.dp)
-                                                .padding(5.dp)
-                                                .align(Alignment.TopEnd)
-                                                .bounceClick {
-                                                    if (deleteState.value) {
-                                                        if (data.description.size - 1 >= index) {
-                                                            uploadPostViewModel.removeDescription(
-                                                                index
-                                                            )
-                                                        }
-                                                        uploadPostViewModel.removeImage(index) //누른 사진을 삭제합니다.
-                                                    }
-                                                },
-                                            backgroundColor = Color.White,
-                                            border = BorderStroke(1.dp, moduGray_light),
-                                            shape = CircleShape
-                                        ) {
-                                            Image(
-                                                painter = painterResource(id = R.drawable.ic_xmark),
-                                                contentDescription = null,
-                                                modifier = Modifier
-                                                    .width(20.dp)
-                                                    .height(20.dp)
-                                                    .padding(5.dp)
-                                                    .align(Alignment.Center),
-                                                colorFilter = ColorFilter.tint(moduErrorPoint)
-                                            )
-                                        }
-                                    }
-                                }
-                            }
+                            UploadPostImageListItem(
+                                index = index,
+                                data = data,
+                                deleteState = deleteState,
+                                navController = navController,
+                                uploadPostViewModel = uploadPostViewModel
+                            )
                         }
                     }
                 )
@@ -255,6 +219,86 @@ fun UploadPostImageListScreen(
                 .padding(30.dp)
         ) {
             SnackBar(snackbarHostState = snackbarHostState)
+        }
+    }
+}
+//사진 리스트 아이템
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun UploadPostImageListItem(
+    index: Int,
+    data: UploadPost,
+    deleteState: MutableState<Boolean>,
+    navController: NavHostController,
+    uploadPostViewModel: UploadPostViewModel
+) {
+    Box() {
+        Card(
+            modifier = Modifier
+                .bounceClick {
+                    Log.d("composeindex", data.image.size.toString())
+                    navController.navigate(NAV_ROUTE_UPLOAD_POST.IMAGEDETAIL.routeName + "/${index}")
+                }
+                .padding(8.dp),
+            shape = RoundedCornerShape(10.dp),
+            border = BorderStroke(1.dp, moduGray_light)
+        ) {
+            GlideImage(
+                imageModel = data.image[index],
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .aspectRatio(1f),
+                requestOptions = {
+                    RequestOptions()
+                        .override(256,256)
+                }
+            )
+            AnimatedVisibility(
+                visible = deleteState.value,
+                enter = scaleIn(
+                    animationSpec = tween(durationMillis = 100, easing = FastOutLinearInEasing)
+                ) + fadeIn(
+                    animationSpec = tween(durationMillis = 50, easing = FastOutLinearInEasing)
+                ),
+                exit = scaleOut(
+                    animationSpec = tween(durationMillis = 100, easing = FastOutLinearInEasing)
+                ) + fadeOut(
+                    animationSpec = tween(durationMillis = 50, easing = FastOutLinearInEasing)
+                )
+            ) {
+                Card(
+                    modifier = Modifier
+                        .width(40.dp)
+                        .height(40.dp)
+                        .padding(5.dp)
+                        .align(Alignment.TopEnd)
+                        .bounceClick {
+                            if (deleteState.value) {
+                                if (data.description.size - 1 >= index) {
+                                    uploadPostViewModel.removeDescription(
+                                        index
+                                    ) //사진에 매핑 되어 있는 설명을 삭제합니다.
+                                }
+                                uploadPostViewModel.removeImage(index) //누른 사진을 삭제합니다.
+                            }
+                        },
+                    backgroundColor = Color.White,
+                    border = BorderStroke(1.dp, moduGray_light),
+                    shape = CircleShape
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_xmark),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(20.dp)
+                            .height(20.dp)
+                            .padding(5.dp)
+                            .align(Alignment.Center),
+                        colorFilter = ColorFilter.tint(moduErrorPoint)
+                    )
+                }
+            }
         }
     }
 }
