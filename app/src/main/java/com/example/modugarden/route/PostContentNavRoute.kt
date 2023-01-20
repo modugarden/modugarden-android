@@ -27,12 +27,11 @@ enum class NAV_ROUTE_POSTCONTENT(val routeName: String, val description: String)
 @Composable
 fun NavigationGraphPostContent(navController: NavHostController,
                                commentViewModel: CommentViewModel= viewModel()) {
-    val commentList = commentViewModel.getAllComments()
     NavHost(navController = navController, startDestination = NAV_ROUTE_POSTCONTENT.MAIN.routeName) {
         composable(NAV_ROUTE_POSTCONTENT.MAIN.routeName) {
             PostContentScreen(navController,"USER") }
         composable(NAV_ROUTE_POSTCONTENT.COMMENT.routeName) {
-            PostContentCommentScreen(navController,commentList,commentViewModel::addComment,commentViewModel::removeComment) }
+            PostContentCommentScreen(navController,commentViewModel) }
         composable(NAV_ROUTE_POSTCONTENT.LOCATION.routeName) { PostContentLocationScreen(navController) }
         composable(NAV_ROUTE_POSTCONTENT.MAP.routeName) { PostContentMapScreen(navController ) }
     }

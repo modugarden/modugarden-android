@@ -393,7 +393,7 @@ fun CommentItem(comment: Comment,
                 // 댓글 버튼들
                 Icon(
                     modifier = Modifier.bounceClick {
-                        comment.isButtonReplyClicked.value =! comment.isButtonReplyClicked.value
+                        comment.isButtonReplyClicked.value = true
                         comment.isTexting.value = comment.isButtonReplyClicked.value
                        data.value = comment
                     },
@@ -444,7 +444,7 @@ fun texting(data:MutableState<Comment>){
         ) {
             Text(
                 modifier = Modifier.align(Alignment.CenterStart),
-                text = "${data.value.description}님께 답글 남기는 중", color = moduGray_strong, fontSize = 12.sp
+                text = "${data.value.userID}님께 답글 남기는 중", color = moduGray_strong, fontSize = 12.sp
             )
             // 답글 창 닫기
             Icon(
