@@ -2,6 +2,7 @@ package com.example.modugarden.data
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 
 data class Comment(
     var userID: String, // 댓글 작성자
