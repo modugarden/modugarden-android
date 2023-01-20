@@ -17,11 +17,9 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
@@ -36,7 +34,6 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -52,12 +49,10 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -82,21 +77,18 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun PostContentCommentScreen(navController: NavHostController,
-                             comments:List<Comment>,
-                             onAddComment:(Comment)->Unit,
-                             onRemoveComment:(Comment)->Unit) {
-    val modalData  :MutableState<Comment>
-    = remember{ mutableStateOf(Comment("","",0)) } // 신고 데이터
+                             commentViewModel: CommentViewModel) {
+    val comments= remember { mutableStateListOf<Comment>() }
+    val data  :MutableState<Comment>
+    = remember{ mutableStateOf(Comment("","",0,mutableStateOf(false))) } // 신고 데이터
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
     val isTextFieldCommentFocused = remember { mutableStateOf(false) }
-    val isButtonCloseReplyClicked = remember {mutableStateOf(false)}
     val focusManager = LocalFocusManager.current
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val showModalSheet = rememberSaveable{ mutableStateOf(false) } // 신고 모달 상태 변수
-    val showTexting = remember { mutableStateOf(false) }
-    val showID = remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
+
 
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
@@ -136,7 +128,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                                     .clip(CircleShape),
                                 contentScale = ContentScale.Crop)
                             Spacer(modifier = Modifier.size(18.dp))
-                            Text(text = modalData.value.description,
+                            Text(text = data.value.description,
                                 style = moduBold, fontSize = 14.sp)
                         }
                     }
@@ -169,7 +161,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                         .padding(18.dp)
                         .bounceClick { },
                         verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = modalData.value.userId, style = moduBold, fontSize = 16.sp)
+                        Text(text = data.value.userID, style = moduBold, fontSize = 16.sp)
                         Text(text = "님 차단하기", color = moduBlack, fontSize = 16.sp)
                         Spacer(modifier = Modifier.weight(1f))
                         Icon(painter = painterResource(id = R.drawable.ic_chevron_right),
@@ -192,13 +184,15 @@ fun PostContentCommentScreen(navController: NavHostController,
                     Column {
                         Column(modifier = Modifier
                             .weight(1f, true)
-                            .background(Color.White))
+                            .background(Color.White)
+                            .fillMaxSize())
                         {
                             // 상단바
                             Row(
                                 modifier = Modifier
                                     .padding(18.dp)
-                                    .fillMaxWidth(),
+                                    .fillMaxWidth()
+                                    .wrapContentHeight(),
                                 verticalAlignment = Alignment.CenterVertically
                             )
                             {
@@ -225,39 +219,32 @@ fun PostContentCommentScreen(navController: NavHostController,
                                     .height(1.dp)
                             )
                             // 댓글 영역
-                            LazyColumn(
-                                Modifier
-                                    .background(Color.White)
-                                    .fillMaxSize()){
-                                items(comments){comment->
-                                    CommentItem(
-                                        comment = comment,
-                                        showModalSheet = showModalSheet,
-                                        scope = scope,
-                                        bottomSheetState = bottomSheetState,
-                                        modalData = modalData
-                                    )
-                                    comment.isButtonCloseReplyClicked.value=isButtonCloseReplyClicked.value
-                                    if(comment.isButtonReplyClicked.value==true and
-                                            comment.isButtonCloseReplyClicked.value==false) {
-                                        showTexting.value = true
-                                        showID.value = comment.userId
+                                LazyColumn(
+                                    Modifier
+                                        .background(Color.White)
+                                        .fillMaxSize(1f)
+                                        .background(Color.White)){
+                                    items(comments){comment->
+                                        CommentItem(
+                                            comment = comment,
+                                            commentViewModel,
+                                            showModalSheet = showModalSheet,
+                                            scope = scope,
+                                            bottomSheetState = bottomSheetState,
+                                            data = data
+                                        )
                                     }
-
                                 }
 
-                            }
 
-                        }
-                        if (showTexting.value) {
-                            texting(showID.value, isButtonCloseReplyClicked)
+
                         }
 
                         // 댓글 입력창
-                        Column(
-                        ) {
+                        Column {
                             //답글 입력중일 때
-
+                            if(data.value.isReplying.value) {
+                                texting(data = data)}
 
                             Box(
                                 modifier = Modifier
@@ -322,12 +309,13 @@ fun PostContentCommentScreen(navController: NavHostController,
                                         modifier = Modifier
                                             .bounceClick {
                                                 if (textFieldComment.value.isNotEmpty()) {
-                                                    onAddComment(
+                                                    commentViewModel.addComment(
                                                         Comment(
-                                                            "test", textFieldComment.value, 1,
-                                                            texting = mutableStateOf(true)
-                                                        )
-
+                                                            "test",
+                                                            textFieldComment.value,
+                                                            1,
+                                                            mutableStateOf(false)
+                                                        ), comments
                                                     )
                                                 }
                                                 textFieldComment.value = ""
@@ -355,18 +343,18 @@ fun PostContentCommentScreen(navController: NavHostController,
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CommentItem(comment: Comment,
+                commentViewModel: CommentViewModel,
                 showModalSheet:MutableState<Boolean>,
                 scope:CoroutineScope,
                 bottomSheetState:ModalBottomSheetState,
-                modalData: MutableState<Comment>){
+                data: MutableState<Comment>){
 
         Box(
             modifier = Modifier
+                .background(Color.White)
                 .background(
-                    if (comment.isButtonReplyClicked.value == true /*and
-                        comment.isButtonCloseReplyClicked.value == false*/) moduBackground
-                    else Color.Transparent
-                )
+                    if (data.value.isReplying.value && comment.description == data.value.description) moduBackground
+                    else Color.White)
         ) {
             Row(
                 modifier = Modifier
@@ -389,7 +377,7 @@ fun CommentItem(comment: Comment,
                 Column() {
                     Row() {
                         Text(
-                            text = "${comment.userId} ∙ ",
+                            text = "${comment.userID} ∙ ",
                             color = moduGray_strong,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
@@ -403,17 +391,17 @@ fun CommentItem(comment: Comment,
                 // 댓글 버튼들
                 Icon(
                     modifier = Modifier.bounceClick {
-                        if (comment.isButtonReplyClicked.value)
-                            comment.isButtonReplyClicked.value = false
-                        else comment.isButtonReplyClicked.value = true
-
-                    }, painter = painterResource(id = R.drawable.ic_chat_line),
+                        comment.isReplying.value = true
+                        
+                       data.value = comment
+                    },
+                    painter = painterResource(id = R.drawable.ic_chat_line),
                     contentDescription = "답글", tint = moduGray_strong
                 )
                 Spacer(modifier = Modifier.size(18.dp))
                 Icon(
                     modifier = Modifier.bounceClick {
-                        modalData.value = comment
+                        data.value = comment
                         //버튼 클릭하면 바텀 모달 상태 변수 바뀜
                         showModalSheet.value = !showModalSheet.value
                         scope.launch {
@@ -424,6 +412,7 @@ fun CommentItem(comment: Comment,
                     contentDescription = "더보기", tint = moduGray_strong
                 )
             }
+
         }
 
 }
@@ -443,7 +432,7 @@ fun CategoryItem(category:String){
 }
 
 @Composable
-fun texting(userID:String, isButtonCloseReplyClicked:MutableState<Boolean>){
+fun texting(data:MutableState<Comment>){
         // 답글 작성 시 표시됨
         Box(
             modifier = Modifier
@@ -453,20 +442,21 @@ fun texting(userID:String, isButtonCloseReplyClicked:MutableState<Boolean>){
         ) {
             Text(
                 modifier = Modifier.align(Alignment.CenterStart),
-                text = "$userID 님께 답글 남기는 중", color = moduGray_strong, fontSize = 12.sp
+                text = "@${data.value.userID}님께 답글 남기는 중", color = moduGray_strong, fontSize = 12.sp
             )
             // 답글 창 닫기
             Icon(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .bounceClick {
-                        isButtonCloseReplyClicked.value = true
+                        data.value.isReplying.value = false
                     },
                 painter = painterResource(id = R.drawable.ic_xmark),
                 contentDescription = "",
                 tint = moduGray_strong
             )
         }
+
 
 }
 
@@ -476,8 +466,5 @@ fun texting(userID:String, isButtonCloseReplyClicked:MutableState<Boolean>){
 fun PostContentCommentPreview(){
     val navController = rememberNavController()
     val commentViewModel:CommentViewModel= viewModel()
-    val commentList = commentViewModel.getAllComments()
-    PostContentCommentScreen(navController = navController,commentList,
-    onAddComment = commentViewModel::addComment,
-    onRemoveComment = commentViewModel::removeComment)
+    PostContentCommentScreen(navController = navController,commentViewModel)
 }

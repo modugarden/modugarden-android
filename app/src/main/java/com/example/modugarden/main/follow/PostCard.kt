@@ -3,7 +3,6 @@ package com.example.modugarden.main.follow
 import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
@@ -50,11 +49,10 @@ import kotlinx.coroutines.launch
 fun PostCard(userID:String,
              scope: CoroutineScope,
              snackbarHostState: SnackbarHostState) {
-        // 버튼 바
-        val isButtonClickedLike = remember { mutableStateOf(false) }
+
+        val isButtonClickedLike = remember { mutableStateOf(false) } // 버튼 바
         val isButtonClickedSave = remember { mutableStateOf(false) }
-        //뷰페이저, 인디케이터 페이지 상태 변수
-        val order: PagerState = rememberPagerState()
+        val order: PagerState = rememberPagerState() //뷰페이저, 인디케이터 페이지 상태 변수
         val mContext = LocalContext.current
 
         Card(
@@ -121,6 +119,12 @@ fun PostCard(userID:String,
 
                                 // 포스트 카드 이미지 슬라이드 인디케이터
                                 DotsIndicator(
+                                        modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(top = 18.dp)
+                                                .background(Color.Transparent),
+                                        dotSize = 5,
+                                        dotPadding = 2,
                                         totalDots = images.size,
                                         selectedIndex = order.currentPage,
                                         unSelectedColor = Color("#75807A66".toColorInt())
@@ -217,7 +221,7 @@ fun PostCard(userID:String,
                                        )
                                        Spacer(modifier = Modifier.weight(1f))
                                                Icon(modifier = Modifier.bounceClick {  },
-                                                       painter = painterResource(id = R.drawable.ic_star_line),
+                                                       painter = painterResource(id = R.drawable.ic_dot3_vertical),
                                                        contentDescription = "신고",
                                                        tint = moduBlack)
 
@@ -232,16 +236,16 @@ fun PostCard(userID:String,
 // 슬라이드 인디케이터 컴포넌트
 @Composable
 fun DotsIndicator(
-        totalDots : Int,
-        selectedIndex : Int,
+        modifier: Modifier,
+        dotSize: Int,
+        dotPadding:Int,
+        totalDots: Int,
+        selectedIndex: Int,
         selectedColor: Color = moduGray_strong,
-        unSelectedColor: Color ,
+        unSelectedColor: Color,
 ){
         LazyRow(
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 18.dp)
-                        .background(Color.White)
+                modifier = modifier
         , horizontalArrangement = Arrangement.Center
 
         ) {
@@ -249,21 +253,21 @@ fun DotsIndicator(
                         if (index == selectedIndex) {
                                 Box(
                                         modifier = Modifier
-                                                .size(5.dp)
+                                                .size(dotSize.dp)
                                                 .clip(CircleShape)
                                                 .background(selectedColor)
                                 )
                         } else {
                                 Box(
                                         modifier = Modifier
-                                                .size(5.dp)
+                                                .size(dotSize.dp)
                                                 .clip(CircleShape)
                                                 .background(unSelectedColor)
                                 )
                         }
 
                         if (index != totalDots - 1) {
-                                Spacer(modifier = Modifier.padding(horizontal = 2.dp))
+                                Spacer(modifier = Modifier.padding(horizontal = dotPadding.dp))
                         }
                 }
         }
