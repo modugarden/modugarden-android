@@ -3,6 +3,7 @@ package com.example.modugarden.main.upload.post
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.EaseInCirc
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
@@ -71,9 +72,9 @@ fun UploadPostImageDetail(
         AnimatedVisibility(
             visible = !deleteState.value,
             exit = scaleOut(
-                animationSpec = tween(durationMillis = 200, easing = FastOutLinearInEasing)
+                animationSpec = tween(durationMillis = 200, easing = EaseInCirc)
             ) + fadeOut(
-                animationSpec = tween(durationMillis = 100, easing = FastOutLinearInEasing)
+                animationSpec = tween(durationMillis = 150, easing = FastOutLinearInEasing)
             ),
             modifier = Modifier.align(Alignment.Center)
         ) {

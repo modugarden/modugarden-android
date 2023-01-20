@@ -7,15 +7,13 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
-import androidx.compose.animation.core.Easing
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -170,7 +168,7 @@ fun UploadPostImageListScreen(
                     modifier = Modifier
                         .fillMaxHeight()
                         .padding(bottom = 60.dp),
-                    cells = GridCells.Fixed(3),
+                    columns = GridCells.Fixed(3),
                     contentPadding = PaddingValues(
                         start = 12.dp,
                         top = 16.dp,
@@ -257,7 +255,7 @@ fun UploadPostImageListItem(
             AnimatedVisibility(
                 visible = deleteState.value,
                 enter = scaleIn(
-                    animationSpec = tween(durationMillis = 100, easing = FastOutLinearInEasing)
+                    animationSpec = tween(durationMillis = 200, easing = EaseOutCirc)
                 ) + fadeIn(
                     animationSpec = tween(durationMillis = 50, easing = FastOutLinearInEasing)
                 ),
