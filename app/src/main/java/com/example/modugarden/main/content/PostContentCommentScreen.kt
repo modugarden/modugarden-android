@@ -38,7 +38,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -81,7 +80,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                              commentViewModel: CommentViewModel) {
     val comments= remember { mutableStateListOf<Comment>() }
     val data  :MutableState<Comment>
-    = remember{ mutableStateOf(Comment("","",0,mutableStateOf(false),mutableStateOf(false))) } // 신고 데이터
+    = remember{ mutableStateOf(Comment("","",0,mutableStateOf(false))) } // 신고 데이터
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
     val isTextFieldCommentFocused = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
@@ -244,7 +243,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                         // 댓글 입력창
                         Column {
                             //답글 입력중일 때
-                            if(data.value.isTexting.value) {
+                            if(data.value.isReplying.value) {
                                 texting(data = data)}
 
                             Box(
@@ -315,7 +314,6 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                             "test",
                                                             textFieldComment.value,
                                                             1,
-                                                            mutableStateOf(false),
                                                             mutableStateOf(false)
                                                         ), comments
                                                     )
@@ -355,7 +353,7 @@ fun CommentItem(comment: Comment,
             modifier = Modifier
                 .background(Color.White)
                 .background(
-                    if (data.value.isButtonReplyClicked.value && comment.description == data.value.description) moduBackground
+                    if (data.value.isReplying.value && comment.description == data.value.description) moduBackground
                     else Color.White)
         ) {
             Row(
@@ -393,8 +391,8 @@ fun CommentItem(comment: Comment,
                 // 댓글 버튼들
                 Icon(
                     modifier = Modifier.bounceClick {
-                        comment.isButtonReplyClicked.value = true
-                        comment.isTexting.value = comment.isButtonReplyClicked.value
+                        comment.isReplying.value = true
+                        
                        data.value = comment
                     },
                     painter = painterResource(id = R.drawable.ic_chat_line),
@@ -444,15 +442,14 @@ fun texting(data:MutableState<Comment>){
         ) {
             Text(
                 modifier = Modifier.align(Alignment.CenterStart),
-                text = "${data.value.userID}님께 답글 남기는 중", color = moduGray_strong, fontSize = 12.sp
+                text = "@${data.value.userID}님께 답글 남기는 중", color = moduGray_strong, fontSize = 12.sp
             )
             // 답글 창 닫기
             Icon(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .bounceClick {
-                        data.value.isTexting.value = false
-                        data.value.isButtonReplyClicked.value = false
+                        data.value.isReplying.value = false
                     },
                 painter = painterResource(id = R.drawable.ic_xmark),
                 contentDescription = "",

@@ -41,29 +41,28 @@ fun FollowEndCard() {
 
             // 안내 문구
             Text(
-                text = "더 많은 게시물을\n" +
-                        "찾고 있나요? \uD83D\uDD0D",
+                text = "더 많은 게시물을 찾고 있나요?",
                 style = moduBold,
                 fontSize = 20.sp,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.size(6.dp))
             Text(
-                text = "탐색에서 더 많은 게시물을 만나볼 수 있어요.",
+                text = "탐색에서 다양한 게시물을 만나보세요",
                 fontWeight = FontWeight(400),
                 fontSize = 14.sp,
                 color = moduBlack,
                 modifier = Modifier.alpha(0.5f),
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.size(42.dp))
+            Spacer(modifier = Modifier.size(18.dp))
 
             // 탐색 버튼
             Card(modifier = Modifier
                 .bounceClick { }
                 .padding(10.dp,8.dp),
                 backgroundColor = moduPoint,
-                shape = RoundedCornerShape(7.dp),
+                shape = RoundedCornerShape(10.dp),
                 elevation = 0.dp
             ) {
                 Text(
@@ -71,6 +70,7 @@ fun FollowEndCard() {
                     text = "탐색하러 가기",
                     color = Color.White ,
                     fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
             }

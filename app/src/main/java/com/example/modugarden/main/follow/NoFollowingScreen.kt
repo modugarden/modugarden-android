@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Icon
 import androidx.compose.material.SnackbarData
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
@@ -101,14 +102,15 @@ fun NoFollowingScreen(navController: NavHostController) {
                     shape = RoundedCornerShape(10.dp),
                     elevation = 0.dp
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Image(
-                            modifier = Modifier.padding(start = 12.dp),
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(10.dp,8.dp)) {
+                        Icon(
+                            modifier = Modifier.padding(end = 12.dp),
                             painter = painterResource(id = R.drawable.ic_search),
-                            contentDescription = "다시 탐색"
+                            contentDescription = "다시 탐색",
+                            tint = moduBlack
                         )
                         Text(
-                            modifier = Modifier.padding(12.dp, 9.dp, 16.dp, 9.dp),
                             text = "다시 탐색",
                             fontSize = 16.sp,
                             style = moduBold,
