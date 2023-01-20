@@ -31,7 +31,7 @@ import com.example.modugarden.main.upload.EditTextLikeButton
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.UploadPostViewModel
 import com.example.modugarden.R
-import com.example.modugarden.main.content.categoryItem
+import com.example.modugarden.main.content.CategoryItem
 import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
