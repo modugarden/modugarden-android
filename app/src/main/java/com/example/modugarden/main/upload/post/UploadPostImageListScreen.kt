@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -50,6 +51,7 @@ import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.UploadPostViewModel
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -114,11 +116,11 @@ fun UploadPostImageListScreen(
                     .padding(horizontal = 18.dp)
                     .padding(top = 18.dp)
             ) {
-                Text("사진 선택", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = moduBlack)
+                Text("사진 선택", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = moduBlack, modifier = Modifier.align(Alignment.Top))
                 Spacer(modifier = Modifier.width(10.dp))
                 Card(
                     modifier = Modifier
-                        .align(Alignment.CenterVertically),
+                        .align(Alignment.Top),
                     shape = RoundedCornerShape(10.dp),
                     backgroundColor = moduGray_light
                 ) {
@@ -128,16 +130,26 @@ fun UploadPostImageListScreen(
                         .padding(horizontal = 5.dp))
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                SmallButton(
-                    text = "모두 삭제",
-                    backgroundColor = if(deleteState.value) moduErrorBackgroundPoint else Color.White,
-                    textColor = if(deleteState.value) moduErrorPoint else Color.White,
-                    onClick = {
-                        if(imageData.isNotEmpty()) {
-                            uploadPostViewModel.removeRangeImage(imageData.size)
+                Box() {
+                    Text("", fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 8.dp))
+                }
+                AnimatedVisibility(
+                    visible = deleteState.value,
+                    enter = fadeIn(animationSpec = tween(durationMillis = 200, easing = FastOutLinearInEasing)),
+                    exit = fadeOut(animationSpec = tween(durationMillis = 150, easing = FastOutLinearInEasing))
+                ) {
+                    SmallButton(
+                        text = "모두 삭제",
+                        fontSize = 12,
+                        backgroundColor = if(deleteState.value) moduErrorBackgroundPoint else Color.White,
+                        textColor = if(deleteState.value) moduErrorPoint else Color.White,
+                        onClick = {
+                            if(imageData.isNotEmpty()) {
+                                uploadPostViewModel.removeRangeImage(imageData.size)
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(18.dp))
             if(imageData.isEmpty()) { //아직 이미지를 고르지 않았을때 표시할 화면.
@@ -182,7 +194,7 @@ fun UploadPostImageListScreen(
                                 data = data,
                                 deleteState = deleteState,
                                 navController = navController,
-                                uploadPostViewModel = uploadPostViewModel
+                                uploadPostViewModel = uploadPostViewModel,
                             )
                         }
                     }
@@ -228,8 +240,9 @@ fun UploadPostImageListItem(
     data: UploadPost,
     deleteState: MutableState<Boolean>,
     navController: NavHostController,
-    uploadPostViewModel: UploadPostViewModel
+    uploadPostViewModel: UploadPostViewModel,
 ) {
+
     Box() {
         Card(
             modifier = Modifier
@@ -252,6 +265,7 @@ fun UploadPostImageListItem(
                         .override(256,256)
                 }
             )
+            //사진 삭제 버튼
             AnimatedVisibility(
                 visible = deleteState.value,
                 enter = scaleIn(
@@ -274,9 +288,7 @@ fun UploadPostImageListItem(
                         .bounceClick {
                             if (deleteState.value) {
                                 if (data.description.size - 1 >= index) {
-                                    uploadPostViewModel.removeDescription(
-                                        index
-                                    ) //사진에 매핑 되어 있는 설명을 삭제합니다.
+                                    uploadPostViewModel.removeDescription(index) //사진에 매핑 되어 있는 설명을 삭제합니다.
                                 }
                                 uploadPostViewModel.removeImage(index) //누른 사진을 삭제합니다.
                             }
