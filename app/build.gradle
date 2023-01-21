@@ -1,7 +1,11 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
 }
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 android {
     compileSdk 33
@@ -17,6 +21,9 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        buildConfigField "String", "NAVER_CLIENT_ID", properties["NAVER_CLIENT_ID"]
+        buildConfigField "String", "NAVER_CLIENT_SECRET", properties["NAVER_CLIENT_SECRET"]
     }
 
     buildTypes {
@@ -50,8 +57,8 @@ dependencies {
     //viewmodel
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1'
     //viewPager
-    implementation 'com.google.accompanist:accompanist-pager:0.23.0'
-    implementation 'com.google.accompanist:accompanist-pager-indicators:0.23.0'
+    implementation 'com.google.accompanist:accompanist-pager:0.27.1'
+    implementation 'com.google.accompanist:accompanist-pager-indicators:0.27.1'
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation "androidx.compose.ui:ui:$compose_version"
@@ -61,8 +68,17 @@ dependencies {
     implementation 'androidx.activity:activity-compose:1.3.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1'
 
+    implementation 'com.navercorp.nid:oauth:5.1.1' // jdk 11
+    implementation 'com.google.gms:google-services:4.3.14'
+
+    implementation platform('com.google.firebase:firebase-bom:31.2.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-auth:21.1.0'
+    implementation 'com.google.android.gms:play-services-auth:20.4.0'
+
     implementation 'androidx.navigation:navigation-compose:2.5.3'
     implementation "com.github.skydoves:landscapist-glide:1.4.8"
+    implementation 'com.google.accompanist:accompanist-navigation-animation:0.27.1'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'

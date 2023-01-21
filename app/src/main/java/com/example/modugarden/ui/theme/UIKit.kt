@@ -372,6 +372,7 @@ fun SmallButton(
     backgroundColor: Color = moduPoint,
     text: String,
     textColor: Color = Color.White,
+    fontSize: Int = 14,
     onClick: () -> Unit,
 ) {
     Card(
@@ -381,7 +382,7 @@ fun SmallButton(
         elevation = 0.dp,
         shape = RoundedCornerShape(7.dp)
     ) {
-        Text(text, fontSize = 14.sp, color = textColor, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 18.dp).padding(vertical = 8.dp), textAlign = TextAlign.Center)
+        Text(text, fontSize = fontSize.sp, color = textColor, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 18.dp).padding(vertical = 8.dp), textAlign = TextAlign.Center)
     }
 }
 //하단 버튼
