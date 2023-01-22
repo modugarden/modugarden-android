@@ -20,11 +20,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
+import com.example.modugarden.data.Notification
 import com.example.modugarden.ui.theme.*
 import com.skydoves.landscapist.glide.GlideImage
 
 @Composable
-fun NotificationCommunicationCard(data: NotificationData, lastItem: Boolean) {
+fun NotificationCommunicationCard(data: Notification, lastItem: Boolean) {
     Row(
         modifier = Modifier
             .padding(top = 25.dp)
