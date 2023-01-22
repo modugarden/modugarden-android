@@ -1,6 +1,10 @@
 package com.example.modugarden.main.content
 
 import android.app.Activity
+import android.net.Uri
+import android.view.ViewGroup
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
@@ -37,7 +42,7 @@ import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_strong
 
 @Composable
-fun CurationContent(navController: NavHostController) {
+fun CurationContent( url :String) {
     val focusManager = LocalFocusManager.current
     //액티비티 종료할 때 사용할 변수
     val activity = (LocalContext.current as? Activity)
@@ -72,9 +77,18 @@ fun CurationContent(navController: NavHostController) {
                     .fillMaxWidth()
                     .height(1.dp)
             )
-
             // 컨텐츠
-            Box(){}
+            AndroidView(factory = {
+                WebView(it).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                    webViewClient = WebViewClient()
+                    loadUrl(url)
+                }
+            }, update = {it.loadUrl(url)}
+            )
         }
     }
 }
@@ -82,6 +96,6 @@ fun CurationContent(navController: NavHostController) {
 @Preview
 @Composable
 fun CurationContentPreview() {
-    val navController = rememberNavController()
-    CurationContent(navController = navController)
+
+    CurationContent("")
 }
