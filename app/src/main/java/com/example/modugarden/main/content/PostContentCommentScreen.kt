@@ -1,5 +1,6 @@
 package com.example.modugarden.main.content
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -73,14 +75,19 @@ import com.example.modugarden.ui.theme.moduPoint
 import com.example.modugarden.viewmodel.CommentViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun PostContentCommentScreen(navController: NavHostController,
                              commentViewModel: CommentViewModel) {
     val comments= remember { mutableStateListOf<Comment>() }
+    val reply = remember { mutableStateListOf<Comment>() }
     val data  :MutableState<Comment>
-    = remember{ mutableStateOf(Comment("","",0,mutableStateOf(false))) } // 신고 데이터
+    = remember{ mutableStateOf(Comment(userID = "",
+        description = "", time = 0, isReplying = mutableStateOf(false),
+        reply = reply, parentId = null)) } // 신고 데이터
+
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
     val isTextFieldCommentFocused = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
@@ -88,7 +95,6 @@ fun PostContentCommentScreen(navController: NavHostController,
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val showModalSheet = rememberSaveable{ mutableStateOf(false) } // 신고 모달 상태 변수
     val scope = rememberCoroutineScope()
-
 
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
@@ -128,7 +134,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                                     .clip(CircleShape),
                                 contentScale = ContentScale.Crop)
                             Spacer(modifier = Modifier.size(18.dp))
-                            Text(text = data.value.description,
+                            Text(text = data.value.description!!,
                                 style = moduBold, fontSize = 14.sp)
                         }
                     }
@@ -149,6 +155,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                                 "게시판 성격에 부적절함")) { index, item ->
                                 CategoryItem(category = item)
                         }
+
                     }
                     Spacer(modifier = Modifier.size(18.dp))
                     // 구분선
@@ -161,7 +168,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                         .padding(18.dp)
                         .bounceClick { },
                         verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = data.value.userID, style = moduBold, fontSize = 16.sp)
+                        Text(text = data.value.userID!!, style = moduBold, fontSize = 16.sp)
                         Text(text = "님 차단하기", color = moduBlack, fontSize = 16.sp)
                         Spacer(modifier = Modifier.weight(1f))
                         Icon(painter = painterResource(id = R.drawable.ic_chevron_right),
@@ -221,21 +228,21 @@ fun PostContentCommentScreen(navController: NavHostController,
                             // 댓글 영역
                                 LazyColumn(
                                     Modifier
+                                        .wrapContentSize()
                                         .background(Color.White)
-                                        .fillMaxSize(1f)
-                                        .background(Color.White)){
+                                ){
+
                                     items(comments){comment->
                                         CommentItem(
                                             comment = comment,
-                                            commentViewModel,
                                             showModalSheet = showModalSheet,
                                             scope = scope,
                                             bottomSheetState = bottomSheetState,
                                             data = data
                                         )
+
                                     }
                                 }
-
 
 
                         }
@@ -244,7 +251,28 @@ fun PostContentCommentScreen(navController: NavHostController,
                         Column {
                             //답글 입력중일 때
                             if(data.value.isReplying.value) {
-                                texting(data = data)}
+                                Box(
+                                    modifier = Modifier
+                                        .background(moduBackground)
+                                        .fillMaxWidth()
+                                        .padding(18.dp, 12.dp)
+                                ) {
+                                    Text(
+                                        modifier = Modifier.align(Alignment.CenterStart),
+                                        text = "@${data.value.userID} 님께 답글 남기는 중", color = moduGray_strong, fontSize = 12.sp
+                                    )
+                                    // 답글 창 닫기
+                                    Icon(
+                                        modifier = Modifier
+                                            .align(Alignment.CenterEnd)
+                                            .bounceClick {
+                                                data.value.isReplying.value = false
+                                            },
+                                        painter = painterResource(id = R.drawable.ic_xmark),
+                                        contentDescription = "",
+                                        tint = moduGray_strong
+                                    )
+                                }}
 
                             Box(
                                 modifier = Modifier
@@ -306,19 +334,41 @@ fun PostContentCommentScreen(navController: NavHostController,
                                     )
                                     // 댓글 작성 아이콘, 댓글 입력중이면  (변경 필요)
                                     Icon(
+
                                         modifier = Modifier
                                             .bounceClick {
                                                 if (textFieldComment.value.isNotEmpty()) {
-                                                    commentViewModel.addComment(
-                                                        Comment(
-                                                            "test",
-                                                            textFieldComment.value,
-                                                            1,
-                                                            mutableStateOf(false)
-                                                        ), comments
-                                                    )
+                                                    // 답글 입력중이라면
+                                                    if (data.value.isReplying.value) {
+                                                        commentViewModel.addReply(
+                                                            Comment(
+                                                                id = UUID.randomUUID(),
+                                                                userID = "reply",
+                                                                description = textFieldComment.value,
+                                                                time = 1,
+                                                                reply = reply,
+                                                                parentId = data.value.id,
+                                                                mode = true
+                                                            ), comments
+                                                        )
+
+                                                    } else {
+                                                        commentViewModel.addComment(
+                                                            Comment(
+                                                                id = UUID.randomUUID(),
+                                                                userID = "comment",
+                                                                description = textFieldComment.value,
+                                                                time = 0,
+                                                                reply = reply,
+                                                                parentId = null,
+                                                                mode = false
+                                                            ), comments
+                                                        )
+                                                    }
+
                                                 }
                                                 textFieldComment.value = ""
+                                                data.value.isReplying.value = false
                                             }
                                             .alpha(
                                                 if (textFieldComment.value.isNotEmpty()) 1f
@@ -337,31 +387,125 @@ fun PostContentCommentScreen(navController: NavHostController,
 
 
                 }
+        for (j in 0 until comments.size){
+        Log.d("data:","${comments[j]}") }
+
+
+    }
+
+}
+
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun CommentItem(comment: Comment,
+                showModalSheet:MutableState<Boolean>,
+                scope:CoroutineScope,
+                bottomSheetState:ModalBottomSheetState,
+                data: MutableState<Comment>){
+        Column(
+            modifier = Modifier
+                .wrapContentSize()
+                .background(Color.White)
+        ) {
+            Box()
+            {
+                Row(
+                    modifier = Modifier
+                        .background(
+                            if (data.value.isReplying.value && comment.description == data.value.description) moduBackground
+                            else Color.White
+                        )
+                        .padding(18.dp)
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // 댓글 작성자 프로필 사진
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_user),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                    Spacer(modifier = Modifier.size(10.dp))
+
+                    // 댓글 내용
+                    Column() {
+                        Row() {
+                            Text(
+                                text = "${comment.userID} ∙ ",
+                                color = moduGray_strong,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "${comment.time}",
+                                color = moduGray_strong,
+                                fontSize = 11.sp
+                            )
+                        }
+                        Text(
+                            text = comment.description!!,
+                            color = moduBlack,
+                            fontSize = 12.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    // 댓글 버튼들
+                    Icon(
+                        modifier = Modifier.bounceClick {
+                            comment.isReplying.value = true
+                            data.value = comment
+                        },
+                        painter = painterResource(id = R.drawable.ic_chat_line),
+                        contentDescription = "답글", tint = moduGray_strong
+                    )
+                    Spacer(modifier = Modifier.size(18.dp))
+                    Icon(
+                        modifier = Modifier.bounceClick {
+                            data.value = comment
+                            //버튼 클릭하면 바텀 모달 상태 변수 바뀜
+                            showModalSheet.value = !showModalSheet.value
+                            scope.launch {
+                                bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                            }
+                        },
+                        painter = painterResource(id = R.drawable.ic_dot3_vertical),
+                        contentDescription = "더보기", tint = moduGray_strong
+                    )
+                }
+            }
+            if (comment.reply.size>0) {
+                LazyColumn(modifier = Modifier.height(200.dp)) {
+                    items(comment.reply){
+                        ReplyItem(reply = it)
+                    }
+                }
+            }
+
         }
 
 }
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun CommentItem(comment: Comment,
-                commentViewModel: CommentViewModel,
-                showModalSheet:MutableState<Boolean>,
-                scope:CoroutineScope,
-                bottomSheetState:ModalBottomSheetState,
-                data: MutableState<Comment>){
-
+fun ReplyItem(reply: Comment){
         Box(
             modifier = Modifier
                 .background(Color.White)
-                .background(
-                    if (data.value.isReplying.value && comment.description == data.value.description) moduBackground
-                    else Color.White)
         ) {
+
             Row(
                 modifier = Modifier
                     .padding(18.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    ,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Spacer(modifier = Modifier.size(18.dp))
                 // 댓글 작성자 프로필 사진
                 Image(
                     painter = painterResource(id = R.drawable.ic_user),
@@ -377,36 +521,25 @@ fun CommentItem(comment: Comment,
                 Column() {
                     Row() {
                         Text(
-                            text = "${comment.userID} ∙ ",
+                            text = "${reply.userID} ∙ ",
                             color = moduGray_strong,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
                         )
-                        Text(text = "${comment.time}", color = moduGray_strong, fontSize = 11.sp)
+                        Text(text = "${reply.time}", color = moduGray_strong, fontSize = 11.sp)
                     }
-                    Text(text = comment.description, color = moduBlack, fontSize = 12.sp)
+                    Text(text = reply.description!!, color = moduBlack, fontSize = 12.sp)
                 }
                 Spacer(modifier = Modifier.weight(1f))
-
-                // 댓글 버튼들
+                
                 Icon(
                     modifier = Modifier.bounceClick {
-                        comment.isReplying.value = true
-                        
-                       data.value = comment
-                    },
-                    painter = painterResource(id = R.drawable.ic_chat_line),
-                    contentDescription = "답글", tint = moduGray_strong
-                )
-                Spacer(modifier = Modifier.size(18.dp))
-                Icon(
-                    modifier = Modifier.bounceClick {
-                        data.value = comment
+                        /*data.value = comment
                         //버튼 클릭하면 바텀 모달 상태 변수 바뀜
                         showModalSheet.value = !showModalSheet.value
                         scope.launch {
                             bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                        }
+                        }*/
                     },
                     painter = painterResource(id = R.drawable.ic_dot3_vertical),
                     contentDescription = "더보기", tint = moduGray_strong
@@ -416,6 +549,7 @@ fun CommentItem(comment: Comment,
         }
 
 }
+
 
 @Composable
 fun CategoryItem(category:String){
@@ -431,35 +565,6 @@ fun CategoryItem(category:String){
     }
 }
 
-@Composable
-fun texting(data:MutableState<Comment>){
-        // 답글 작성 시 표시됨
-        Box(
-            modifier = Modifier
-                .background(moduBackground)
-                .fillMaxWidth()
-                .padding(18.dp, 12.dp)
-        ) {
-            Text(
-                modifier = Modifier.align(Alignment.CenterStart),
-                text = "@${data.value.userID}님께 답글 남기는 중", color = moduGray_strong, fontSize = 12.sp
-            )
-            // 답글 창 닫기
-            Icon(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .bounceClick {
-                        data.value.isReplying.value = false
-                    },
-                painter = painterResource(id = R.drawable.ic_xmark),
-                contentDescription = "",
-                tint = moduGray_strong
-            )
-        }
-
-
-}
-
 @OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
@@ -467,4 +572,7 @@ fun PostContentCommentPreview(){
     val navController = rememberNavController()
     val commentViewModel:CommentViewModel= viewModel()
     PostContentCommentScreen(navController = navController,commentViewModel)
+
+
+
 }

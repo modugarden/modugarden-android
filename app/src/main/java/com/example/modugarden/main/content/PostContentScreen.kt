@@ -5,6 +5,7 @@ import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -90,6 +91,7 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }// 팔로우 스낵바 메세지 상태 변수
         ModalBottomSheetLayout(
+            modifier = Modifier.verticalScroll(scrollState),
             sheetElevation = 0.dp,
             sheetBackgroundColor = Color.Transparent,
             sheetState = bottomSheetState,
@@ -417,6 +419,7 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                         // 제목, 카테고리, 업로드 시간
                         Column(
                             modifier = Modifier
+                                .fillMaxWidth()
                                 .background(Color.White)
                                 .padding(30.dp, 25.dp)
                         ) {
@@ -426,13 +429,12 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                                 fontWeight = FontWeight.Bold,
                                 color = Color("#17291F".toColorInt())
                             )
-                            Row {
+                            Row( modifier = Modifier.fillMaxWidth()) {
                                 Text("category ∙ ", fontSize = 14.sp, color = Color("#75807A".toColorInt()))
                                 Text("upload date", fontSize = 14.sp, color = Color("#75807A".toColorInt()))
                             }
-                            Text(modifier = Modifier.padding(vertical = 25.dp),
-                                text = "Description", fontSize = 16.sp,
-                                )
+                            Text(modifier = Modifier.padding(vertical = 25.dp).fillMaxWidth(),
+                                text = "Description", fontSize = 16.sp,)
 
                         }
 /*                        // 구분선
@@ -567,7 +569,7 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                             // 댓글
                             Icon(
                                 modifier = Modifier
-                                    .bounceClick { },
+                                    .bounceClick {navController.navigate(NAV_ROUTE_POSTCONTENT.COMMENT.routeName) },
                                 painter = painterResource(id = R.drawable.ic_chat_line),
                                 contentDescription = "댓글",
                                 tint = moduBlack
@@ -593,11 +595,6 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                             )
                             Icon(
                                 modifier = Modifier.bounceClick {
-                                    //버튼 클릭하면 바텀 모달 상태 변수 바뀜고
-                                    modalType.value = modalReportType
-                                    scope.launch {
-                                        bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                                    }
                                 },
                                 painter = painterResource(id = R.drawable.ic_dot3_vertical),
                                 contentDescription = "신고",
@@ -612,7 +609,7 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(18.dp)) {
-                    // 뒤로 가기 버튼 (변경 필요)
+                    // 뒤로 가기 버튼
                     Icon(
                         modifier = Modifier
                             .bounceClick { activity?.finish() },
@@ -620,9 +617,15 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                         contentDescription = "뒤로가기",
                         tint = Color.White
                     )
+                    // 메뉴 버튼
                     Icon(
                         modifier = Modifier
-                            .bounceClick { activity?.finish() },
+                            .bounceClick {
+                                //버튼 클릭하면 바텀 모달 상태 변수 바뀜
+                                modalType.value = modalReportType
+                                scope.launch {
+                                    bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                                }},
                         painter = painterResource(id = R.drawable.ic_dot3_vertical),
                         contentDescription = "뒤로가기",
                         tint = Color.White

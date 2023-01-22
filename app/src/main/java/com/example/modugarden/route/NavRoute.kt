@@ -25,7 +25,8 @@ enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val ico
     DISCOVER("DISCOVER", "탐색", R.drawable.ic_search),
     UPLOAD("UPLOAD", "업로드", R.drawable.ic_plus_solid),
     NOTIFICATION("NOTIFICATION", "알림", R.drawable.ic_notification),
-    MYPROFILE("MYPROFILE", "내 프로필", R.drawable.ic_user)
+    MYPROFILE("MYPROFILE", "내 프로필", R.drawable.ic_user),
+    COMMENT("COMMENT","댓글",R.drawable.ic_user)
 }
 @Composable
 fun NavigationGraphBNB(navController: NavHostController) {
