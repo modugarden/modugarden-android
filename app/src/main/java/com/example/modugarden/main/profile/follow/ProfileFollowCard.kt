@@ -8,6 +8,8 @@ import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,25 +23,29 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
-import com.example.modugarden.ui.theme.moduBlack
-import com.example.modugarden.ui.theme.moduGray_normal
-import com.example.modugarden.ui.theme.moduPoint
+import com.example.modugarden.ui.theme.*
 
 // 팔로잉, 팔로워 프로필 카드
 @OptIn(ExperimentalMaterialApi::class)
 @Preview(showBackground = true)
 @Composable
-fun ProfileFollowCard() {
+fun ProfileCard(
+
+) {
     Row(
-        modifier = Modifier.height(50.dp)
+        modifier = Modifier
+            .height(50.dp)
+            .bounceClick {
+
+            }
     ) {
         Image(
-            painter = painterResource(id = R.drawable.cog_8_tooth),
+            painter = painterResource(id = R.drawable.test_image1),
             contentDescription = null,
             modifier = Modifier
-                .fillMaxHeight()
+                .size(50.dp)
                 .clip(CircleShape),
-            contentScale = ContentScale.FillHeight
+            contentScale = ContentScale.Crop
         )
         Column(
             modifier = Modifier
@@ -63,18 +69,24 @@ fun ProfileFollowCard() {
             )
         }
         Spacer(modifier = Modifier.weight(1f))
+
+        val btnText = remember { mutableStateOf("팔로우") }
+        val btnColor = remember { mutableStateOf(moduPoint) }
+        val btnTextColor = remember { mutableStateOf(Color.White) }
         Card(
             modifier = Modifier
                 .align(Alignment.CenterVertically)
-                .wrapContentSize(),
+                .wrapContentSize()
+                .bounceClick {
+                    // 팔로우 api
+                },
             shape = RoundedCornerShape(5.dp),
-            backgroundColor = moduPoint,
-            onClick = {}
+            backgroundColor = btnColor.value
         ) {
             Text(
-                text = "팔로우",
+                text = btnText.value,
                 style = TextStyle(
-                    color = Color.White,
+                    color = btnTextColor.value,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
