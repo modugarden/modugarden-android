@@ -27,7 +27,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
-import com.example.modugarden.ui.theme.bounceClick
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
@@ -129,9 +128,35 @@ val user = User(
     true, postResponse, curationResponse
 )
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun ProfileTab(
+fun ProfileTab (
+    // 포스트 리스트
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier
+            .padding(18.dp)
+            .fillMaxSize()
+    ) {
+        items(user.post) { postCard ->
+            // 이미지가 들어간 버튼을 넣어야 함
+            Image(
+                painter = painterResource(id = postCard.image),
+                contentDescription = null,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(5.dp))
+                    .fillMaxSize(),
+                contentScale = ContentScale.FillWidth
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun CuratorProfileTab(
     // 포스트 및 큐레이션 리스트
 ) {
     val pagerState = rememberPagerState()

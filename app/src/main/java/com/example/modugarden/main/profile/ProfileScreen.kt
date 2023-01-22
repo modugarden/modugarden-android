@@ -14,7 +14,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -25,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import com.example.modugarden.R
 import com.example.modugarden.main.profile.follow.ProfileFollowActivity
+import com.example.modugarden.main.settings.SettingsActivity
 import com.example.modugarden.ui.theme.*
 
 /*
@@ -61,12 +61,15 @@ fun MyProfileScreen() {
                         painterResource(id = R.drawable.ellipsis_vertical),
                 contentDescription = null,
                 modifier = Modifier
-                    .clickable(
-                        enabled = true
-                    ) {
-                        /*
-                        설정 화면으로 이동
-                        */
+                    .bounceClick {
+                        if(userId == myId)
+                        {
+                            context.startActivity(Intent(context, SettingsActivity::class.java))
+                        }
+                        else
+                        {
+
+                        }
                     }
                     .align(Alignment.TopEnd),
                 tint = moduGray_normal
@@ -233,8 +236,9 @@ fun MyProfileScreen() {
                 }
             }
         }
-
         // 탭 구현
-        ProfileTab()
+        if(userId == myId)
+
+        CuratorProfileTab()
     }
 }
