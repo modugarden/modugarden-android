@@ -1,12 +1,16 @@
 package com.example.modugarden.route
 
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import com.google.accompanist.navigation.animation.composable
 import com.example.modugarden.R
 import com.example.modugarden.login.MainLoginScreen
 import com.example.modugarden.main.content.PostContentCommentScreen
@@ -18,6 +22,7 @@ import com.example.modugarden.main.notification.NotificationScreen
 import com.example.modugarden.main.profile.MyProfileScreen
 import com.example.modugarden.main.upload.UploadScreen
 import com.example.modugarden.signup.*
+import com.google.accompanist.navigation.animation.AnimatedNavHost
 
 enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val icon: Int) { //main 패키지 루트.
 
@@ -28,16 +33,128 @@ enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val ico
     MYPROFILE("MYPROFILE", "내 프로필", R.drawable.ic_user),
     COMMENT("COMMENT","댓글",R.drawable.ic_user)
 }
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavigationGraphBNB(navController: NavHostController) {
-    NavHost(navController, startDestination = NAV_ROUTE_BNB.FOLLOW.routeName,
+
+    val fadeInDuration = 500
+    val fadeOutDuration = 50
+    val slideInDuration = 200
+    val slideOutDuration = 200
+
+    AnimatedNavHost(navController, startDestination = NAV_ROUTE_BNB.FOLLOW.routeName,
         modifier = Modifier.fillMaxSize()
     ) {
-        composable(NAV_ROUTE_BNB.FOLLOW.routeName) { FollowScreen(navController) }
-        composable(NAV_ROUTE_BNB.DISCOVER.routeName) { DiscoverScreen(navController) }
-        composable(NAV_ROUTE_BNB.UPLOAD.routeName) { UploadScreen(navController) }
-        composable(NAV_ROUTE_BNB.NOTIFICATION.routeName) { NotificationScreen(navController) }
-        composable(NAV_ROUTE_BNB.MYPROFILE.routeName) { MyProfileScreen() }
+        composable(
+            NAV_ROUTE_BNB.FOLLOW.routeName,
+            enterTransition = {
+                    fadeIn(animationSpec = tween(fadeInDuration)) +
+                            slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideInDuration))
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(fadeOutDuration)) +
+                        slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideOutDuration))
+            }
+        ) { FollowScreen(navController) }
+        composable(
+            NAV_ROUTE_BNB.DISCOVER.routeName,
+            enterTransition = {
+                when(initialState.destination.route) {
+                    NAV_ROUTE_BNB.FOLLOW.routeName ->
+                        fadeIn(animationSpec = tween(fadeInDuration)) +
+                                slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideInDuration))
+                    else ->
+                        fadeIn(animationSpec = tween(fadeInDuration)) +
+                                slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideInDuration))
+                }
+            }
+        ) { DiscoverScreen(navController) }
+        composable( //업로드
+            NAV_ROUTE_BNB.UPLOAD.routeName,
+            enterTransition = {
+                when (initialState.destination.route) {
+                    NAV_ROUTE_BNB.FOLLOW.routeName ->
+                        fadeIn(animationSpec = tween(fadeInDuration)) +
+                                slideIntoContainer(
+                                    AnimatedContentScope.SlideDirection.Left,
+                                    animationSpec = tween(slideInDuration)
+                                )
+                    NAV_ROUTE_BNB.DISCOVER.routeName ->
+                        fadeIn(animationSpec = tween(fadeInDuration)) +
+                                slideIntoContainer(
+                                    AnimatedContentScope.SlideDirection.Left,
+                                    animationSpec = tween(slideInDuration)
+                                )
+                    else ->
+                        fadeIn(animationSpec = tween(fadeInDuration)) +
+                                slideIntoContainer(
+                                    AnimatedContentScope.SlideDirection.Right,
+                                    animationSpec = tween(slideInDuration)
+                                )
+                }
+            },
+            exitTransition = {
+                when(targetState.destination.route) {
+                    NAV_ROUTE_BNB.FOLLOW.routeName ->
+                        fadeOut(animationSpec = tween(fadeOutDuration)) +
+                                slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideOutDuration))
+                    NAV_ROUTE_BNB.DISCOVER.routeName ->
+                        fadeOut(animationSpec = tween(fadeOutDuration)) +
+                                slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideOutDuration))
+                    else ->
+                        fadeOut(animationSpec = tween(fadeOutDuration)) +
+                                slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideOutDuration))
+                }
+            }
+        ) { UploadScreen(navController) }
+        composable(
+            NAV_ROUTE_BNB.NOTIFICATION.routeName,
+            enterTransition = {
+                when(initialState.destination.route) {
+                    NAV_ROUTE_BNB.FOLLOW.routeName ->
+                        fadeIn(animationSpec = tween(fadeInDuration)) +
+                                slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideInDuration))
+                    NAV_ROUTE_BNB.DISCOVER.routeName ->
+                        fadeIn(animationSpec = tween(fadeInDuration)) +
+                                slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideInDuration))
+                    NAV_ROUTE_BNB.UPLOAD.routeName ->
+                        fadeIn(animationSpec = tween(fadeInDuration)) +
+                                slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideInDuration))
+                    NAV_ROUTE_BNB.MYPROFILE.routeName ->
+                        fadeIn(animationSpec = tween(fadeInDuration)) +
+                                slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideInDuration))
+                    else -> fadeIn(animationSpec = tween(fadeInDuration))
+                }
+            },
+            exitTransition = {
+                when(targetState.destination.route) {
+                    NAV_ROUTE_BNB.FOLLOW.routeName ->
+                        fadeOut(animationSpec = tween(fadeInDuration)) +
+                                slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideInDuration))
+                    NAV_ROUTE_BNB.DISCOVER.routeName ->
+                        fadeOut(animationSpec = tween(fadeInDuration)) +
+                                slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideInDuration))
+                    NAV_ROUTE_BNB.UPLOAD.routeName ->
+                        fadeOut(animationSpec = tween(fadeInDuration)) +
+                                slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideInDuration))
+                    NAV_ROUTE_BNB.MYPROFILE.routeName ->
+                        fadeOut(animationSpec = tween(fadeInDuration)) +
+                                slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideInDuration))
+                    else -> fadeOut(animationSpec = tween(fadeInDuration))
+                }
+            }
+        ) { NotificationScreen(navController) }
+        composable(
+            NAV_ROUTE_BNB.MYPROFILE.routeName,
+            enterTransition = {
+                fadeIn(animationSpec = tween(fadeInDuration)) +
+                        slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideInDuration))
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(fadeOutDuration)) +
+                        slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideOutDuration))
+            }
+        ) { MyProfileScreen() }
     }
 }
 

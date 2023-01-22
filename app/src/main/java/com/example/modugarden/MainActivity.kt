@@ -34,6 +34,7 @@ import com.example.modugarden.main.follow.FollowScreen
 import com.example.modugarden.route.NAV_ROUTE_BNB
 import com.example.modugarden.route.NavigationGraphBNB
 import com.example.modugarden.ui.theme.bounceClick
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,9 +91,10 @@ fun BottomNav(navController: NavController) {
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainNavScreen() {
-    val navController = rememberNavController()
+    val navController = rememberAnimatedNavController()
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             bottomBar = { BottomNav(navController = navController) }
