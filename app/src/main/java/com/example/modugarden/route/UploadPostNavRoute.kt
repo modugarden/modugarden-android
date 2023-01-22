@@ -24,7 +24,7 @@ enum class NAV_ROUTE_UPLOAD_POST(val routeName: String, val description: String)
     IMAGELIST("UPLOAD_POST_IMAGELIST", "포스트 업로드 사진 리스트 창"),
     IMAGEEDIT("UPLOAD_POST_IMAGEEDIT", "포스트 업로드 사진 편집창"),
     INFO("UPLOAD_POST_INFO", "포스트 업로드 정보 입력창"),
-    IMAGEDETAIL("UPLOAD_POST_IMAGEDETAIL", "포스트 업로드 태그 추가 창"),
+    IMAGEDETAIL("UPLOAD_POST_IMAGEDETAIL", "포스트 업로드 사진 보기 창"),
     TAGLOCATION("UPLOAD_POST_TAGLOCATION", "포스트 업로드 위치 태그 추가 창"),
 }
 @OptIn(ExperimentalAnimationApi::class)
@@ -40,20 +40,40 @@ fun NavigationGraphUploadPost(
         composable(
             NAV_ROUTE_UPLOAD_POST.IMAGELIST.routeName,
             enterTransition = {
-                slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
-                        fadeIn(tween(500))
+                if(initialState.destination.route?.contains(NAV_ROUTE_UPLOAD_POST.IMAGEDETAIL.routeName) == true) {
+                    fadeIn(tween(500))
+                }
+                else {
+                    slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
+                            fadeIn(tween(500))
+                }
             },
             exitTransition =  {
-                slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
-                        fadeOut(tween(500))
+                if(targetState.destination.route?.contains(NAV_ROUTE_UPLOAD_POST.IMAGEDETAIL.routeName) == true) {
+                    fadeOut(tween(500))
+                }
+                else {
+                    slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
+                            fadeOut(tween(500))
+                }
             },
             popEnterTransition = {
-                slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
-                        fadeIn(tween(500))
+                if(initialState.destination.route?.contains(NAV_ROUTE_UPLOAD_POST.IMAGEDETAIL.routeName) == true) {
+                    fadeIn(tween(500))
+                }
+                else {
+                    slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
+                            fadeIn(tween(500))
+                }
             },
             popExitTransition = {
-                slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
-                        fadeOut(tween(500))
+                if(targetState.destination.route?.contains(NAV_ROUTE_UPLOAD_POST.IMAGEDETAIL.routeName) == true) {
+                    fadeOut(tween(500))
+                }
+                else {
+                    slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
+                            fadeOut(tween(500))
+                }
             },
         ) {
             UploadPostImageListScreen(navController = navController, data = data, uploadPostViewModel = uploadPostViewModel)
@@ -87,15 +107,15 @@ fun NavigationGraphUploadPost(
             },
             exitTransition =  {
                 scaleOut(tween(500, easing = EaseOutExpo)) +
-                        fadeOut(tween(500))
+                        fadeOut(tween(200))
             },
             popEnterTransition = {
-                scaleIn(tween(500, easing = EaseOutExpo))
-                        fadeIn(tween(500))
+                scaleIn(tween(500, easing = EaseOutExpo)) +
+                fadeIn(tween(500))
             },
             popExitTransition = {
                 scaleOut(tween(500, easing = EaseOutExpo)) +
-                        fadeOut(tween(500))
+                        fadeOut(tween(200))
             },
             arguments = listOf(
                 navArgument("index") { type = NavType.IntType }
