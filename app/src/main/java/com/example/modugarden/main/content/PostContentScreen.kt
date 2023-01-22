@@ -5,7 +5,6 @@ import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -91,7 +90,6 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }// 팔로우 스낵바 메세지 상태 변수
         ModalBottomSheetLayout(
-            modifier = Modifier.verticalScroll(scrollState),
             sheetElevation = 0.dp,
             sheetBackgroundColor = Color.Transparent,
             sheetState = bottomSheetState,
@@ -433,7 +431,7 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                                 Text("category ∙ ", fontSize = 14.sp, color = Color("#75807A".toColorInt()))
                                 Text("upload date", fontSize = 14.sp, color = Color("#75807A".toColorInt()))
                             }
-                            Text(modifier = Modifier.padding(vertical = 25.dp).fillMaxWidth(),
+                            Text(modifier = Modifier.padding(vertical = 25.dp),
                                 text = "Description", fontSize = 16.sp,)
 
                         }
