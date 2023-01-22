@@ -38,16 +38,6 @@ import com.example.modugarden.MainActivity
 import com.example.modugarden.signup.SignupActivity
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.R
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.tasks.Task
-import com.navercorp.nid.NaverIdLoginSDK
-import com.navercorp.nid.oauth.NidOAuthLogin
-import com.navercorp.nid.oauth.OAuthLoginCallback
-import com.navercorp.nid.profile.NidProfileCallback
-import com.navercorp.nid.profile.data.NidProfileResponse
 
 class Login: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,26 +56,6 @@ fun MainLoginScreen() {
     val isTextFieldFocusedPw = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val mContext = LocalContext.current
-
-    var googleSignInClient: GoogleSignInClient
-
-    fun googleLogin() {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("869252961332-55mlg41lk58vd8qpthfikc0echuu0mb5.apps.googleusercontent.com")
-            .requestEmail()
-            .build()
-
-        googleSignInClient = GoogleSignIn.getClient(mContext, gso)
-    }
-
-    val startForResult = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result: ActivityResult ->
-        val intent = result.data
-        if (result.data != null) {
-            val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(intent)
-        }
-    }
 
     Box(
         modifier = Modifier
