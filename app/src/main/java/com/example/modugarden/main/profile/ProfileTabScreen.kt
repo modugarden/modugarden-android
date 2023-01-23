@@ -20,13 +20,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.StrokeCap.Companion.Square
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
+import com.example.modugarden.ui.theme.bounceClick
+import com.example.modugarden.ui.theme.moduGray_normal
+import com.example.modugarden.ui.theme.moduGray_strong
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
@@ -37,86 +43,86 @@ val pages = listOf("포스트", "큐레이션")
 
 val postResponse = listOf(
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀1", "카테고리1",
+        R.drawable.test_image1, "타이틀1", "카테고리1",
         "2023년 1월 6일", "유저1"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀2", "카테고리2",
+        R.drawable.test_image2, "타이틀2", "카테고리2",
         "2023년 1월 6일", "유저2"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀3", "카테고리3",
+        R.drawable.test_image3, "타이틀3", "카테고리3",
         "2023년 1월 6일", "유저3"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀4", "카테고리4",
+        R.drawable.test_image4, "타이틀4", "카테고리4",
         "2023년 1월 6일", "유저4"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀5", "카테고리5",
+        R.drawable.test_image5, "타이틀5", "카테고리5",
         "2023년 1월 6일", "유저5"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀6", "카테고리6",
+        R.drawable.test_image1, "타이틀6", "카테고리6",
         "2023년 1월 6일", "유저6"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀7", "카테고리7",
+        R.drawable.test_image2, "타이틀7", "카테고리7",
         "2023년 1월 6일", "유저7"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀7", "카테고리7",
+        R.drawable.test_image3, "타이틀7", "카테고리7",
         "2023년 1월 6일", "유저7"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀7", "카테고리7",
+        R.drawable.test_image4, "타이틀7", "카테고리7",
         "2023년 1월 6일", "유저7"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀7", "카테고리7",
+        R.drawable.test_image5, "타이틀7", "카테고리7",
         "2023년 1월 6일", "유저7"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀7", "카테고리7",
+        R.drawable.test_image1, "타이틀7", "카테고리7",
         "2023년 1월 6일", "유저7"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀7", "카테고리7",
+        R.drawable.test_image2, "타이틀7", "카테고리7",
         "2023년 1월 6일", "유저7"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀7", "카테고리7",
+        R.drawable.test_image3, "타이틀7", "카테고리7",
         "2023년 1월 6일", "유저7"
     )
 )
 
 val curationResponse = listOf(
     CurationCard(
-        R.drawable.cog_8_tooth, "타이틀1", "카테고리1",
+        R.drawable.test_image1, "타이틀1", "카테고리1",
         "2023년 1월 6일", "유저1"
     ),
     CurationCard(
-        R.drawable.cog_8_tooth, "타이틀2", "카테고리2",
+        R.drawable.test_image2, "타이틀2", "카테고리2",
         "2023년 1월 6일", "유저2"
     ),
     CurationCard(
-        R.drawable.cog_8_tooth, "타이틀3", "카테고리3",
+        R.drawable.test_image3, "타이틀3", "카테고리3",
         "2023년 1월 6일", "유저3"
     ),
     CurationCard(
-        R.drawable.cog_8_tooth, "타이틀4", "카테고리4",
+        R.drawable.test_image4, "타이틀4", "카테고리4",
         "2023년 1월 6일", "유저4"
     ),
     CurationCard(
-        R.drawable.cog_8_tooth, "타이틀5", "카테고리5",
+        R.drawable.test_image5, "타이틀5", "카테고리5",
         "2023년 1월 6일", "유저5"
     ),
     CurationCard(
-        R.drawable.cog_8_tooth, "타이틀6", "카테고리6",
+        R.drawable.test_image1, "타이틀6", "카테고리6",
         "2023년 1월 6일", "유저6"
     ),
     CurationCard(
-        R.drawable.cog_8_tooth, "타이틀7", "카테고리7",
+        R.drawable.test_image2, "타이틀7", "카테고리7",
         "2023년 1월 6일", "유저7"
     )
 )
@@ -124,7 +130,7 @@ val curationResponse = listOf(
 val categoryResponse = listOf("식물 키우기", "식물 부수기", "식물 심기")
 
 val user = User(
-    R.drawable.cog_8_tooth, "Mara", categoryResponse, 100, 50,
+    R.drawable.test_image1, "Mara", categoryResponse, 100, 50,
     true, postResponse, curationResponse
 )
 
@@ -134,11 +140,10 @@ fun ProfileTab (
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier
-            .padding(18.dp)
-            .fillMaxSize()
+        verticalArrangement = Arrangement.spacedBy(18.dp),
+        horizontalArrangement = Arrangement.spacedBy(18.dp),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(18.dp)
     ) {
         items(user.post) { postCard ->
             // 이미지가 들어간 버튼을 넣어야 함
@@ -147,14 +152,19 @@ fun ProfileTab (
                 contentDescription = null,
                 modifier = Modifier
                     .clip(RoundedCornerShape(5.dp))
-                    .fillMaxSize(),
-                contentScale = ContentScale.FillWidth
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .bounceClick {
+
+                    },
+                contentScale = ContentScale.Crop
             )
         }
     }
 }
 
 @OptIn(ExperimentalPagerApi::class)
+@Preview(showBackground = true)
 @Composable
 fun CuratorProfileTab(
     // 포스트 및 큐레이션 리스트
@@ -208,11 +218,10 @@ fun CuratorProfileTab(
             0 -> {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier
-                        .padding(18.dp)
-                        .fillMaxSize()
+                    verticalArrangement = Arrangement.spacedBy(18.dp),
+                    horizontalArrangement = Arrangement.spacedBy(18.dp),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(18.dp)
                 ) {
                     items(user.post) { postCard ->
                         // 이미지가 들어간 버튼을 넣어야 함
@@ -221,34 +230,42 @@ fun CuratorProfileTab(
                             contentDescription = null,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(5.dp))
-                                .fillMaxSize(),
-                            contentScale = ContentScale.FillWidth
+                                .fillMaxWidth()
+                                .aspectRatio(1f)
+                                .bounceClick {
+
+                                },
+                            contentScale = ContentScale.Crop
                         )
                     }
                 }
             }
             1 -> {
                 LazyColumn(
-                    modifier = Modifier
-                        .padding(18.dp)
-                        .fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(18.dp),
+                    contentPadding = PaddingValues(18.dp)
                 ) {
                     items(user.curation) { curationCard ->
                         Row(
-                            modifier = Modifier.height(100.dp)
+                            modifier = Modifier
+                                .height(90.dp)
+                                .bounceClick {
+
+                                }
                         ) {
                             Image(
                                 painter = painterResource(id = curationCard.thumbnail_image),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(5.dp))
-                                    .fillMaxHeight(),
-                                contentScale = ContentScale.FillHeight
+                                    .size(90.dp),
+                                contentScale = ContentScale.Crop
                             )
+                            Spacer(modifier = Modifier.width(18.dp))
                             Column(
                                 modifier = Modifier
-                                    .padding(10.dp)
+                                    .height(42.dp)
                                     .align(Alignment.CenterVertically)
                             ) {
                                 Text(
@@ -256,12 +273,14 @@ fun CuratorProfileTab(
                                     style = TextStyle(
                                         color = Color.Black,
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = 13.sp
+                                        fontSize = 14.sp
                                     )
                                 )
+                                Spacer(modifier = Modifier.weight(1f))
                                 Text(
                                     text = "${curationCard.category}, ${curationCard.time}",
-                                    fontSize = 13.sp
+                                    fontSize = 12.sp,
+                                    color = moduGray_strong
                                 )
                             }
                         }

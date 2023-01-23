@@ -18,10 +18,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
+import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,10 +57,12 @@ import com.example.modugarden.ui.theme.moduGray_light
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable //팔로우 피드에 표시되는 큐레이션 카드 item.
 fun CurationCard(userID:String,
                  scope: CoroutineScope,
-                 snackbarHostState: SnackbarHostState
+                 snackbarHostState: SnackbarHostState,
+                 bottomSheetState: ModalBottomSheetState
 ) {
     val mContext = LocalContext.current
     Card(
@@ -161,7 +167,7 @@ fun CurationCard(userID:String,
                     modifier = Modifier
                         .padding(18.dp)
                 ) {
-                    Text("Title", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color("#17291F".toColorInt()))
+                    Text("Curation Title", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color("#17291F".toColorInt()))
                     Row() {
                         Text("category", fontSize = 12.sp, color = Color("#75807A".toColorInt()))
                         Spacer(modifier = Modifier.weight(1f))
@@ -180,10 +186,10 @@ fun CurationCard(userID:String,
                 Icon(modifier = Modifier
                     .padding(end = 18.dp)
                     .bounceClick {
-                                 if (isButtonClickedLike.value)
-                                     isButtonClickedLike.value = false
-                                else
-                                     isButtonClickedLike.value = true
+                        if (isButtonClickedLike.value)
+                            isButtonClickedLike.value = false
+                        else
+                            isButtonClickedLike.value = true
                     }
                     ,painter = painterResource
                         (id =
@@ -222,14 +228,17 @@ fun CurationCard(userID:String,
                     contentDescription = "스크랩",
                     tint = moduBlack
                 )
+                Spacer(modifier = Modifier.weight(1f))
                 // 신고
-                Box(Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.CenterEnd) {
-                    Icon(modifier = Modifier.bounceClick {  },
+                    Icon(modifier = Modifier.bounceClick {
+                        scope.launch {
+                        bottomSheetState.animateTo(
+                            ModalBottomSheetValue.Expanded)
+                    }},
                         painter = painterResource(id = R.drawable.ic_dot3_vertical),
                         contentDescription = "신고",
                         tint = moduBlack)
-                }
+
 
             }
 
@@ -237,6 +246,7 @@ fun CurationCard(userID:String,
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
 fun CurationPreview(){
@@ -244,5 +254,6 @@ fun CurationPreview(){
     val scope = rememberCoroutineScope()
     // 팔로우 스낵바 메세지 상태 변수
     val snackbarHostState = remember { SnackbarHostState() }
-    CurationCard("user1",scope,snackbarHostState)
+    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
+    CurationCard("user1",scope,snackbarHostState,bottomSheetState)
 }

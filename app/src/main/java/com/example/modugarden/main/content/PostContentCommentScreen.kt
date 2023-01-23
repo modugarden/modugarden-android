@@ -82,11 +82,12 @@ import java.util.UUID
 fun PostContentCommentScreen(navController: NavHostController,
                              commentViewModel: CommentViewModel) {
     val comments= remember { mutableStateListOf<Comment>() }
+    var sortedComments =remember { mutableStateListOf<Comment>() } //댓글 정렬 후 리스트
     val reply = remember { mutableStateListOf<Comment>() }
     val data  :MutableState<Comment>
-    = remember{ mutableStateOf(Comment(userID = "",
-        description = "", time = 0, isReplying = mutableStateOf(false),
-        reply = reply, parentId = null)) } // 신고 데이터
+    = remember{ mutableStateOf(Comment(
+        userID = "",
+        description = "", time = 0, isReplying = mutableStateOf(false), parentId = null)) } // 신고 데이터
 
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
     val isTextFieldCommentFocused = remember { mutableStateOf(false) }
@@ -225,14 +226,26 @@ fun PostContentCommentScreen(navController: NavHostController,
                                     .fillMaxWidth()
                                     .height(1.dp)
                             )
+                            var sortedComments =remember { mutableStateListOf<Comment>() } //댓글 정렬 후 리스트
                             // 댓글 영역
                                 LazyColumn(
                                     Modifier
                                         .wrapContentSize()
                                         .background(Color.White)
                                 ){
+                                    sortedComments = mutableStateListOf() //  정렬 리스트 초기화
+                                    var parents = comments.filter { it.mode==false } // 댓글 리스트
+                                    var childs = comments.filter { it.mode==true } // 답글 리스트
 
-                                    items(comments){comment->
+                                    for(i in 0 until parents.size){
+                                        sortedComments.add(parents[i])
+                                        for (j in 0 until childs.size) {
+                                            if (childs[j].parentId == parents[i].id) {
+                                                sortedComments.add(childs[j])
+                                            }
+                                        }
+                                    }
+                                    items(sortedComments){ comment->
                                         CommentItem(
                                             comment = comment,
                                             showModalSheet = showModalSheet,
@@ -240,10 +253,8 @@ fun PostContentCommentScreen(navController: NavHostController,
                                             bottomSheetState = bottomSheetState,
                                             data = data
                                         )
-
                                     }
                                 }
-
 
                         }
 
@@ -340,18 +351,16 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                 if (textFieldComment.value.isNotEmpty()) {
                                                     // 답글 입력중이라면
                                                     if (data.value.isReplying.value) {
-                                                        commentViewModel.addReply(
+                                                        commentViewModel.addComment(
                                                             Comment(
-                                                                id = UUID.randomUUID(),
+                                                                id = null,
                                                                 userID = "reply",
                                                                 description = textFieldComment.value,
                                                                 time = 1,
-                                                                reply = reply,
                                                                 parentId = data.value.id,
                                                                 mode = true
                                                             ), comments
                                                         )
-
                                                     } else {
                                                         commentViewModel.addComment(
                                                             Comment(
@@ -359,7 +368,6 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                                 userID = "comment",
                                                                 description = textFieldComment.value,
                                                                 time = 0,
-                                                                reply = reply,
                                                                 parentId = null,
                                                                 mode = false
                                                             ), comments
@@ -369,12 +377,14 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                 }
                                                 textFieldComment.value = ""
                                                 data.value.isReplying.value = false
+
+
                                             }
                                             .alpha(
                                                 if (textFieldComment.value.isNotEmpty()) 1f
                                                 else 0.4f
                                             ),
-                                        painter = painterResource(id = R.drawable.ic_plus_solid),
+                                        painter = painterResource(id = R.drawable.ic_arrowcircle),
                                         contentDescription = "댓글 작성",
                                         tint = moduPoint
                                     )
@@ -387,9 +397,6 @@ fun PostContentCommentScreen(navController: NavHostController,
 
 
                 }
-        for (j in 0 until comments.size){
-        Log.d("data:","${comments[j]}") }
-
 
     }
 
@@ -421,6 +428,7 @@ fun CommentItem(comment: Comment,
                         .wrapContentHeight(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    if (comment.mode) Spacer(modifier = Modifier.size(18.dp))
                     // 댓글 작성자 프로필 사진
                     Image(
                         painter = painterResource(id = R.drawable.ic_user),
@@ -456,14 +464,17 @@ fun CommentItem(comment: Comment,
                     Spacer(modifier = Modifier.weight(1f))
 
                     // 댓글 버튼들
-                    Icon(
-                        modifier = Modifier.bounceClick {
-                            comment.isReplying.value = true
-                            data.value = comment
-                        },
-                        painter = painterResource(id = R.drawable.ic_chat_line),
-                        contentDescription = "답글", tint = moduGray_strong
-                    )
+                    if(comment.mode==false)
+                    {
+                        Icon(
+                            modifier = Modifier.bounceClick {
+                                comment.isReplying.value = true
+                                data.value = comment
+                            },
+                            painter = painterResource(id = R.drawable.ic_chat_line_s),
+                            contentDescription = "답글", tint = moduGray_strong
+                        )
+                    }
                     Spacer(modifier = Modifier.size(18.dp))
                     Icon(
                         modifier = Modifier.bounceClick {
@@ -474,82 +485,16 @@ fun CommentItem(comment: Comment,
                                 bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
                             }
                         },
-                        painter = painterResource(id = R.drawable.ic_dot3_vertical),
+                        painter = painterResource(id = R.drawable.ic_dot3_vertical_s),
                         contentDescription = "더보기", tint = moduGray_strong
                     )
                 }
             }
-            if (comment.reply.size>0) {
-                LazyColumn(modifier = Modifier.height(200.dp)) {
-                    items(comment.reply){
-                        ReplyItem(reply = it)
-                    }
-                }
-            }
+
 
         }
 
 }
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun ReplyItem(reply: Comment){
-        Box(
-            modifier = Modifier
-                .background(Color.White)
-        ) {
-
-            Row(
-                modifier = Modifier
-                    .padding(18.dp)
-                    .fillMaxWidth()
-                    ,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Spacer(modifier = Modifier.size(18.dp))
-                // 댓글 작성자 프로필 사진
-                Image(
-                    painter = painterResource(id = R.drawable.ic_user),
-                    contentDescription = "",
-                    modifier = Modifier
-                        .size(30.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-                Spacer(modifier = Modifier.size(10.dp))
-
-                // 댓글 내용
-                Column() {
-                    Row() {
-                        Text(
-                            text = "${reply.userID} ∙ ",
-                            color = moduGray_strong,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(text = "${reply.time}", color = moduGray_strong, fontSize = 11.sp)
-                    }
-                    Text(text = reply.description!!, color = moduBlack, fontSize = 12.sp)
-                }
-                Spacer(modifier = Modifier.weight(1f))
-                
-                Icon(
-                    modifier = Modifier.bounceClick {
-                        /*data.value = comment
-                        //버튼 클릭하면 바텀 모달 상태 변수 바뀜
-                        showModalSheet.value = !showModalSheet.value
-                        scope.launch {
-                            bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                        }*/
-                    },
-                    painter = painterResource(id = R.drawable.ic_dot3_vertical),
-                    contentDescription = "더보기", tint = moduGray_strong
-                )
-            }
-
-        }
-
-}
-
 
 @Composable
 fun CategoryItem(category:String){

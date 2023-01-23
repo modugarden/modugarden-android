@@ -2,6 +2,7 @@ package com.example.modugarden.main.profile
 
 import android.content.Intent
 import android.util.Log
+import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,6 +13,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -35,7 +38,6 @@ const val userId = 1
 const val myId = 1
 
 @Preview(showBackground = true)
-@OptIn(ExperimentalMaterialApi::class)
 @Composable //프로필, 인수로 유저의 정보를 받아옴
 fun MyProfileScreen() {
     Column (
@@ -44,7 +46,8 @@ fun MyProfileScreen() {
             .background(color = Color.White)
     ){
         val context = LocalContext.current
-        // 프로필, 설정(또는 메뉴), 팔로우 목록을 묶고 있는 박스레이아웃
+
+        // 프로필, 설정(또는 메뉴), 팔로우 목록을 묶고 있는 박스 레이아웃
         Box(
             Modifier
                 .fillMaxWidth()
@@ -53,39 +56,51 @@ fun MyProfileScreen() {
             propagateMinConstraints = false
         ) {
             // 설정(내 프로필) 또는 메뉴
-            Icon(
-                painter =
-                    if(userId == myId)
-                        painterResource(id = R.drawable.cog_8_tooth)
-                    else
-                        painterResource(id = R.drawable.ellipsis_vertical),
-                contentDescription = null,
-                modifier = Modifier
-                    .bounceClick {
-                        if(userId == myId)
-                        {
+
+            if(userId == myId) {
+                Row (
+                    modifier = Modifier.align(Alignment.TopEnd)
+                ){
+                    Icon (
+                        painter = painterResource(id = R.drawable.ic_profile_saved),
+                        contentDescription = null,
+                        modifier = Modifier.bounceClick {
+                                context.startActivity(Intent(context, ProfileSaveActivity::class.java))
+                            },
+                        tint = moduGray_normal
+                    )
+                    Spacer(modifier = Modifier.width(18.dp))
+                    Icon(
+                        painter = painterResource(id = R.drawable.cog_8_tooth),
+                        contentDescription = null,
+                        modifier = Modifier.bounceClick {
                             context.startActivity(Intent(context, SettingsActivity::class.java))
-                        }
-                        else
-                        {
+                        },
+                        tint = moduGray_normal
+                    )
+                }
+            }
+            else {
+                Icon(
+                    painter = painterResource(id = R.drawable.ellipsis_vertical),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .bounceClick {
 
                         }
-                    }
-                    .align(Alignment.TopEnd),
-                tint = moduGray_normal
-            )
+                        .align(Alignment.TopEnd),
+                    tint = moduGray_normal
+                )
+            }
 
             // 프로필
             Row(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .height(50.dp)
-                    .clickable(onClick = {
-                        Log.d("Start Follow Activity", "OK")
-                        val intent = Intent(context, ProfileFollowActivity::class.java)
-
-                        context.startActivity(intent)
-                    })
+                    .bounceClick {
+                        context.startActivity(Intent(context, ProfileFollowActivity::class.java))
+                    }
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.cog_8_tooth),
@@ -140,13 +155,6 @@ fun MyProfileScreen() {
                     painter = painterResource(id = R.drawable.ic_chevron_right),
                     contentDescription = null,
                     modifier = Modifier
-                        .clickable(
-                            enabled = true
-                        ) {
-                            /*
-                            설정 화면으로 이동
-                            */
-                        }
                         .align(Alignment.CenterVertically)
                         .padding(vertical = 15.dp)
                         .size(20.dp),
@@ -164,50 +172,54 @@ fun MyProfileScreen() {
         ) {
             // 카테고리 리스트가 들어갈 레이지로우
             LazyRow(
-                modifier = Modifier
-                    .fillMaxHeight()
+                modifier = Modifier.fillMaxHeight(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(user.category) { category ->
                     Card (
                         Modifier
-                            .wrapContentSize()
-                            .fillMaxHeight()
-                            .padding(end = 10.dp),
+                            .wrapContentWidth()
+                            .fillMaxHeight(),
                         backgroundColor = moduBackground,
-                        shape = RoundedCornerShape(10.dp)
+                        shape = RoundedCornerShape(10.dp),
+                        elevation = 0.dp
                     ) {
                         Text(
                             text = category,
                             style = TextStyle(
                                 color = moduBlack,
-                                fontSize = 12.sp
+                                fontSize = 12.sp,
+                                textAlign = TextAlign.Center
                             ),
-                            modifier = Modifier.padding(10.dp)
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .align(Alignment.CenterVertically)
                         )
                     }
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
+            val btnText = remember { mutableStateOf("팔로우") }
+            val btnColor = remember { mutableStateOf(moduPoint) }
+            val btnTextColor = remember { mutableStateOf(Color.White) }
             // 카테고리 추가(내 프로필) 또는 팔로우 버튼 역할을 할 카드
             if(userId == myId)
             {
                 Card(
                     modifier = Modifier
                         .width(36.dp)
-                        .height(36.dp),
+                        .height(36.dp)
+                        .bounceClick {
+
+                        },
                     shape = RoundedCornerShape(10.dp),
                     backgroundColor = moduBackground,
-                    onClick = {}
+                    elevation = 0.dp
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.plus),
                         contentDescription = null,
                         modifier = Modifier
-                            .clickable(
-                                enabled = true
-                            ) {
-                                // 카테고리 추가
-                            }
                             .wrapContentSize()
                             .background(color = Color.Transparent)
                     )
@@ -217,28 +229,35 @@ fun MyProfileScreen() {
             {
                 Card(
                     modifier = Modifier
-                        .width(64.dp)
-                        .fillMaxHeight(),
+                        .align(Alignment.CenterVertically)
+                        .width(74.dp)
+                        .height(36.dp)
+                        .bounceClick {
+                            // 팔로우 api
+                        },
                     shape = RoundedCornerShape(10.dp),
-                    backgroundColor = moduPoint,
-                    onClick = {}
+                    backgroundColor = btnColor.value,
+                    elevation = 0.dp
                 ) {
                     Text(
-                        text = "팔로우",
+                        text = btnText.value,
                         style = TextStyle(
-                            color = Color.White,
-                            fontSize = 12.sp,
+                            color = btnTextColor.value,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center
                         ),
-                        modifier = Modifier.padding(10.dp)
+                        modifier = Modifier
+                            .padding(vertical = 6.dp, horizontal = 10.dp)
+                            .align(Alignment.CenterVertically)
                     )
                 }
             }
         }
         // 탭 구현
-        if(userId == myId)
-
-        CuratorProfileTab()
+        if(user.state)
+            CuratorProfileTab()
+        else
+            ProfileTab()
     }
 }

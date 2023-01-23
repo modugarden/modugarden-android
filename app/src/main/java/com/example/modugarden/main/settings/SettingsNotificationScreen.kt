@@ -41,12 +41,15 @@ fun SettingsNotificationScreen () {
         val followState = remember { mutableStateOf(true) }
         val serviceState = remember { mutableStateOf(true) }
         val marketingState = remember { mutableStateOf(true) }
+        val autoLoginState = remember { mutableStateOf(false) }
         Notifications(checkState = commentState, option = "댓글 알림")
         Notifications(checkState = followState, option = "팔로우 알림")
         Spacer(modifier = Modifier.height(18.dp))
         Notifications(checkState = serviceState, option = "서비스 알림")
         Spacer(modifier = Modifier.height(18.dp))
         Notifications(checkState = marketingState, option = "마케팅 알림")
+        Spacer(modifier = Modifier.height(18.dp))
+        Notifications(checkState = autoLoginState, option = "자동 로그인")
     }
 }
 
