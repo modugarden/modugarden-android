@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.google.accompanist.navigation.animation.composable
@@ -22,6 +23,7 @@ import com.example.modugarden.main.notification.NotificationScreen
 import com.example.modugarden.main.profile.MyProfileScreen
 import com.example.modugarden.main.upload.UploadScreen
 import com.example.modugarden.signup.*
+import com.example.modugarden.viewmodel.CommentViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 
 enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val icon: Int) { //main 패키지 루트.
@@ -31,7 +33,6 @@ enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val ico
     UPLOAD("UPLOAD", "업로드", R.drawable.ic_plus_solid),
     NOTIFICATION("NOTIFICATION", "알림", R.drawable.ic_notification),
     MYPROFILE("MYPROFILE", "내 프로필", R.drawable.ic_user),
-    COMMENT("COMMENT","댓글",R.drawable.ic_user)
 }
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -41,21 +42,23 @@ fun NavigationGraphBNB(navController: NavHostController) {
     val fadeOutDuration = 50
     val slideInDuration = 200
     val slideOutDuration = 200
-
+    val commentViewModel : CommentViewModel = viewModel()
     AnimatedNavHost(navController, startDestination = NAV_ROUTE_BNB.FOLLOW.routeName,
         modifier = Modifier.fillMaxSize()
     ) {
         composable(
             NAV_ROUTE_BNB.FOLLOW.routeName,
             enterTransition = {
-                    fadeIn(animationSpec = tween(fadeInDuration)) +
-                            slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideInDuration))
+                fadeIn(animationSpec = tween(fadeInDuration)) +
+                        slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideInDuration))
             },
             exitTransition = {
                 fadeOut(animationSpec = tween(fadeOutDuration)) +
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideOutDuration))
             }
         ) { FollowScreen(navController) }
+        composable(NAV_ROUTE_POSTCONTENT.COMMENT.routeName){ PostContentCommentScreen(
+            navController = navController, commentViewModel = commentViewModel)}
         composable(
             NAV_ROUTE_BNB.DISCOVER.routeName,
             enterTransition = {

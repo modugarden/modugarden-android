@@ -562,11 +562,24 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                                     moduBlack
 
                             )
-                            Text(text = "likes", style = moduBold, fontSize = 14.sp)
+                            Text(text = "likes"+"명", style = moduBold, fontSize = 14.sp)
+                            Text(text = "이 좋아해요", color = moduBlack, fontSize = 14.sp)
                             Spacer(modifier = Modifier.weight(1f))
+                            Icon(
+                                modifier = Modifier.bounceClick {
+                                    modalType.value = modalLocationType
+                                    scope.launch {
+                                        bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                                    }
+                                },
+                                painter = painterResource(id = R.drawable.ic_location_line),
+                                contentDescription = "위치",
+                                tint = moduBlack
+                            )
                             // 댓글
                             Icon(
                                 modifier = Modifier
+                                    .padding(horizontal = 18.dp)
                                     .bounceClick {navController.navigate(NAV_ROUTE_POSTCONTENT.COMMENT.routeName) },
                                 painter = painterResource(id = R.drawable.ic_chat_line),
                                 contentDescription = "댓글",
@@ -575,27 +588,23 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                             // 스크랩
                             Icon(modifier =
                                 Modifier
-                                    .padding(horizontal = 18.dp)
                                     .bounceClick {
-                                isButtonClickedSave.value = !isButtonClickedSave.value
-                            }
-                                    .padding()
-                                , painter = painterResource
-                                (
-                                id =
+                                isButtonClickedSave.value = !isButtonClickedSave.value }
+                                    .padding(
+                                        if (isButtonClickedSave.value)
+                                            1.75.dp
+                                        else
+                                            0.dp
+                                    )
+                                ,
+                                painter = painterResource
+                                (id =
                                 if (isButtonClickedSave.value)
                                     R.drawable.ic_star_solid
                                 else
                                     R.drawable.ic_star_line
                             ),
                                 contentDescription = "스크랩",
-                                tint = moduBlack
-                            )
-                            Icon(
-                                modifier = Modifier.bounceClick {
-                                },
-                                painter = painterResource(id = R.drawable.ic_dot3_vertical),
-                                contentDescription = "신고",
                                 tint = moduBlack
                             )
 
