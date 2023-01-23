@@ -54,7 +54,7 @@ fun DiscoverSearchScreen(navController: NavHostController) {
 
     val focusManager = LocalFocusManager.current
     val textFieldSearch = remember { mutableStateOf("") } //textField 데이터 값.
-    val isTextFieldSearchFocused = remember { mutableStateOf(false) } //textField가 포커싱 되어 있는지 여부.
+
 
     var isTextFieldVisible by remember { mutableStateOf(false) }
 
@@ -175,63 +175,6 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                             }
                         }
 
-                        //검색창이 떠있을 경우 나올 뒤로가기 이미지로 이거 누르면 isTextFieldVisible값을 변경해줘서 검색창을 없어지게 해줌
-                        if(isTextFieldVisible){
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_arrow_left_bold),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .bounceClick {
-                                        isTextFieldVisible = isTextFieldVisible.not()
-                                    }
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                        }
-
-//                        애니매이션 안하는게 더 나을듯
-//                        this@Row.AnimatedVisibility(
-//                            visible = isTextFieldVisible,
-//                            modifier = Modifier,
-//                            enter = slideInHorizontally(initialOffsetX = {
-//                                +it
-//                            }),
-//                            exit = slideOutHorizontally(targetOffsetX = {
-//                                +it
-//                            })
-//
-//                        ) {
-//
-//                        }
-
-                        if(isTextFieldVisible) {
-                            TextField(
-                                value = textFieldSearch.value,
-                                onValueChange = { textValue -> textFieldSearch.value = textValue },
-                                modifier = Modifier
-                                    .padding(vertical = 0.dp, horizontal = 0.dp)
-                                    .fillMaxWidth(0.9f)
-                                    .height(52.dp)
-                                    .onFocusChanged {
-                                        isTextFieldSearchFocused.value = it.isFocused
-                                    }
-                                    .animateContentSize(),
-                                shape = RoundedCornerShape(10.dp),
-                                colors = TextFieldDefaults.textFieldColors(
-                                    backgroundColor =
-                                    if (isTextFieldSearchFocused.value) Color(0xFFEDF5F0)
-                                    else Color(0xFFF3F5F4),
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent,
-                                ),
-                                textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
-                                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                                keyboardOptions = KeyboardOptions.Default.copy(
-                                    imeAction = ImeAction.Done,
-                                    keyboardType = KeyboardType.Text
-                                ),
-                                singleLine = true,
-                            )
-                        }
                         Spacer(modifier = Modifier.weight(1f))
 
 
@@ -242,70 +185,57 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                             contentDescription = null,
                             modifier = Modifier
                                 .bounceClick {
-                                    if(isTextFieldVisible) {
-                                        if(textFieldSearch.value != "" ) {
-                                            navController.navigate(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHING.routeName + "/" + textFieldSearch.value)
-                                            textFieldSearch.value = ""
-                                        }
-                                    }
-                                    else isTextFieldVisible = isTextFieldVisible.not()
+                                    navController.navigate(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHING.routeName)
                                 }
 
                         )
                     }
+                    //포스트, 큐레이션 텝 레이아웃
+                    TabRow(
+                        selectedTabIndex = pagerState.currentPage,
+                        backgroundColor = Color.White,
+                        contentColor = Color.Black,
+                        indicator = { tabPositions ->
+                            TabRowDefaults.Indicator(
+                                Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
+                                color = moduBlack,
+                            )
+                        },
 
-                    //만약 검색하는 창이 아닐경우에 나올 기본 메인 화면 탭 레이아웃
-                    if(isTextFieldVisible.not()) {
-                        //포스트, 큐레이션 텝 레이아웃
-                        TabRow(
-                            selectedTabIndex = pagerState.currentPage,
-                            backgroundColor = Color.White,
-                            contentColor = Color.Black,
-                            indicator = { tabPositions ->
-                                TabRowDefaults.Indicator(
-                                    Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
-                                    color = moduBlack,
-                                )
-                            },
-
-                            ) {
-                            mainPages.forEachIndexed { index, title ->
-                                Tab(
-                                    text = {
-                                        Text(
-                                            text = title,
-                                            fontSize = 16.sp,
-                                            style = TextStyle(
-                                                fontWeight = FontWeight.Bold,
-                                                color = moduBlack
-                                            )
+                        ) {
+                        mainPages.forEachIndexed { index, title ->
+                            Tab(
+                                text = {
+                                    Text(
+                                        text = title,
+                                        fontSize = 16.sp,
+                                        style = TextStyle(
+                                            fontWeight = FontWeight.Bold,
+                                            color = moduBlack
                                         )
-                                    },
-                                    selected = pagerState.currentPage == index,
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            pagerState.scrollToPage(index)
-                                        }
+                                    )
+                                },
+                                selected = pagerState.currentPage == index,
+                                onClick = {
+                                    coroutineScope.launch {
+                                        pagerState.scrollToPage(index)
                                     }
-                                )
-                            }
-                        }
-                        HorizontalPager(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            count = 2,
-                            state = pagerState
-                        ) { page ->
-                            when (page) {
-                                //나중에 API로 받은 값(List)도 넣어줘야할듯
-                                0 -> DiscoverSearchPost("제목 제목 제목 제목")
-                                1 -> DiscoverSearchCuration()
-                            }
-
+                                }
+                            )
                         }
                     }
-                    else{  //만약 검색하는 창인 경우에 나올 최근 검색 목록 화면
-                            DiscoverSearchBefore()
+                    HorizontalPager(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        count = 2,
+                        state = pagerState
+                    ) { page ->
+                        when (page) {
+                            //나중에 API로 받은 값(List)도 넣어줘야할듯
+                            0 -> DiscoverSearchPost("제목 제목 제목 제목")
+                            1 -> DiscoverSearchCuration()
+                        }
+
                     }
 
                 }

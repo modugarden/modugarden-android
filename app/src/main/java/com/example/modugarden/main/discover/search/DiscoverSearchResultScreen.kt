@@ -40,9 +40,9 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun DiscoverSearchingScreen(navController: NavHostController) {
+fun DiscoverSearchResultScreen(navController: NavHostController, searchText : String) {
     val focusManager = LocalFocusManager.current
-    val textFieldSearch = remember { mutableStateOf("") } //textField 데이터 값.
+    val textFieldSearch = remember { mutableStateOf(searchText) } //textField 데이터 값.
     val isTextFieldSearchFocused = remember { mutableStateOf(false) } //textField가 포커싱 되어 있는지 여부.
 
     var isTextFieldVisible by remember { mutableStateOf(false) }
@@ -120,7 +120,7 @@ fun DiscoverSearchingScreen(navController: NavHostController) {
 
                 )
             }
-            DiscoverSearchBefore()
+            DiscoverSearchResult(searchText)
 
         }
     }
