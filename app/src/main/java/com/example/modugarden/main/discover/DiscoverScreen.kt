@@ -23,6 +23,7 @@ fun DiscoverScreen(navController: NavHostController) {
 }
 
 
+
 @Composable
 fun DiscoverSearchNavScreen() {
     val navController = rememberNavController()

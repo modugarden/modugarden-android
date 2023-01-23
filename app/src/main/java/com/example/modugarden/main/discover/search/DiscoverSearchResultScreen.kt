@@ -1,9 +1,6 @@
 package com.example.modugarden.main.discover.search
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,31 +9,26 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.room.Room
 import com.example.modugarden.R
-import com.example.modugarden.data.Category
+import com.example.modugarden.data.RecentSearch
+import com.example.modugarden.data.RecentSearchDatabase
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.ui.theme.addFocusCleaner
 import com.example.modugarden.ui.theme.bounceClick
-import com.example.modugarden.ui.theme.moduBlack
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.pagerTabIndicatorOffset
-import com.google.accompanist.pager.rememberPagerState
-import kotlinx.coroutines.launch
 
 
 @Composable
@@ -45,7 +37,12 @@ fun DiscoverSearchResultScreen(navController: NavHostController, searchText : St
     val textFieldSearch = remember { mutableStateOf(searchText) } //textField 데이터 값.
     val isTextFieldSearchFocused = remember { mutableStateOf(false) } //textField가 포커싱 되어 있는지 여부.
 
-    var isTextFieldVisible by remember { mutableStateOf(false) }
+
+    val applicationContext = LocalContext.current.applicationContext
+
+    val db = Room.databaseBuilder(
+        applicationContext, RecentSearchDatabase::class.java, "recent_database"
+    ).allowMainThreadQueries().build()
 
     Box(
         modifier = Modifier
@@ -72,7 +69,7 @@ fun DiscoverSearchResultScreen(navController: NavHostController, searchText : St
                     contentDescription = null,
                     modifier = Modifier
                         .bounceClick {
-                            navController.popBackStack(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERMAIN.routeName, inclusive = false)
+                            navController.popBackStack()
                         }
                 )
 
@@ -115,7 +112,8 @@ fun DiscoverSearchResultScreen(navController: NavHostController, searchText : St
                     contentDescription = null,
                     modifier = Modifier
                         .bounceClick {
-                            navController.navigate(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHRESULT.routeName + "/" + textFieldSearch.value, )
+                            db.recentSearchDao().insert(RecentSearch(textFieldSearch.value))
+                            navController.navigate(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHRESULT.routeName + "/" + textFieldSearch.value)
                         }
 
                 )

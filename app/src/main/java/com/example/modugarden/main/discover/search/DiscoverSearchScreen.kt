@@ -1,35 +1,28 @@
 package com.example.modugarden.main.discover.search
 
-import android.app.Activity
+import android.content.Intent
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
 import com.example.modugarden.data.Category
+import com.example.modugarden.main.settings.SettingsActivity
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
-import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
 import com.example.modugarden.ui.theme.*
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -42,6 +35,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun DiscoverSearchScreen(navController: NavHostController) {
+    val context = LocalContext.current
+
     //ViewPager쓸때 어디 페이지의 state를 확인할 변수
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
@@ -185,7 +180,7 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                             contentDescription = null,
                             modifier = Modifier
                                 .bounceClick {
-                                    navController.navigate(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHING.routeName)
+                                    navController.navigate(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHING.routeName)
                                 }
 
                         )
