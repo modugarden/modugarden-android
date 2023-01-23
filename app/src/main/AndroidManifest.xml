@@ -23,7 +23,8 @@
             android:name="com.example.modugarden.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Modugarden">
+            android:theme="@style/Theme.Modugarden"
+            android:windowSoftInputMode="adjustResize">
 
         </activity>
         <activity android:name=".login.LoginActivity"
