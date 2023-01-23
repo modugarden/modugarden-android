@@ -310,7 +310,7 @@ fun ModalBottomSheet(
                         .alpha(0.2f)
                     )
                     Spacer(modifier = Modifier.size(30.dp))
-                    Text(text = title, style = moduBold, fontSize = 20.sp, modifier = Modifier.align(Alignment.Start).padding(start = 20.dp))
+                    Text(text = title, style = moduBold, fontSize = 20.sp, modifier = Modifier.align(Alignment.Start).padding(start = 18.dp))
                     Spacer(modifier = Modifier.height(30.dp))
                     // 리스트
                     LazyColumn(modifier = Modifier
@@ -319,7 +319,6 @@ fun ModalBottomSheet(
                             sheetScreen.invoke()
                         }
                     }
-                    Spacer(modifier = Modifier.size(18.dp))
                 }
             }
         }) {
@@ -432,6 +431,8 @@ fun BottomButton(
 @Composable
 fun SnackBar(
     snackbarHostState: SnackbarHostState,
+    icon: Int = R.drawable.ic_check_solid,
+    iconTint: Color = moduPoint,
 ) {
     SnackbarHost(
         hostState = snackbarHostState,
@@ -446,9 +447,10 @@ fun SnackBar(
                         .padding(12.dp, 17.dp)
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_check_solid),
+                        painter = painterResource(id = icon),
                         contentDescription = "체크",
-                        Modifier.size(18.dp),
+                        colorFilter = ColorFilter.tint(iconTint),
+                        modifier = Modifier.size(24.dp),
                     )
                     Spacer(modifier = Modifier.size(12.dp))
                     Text(
