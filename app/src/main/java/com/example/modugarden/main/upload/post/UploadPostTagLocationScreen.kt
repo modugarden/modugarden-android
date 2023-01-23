@@ -1,8 +1,7 @@
 package com.example.modugarden.main.upload.post
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.util.Log
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,21 +11,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.*
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
-import com.example.modugarden.api.UploadPostTagLocationSearchAPI
-import com.example.modugarden.api.retrofitBuilder
+import com.example.modugarden.api.UploadPostTagLocationSearchAPIRetrofitBuilder
 import com.example.modugarden.data.MapsGeocoding
 import com.example.modugarden.data.UploadPost
 import com.example.modugarden.ui.theme.*
@@ -44,9 +40,10 @@ import retrofit2.Response
 fun UploadPostTagLocationScreen(
     navController: NavHostController,
     uploadPostViewModel: UploadPostViewModel,
-    data: UploadPost
+    data: UploadPost,
+    page: Int
 ) {
-    val title = remember { mutableStateOf("대한민국") }
+    val title = remember { mutableStateOf(if(data.location[page].isNotEmpty()) data.location[page].split(",")[0] else "대한민국") }
     val formattedAddress = remember { mutableStateOf("") }
     val loc = remember { mutableStateOf(LatLng(37.4631589802915, 126.8930169802915)) }
 
@@ -54,10 +51,16 @@ fun UploadPostTagLocationScreen(
         position = CameraPosition.fromLatLngZoom(loc.value, 17f)
     }
 
+    val keyboard by keyboardAsState()
+    val dpScale = animateDpAsState(if(keyboard.toString() == "Closed") 18.dp else 0.dp)
+    val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 10.dp else 0.dp)
+
     val keyboardController = LocalSoftwareKeyboardController.current
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
     val textFieldSearchData = remember { mutableStateOf("") }
+    val textFieldNameData = remember { mutableStateOf("") }
+    val nameFocused = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
     val scope = rememberCoroutineScope()
@@ -70,7 +73,7 @@ fun UploadPostTagLocationScreen(
         sheetScreen = {
             Column(
             ) {
-                Text(title.value, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduBlack)
+                Text(textFieldNameData.value, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduBlack)
                 Spacer(Modifier.size(5.dp))
                 Text(formattedAddress.value, fontSize = 14.sp, color = moduGray_strong)
                 Spacer(Modifier.size(30.dp))
@@ -81,7 +84,9 @@ fun UploadPostTagLocationScreen(
                         modifier = Modifier
                             .weight(1f)
                             .bounceClick {
-
+                                         scope.launch {
+                                             bottomSheetState.hide()
+                                         }
                             },
                         backgroundColor = moduBackground,
                         shape = RoundedCornerShape(15.dp),
@@ -94,7 +99,7 @@ fun UploadPostTagLocationScreen(
                         modifier = Modifier
                             .weight(1f)
                             .bounceClick {
-
+                                         uploadPostViewModel.addLocation("${textFieldNameData.value}, ${loc.value.latitude}, ${loc.value.longitude}", page)
                             },
                         backgroundColor = moduPoint,
                         shape = RoundedCornerShape(15.dp),
@@ -112,7 +117,9 @@ fun UploadPostTagLocationScreen(
                                modifier = Modifier.background(Color.White)
                            ) {
                                Row(
-                                   modifier = Modifier.fillMaxWidth().padding(18.dp)
+                                   modifier = Modifier
+                                       .fillMaxWidth()
+                                       .padding(18.dp)
                                ) {
                                    Image(
                                        painter = painterResource(id = R.drawable.ic_arrow_left_bold),
@@ -151,7 +158,7 @@ fun UploadPostTagLocationScreen(
                                            .bounceClick {
                                                if (textFieldSearchData.value != "") {
                                                    keyboardController?.hide()
-                                                   retrofitBuilder.api
+                                                   UploadPostTagLocationSearchAPIRetrofitBuilder.api
                                                        .getUploadPostTagLocationSearchAPI(
                                                            textFieldSearchData.value
                                                        )
@@ -213,9 +220,10 @@ fun UploadPostTagLocationScreen(
                                    .addFocusCleaner(focusManager),
                                cameraPositionState = cameraPositionState,
                                onMapClick = {
+                                   focusManager.clearFocus()
                                    loc.value = it
                                    cameraPositionState.position = CameraPosition.fromLatLngZoom(loc.value, 17f)
-                                   retrofitBuilder.api
+                                   UploadPostTagLocationSearchAPIRetrofitBuilder.api
                                        .getUploadPostTagLocationSearchAPI("${it.latitude}, ${it.longitude}")
                                        .enqueue(object : Callback<MapsGeocoding> {
                                            override fun onResponse(
@@ -272,12 +280,53 @@ fun UploadPostTagLocationScreen(
                            }
                        }
                        Box(Modifier.align(Alignment.BottomCenter)) {
-                           BottomButton(title = "위치 추가", onClick = {
-                               scope.launch {
-                                   keyboardController?.hide()
-                                   bottomSheetState.show()
+
+                           Box(
+                               modifier = Modifier
+                                   .background(
+                                       brush = Brush.verticalGradient(
+                                           colors = listOf(Color.White.copy(alpha = 0f), Color.White),
+                                           startY = 0f,
+                                           endY = 50f
+                                       )
+                                   )
+                           ) {
+                               Column {
+                                   Box(
+                                       modifier = Modifier.padding(18.dp)
+                                   ) {
+                                       EditText(
+                                           "위치 이름",
+                                           textFieldNameData,
+                                           nameFocused,
+                                       )
+                                   }
+                                   Card(
+                                       modifier = Modifier
+                                           .bounceClick {
+                                               scope.launch {
+                                                   keyboardController?.hide()
+                                                   bottomSheetState.show()
+                                               }
+                                           }
+                                           .padding(dpScale.value)
+                                           .fillMaxWidth(),
+                                       shape = RoundedCornerShape(shapeScale.value),
+                                       backgroundColor = moduPoint,
+                                       elevation = 0.dp
+                                   ) {
+                                       Text(
+                                           "위치 추가",
+                                           fontWeight = FontWeight.Bold,
+                                           fontSize = 16.sp,
+                                           color = Color.White,
+                                           modifier = Modifier
+                                               .padding(18.dp),
+                                           textAlign = TextAlign.Center
+                                       )
+                                   }
                                }
-                           })
+                           }
                        }
                        Box(
                            modifier = Modifier

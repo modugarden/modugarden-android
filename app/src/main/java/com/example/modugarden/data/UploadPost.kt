@@ -7,6 +7,6 @@ data class UploadPost(
     val title: String,
     val category: Category,
     val image: List<Uri>,
-    val location: List<String>,
+    val location: SnapshotStateList<String>,
     val description: SnapshotStateList<String>
 )

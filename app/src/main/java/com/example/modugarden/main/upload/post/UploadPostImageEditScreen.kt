@@ -67,6 +67,7 @@ fun UploadPostImageEditScreen(
     val scrollState = rememberScrollState()
     val focusManager = LocalFocusManager.current
     val descriptionData = remember { data.description }
+    val locationData = remember { data.location }
 
     val pagerState = rememberPagerState()
 
@@ -135,17 +136,17 @@ fun UploadPostImageEditScreen(
                                             .padding(18.dp)
                                             .bounceClick {
                                                 //위치 태그 추가 창으로 이동
-                                                navController.navigate(NAV_ROUTE_UPLOAD_POST.TAGLOCATION.routeName)
+                                                navController.navigate(NAV_ROUTE_UPLOAD_POST.TAGLOCATION.routeName+"/${page}")
                                             }
                                     ) {
-                                        GlideImage(
-                                            imageModel = R.drawable.ic_plus_curation,
+                                        Image(
+                                            painter = painterResource(if(locationData[page].isNotEmpty()) R.drawable.ic_location_line else R.drawable.ic_plus_curation),
                                             contentDescription = null,
                                             modifier = Modifier
                                                 .size(40.dp)
                                         )
                                         Spacer(Modifier.size(18.dp))
-                                        Text("위치 태그 추가", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = moduBlack, modifier = Modifier.align(Alignment.CenterVertically))
+                                        Text(if(locationData[page].isNotEmpty()) locationData[page] else "위치 태그 추가", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = moduBlack, modifier = Modifier.align(Alignment.CenterVertically))
                                         Spacer(Modifier.weight(1f))
                                         Image(
                                             painter = painterResource(id = R.drawable.ic_chevron_right_bold),

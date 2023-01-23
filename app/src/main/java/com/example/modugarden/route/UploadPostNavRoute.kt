@@ -144,7 +144,7 @@ fun NavigationGraphUploadPost(
             },
         ) { UploadPostInfoScreen(navController = navController, uploadPostViewModel = uploadPostViewModel, data = data) }
         composable(
-            NAV_ROUTE_UPLOAD_POST.TAGLOCATION.routeName,
+            NAV_ROUTE_UPLOAD_POST.TAGLOCATION.routeName+"/{page}",
             enterTransition = {
                 slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
                         fadeIn(tween(500))
@@ -161,8 +161,12 @@ fun NavigationGraphUploadPost(
                 slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
                         fadeOut(tween(500))
             },
+            arguments = listOf(
+                navArgument("page") { type = NavType.IntType }
+            )
         ) { backStackEntry ->
-            UploadPostTagLocationScreen(navController = navController, uploadPostViewModel = uploadPostViewModel, data = data)
+            val page = backStackEntry.arguments?.getInt("page") ?: 0
+            UploadPostTagLocationScreen(navController = navController, uploadPostViewModel = uploadPostViewModel, data = data, page = page)
         }
     }
 }
