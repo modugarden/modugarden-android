@@ -20,13 +20,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.StrokeCap.Companion.Square
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
+import com.example.modugarden.ui.theme.bounceClick
+import com.example.modugarden.ui.theme.moduGray_normal
+import com.example.modugarden.ui.theme.moduGray_strong
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
@@ -134,11 +140,10 @@ fun ProfileTab (
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier
-            .padding(18.dp)
-            .fillMaxSize()
+        verticalArrangement = Arrangement.spacedBy(18.dp),
+        horizontalArrangement = Arrangement.spacedBy(18.dp),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(18.dp)
     ) {
         items(user.post) { postCard ->
             // 이미지가 들어간 버튼을 넣어야 함
@@ -147,14 +152,19 @@ fun ProfileTab (
                 contentDescription = null,
                 modifier = Modifier
                     .clip(RoundedCornerShape(5.dp))
-                    .fillMaxSize(),
-                contentScale = ContentScale.FillWidth
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .bounceClick {
+
+                    },
+                contentScale = ContentScale.Crop
             )
         }
     }
 }
 
 @OptIn(ExperimentalPagerApi::class)
+@Preview(showBackground = true)
 @Composable
 fun CuratorProfileTab(
     // 포스트 및 큐레이션 리스트
@@ -208,11 +218,10 @@ fun CuratorProfileTab(
             0 -> {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier
-                        .padding(18.dp)
-                        .fillMaxSize()
+                    verticalArrangement = Arrangement.spacedBy(18.dp),
+                    horizontalArrangement = Arrangement.spacedBy(18.dp),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(18.dp)
                 ) {
                     items(user.post) { postCard ->
                         // 이미지가 들어간 버튼을 넣어야 함
@@ -221,34 +230,42 @@ fun CuratorProfileTab(
                             contentDescription = null,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(5.dp))
-                                .fillMaxSize(),
-                            contentScale = ContentScale.FillWidth
+                                .fillMaxWidth()
+                                .aspectRatio(1f)
+                                .bounceClick {
+
+                                },
+                            contentScale = ContentScale.Crop
                         )
                     }
                 }
             }
             1 -> {
                 LazyColumn(
-                    modifier = Modifier
-                        .padding(18.dp)
-                        .fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(18.dp),
+                    contentPadding = PaddingValues(18.dp)
                 ) {
                     items(user.curation) { curationCard ->
                         Row(
-                            modifier = Modifier.height(100.dp)
+                            modifier = Modifier
+                                .height(90.dp)
+                                .bounceClick {
+
+                                }
                         ) {
                             Image(
                                 painter = painterResource(id = curationCard.thumbnail_image),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(5.dp))
-                                    .fillMaxHeight(),
-                                contentScale = ContentScale.FillHeight
+                                    .size(90.dp),
+                                contentScale = ContentScale.Crop
                             )
+                            Spacer(modifier = Modifier.width(18.dp))
                             Column(
                                 modifier = Modifier
-                                    .padding(10.dp)
+                                    .height(42.dp)
                                     .align(Alignment.CenterVertically)
                             ) {
                                 Text(
@@ -256,12 +273,14 @@ fun CuratorProfileTab(
                                     style = TextStyle(
                                         color = Color.Black,
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = 13.sp
+                                        fontSize = 14.sp
                                     )
                                 )
+                                Spacer(modifier = Modifier.weight(1f))
                                 Text(
                                     text = "${curationCard.category}, ${curationCard.time}",
-                                    fontSize = 13.sp
+                                    fontSize = 12.sp,
+                                    color = moduGray_strong
                                 )
                             }
                         }
