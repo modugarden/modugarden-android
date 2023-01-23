@@ -79,7 +79,7 @@ fun ProfileSettingsScreen(
                 SettingsNotificationScreen()
             }
             composable(route = SettingsScreen.Block.name) {
-
+                SettingsBlockScreen()
             }
             composable(route = SettingsScreen.Terms.name) {
 
