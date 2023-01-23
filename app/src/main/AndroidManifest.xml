@@ -50,7 +50,10 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".main.profile.follow.ProfileFollowActivity"
+            android:windowSoftInputMode="adjustResize"/><activity
+            android:name=".main.profile.ProfileSaveActivity"
             android:windowSoftInputMode="adjustResize"/>
+
     </application>
 
 </manifest>
