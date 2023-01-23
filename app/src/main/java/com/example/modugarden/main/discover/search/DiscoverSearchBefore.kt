@@ -3,18 +3,29 @@ package com.example.modugarden.main.discover.search
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.room.Room
+import com.example.modugarden.data.NotificationDatabase
+import com.example.modugarden.data.RecentSearch
+import com.example.modugarden.data.RecentSearchDatabase
 
 @Composable
-fun DiscoverSearchBefore() {
+fun DiscoverSearchBefore(navController: NavHostController, db: RecentSearchDatabase, recentSearchItems : List<RecentSearch>) {
+    val context = LocalContext.current
+
+
     LazyColumn(modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp)
     ) {
-        items(
-            count = 8,
-            itemContent = { DiscoverSearchBeforeCard() }
-        )
+        itemsIndexed(recentSearchItems.toList().reversed()) { idx, item ->
+            DiscoverSearchBeforeCard(navController , recentSearch = item, db = db)
+        }
     }
 }
