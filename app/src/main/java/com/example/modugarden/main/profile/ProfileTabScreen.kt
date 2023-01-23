@@ -37,86 +37,86 @@ val pages = listOf("포스트", "큐레이션")
 
 val postResponse = listOf(
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀1", "카테고리1",
+        R.drawable.test_image1, "타이틀1", "카테고리1",
         "2023년 1월 6일", "유저1"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀2", "카테고리2",
+        R.drawable.test_image2, "타이틀2", "카테고리2",
         "2023년 1월 6일", "유저2"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀3", "카테고리3",
+        R.drawable.test_image3, "타이틀3", "카테고리3",
         "2023년 1월 6일", "유저3"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀4", "카테고리4",
+        R.drawable.test_image4, "타이틀4", "카테고리4",
         "2023년 1월 6일", "유저4"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀5", "카테고리5",
+        R.drawable.test_image5, "타이틀5", "카테고리5",
         "2023년 1월 6일", "유저5"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀6", "카테고리6",
+        R.drawable.test_image1, "타이틀6", "카테고리6",
         "2023년 1월 6일", "유저6"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀7", "카테고리7",
+        R.drawable.test_image2, "타이틀7", "카테고리7",
         "2023년 1월 6일", "유저7"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀7", "카테고리7",
+        R.drawable.test_image3, "타이틀7", "카테고리7",
         "2023년 1월 6일", "유저7"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀7", "카테고리7",
+        R.drawable.test_image4, "타이틀7", "카테고리7",
         "2023년 1월 6일", "유저7"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀7", "카테고리7",
+        R.drawable.test_image5, "타이틀7", "카테고리7",
         "2023년 1월 6일", "유저7"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀7", "카테고리7",
+        R.drawable.test_image1, "타이틀7", "카테고리7",
         "2023년 1월 6일", "유저7"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀7", "카테고리7",
+        R.drawable.test_image2, "타이틀7", "카테고리7",
         "2023년 1월 6일", "유저7"
     ),
     PostCard(
-        R.drawable.cog_8_tooth, "타이틀7", "카테고리7",
+        R.drawable.test_image3, "타이틀7", "카테고리7",
         "2023년 1월 6일", "유저7"
     )
 )
 
 val curationResponse = listOf(
     CurationCard(
-        R.drawable.cog_8_tooth, "타이틀1", "카테고리1",
+        R.drawable.test_image1, "타이틀1", "카테고리1",
         "2023년 1월 6일", "유저1"
     ),
     CurationCard(
-        R.drawable.cog_8_tooth, "타이틀2", "카테고리2",
+        R.drawable.test_image2, "타이틀2", "카테고리2",
         "2023년 1월 6일", "유저2"
     ),
     CurationCard(
-        R.drawable.cog_8_tooth, "타이틀3", "카테고리3",
+        R.drawable.test_image3, "타이틀3", "카테고리3",
         "2023년 1월 6일", "유저3"
     ),
     CurationCard(
-        R.drawable.cog_8_tooth, "타이틀4", "카테고리4",
+        R.drawable.test_image4, "타이틀4", "카테고리4",
         "2023년 1월 6일", "유저4"
     ),
     CurationCard(
-        R.drawable.cog_8_tooth, "타이틀5", "카테고리5",
+        R.drawable.test_image5, "타이틀5", "카테고리5",
         "2023년 1월 6일", "유저5"
     ),
     CurationCard(
-        R.drawable.cog_8_tooth, "타이틀6", "카테고리6",
+        R.drawable.test_image1, "타이틀6", "카테고리6",
         "2023년 1월 6일", "유저6"
     ),
     CurationCard(
-        R.drawable.cog_8_tooth, "타이틀7", "카테고리7",
+        R.drawable.test_image2, "타이틀7", "카테고리7",
         "2023년 1월 6일", "유저7"
     )
 )
@@ -124,7 +124,7 @@ val curationResponse = listOf(
 val categoryResponse = listOf("식물 키우기", "식물 부수기", "식물 심기")
 
 val user = User(
-    R.drawable.cog_8_tooth, "Mara", categoryResponse, 100, 50,
+    R.drawable.test_image1, "Mara", categoryResponse, 100, 50,
     true, postResponse, curationResponse
 )
 

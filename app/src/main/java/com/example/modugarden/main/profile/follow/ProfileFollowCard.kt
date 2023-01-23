@@ -26,7 +26,6 @@ import com.example.modugarden.R
 import com.example.modugarden.ui.theme.*
 
 // 팔로잉, 팔로워 프로필 카드
-@OptIn(ExperimentalMaterialApi::class)
 @Preview(showBackground = true)
 @Composable
 fun ProfileCard(
