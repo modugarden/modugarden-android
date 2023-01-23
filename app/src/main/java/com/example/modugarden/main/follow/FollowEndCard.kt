@@ -23,12 +23,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.example.modugarden.route.NAV_ROUTE_BNB
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduPoint
 
 @Composable //팔로우 피드에 표시되는 큐레이션 카드 item.
-fun FollowEndCard() {
+fun FollowEndCard(navController: NavHostController) {
 
     Card(Modifier.fillMaxWidth(),
         elevation = 0.dp, backgroundColor = Color.Transparent) {
@@ -59,7 +62,9 @@ fun FollowEndCard() {
 
             // 탐색 버튼
             Card(modifier = Modifier
-                .bounceClick { }
+                .bounceClick {
+                    navController.navigate(NAV_ROUTE_BNB.DISCOVER.routeName)
+                }
                 .padding(10.dp,8.dp),
                 backgroundColor = moduPoint,
                 shape = RoundedCornerShape(10.dp),
@@ -83,5 +88,6 @@ fun FollowEndCard() {
 @Preview(showBackground = true)
 @Composable
 fun FollowEndPreview(){
-    FollowEndCard()
+    val navController = rememberNavController()
+    FollowEndCard(navController)
 }

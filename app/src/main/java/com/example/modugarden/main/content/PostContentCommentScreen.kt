@@ -374,7 +374,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                 if (textFieldComment.value.isNotEmpty()) 1f
                                                 else 0.4f
                                             ),
-                                        painter = painterResource(id = R.drawable.ic_plus_solid),
+                                        painter = painterResource(id = R.drawable.ic_arrowcircle),
                                         contentDescription = "댓글 작성",
                                         tint = moduPoint
                                     )
@@ -461,7 +461,7 @@ fun CommentItem(comment: Comment,
                             comment.isReplying.value = true
                             data.value = comment
                         },
-                        painter = painterResource(id = R.drawable.ic_chat_line),
+                        painter = painterResource(id = R.drawable.ic_chat_line_s),
                         contentDescription = "답글", tint = moduGray_strong
                     )
                     Spacer(modifier = Modifier.size(18.dp))
@@ -474,7 +474,7 @@ fun CommentItem(comment: Comment,
                                 bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
                             }
                         },
-                        painter = painterResource(id = R.drawable.ic_dot3_vertical),
+                        painter = painterResource(id = R.drawable.ic_dot3_vertical_s),
                         contentDescription = "더보기", tint = moduGray_strong
                     )
                 }
