@@ -44,8 +44,8 @@ fun DiscoverSearchBeforeCard(
                 .fillMaxWidth(0.9f)
                 .bounceClick {
                     db.recentSearchDao().delete(recentSearch)
-                    db.recentSearchDao().insert(recentSearch)
-                    navController.navigate(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHRESULT.routeName + "/" + recentSearch.text)
+                    db.recentSearchDao().insert(RecentSearch(recentSearch.searchText))
+                    navController.navigate(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHRESULT.routeName + "/" + recentSearch.searchText)
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -70,7 +70,7 @@ fun DiscoverSearchBeforeCard(
             Spacer(modifier = Modifier.width(18.dp))
 
             Text(
-                text = recentSearch.text,
+                text = recentSearch.searchText,
                 style = TextStyle(
                     color = moduBlack,
                     fontWeight = FontWeight(400),

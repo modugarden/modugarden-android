@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
+import com.example.modugarden.ui.theme.Shapes
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
 
@@ -72,11 +73,11 @@ fun DiscoverSearchUserCard(searchStr : String) {
             modifier = Modifier
                 .width(51.dp)
                 .height(24.dp)
-                .clip(RoundedCornerShape(5.dp))
                 .bounceClick {
                     Toast.makeText(context,"팔로우 함 ㅋ", Toast.LENGTH_SHORT).show()
                 },
             backgroundColor = Color(0xFF6CD09A),
+            shape = RoundedCornerShape(5.dp)
         ){
             Box(contentAlignment = Alignment.Center) {
                 Text(

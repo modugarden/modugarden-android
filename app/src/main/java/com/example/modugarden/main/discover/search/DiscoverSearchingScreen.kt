@@ -1,6 +1,7 @@
 package com.example.modugarden.main.discover.search
 
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -47,14 +48,8 @@ fun DiscoverSearchingScreen(navController: NavHostController) {
         applicationContext, RecentSearchDatabase::class.java, "recent_database"
     ).allowMainThreadQueries().build()
 
-    var recentSearchItems1 by remember { mutableStateOf(emptyList<RecentSearch>()) }
-    LaunchedEffect(Unit) {
-        recentSearchItems1 = db.recentSearchDao().getAll()
-    }
+    val recentSearchItems = remember { mutableStateOf(db.recentSearchDao().getAll()) }
 
-    val recentSearchItems = remember { mutableStateListOf<RecentSearch>() }
-    recentSearchItems.removeAll(db.recentSearchDao().getAll())
-    recentSearchItems.addAll(db.recentSearchDao().getAll())
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -117,15 +112,22 @@ fun DiscoverSearchingScreen(navController: NavHostController) {
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                //검색버튼으로 스택관리 필요해보이는데 일단 그냥 한번 더 불러서 쌓는 식으로 해버림
+                //검색버튼
                 Image(
                     painter = painterResource(id = R.drawable.ic_search),
                     contentDescription = null,
                     modifier = Modifier
                         .bounceClick {
                             if(textFieldSearch.value != "") {
-                                db.recentSearchDao()
-                                    .insert(RecentSearch(text = textFieldSearch.value))
+                                //이미 전에 검색했던 거면 한번 지우고 다시 insert해줘서 맨 위로 올려줌
+                                val checkData: RecentSearch? = db.recentSearchDao().findRecentSearchBySearchText(textFieldSearch.value)
+                                checkData?.let {
+                                    db.recentSearchDao().delete(
+                                        it
+                                    )
+                                }
+
+                                db.recentSearchDao().insert(RecentSearch(textFieldSearch.value))
                                 navController.navigate(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHRESULT.routeName + "/" + textFieldSearch.value)
                             }
                         }
@@ -142,7 +144,7 @@ fun DiscoverSearchingScreen(navController: NavHostController) {
                     fontSize = 14.sp
                 )
             )
-            DiscoverSearchBefore(navController, db, recentSearchItems1)
+            DiscoverSearchBefore(navController, db, recentSearchItems.value)
 
         }
     }

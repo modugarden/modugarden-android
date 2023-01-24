@@ -1,5 +1,6 @@
 package com.example.modugarden.route
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,6 +18,7 @@ enum class NAV_ROUTE_DISCOVER_SEARCH(val routeName: String, val description: Str
     DISCOVERSEARCHRESULT("DISCOVER_SEARCH_REUSLT", "탐색 결과 창"),
 }
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun NavigationGraphDiscoverSearch(
     navController: NavHostController
@@ -38,7 +40,7 @@ fun NavigationGraphDiscoverSearch(
         composable(
                 NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHRESULT.routeName + "/{searchText}",
         ) { backStackEntry ->
-        val searchText = backStackEntry.arguments?.getString("searchText") ?: ""
+            val searchText = backStackEntry.arguments?.getString("searchText") ?: ""
             DiscoverSearchResultScreen(navController, searchText)
         }
     }
