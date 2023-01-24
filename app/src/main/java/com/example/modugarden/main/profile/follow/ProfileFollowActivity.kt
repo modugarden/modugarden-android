@@ -18,11 +18,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import com.example.modugarden.R
-import com.example.modugarden.main.profile.User
-import com.example.modugarden.main.profile.categoryResponse
-import com.example.modugarden.main.profile.curationResponse
-import com.example.modugarden.main.profile.postResponse
+import com.example.modugarden.main.profile.*
 import com.example.modugarden.ui.theme.*
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -33,13 +31,15 @@ import kotlinx.coroutines.launch
 val pages = listOf("팔로워", "팔로잉")
 
 val followerList = listOf(
-    User(R.drawable.cog_8_tooth, "Mara", categoryResponse, 100, 50,
+    User("https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri(),
+        "Mara", categoryResponse, 100, 50,
     true, postResponse, curationResponse
     )
 )
 
 val followingList = listOf(
-    User(R.drawable.cog_8_tooth, "Mara", categoryResponse, 100, 50,
+    User("https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri(),
+        "Mara", categoryResponse, 100, 50,
     true, postResponse, curationResponse
     )
 )
@@ -50,84 +50,113 @@ class ProfileFollowActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             // A surface container using the 'background' color from the theme
-            Column(
+            val scope = rememberCoroutineScope()
+            val scaffoldState = rememberScaffoldState()
+            Scaffold(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.White)
+                    .background(color = Color.White),
+                scaffoldState = scaffoldState,
+                snackbarHost = {
+                    ScaffoldSnackBar (
+                        snackbarHostState = it
+                    )
+                }
             ) {
-                TopBar(
-                    title = "팔로우",
-                    titleIcon = R.drawable.ic_arrow_left,
-                    titleIconOnClick = { finish() }
-                )
-
-                val pagerState = rememberPagerState()
-                val coroutineScope = rememberCoroutineScope()
-
-                TabRow(
-                    selectedTabIndex = pagerState.currentPage,
-                    indicator = { tabPositions ->
-                        TabRowDefaults.Indicator(
-                            Modifier.pagerTabIndicatorOffset(pagerState,tabPositions),
-                            color = Color.Black
-                        )
-                    }
+                Column(
+                    modifier = Modifier
+                        .padding(it)
+                        .fillMaxSize()
+                        .background(Color.White)
                 ) {
-                    pages.forEachIndexed { index, title ->
-                        Tab(
-                            selected = pagerState.currentPage == index,
-                            onClick = {
-                                coroutineScope.launch {
-                                    pagerState.scrollToPage(index)
-                                }
-                            },
-                            modifier = Modifier
-                                .height(50.dp)
-                                .background(Color.White)
-                        ) {
-                            Text(
-                                text = title,
-                                style = TextStyle(
-                                    color = Color.Black,
-                                    fontWeight =
-                                    if(pagerState.currentPage == index)
-                                        FontWeight.Bold
-                                    else
-                                        FontWeight.Normal
-                                )
+                    TopBar(
+                        title = "팔로우",
+                        titleIcon = R.drawable.ic_arrow_left,
+                        titleIconOnClick = { finish() }
+                    )
+
+                    val pagerState = rememberPagerState()
+                    val coroutineScope = rememberCoroutineScope()
+
+                    TabRow(
+                        selectedTabIndex = pagerState.currentPage,
+                        indicator = { tabPositions ->
+                            TabRowDefaults.Indicator(
+                                Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
+                                color = Color.Black
                             )
                         }
-                    }
-                }
-
-                HorizontalPager(
-                    count = pages.size,
-                    state = pagerState,
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) { page ->
-                    when (page) {
-                        0 -> {
-                            LazyColumn(
+                    ) {
+                        pages.forEachIndexed { index, title ->
+                            Tab(
+                                selected = pagerState.currentPage == index,
+                                onClick = {
+                                    coroutineScope.launch {
+                                        pagerState.scrollToPage(index)
+                                    }
+                                },
                                 modifier = Modifier
-                                    .padding(18.dp)
-                                    .fillMaxSize(),
-                                verticalArrangement = Arrangement.spacedBy(18.dp)
+                                    .height(50.dp)
+                                    .background(Color.White)
                             ) {
-                                items(followerList) { follower ->
-                                    ProfileCard()
-                                }
+                                Text(
+                                    text = title,
+                                    style = TextStyle(
+                                        color = Color.Black,
+                                        fontWeight =
+                                        if (pagerState.currentPage == index)
+                                            FontWeight.Bold
+                                        else
+                                            FontWeight.Normal
+                                    )
+                                )
                             }
                         }
-                        1 -> {
-                            LazyColumn(
-                                modifier = Modifier
-                                    .padding(18.dp)
-                                    .fillMaxSize(),
-                                verticalArrangement = Arrangement.spacedBy(18.dp)
-                            ) {
-                                items(followingList) { following ->
-                                    ProfileCard()
+                    }
+
+                    HorizontalPager(
+                        count = pages.size,
+                        state = pagerState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) { page ->
+                        when (page) {
+                            0 -> {
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .padding(18.dp)
+                                        .fillMaxSize(),
+                                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                                ) {
+                                    items(followerList) { follower ->
+                                        ProfileCard(follower) { isFollowing ->
+                                            scope.launch {
+                                                if(isFollowing)
+                                                    scaffoldState.snackbarHostState.showSnackbar("${follower.name} 님을 언팔로우 했어요.")
+                                                else
+                                                    scaffoldState.snackbarHostState.showSnackbar("${follower.name} 님을 팔로우 했어요.")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            1 -> {
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .padding(18.dp)
+                                        .fillMaxSize(),
+                                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                                ) {
+                                    items(followingList) { following ->
+                                        ProfileCard(following) { isFollowing ->
+                                            scope.launch {
+                                                if(isFollowing)
+                                                    scaffoldState.snackbarHostState.showSnackbar("${following.name} 님을 언팔로우 했어요.")
+                                                else
+                                                    scaffoldState.snackbarHostState.showSnackbar("${following.name} 님을 팔로우 했어요.")
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
