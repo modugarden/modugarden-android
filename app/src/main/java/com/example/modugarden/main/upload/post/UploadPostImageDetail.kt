@@ -61,9 +61,6 @@ fun UploadPostImageDetail(
                     delay(200)
                     navController.popBackStack()
                     uploadPostViewModel.removeImage(index)
-                    if(data.description.size - 1 >= index) {
-                        uploadPostViewModel.removeDescription(index)
-                    }
                 }
             },
             backgroundColor = Color.Black,

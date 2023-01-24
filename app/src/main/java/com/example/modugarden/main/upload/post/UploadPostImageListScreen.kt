@@ -72,6 +72,7 @@ fun UploadPostImageListScreen(
     val scope = rememberCoroutineScope()
 
     val imageData = data.image
+    val locationData = data.location
 
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { //이미지 저장.
         for(i in it) {
@@ -133,6 +134,7 @@ fun UploadPostImageListScreen(
                 Box() {
                     Text("", fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 8.dp))
                 }
+                //사진 모두 삭제 버튼
                 AnimatedVisibility(
                     visible = deleteState.value,
                     enter = fadeIn(animationSpec = tween(durationMillis = 200, easing = FastOutLinearInEasing)),
@@ -212,7 +214,6 @@ fun UploadPostImageListScreen(
                     if(imageData.isNotEmpty()) {
                         if(imageData.size <= 10) {
                             navController.navigate(NAV_ROUTE_UPLOAD_POST.IMAGEEDIT.routeName)
-                            uploadPostViewModel.savePage(data.image.size) //이미지 수 만큼 description 리스트 초기화.
                         }
                         else {
                             scope.launch {
@@ -287,9 +288,7 @@ fun UploadPostImageListItem(
                         .align(Alignment.TopEnd)
                         .bounceClick {
                             if (deleteState.value) {
-                                if (data.description.size - 1 >= index) {
-                                    uploadPostViewModel.removeDescription(index) //사진에 매핑 되어 있는 설명을 삭제합니다.
-                                }
+
                                 uploadPostViewModel.removeImage(index) //누른 사진을 삭제합니다.
                             }
                         },
