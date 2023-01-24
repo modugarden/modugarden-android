@@ -1,43 +1,51 @@
 package com.example.modugarden.main.discover.search
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
-import com.example.modugarden.ui.theme.Shapes
-import com.example.modugarden.ui.theme.bounceClick
-import com.example.modugarden.ui.theme.moduBlack
+import com.example.modugarden.ui.theme.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
 //포스트, 큐레이션에 표시되는 카드들로 데이터 형식 알려주면 그때 넣겠삼삼
 @Composable
-fun DiscoverSearchUserCard(searchStr : String) {
-    val context = LocalContext.current
+fun DiscoverSearchUserCard(searchStr : String, coroutineScope : CoroutineScope, snackbarHostState: SnackbarHostState) {
+
+    val followState = remember{ mutableStateOf(false) }
 
     Row(
         modifier = Modifier
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Card(
+        Row(
             modifier = Modifier
-                .clip(CircleShape)
+                .fillMaxWidth(0.8f)
+                .bounceClick {
+
+                },
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_background),
@@ -48,24 +56,33 @@ fun DiscoverSearchUserCard(searchStr : String) {
                 contentScale = ContentScale.Crop
             )
 
+            Spacer(modifier = Modifier.width(20.dp))
+
+            Column {
+                Text(
+                    modifier = Modifier.width(200.dp),
+                    text = searchStr,
+                    style = TextStyle(
+                        color = moduBlack,
+                        fontWeight = FontWeight(700),
+                        fontSize = 14.sp
+                    ),
+                    //넘치면 ....으로 표시해주는놈
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
+                )
+
+                Spacer(modifier = Modifier.height(7.dp))
+
+                Text(
+                    text = "카테고리 카테고리",
+                    style = TextStyle(
+                        color = Color(0xFF959DA7),
+                        fontWeight = FontWeight(400), fontSize = 11.sp
+                    )
+                )
+            }
         }
-        Spacer(modifier = Modifier.width(18.dp))
-
-        Column {
-            Text(text = searchStr,
-                style = TextStyle(color = moduBlack,
-                    fontWeight = FontWeight(700),
-                    fontSize = 14.sp)
-            )
-
-            Spacer(modifier = Modifier.height(7.dp))
-
-            Text(text = "카테고리 카테고리",
-                style = TextStyle(color = Color(0xFF959DA7),
-                    fontWeight = FontWeight(400),fontSize = 11.sp)
-            )
-        }
-
         Spacer(modifier = Modifier.weight(1f))
 
         //팔로우 버튼
@@ -74,18 +91,26 @@ fun DiscoverSearchUserCard(searchStr : String) {
                 .width(51.dp)
                 .height(24.dp)
                 .bounceClick {
-                    Toast.makeText(context,"팔로우 함 ㅋ", Toast.LENGTH_SHORT).show()
+                    followState.value = followState.value.not()
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(
+                            "$searchStr 님을 팔로우 하였습니다.",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
                 },
-            backgroundColor = Color(0xFF6CD09A),
+            backgroundColor =
+            if(followState.value) moduBackground else Color(0xFF6CD09A),
             shape = RoundedCornerShape(5.dp)
         ){
             Box(contentAlignment = Alignment.Center) {
                 Text(
-                    text = "팔로우",
+                    text =  if(followState.value) "팔로잉" else "팔로우",
                     style = TextStyle(
-                        color = Color.White,
+                        color =  if(followState.value) moduBlack else Color.White,
                         fontWeight = FontWeight(700), fontSize = 11.sp
-                    )
+                    ),
+
                 )
             }
         }
@@ -94,5 +119,4 @@ fun DiscoverSearchUserCard(searchStr : String) {
     }
 
     Spacer(modifier = Modifier.height(18.dp))
-
 }

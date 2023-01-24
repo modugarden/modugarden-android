@@ -15,6 +15,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
@@ -50,10 +51,15 @@ fun DiscoverSearchCard(searchStr: String) {
         Spacer(modifier = Modifier.width(18.dp))
 
         Column {
-            Text(text = searchStr,
+            Text(
+                modifier = Modifier.width(200.dp),
+                text = searchStr,
                 style = TextStyle(color = moduBlack,
                     fontWeight = FontWeight(700),
-                    fontSize = 14.sp)
+                    fontSize = 14.sp),
+                //넘치면 ....으로 표시해주는놈
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
             )
 
             Spacer(modifier = Modifier.height(7.dp))

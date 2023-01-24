@@ -17,10 +17,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import androidx.room.Room
 import com.example.modugarden.R
@@ -37,6 +39,9 @@ fun DiscoverSearchResultScreen(navController: NavHostController, searchText: Str
     val textFieldSearch = remember { mutableStateOf(searchText) } //textField 데이터 값.
     val isTextFieldSearchFocused = remember { mutableStateOf(false) } //textField가 포커싱 되어 있는지 여부.
 
+    val coroutineScope = rememberCoroutineScope()   //코루틴 스코프
+
+    val snackbarHostState = remember { SnackbarHostState() }// 팔로우 스낵바 메세지 상태 변수
 
     val applicationContext = LocalContext.current.applicationContext
 
@@ -128,9 +133,45 @@ fun DiscoverSearchResultScreen(navController: NavHostController, searchText: Str
 
                 )
             }
-            DiscoverSearchResult(searchText)
+            DiscoverSearchResult(searchText,coroutineScope ,snackbarHostState)
+
 
         }
+        // 커스텀한 알림
+        SnackbarHost(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(18.dp),
+        hostState = snackbarHostState,
+        snackbar = { snackbarData: SnackbarData ->
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Color("#62766B".toColorInt()),
+                        RoundedCornerShape(10.dp)
+                    )
+            ) {
+                Row(
+                    Modifier
+                        .padding(12.dp, 17.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_check_solid),
+                        contentDescription = "체크",
+                        Modifier.size(16.dp),
+                    )
+                    Spacer(modifier = Modifier.size(12.dp))
+                    Text(
+                        text = snackbarData.message,
+                        color = Color.White,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+            }
+        })
     }
 
 }
