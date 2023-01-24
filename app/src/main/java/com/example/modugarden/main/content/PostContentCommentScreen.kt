@@ -1,5 +1,6 @@
 package com.example.modugarden.main.content
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,6 +41,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -50,6 +52,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -63,6 +66,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
 import com.example.modugarden.data.Comment
+import com.example.modugarden.data.CommentDataBase
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.ui.theme.addFocusCleaner
 import com.example.modugarden.ui.theme.bounceClick
@@ -77,18 +81,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.UUID
 
+@SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun PostContentCommentScreen(navController: NavHostController,
                              commentViewModel: CommentViewModel) {
-    val comments= remember { mutableStateListOf<Comment>() }
-    var sortedComments =remember { mutableStateListOf<Comment>() } //댓글 정렬 후 리스트
-    val reply = remember { mutableStateListOf<Comment>() }
-    val data  :MutableState<Comment>
-    = remember{ mutableStateOf(Comment(
-        userID = "",
-        description = "", time = 0, isReplying = mutableStateOf(false), parentId = null)) } // 신고 데이터
 
+    val data  :MutableState<Comment>
+    = remember{ mutableStateOf(Comment(id = UUID.randomUUID(), userID = "", description = "", time = 0, isReplying = mutableStateOf(false), parentID = null)) } // 신고 데이터
+
+    val commentDB = CommentDataBase.getInstance(LocalContext.current.applicationContext)!! //데이터 베이스
+    var comments= remember{ mutableStateOf(commentDB.commentDao().getAll()) } // 코멘트 리스트
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
     val isTextFieldCommentFocused = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
@@ -96,6 +99,9 @@ fun PostContentCommentScreen(navController: NavHostController,
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val showModalSheet = rememberSaveable{ mutableStateOf(false) } // 신고 모달 상태 변수
     val scope = rememberCoroutineScope()
+
+
+
 
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
@@ -189,6 +195,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                         .addFocusCleaner(focusManager)
                 )
                 {
+
                     Column {
                         Column(modifier = Modifier
                             .weight(1f, true)
@@ -215,7 +222,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                                 Spacer(modifier = Modifier.size(18.dp))
                                 Text(text = "댓글", style = moduBold, fontSize = 16.sp)
                                 Spacer(modifier = Modifier.size(5.dp))
-                                Text(text = "${comments.size}", color = moduGray_strong, fontSize = 16.sp)
+                                Text(text = "${comments.value.size}", color = moduGray_strong, fontSize = 16.sp)
                                 Spacer(modifier = Modifier.weight(1f))
 
                             }
@@ -226,26 +233,26 @@ fun PostContentCommentScreen(navController: NavHostController,
                                     .fillMaxWidth()
                                     .height(1.dp)
                             )
-                            var sortedComments =remember { mutableStateListOf<Comment>() } //댓글 정렬 후 리스트
+
                             // 댓글 영역
                                 LazyColumn(
                                     Modifier
                                         .wrapContentSize()
                                         .background(Color.White)
                                 ){
-                                    sortedComments = mutableStateListOf() //  정렬 리스트 초기화
-                                    var parents = comments.filter { it.mode==false } // 댓글 리스트
-                                    var childs = comments.filter { it.mode==true } // 답글 리스트
-
+                                    var sortedComments  = mutableStateListOf<Comment>() //  정렬 리스트 초기화
+                                    var parents = comments.value.filter { it.mode==false } // 댓글 리스트
+                                    var childs = comments.value.filter { it.mode==true } // 답글 리스트
                                     for(i in 0 until parents.size){
                                         sortedComments.add(parents[i])
                                         for (j in 0 until childs.size) {
-                                            if (childs[j].parentId == parents[i].id) {
+                                            if (childs[j].parentID == parents[i].id) {
                                                 sortedComments.add(childs[j])
                                             }
                                         }
                                     }
                                     items(sortedComments){ comment->
+
                                         CommentItem(
                                             comment = comment,
                                             showModalSheet = showModalSheet,
@@ -254,6 +261,8 @@ fun PostContentCommentScreen(navController: NavHostController,
                                             data = data
                                         )
                                     }
+
+
                                 }
 
                         }
@@ -353,31 +362,31 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                     if (data.value.isReplying.value) {
                                                         commentViewModel.addComment(
                                                             Comment(
-                                                                id = null,
+                                                                id = UUID.randomUUID(),
                                                                 userID = "reply",
                                                                 description = textFieldComment.value,
                                                                 time = 1,
-                                                                parentId = data.value.id,
+                                                                parentID = data.value.id,
                                                                 mode = true
-                                                            ), comments
+                                                            ), comments,commentDB
                                                         )
-                                                    } else {
+                                                        data.value.isReplying.value = false
+                                                    } else //댓글일 때
+                                                    {
                                                         commentViewModel.addComment(
                                                             Comment(
                                                                 id = UUID.randomUUID(),
                                                                 userID = "comment",
                                                                 description = textFieldComment.value,
                                                                 time = 0,
-                                                                parentId = null,
+                                                                parentID = null,
                                                                 mode = false
-                                                            ), comments
+                                                            ), comments,commentDB
                                                         )
                                                     }
 
                                                 }
                                                 textFieldComment.value = ""
-                                                data.value.isReplying.value = false
-
 
                                             }
                                             .alpha(
@@ -399,6 +408,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                 }
 
     }
+    if (commentDB.commentDao().getAll().size>0) Log.d("db:",commentDB.commentDao().getAll().toString())
 
 }
 
@@ -517,7 +527,4 @@ fun PostContentCommentPreview(){
     val navController = rememberNavController()
     val commentViewModel:CommentViewModel= viewModel()
     PostContentCommentScreen(navController = navController,commentViewModel)
-
-
-
 }
