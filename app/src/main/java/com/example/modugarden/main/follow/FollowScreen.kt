@@ -170,15 +170,14 @@ fun FollowScreen(navController: NavHostController) {
                                 fontSize = 16.sp
                             )
                         }
-
-                        Icon(
+                        /*Icon(
                             modifier = Modifier
                                 .align(Alignment.CenterEnd)
                                 .bounceClick { },
                             painter = painterResource(id = R.drawable.ic_notification),
                             contentDescription = "알림",
                             tint = moduBlack
-                        )
+                        )*/
                     }
 
                 }

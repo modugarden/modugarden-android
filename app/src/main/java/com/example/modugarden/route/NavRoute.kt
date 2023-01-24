@@ -10,15 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
 import com.google.accompanist.navigation.animation.composable
 import com.example.modugarden.R
-import com.example.modugarden.login.MainLoginScreen
 import com.example.modugarden.main.content.PostContentCommentScreen
-import com.example.modugarden.main.content.PostContentScreen
 import com.example.modugarden.main.discover.DiscoverScreen
 import com.example.modugarden.main.follow.FollowScreen
-import com.example.modugarden.main.follow.NoFollowingScreen
 import com.example.modugarden.main.notification.NotificationScreen
 import com.example.modugarden.main.profile.MyProfileScreen
 import com.example.modugarden.main.upload.UploadScreen

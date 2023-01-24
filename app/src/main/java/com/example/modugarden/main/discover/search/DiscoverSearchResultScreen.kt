@@ -139,39 +139,39 @@ fun DiscoverSearchResultScreen(navController: NavHostController, searchText: Str
         }
         // 커스텀한 알림
         SnackbarHost(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(18.dp),
-        hostState = snackbarHostState,
-        snackbar = { snackbarData: SnackbarData ->
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Color("#62766B".toColorInt()),
-                        RoundedCornerShape(10.dp)
-                    )
-            ) {
-                Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(18.dp),
+            hostState = snackbarHostState,
+            snackbar = { snackbarData: SnackbarData ->
+                Box(
                     Modifier
-                        .padding(12.dp, 17.dp)
+                        .fillMaxWidth()
+                        .background(
+                            Color("#62766B".toColorInt()),
+                            RoundedCornerShape(10.dp)
+                        )
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_check_solid),
-                        contentDescription = "체크",
-                        Modifier.size(16.dp),
-                    )
-                    Spacer(modifier = Modifier.size(12.dp))
-                    Text(
-                        text = snackbarData.message,
-                        color = Color.White,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                    Row(
+                        Modifier
+                            .padding(12.dp, 17.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_check_solid),
+                            contentDescription = "체크",
+                            Modifier.size(16.dp),
+                        )
+                        Spacer(modifier = Modifier.size(12.dp))
+                        Text(
+                            text = snackbarData.message,
+                            color = Color.White,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
 
-            }
-        })
+                }
+            })
     }
 
 }

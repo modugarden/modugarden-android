@@ -205,15 +205,18 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                                         .padding(vertical = 18.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_map),
-                                        contentDescription = "",
-                                        modifier = Modifier
+                                    Box(modifier = Modifier
                                             .clip(CircleShape)
                                             .background(moduGray_light)
-                                            .size(40.dp)
-                                        ,
-                                    )
+                                            .size(40.dp),
+                                            contentAlignment = Alignment.Center)
+                                    {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_map_pin),
+                                            contentDescription = "",
+                                            modifier = Modifier
+                                        )
+                                    }
                                     Spacer(modifier = Modifier.width(18.dp))
                                     Column(
                                         modifier = Modifier
@@ -580,22 +583,23 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                             Icon(
                                 modifier = Modifier
                                     .padding(horizontal = 18.dp)
-                                    .bounceClick {navController.navigate(NAV_ROUTE_POSTCONTENT.COMMENT.routeName) },
+                                    .bounceClick { navController.navigate(NAV_ROUTE_POSTCONTENT.COMMENT.routeName) },
                                 painter = painterResource(id = R.drawable.ic_chat_line),
                                 contentDescription = "댓글",
                                 tint = moduBlack
                             )
                             // 스크랩
                             Icon(modifier =
-                                Modifier
-                                    .bounceClick {
-                                isButtonClickedSave.value = !isButtonClickedSave.value }
-                                    .padding(
-                                        if (isButtonClickedSave.value)
-                                            1.75.dp
-                                        else
-                                            0.dp
-                                    )
+                            Modifier
+                                .bounceClick {
+                                    isButtonClickedSave.value = !isButtonClickedSave.value
+                                }
+                                .padding(
+                                    if (isButtonClickedSave.value)
+                                        1.75.dp
+                                    else
+                                        0.dp
+                                )
                                 ,
                                 painter = painterResource
                                 (id =
