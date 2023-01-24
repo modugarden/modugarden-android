@@ -149,7 +149,6 @@ fun UploadPostImageListScreen(
                             if(imageData.isNotEmpty()) {
                                 uploadPostViewModel.removeRangeImage(imageData.size)
                             }
-                            uploadPostViewModel.savePage(0)
                         }
                     )
                 }
@@ -215,7 +214,6 @@ fun UploadPostImageListScreen(
                     if(imageData.isNotEmpty()) {
                         if(imageData.size <= 10) {
                             navController.navigate(NAV_ROUTE_UPLOAD_POST.IMAGEEDIT.routeName)
-                            uploadPostViewModel.savePage(data.image.size) //이미지 수 만큼 description 리스트 초기화.
                         }
                         else {
                             scope.launch {
@@ -290,12 +288,7 @@ fun UploadPostImageListItem(
                         .align(Alignment.TopEnd)
                         .bounceClick {
                             if (deleteState.value) {
-                                if (data.description.size - 1 >= index) {
-                                    uploadPostViewModel.removeDescription(index) //사진에 매핑 되어 있는 설명을 삭제합니다.
-                                }
-                                if (data.location.size - 1 >= index) {
-                                    uploadPostViewModel.removeLocation(index)
-                                }
+
                                 uploadPostViewModel.removeImage(index) //누른 사진을 삭제합니다.
                             }
                         },

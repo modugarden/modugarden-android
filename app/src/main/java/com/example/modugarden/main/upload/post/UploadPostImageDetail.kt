@@ -61,12 +61,6 @@ fun UploadPostImageDetail(
                     delay(200)
                     navController.popBackStack()
                     uploadPostViewModel.removeImage(index)
-                    if (data.description.size - 1 >= index) {
-                        uploadPostViewModel.removeDescription(index) //사진에 매핑 되어 있는 설명을 삭제합니다.
-                    }
-                    if (data.location.size - 1 >= index) {
-                        uploadPostViewModel.removeLocation(index)
-                    }
                 }
             },
             backgroundColor = Color.Black,

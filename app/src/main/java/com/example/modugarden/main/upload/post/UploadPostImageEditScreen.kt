@@ -271,7 +271,7 @@ fun EditTextUploadPost(
             value = data[page],
             onValueChange = { textValue ->
                 data[page] = textValue
-                viewModel.saveDescription(data[page], page)
+                viewModel.addDescription(data[page], page)
                 Log.d("composedata", data[page])
             },
             colors = TextFieldDefaults.textFieldColors(

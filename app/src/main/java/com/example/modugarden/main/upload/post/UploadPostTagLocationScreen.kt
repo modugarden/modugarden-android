@@ -100,6 +100,7 @@ fun UploadPostTagLocationScreen(
                             .weight(1f)
                             .bounceClick {
                                          uploadPostViewModel.addLocation("${textFieldNameData.value}, ${loc.value.latitude}, ${loc.value.longitude}", page)
+                                navController.popBackStack()
                             },
                         backgroundColor = moduPoint,
                         shape = RoundedCornerShape(15.dp),
@@ -293,7 +294,7 @@ fun UploadPostTagLocationScreen(
                            ) {
                                Column {
                                    Box(
-                                       modifier = Modifier.padding(18.dp)
+                                       modifier = Modifier.padding(18.dp).padding(top = 18.dp)
                                    ) {
                                        EditText(
                                            "위치 이름",
