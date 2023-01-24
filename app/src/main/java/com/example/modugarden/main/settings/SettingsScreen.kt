@@ -48,13 +48,14 @@ fun ProfileSettingsScreen(
         topBar = {
             TopBar(
                 title = currentScreen.title,
-                titleIcon = R.drawable.ic_arrow_left,
+                titleIcon = R.drawable.ic_arrow_left_bold,
                 titleIconOnClick = {
                     if(navController.previousBackStackEntry != null)
                     { navController.navigateUp() }
                     else
                     { context.finish() }
-                }
+                },
+                bottomLine = currentScreen.title != SettingsScreen.Withdraw.title
             )
         }
     ) { innerPadding ->
@@ -85,7 +86,7 @@ fun ProfileSettingsScreen(
 
             }
             composable(route = SettingsScreen.Withdraw.name) {
-
+                SettingsWithdrawScreen()
             }
         }
     }
