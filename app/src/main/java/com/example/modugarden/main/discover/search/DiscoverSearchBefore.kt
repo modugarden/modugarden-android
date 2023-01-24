@@ -18,13 +18,11 @@ import com.example.modugarden.data.RecentSearchDatabase
 
 @Composable
 fun DiscoverSearchBefore(navController: NavHostController, db: RecentSearchDatabase, recentSearchItems : List<RecentSearch>) {
-    val context = LocalContext.current
-
 
     LazyColumn(modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp)
     ) {
-        itemsIndexed(recentSearchItems.toList().reversed()) { idx, item ->
+        itemsIndexed(recentSearchItems.reversed()) { idx, item ->
             DiscoverSearchBeforeCard(navController , recentSearch = item, db = db)
         }
     }

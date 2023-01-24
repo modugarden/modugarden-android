@@ -32,7 +32,7 @@ import com.example.modugarden.ui.theme.bounceClick
 
 
 @Composable
-fun DiscoverSearchResultScreen(navController: NavHostController, searchText : String) {
+fun DiscoverSearchResultScreen(navController: NavHostController, searchText: String) {
     val focusManager = LocalFocusManager.current
     val textFieldSearch = remember { mutableStateOf(searchText) } //textField 데이터 값.
     val isTextFieldSearchFocused = remember { mutableStateOf(false) } //textField가 포커싱 되어 있는지 여부.
@@ -40,9 +40,11 @@ fun DiscoverSearchResultScreen(navController: NavHostController, searchText : St
 
     val applicationContext = LocalContext.current.applicationContext
 
+
     val db = Room.databaseBuilder(
         applicationContext, RecentSearchDatabase::class.java, "recent_database"
     ).allowMainThreadQueries().build()
+
 
     Box(
         modifier = Modifier
@@ -112,6 +114,14 @@ fun DiscoverSearchResultScreen(navController: NavHostController, searchText : St
                     contentDescription = null,
                     modifier = Modifier
                         .bounceClick {
+                            //이미 전에 검색했던 거면 한번 지우고 다시 insert해줘서 맨 위로 올려줌
+                            val checkData: RecentSearch? = db.recentSearchDao().findRecentSearchBySearchText(textFieldSearch.value)
+                            checkData?.let {
+                                db.recentSearchDao().delete(
+                                    it
+                                )
+                            }
+
                             db.recentSearchDao().insert(RecentSearch(textFieldSearch.value))
                             navController.navigate(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHRESULT.routeName + "/" + textFieldSearch.value)
                         }

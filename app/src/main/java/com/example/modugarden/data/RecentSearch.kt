@@ -2,9 +2,10 @@ package com.example.modugarden.data
 
 import androidx.room.*
 
-@Entity
+@Entity(tableName = "recent_database")
 data class RecentSearch(
-    val text: String,
+    @ColumnInfo(name = "searchText")
+    val searchText: String,
 ) {
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0
@@ -12,7 +13,7 @@ data class RecentSearch(
 
 @Dao
 interface RecentSearchDao {
-    @Query("SELECT * FROM recentSearch")
+    @Query("SELECT * FROM recent_database")
     fun getAll(): List<RecentSearch>
 
     @Insert
@@ -23,6 +24,10 @@ interface RecentSearchDao {
 
     @Delete
     fun delete(recentData: RecentSearch)
+
+    @Query("SELECT * FROM recent_database WHERE searchText = :searchTxt")
+    fun findRecentSearchBySearchText(searchTxt: String): RecentSearch
+
 }
 
 @Database(entities = [RecentSearch::class], version = 1)
