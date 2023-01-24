@@ -3,6 +3,7 @@ package com.example.modugarden.ui.theme
 import android.graphics.Rect
 import android.view.ViewTreeObserver
 import android.widget.Space
+import androidx.annotation.ColorRes
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
@@ -286,8 +287,8 @@ fun TopBar(
 fun ModalBottomSheet(
     title: String,
     bottomSheetState: ModalBottomSheetState,
-    uiScreen: @Composable() () -> Unit,
-    sheetScreen: @Composable() () -> Unit,
+    uiScreen: @Composable () -> Unit,
+    sheetScreen: @Composable () -> Unit,
 ) {
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
@@ -310,8 +311,15 @@ fun ModalBottomSheet(
                         .alpha(0.2f)
                     )
                     Spacer(modifier = Modifier.size(30.dp))
-                    Text(text = title, style = moduBold, fontSize = 20.sp, modifier = Modifier.align(Alignment.Start).padding(start = 18.dp))
-                    Spacer(modifier = Modifier.height(30.dp))
+                    if(title != "") {
+                        Text(
+                            text = title,
+                            style = moduBold,
+                            fontSize = 20.sp,
+                            modifier = Modifier.align(Alignment.Start).padding(start = 18.dp)
+                        )
+                        Spacer(modifier = Modifier.height(30.dp))
+                    }
                     // 리스트
                     LazyColumn(modifier = Modifier
                         .padding(horizontal = 18.dp) ){
@@ -359,6 +367,7 @@ fun ModalBottomSheetItem(
                         modifier = Modifier
                             .width(15.dp)
                             .height(15.dp)
+                            .align(Alignment.CenterVertically)
                     )
                 }
             }
@@ -391,7 +400,9 @@ fun BottomButton(
     onClick: () -> Unit,
     dpScale: Dp = 18.dp,
     alpha: Float = 1f,
-    shapeScale: Dp = 10.dp
+    shapeScale: Dp = 10.dp,
+    color: Color = moduPoint,
+    textColor: Color = Color.White
 ) {
     Box(
         modifier = Modifier
@@ -412,14 +423,14 @@ fun BottomButton(
                 .fillMaxWidth()
                 .alpha(alpha),
             shape = RoundedCornerShape(shapeScale),
-            backgroundColor = moduPoint,
+            backgroundColor = color,
             elevation = 0.dp
         ) {
             Text(
                 title,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
-                color = Color.White,
+                color = textColor,
                 modifier = Modifier
                     .padding(18.dp),
                 textAlign = TextAlign.Center
