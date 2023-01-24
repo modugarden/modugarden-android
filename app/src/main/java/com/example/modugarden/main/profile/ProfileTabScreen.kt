@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import com.example.modugarden.R
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduGray_normal
@@ -130,7 +131,7 @@ val curationResponse = listOf(
 val categoryResponse = listOf("식물 키우기", "식물 부수기", "식물 심기")
 
 val user = User(
-    R.drawable.test_image1, "Mara", categoryResponse, 100, 50,
+    "https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri(), "Mara", categoryResponse, 100, 50,
     true, postResponse, curationResponse
 )
 
@@ -225,18 +226,19 @@ fun CuratorProfileTab(
                 ) {
                     items(user.post) { postCard ->
                         // 이미지가 들어간 버튼을 넣어야 함
-                        Image(
-                            painter = painterResource(id = postCard.image),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(5.dp))
-                                .fillMaxWidth()
-                                .aspectRatio(1f)
-                                .bounceClick {
+                        Box(modifier = Modifier.bounceClick {
 
-                                },
-                            contentScale = ContentScale.Crop
-                        )
+                        }) {
+                            Image(
+                                painter = painterResource(id = postCard.image),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(1f)
+                                    .clip(RoundedCornerShape(5.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
                     }
                 }
             }

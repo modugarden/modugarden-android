@@ -475,3 +475,41 @@ fun SnackBar(
             }
         })
 }
+
+@Composable
+fun ScaffoldSnackBar(
+    snackbarHostState: SnackbarHostState,
+    icon: Int = R.drawable.ic_check_solid,
+    iconTint: Color = moduPoint,
+) {
+    SnackbarHost(
+        hostState = snackbarHostState,
+        snackbar = { snackbarData: SnackbarData ->
+            Box(
+                Modifier
+                    .padding(18.dp)
+                    .fillMaxWidth()
+                    .background(Color("#62766B".toColorInt()), RoundedCornerShape(10.dp))
+            ) {
+                Row(
+                    Modifier
+                        .padding(12.dp, 17.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = icon),
+                        contentDescription = "체크",
+                        colorFilter = ColorFilter.tint(iconTint),
+                        modifier = Modifier.size(24.dp),
+                    )
+                    Spacer(modifier = Modifier.size(12.dp))
+                    Text(
+                        text = snackbarData.message,
+                        color = Color.White,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+            }
+        })
+}

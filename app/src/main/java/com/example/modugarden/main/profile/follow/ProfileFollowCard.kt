@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -23,13 +24,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
+import com.example.modugarden.main.profile.User
+import com.example.modugarden.main.profile.user
 import com.example.modugarden.ui.theme.*
+import com.google.android.gms.common.api.Scope
+import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.launch
 
 // 팔로잉, 팔로워 프로필 카드
-@Preview(showBackground = true)
 @Composable
 fun ProfileCard(
-
+    user: User,
+    onClick: (Boolean) -> Unit = {}
 ) {
     Row(
         modifier = Modifier
@@ -38,8 +44,8 @@ fun ProfileCard(
 
             }
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.test_image1),
+        GlideImage(
+            imageModel = user.image,
             contentDescription = null,
             modifier = Modifier
                 .size(50.dp)
@@ -51,7 +57,7 @@ fun ProfileCard(
                 .padding(start = 20.dp, top = 6.dp, bottom = 6.dp)
         )  {
             Text(
-                text = "Mara",
+                text = user.name,
                 style = TextStyle(
                     color = moduBlack,
                     fontSize = 14.sp,
@@ -60,7 +66,7 @@ fun ProfileCard(
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = "follower.category.toString()",
+                text = user.category.toString(),
                 style = TextStyle(
                     color = moduGray_normal,
                     fontSize = 11.sp
@@ -69,23 +75,23 @@ fun ProfileCard(
         }
         Spacer(modifier = Modifier.weight(1f))
 
-        val btnText = remember { mutableStateOf("팔로우") }
-        val btnColor = remember { mutableStateOf(moduPoint) }
-        val btnTextColor = remember { mutableStateOf(Color.White) }
+        val followState = remember { mutableStateOf(true) }
         Card(
             modifier = Modifier
                 .align(Alignment.CenterVertically)
                 .wrapContentSize()
                 .bounceClick {
                     // 팔로우 api
+                    onClick(followState.value)
+                    followState.value = !followState.value
                 },
             shape = RoundedCornerShape(5.dp),
-            backgroundColor = btnColor.value
+            backgroundColor = if(followState.value) { moduBackground } else { moduPoint }
         ) {
             Text(
-                text = btnText.value,
+                text = if(followState.value) { "팔로잉" } else { "팔로우" },
                 style = TextStyle(
-                    color = btnTextColor.value,
+                    color = if(followState.value) { Color.Black } else { Color.White },
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center

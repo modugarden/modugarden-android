@@ -1,7 +1,9 @@
 package com.example.modugarden.main.profile
 
+import android.net.Uri
+
 data class User(
-    val image: Int,
+    val image: Uri,
     val name: String,
     val category: List<String>,
     val follower: Int,

@@ -1,16 +1,20 @@
 package com.example.modugarden.main.settings
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,21 +26,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import com.example.modugarden.R
 import com.example.modugarden.main.profile.User
 import com.example.modugarden.main.profile.categoryResponse
 import com.example.modugarden.main.profile.curationResponse
 import com.example.modugarden.main.profile.postResponse
 import com.example.modugarden.ui.theme.*
+import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.launch
 
 val userList = listOf<User>(
-    User(R.drawable.test_image2, "Mara", categoryResponse, 100, 50,
+    User("https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri()
+        , "Mara", categoryResponse, 100, 50,
         true, postResponse, curationResponse
     ),
-    User(R.drawable.test_image3,"Logan", categoryResponse, 100, 50,
+    User("https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri()
+        ,"Logan", categoryResponse, 100, 50,
         true, postResponse, curationResponse
     ),
-    User(R.drawable.test_image1, "Penguin", categoryResponse, 100, 50,
+    User("https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri()
+        , "Penguin", categoryResponse, 100, 50,
         true, postResponse, curationResponse
     )
 )
@@ -58,14 +68,32 @@ fun SettingsBlockScreen (
     }
     else
     {
-        LazyColumn(
+        val scope = rememberCoroutineScope()
+        val scaffoldState = rememberScaffoldState()
+        Scaffold(
             modifier = Modifier
-                .padding(18.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(18.dp)
+                .fillMaxSize()
+                .background(color = Color.White),
+            scaffoldState = scaffoldState,
+            snackbarHost = {
+                ScaffoldSnackBar (
+                    snackbarHostState = it
+                )
+            }
         ) {
-            items(userList) { blockedProfile ->
-                BlockedProfileCard(blockedProfile)
+            LazyColumn(
+                modifier = Modifier
+                    .padding(it).padding(18.dp)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(18.dp)
+            ) {
+                items(userList) { blockedProfile ->
+                    BlockedProfileCard(blockedProfile) {
+                        scope.launch {
+                            scaffoldState.snackbarHostState.showSnackbar("${blockedProfile.name} 님의 차단을 해제했습니다.")
+                        }
+                    }
+                }
             }
         }
     }
@@ -73,7 +101,8 @@ fun SettingsBlockScreen (
 
 @Composable
 fun BlockedProfileCard (
-    user: User
+    user: User,
+    onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -82,8 +111,8 @@ fun BlockedProfileCard (
 
             }
     ) {
-        Image(
-            painter = painterResource(id = user.image),
+        GlideImage(
+            imageModel = user.image,
             contentDescription = null,
             modifier = Modifier
                 .size(50.dp)
@@ -114,24 +143,22 @@ fun BlockedProfileCard (
         }
         Spacer(modifier = Modifier.weight(1f))
 
-        val btnText = remember { mutableStateOf("차단 해제") }
-        val btnColor = remember { mutableStateOf(moduBackground) }
-        val btnTextColor = remember { mutableStateOf(moduBlack) }
         Card(
             modifier = Modifier
                 .align(Alignment.CenterVertically)
                 .wrapContentSize()
                 .bounceClick {
                     // 차단해제 api
+                    onClick()
                 },
             shape = RoundedCornerShape(5.dp),
-            backgroundColor = btnColor.value,
+            backgroundColor = moduBackground,
             elevation = 0.dp
         ) {
             Text(
-                text = btnText.value,
+                text = "차단 해제",
                 style = TextStyle(
-                    color = btnTextColor.value,
+                    color = moduBlack,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
