@@ -127,7 +127,7 @@ fun UploadPostImageEditScreen(
                                                 color = moduGray_light,
                                                 start = Offset(0f, size.height),
                                                 end = Offset(size.width, size.height),
-                                                strokeWidth = 1.dp.toPx()
+                                                strokeWidth = 2.dp.toPx()
                                             )
                                         }
                                 ) {
@@ -139,15 +139,16 @@ fun UploadPostImageEditScreen(
                                                 navController.navigate(NAV_ROUTE_UPLOAD_POST.TAGLOCATION.routeName+"/${page}")
                                             }
                                     ) {
+                                        //위치 아이콘
                                         Image(
-                                            painter = painterResource(if(locationData[page].isNotEmpty()) R.drawable.ic_location_line else R.drawable.ic_plus_curation),
+                                            painter = painterResource(if(locationData[page].isNotEmpty()) R.drawable.ic_location_with_circle else R.drawable.ic_plus_curation),
                                             contentDescription = null,
                                             modifier = Modifier
                                                 .size(40.dp)
                                         )
                                         Spacer(Modifier.size(18.dp))
-                                        Text(if(locationData[page].isNotEmpty()) locationData[page] else "위치 태그 추가", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = moduBlack, modifier = Modifier.align(Alignment.CenterVertically))
-                                        Spacer(Modifier.weight(1f))
+                                        Text(if(locationData[page].isNotEmpty()) locationData[page].split(",")[0] else "위치 태그 추가", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = if(locationData[page].isNotEmpty()) moduBlack else moduBlack, modifier = Modifier.align(Alignment.CenterVertically).weight(1f))
+                                        Spacer(Modifier.size(18.dp))
                                         Image(
                                             painter = painterResource(id = R.drawable.ic_chevron_right_bold),
                                             contentDescription = null,
@@ -155,8 +156,7 @@ fun UploadPostImageEditScreen(
                                         )
                                     }
                                 }
-                                //전용 EditText 필요함. (임시 코드)
-                                EditTextUploadPost(hint = "내용을 입력하세요", data = descriptionData, page = page, viewModel = uploadPostViewModel)
+                                EditTextUploadPost(hint = "일상, 사진 설명 등을 기록해요", data = descriptionData, page = page, viewModel = uploadPostViewModel)
                                 Spacer(modifier = Modifier.height(80.dp))
                             }
                         }
