@@ -3,14 +3,15 @@ package com.example.modugarden.main.follow
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.SnackbarData
+import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -37,6 +39,11 @@ import com.example.modugarden.R
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduBlack
+import com.example.modugarden.ui.theme.moduGray_light
+import com.example.modugarden.ui.theme.moduGray_strong
+import com.example.modugarden.ui.theme.moduPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 // 볼드 텍스트 타입 설정
 val moduBold : TextStyle = TextStyle(color = moduBlack, fontWeight = FontWeight.Bold)
@@ -85,7 +92,8 @@ fun NoFollowingScreen(navController: NavHostController) {
             ) {
                 LazyColumn(){
                     // 추천 목록 데이터 넘겨서 표시될 예정
-                    itemsIndexed(listOf("user1","user2","user3")){
+                    itemsIndexed(
+                        listOf("user1","user2","user3")){
                             index, item ->
                         FollowRecommendCard(userID = item, scope = scope, snackbarHostState = snackbarHostState)
                     }
@@ -154,6 +162,83 @@ fun NoFollowingScreen(navController: NavHostController) {
 
     }
 
+@Composable
+// 팔로우 추천 목록에 들어갈 카드
+fun FollowRecommendCard(userID:String,
+                        scope: CoroutineScope = rememberCoroutineScope(),
+                        snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }){
+
+    Column() {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(18.dp, 20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // 프로필 사진
+            Image(
+                painter = painterResource(R.drawable.ic_user),
+                contentDescription = "",
+                modifier = Modifier
+                    .size(50.dp)
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(50)),
+                contentScale = ContentScale.Crop
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(start = 18.dp)
+                ) {
+                    // 아이디
+                    Text(
+                        text = userID,
+                        fontSize = 14.sp,
+                        style = moduBold
+                    )
+                    // 카테고리
+                    Text(
+                        text = "category",
+                        fontSize = 11.sp,
+                        color = moduGray_strong
+                    )
+                }
+                // 팔로우 버튼
+                Card(
+                    modifier = Modifier
+                        .bounceClick {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    "$userID 님을 팔로우 하였습니다.",
+                                    duration = SnackbarDuration.Short
+                                )
+                            }
+                        },
+                    shape = RoundedCornerShape(5.dp),
+                    backgroundColor = moduPoint
+                ) {
+                    Text(
+                        modifier = Modifier.padding(10.dp, 4.dp),
+                        text = "팔로우",
+                        color = Color.White,
+                        fontSize = 11.sp
+                    )
+                }
+            }
+        }
+        Divider(
+            color = moduGray_light,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+        )
+    }
+
+}
 
 
 @Preview
