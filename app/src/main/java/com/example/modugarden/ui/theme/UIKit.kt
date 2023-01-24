@@ -400,7 +400,7 @@ fun BottomButton(
     onClick: () -> Unit,
     dpScale: Dp = 18.dp,
     alpha: Float = 1f,
-    shapeScale: Dp = 10.dp,
+    shapeScale: Dp = 15.dp,
     color: Color = moduPoint,
     textColor: Color = Color.White
 ) {

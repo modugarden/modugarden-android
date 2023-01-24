@@ -43,6 +43,9 @@ class UploadPostViewModel: ViewModel() {
     fun addLocation(location: String, index: Int) {
         inLocation[index] = location
     }
+    fun removeOnlyLocation(index: Int) {
+        inLocation[index] = ""
+    }
     fun addDescription(description: String, index: Int) {
         inDescription[index] = description
     }

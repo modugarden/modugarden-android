@@ -207,22 +207,47 @@ fun UploadPostImageListScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
         ) {
-            BottomButton(
-                title = "다음",
-                alpha = if(imageData.isNotEmpty()) 1f else 0.4f,
-                onClick = {
-                    if(imageData.isNotEmpty()) {
-                        if(imageData.size <= 10) {
-                            navController.navigate(NAV_ROUTE_UPLOAD_POST.IMAGEEDIT.routeName)
-                        }
-                        else {
-                            scope.launch {
-                                snackbarHostState.showSnackbar("사진은 10개까지 추가할 수 있어요", duration = SnackbarDuration.Short)
+            Box(
+                modifier = Modifier
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(Color.White.copy(alpha = 0f), Color.White),
+                            startY = 0f,
+                            endY = 50f
+                        )
+                    )
+            ) {
+                Card(
+                    modifier = Modifier
+                        .bounceClick {
+                            if(imageData.isNotEmpty()) {
+                                if(imageData.size <= 10) {
+                                    navController.navigate(NAV_ROUTE_UPLOAD_POST.IMAGEEDIT.routeName)
+                                }
+                                else {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("사진은 10개까지 추가할 수 있어요", duration = SnackbarDuration.Short)
+                                    }
+                                }
                             }
                         }
-                    }
+                        .padding(18.dp)
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(15.dp),
+                    backgroundColor = moduPoint,
+                    elevation = 0.dp
+                ) {
+                    Text(
+                        "다음",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = Color.White,
+                        modifier = Modifier
+                            .padding(18.dp),
+                        textAlign = TextAlign.Center
+                    )
                 }
-            )
+            }
         }
         Box(
             modifier = Modifier
