@@ -1,6 +1,5 @@
 package com.example.modugarden.main.discover.search
 
-import android.content.Intent
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,7 +20,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
 import com.example.modugarden.data.Category
-import com.example.modugarden.main.settings.SettingsActivity
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.ui.theme.*
 import com.google.accompanist.pager.ExperimentalPagerApi
