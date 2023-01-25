@@ -2,11 +2,8 @@ package com.example.modugarden.ui.theme
 
 import android.graphics.Rect
 import android.view.ViewTreeObserver
-import android.widget.Space
-import androidx.annotation.ColorRes
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -15,9 +12,8 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -35,15 +31,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -512,4 +507,55 @@ fun ScaffoldSnackBar(
 
             }
         })
+}
+
+//탐색에 검색창
+@Composable
+fun searchTextField(
+    searchText : MutableState<String>,
+    isTextFieldSearchFocused : MutableState<Boolean>,
+    focusManager : FocusManager
+) {
+    Box {
+        //검색어 입력하는 텍스트 필드
+        TextField(
+            value = searchText.value,
+            onValueChange = { textValue -> searchText.value = textValue },
+            modifier = Modifier
+                .padding(vertical = 0.dp, horizontal = 0.dp)
+                .fillMaxWidth(0.9f)
+                .height(52.dp)
+                .onFocusChanged {
+                    isTextFieldSearchFocused.value = it.isFocused
+                }
+                .animateContentSize(),
+            shape = RoundedCornerShape(10.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor =
+                if (isTextFieldSearchFocused.value) moduTextFieldPoint
+                else moduBackground,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            ),
+            textStyle = TextStyle(fontSize = 14.sp, color = moduBlack),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Done,
+                keyboardType = KeyboardType.Text
+            ),
+            singleLine = true,
+        )
+        if (searchText.value.isNotEmpty()) {
+            Image(
+                painterResource(id = R.drawable.ic_x_circle),
+                contentDescription = "검색중 나오는 x 이미지",
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 10.dp, top = 1.dp)
+                    .bounceClick {
+                        searchText.value = ""
+                    }
+            )
+        }
+    }
 }
