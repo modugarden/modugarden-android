@@ -1,6 +1,8 @@
 package com.example.modugarden.main.follow
 
 import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -48,18 +50,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import androidx.core.net.toUri
 import com.example.modugarden.R
+import com.example.modugarden.data.FollowCuration
+import com.example.modugarden.data.FollowPost
+import com.example.modugarden.data.User
 import com.example.modugarden.main.content.CurationContentActivity
 import com.example.modugarden.main.content.PostContentActivity
+import com.example.modugarden.main.content.updateTime
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_light
+import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable //팔로우 피드에 표시되는 큐레이션 카드 item.
-fun CurationCard(userID:String,
+fun CurationCard(data: FollowCuration,
                  scope: CoroutineScope,
                  snackbarHostState: SnackbarHostState,
                  bottomSheetState: ModalBottomSheetState
@@ -80,17 +89,17 @@ fun CurationCard(userID:String,
                     .padding(18.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_user),
+                GlideImage(
+                    imageModel = data.writer.image,
                     contentDescription = null,
-                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(26.dp)
-                        .clip(CircleShape)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
                 )
                 Spacer(modifier = Modifier.width(18.dp))
                 Text(
-                    text = "$userID",
+                    text = data.writer.name,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                 )
@@ -100,8 +109,8 @@ fun CurationCard(userID:String,
                 .aspectRatio(1f), contentAlignment = Alignment.BottomCenter
                 ) {
                 // 큐레이션 썸네일
-                Image(
-                    painter = painterResource(id = R.drawable.plant2),
+                GlideImage(
+                    imageModel = data.thumbnail_image,
                     contentDescription = "썸네일",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -110,8 +119,8 @@ fun CurationCard(userID:String,
 
                 // 외부 페이지 이동
                     // 이미지 하단 블러처리
-                Image(
-                    painter = painterResource(id = R.drawable.plant2),
+                GlideImage(
+                    imageModel = data.thumbnail_image,
                     contentDescription = "썸네일",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -133,9 +142,9 @@ fun CurationCard(userID:String,
                     .fillMaxWidth()
                     .height(36.dp)
                     .clickable {
-                        mContext.startActivity(
-                            Intent(mContext, CurationContentActivity::class.java)
-                        )
+                        val intent = Intent(mContext, CurationContentActivity::class.java)
+                        intent.putExtra("url",data.url)
+                        mContext.startActivity(intent)
                     },
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween ) {
@@ -167,11 +176,11 @@ fun CurationCard(userID:String,
                     modifier = Modifier
                         .padding(18.dp)
                 ) {
-                    Text("Curation Title", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color("#17291F".toColorInt()))
+                    Text(data.title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color("#17291F".toColorInt()))
                     Row() {
-                        Text("category", fontSize = 12.sp, color = Color("#75807A".toColorInt()))
+                        Text(data.category[0], fontSize = 12.sp, color = Color("#75807A".toColorInt()))
                         Spacer(modifier = Modifier.weight(1f))
-                        Text("upload time", fontSize = 12.sp, color = Color("#75807A".toColorInt()))
+                        Text(data.time, fontSize = 12.sp, color = Color("#75807A".toColorInt()))
                     }
 
                 }
@@ -181,7 +190,7 @@ fun CurationCard(userID:String,
             val isButtonClickedLike = remember { mutableStateOf(false) }
             val isButtonClickedSave = remember { mutableStateOf(false)}
             Row(
-                Modifier.padding(22.dp)) {
+                Modifier.padding(18.dp)) {
                 // 좋아요
                 Icon(modifier = Modifier
                     .padding(end = 18.dp)
@@ -246,6 +255,7 @@ fun CurationCard(userID:String,
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
@@ -255,5 +265,6 @@ fun CurationPreview(){
     // 팔로우 스낵바 메세지 상태 변수
     val snackbarHostState = remember { SnackbarHostState() }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
-    CurationCard("user1",scope,snackbarHostState,bottomSheetState)
+
+    /*CurationCard(data = ,scope,snackbarHostState,bottomSheetState)*/
 }
