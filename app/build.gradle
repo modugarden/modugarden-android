@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+    id 'com.google.gms.google-services'
 }
 
 Properties properties = new Properties()
@@ -21,6 +22,7 @@ android {
         buildConfigField "String", "NAVER_CLIENT_ID", properties["naver_client_id"]
         buildConfigField "String", "NAVER_CLIENT_SECRET", properties["naver_client_secret"]
         buildConfigField "String", "MAPS_API_KEY", properties["google_maps_key"]
+        buildConfigField "String", "GOOGLE_WEB_KEY", properties["google_web_key"]
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -93,4 +95,12 @@ dependencies {
 
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    implementation 'com.google.firebase:firebase-core:21.1.1'
+    implementation 'com.google.firebase:firebase-auth:21.1.0'
+    implementation 'com.google.android.gms:play-services-auth:20.4.1'
+    implementation platform('com.google.firebase:firebase-bom:31.2.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx:21.2.0'
+    implementation 'com.google.firebase:firebase-auth-ktx:21.1.0'
+    implementation('org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4')
 }

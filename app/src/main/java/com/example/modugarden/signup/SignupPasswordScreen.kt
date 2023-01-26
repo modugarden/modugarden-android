@@ -77,7 +77,7 @@ fun SignupPasswordScreen(navController: NavHostController, data: Signup, signupV
                         if (textFieldPw.value.length >= 8 && textFieldPwCheck.value.length >= 8) { //비밀번호와 비밀번호 확인이 빈칸이 아니고,
                             if (textFieldPw.value == textFieldPwCheck.value) { //서로 같을때,
                                 signupViewModel.savePassword(textFieldPw.value)
-                                navController.navigate(NAV_ROUTE_SIGNUP.TERMS.routeName+"/${data.email}/${textFieldPw.value}") //이용 약관으로 넘어감.
+                                navController.navigate(NAV_ROUTE_SIGNUP.TERMS.routeName) //이용 약관으로 넘어감.
                             }
                             else {
                                 isTextFieldError.value = true

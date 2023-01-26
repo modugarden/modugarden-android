@@ -35,7 +35,7 @@ import com.example.modugarden.data.Signup
 import com.example.modugarden.viewmodel.SignupViewModel
 
 @Composable
-fun SignupTermsScreen(navController: NavHostController, data: Signup, signupViewModel: SignupViewModel) {
+fun SignupTermsScreen(navController: NavHostController, data: Signup, signupViewModel: SignupViewModel, social: Boolean, social_email: String, social_name: String) {
     val isTermsCheck = remember { mutableStateOf(data.isTermsCheck) } //이용 약관에 동의했는지 여부.
     val mContext = LocalContext.current
     Log.d("certnumber", "${data.email}/${data.password}")
@@ -52,7 +52,11 @@ fun SignupTermsScreen(navController: NavHostController, data: Signup, signupView
                 titleIcon = R.drawable.ic_arrow_left_bold,
                 titleIconSize = 24.dp,
                 titleIconOnClick = {
-                    navController.popBackStack()
+                    if(social) {
+                        (mContext as Activity).finish()
+                    } else {
+                        navController.popBackStack()
+                    }
                 },
                 bottomLine = false
             )
@@ -116,7 +120,13 @@ fun SignupTermsScreen(navController: NavHostController, data: Signup, signupView
                 modifier = Modifier
                     .bounceClick {
                         if (isTermsCheck.value) {
-                            navController.navigate(NAV_ROUTE_SIGNUP.INFO.routeName+"/${data.email}/${data.password}")
+                            navController.navigate(NAV_ROUTE_SIGNUP.INFO.routeName)
+                            if(social) {
+                                signupViewModel.saveEmail(social_email)
+                                signupViewModel.savePassword("")
+                                signupViewModel.saveName(social_name)
+                                signupViewModel.saveSocial(social)
+                            }
                         }
                     }
                     .padding(18.dp)

@@ -90,7 +90,7 @@ fun SignupInfoScreen(navController: NavHostController, data: Signup, signupViewM
                         if (textFieldName.value != "" && textFieldBirthday.value != "") {
                             signupViewModel.saveName(textFieldName.value)
                             signupViewModel.saveBirthday("${textFieldBirthday.value.split(".")[2]}/${textFieldBirthday.value.split(".")[1]}/${textFieldBirthday.value.split(".")[0]}")
-                            navController.navigate(NAV_ROUTE_SIGNUP.CATEGORY.routeName + "/${data.email}/${data.password}/${textFieldName.value}/${textFieldBirthday.value}")
+                            navController.navigate(NAV_ROUTE_SIGNUP.CATEGORY.routeName)
                         }
                     }
                     .padding(dpScale.value)

@@ -187,9 +187,15 @@ fun SignupCategoryScreen(navController: NavHostController, data: Signup, signupV
                     .bounceClick {
                         if(categoryCheck[0] || categoryCheck[1] || categoryCheck[2]) {
                                 //회원가입 API 연결 (email, name, password, category)
+                            if(data.social) {
+                                //소셜 계정으로 회원가입.
+                            }
+                            else {
+                                //일반 계정으로 회원가입.
+                            }
                             Toast.makeText(mContext, "${data.email}, ${data.name}, ${data.password}, 카테고리 : ${categoryCheck[0]}, ${categoryCheck[1]}, ${categoryCheck[2]} 정보로 회원가입을 진행해요", Toast.LENGTH_SHORT).show()
                             //회원가입 API에서 회원가입 성공 리턴값을 받으면 가입 축하 화면으로 넘어갑니다.
-                            navController.navigate(NAV_ROUTE_SIGNUP.END.routeName+"/${data.name}") {
+                            navController.navigate(NAV_ROUTE_SIGNUP.END.routeName) {
                                 popUpTo(NAV_ROUTE_SIGNUP.EMAIL.routeName) {
                                     inclusive = true
                                 }
