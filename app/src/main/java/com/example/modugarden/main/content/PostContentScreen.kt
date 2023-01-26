@@ -59,6 +59,7 @@ import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
+import com.example.modugarden.data.FollowPost
 import com.example.modugarden.main.follow.DotsIndicator
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
@@ -79,7 +80,8 @@ import kotlinx.coroutines.launch
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun PostContentScreen(navController: NavHostController, userID:String) {
+fun PostContentScreen(navController: NavHostController, data:FollowPost) {
+
 
     val order: PagerState = rememberPagerState()//뷰페이저, 인디케이터 페이지 상태 변수
     val scrollState = rememberScrollState()//스크롤 상태 변수
@@ -373,9 +375,9 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                                         .align(Alignment.CenterVertically)
                                 ) {
                                     // 작성자 아이디
-                                    Text(text = "userID", style = moduBold, fontSize = 14.sp,)
+                                    Text(text = data.writer.name, style = moduBold, fontSize = 14.sp,)
                                     // 작성자 카테고리
-                                    Text(text = "category", fontSize = 12.sp, color = moduGray_strong)
+                                    Text(text = data.writer.category.toString(), fontSize = 12.sp, color = moduGray_strong)
                                 }
                                 Column(
                                     modifier =
@@ -391,7 +393,7 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                                                 // 누르면 스낵바 메세지 띄워짐
                                                 scope.launch {
                                                     snackbarHostState.showSnackbar(
-                                                        "$userID 님을 팔로우 하였습니다.",
+                                                        "${data.writer.name} 님을 팔로우 하였습니다.",
                                                         duration = SnackbarDuration.Short
                                                     )
                                                 }
@@ -425,17 +427,17 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                                 .padding(30.dp, 25.dp)
                         ) {
                             Text(
-                                "Title",
+                                data.description,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color("#17291F".toColorInt())
                             )
                             Row( modifier = Modifier.fillMaxWidth()) {
-                                Text("category ∙ ", fontSize = 14.sp, color = Color("#75807A".toColorInt()))
-                                Text("upload date", fontSize = 14.sp, color = Color("#75807A".toColorInt()))
+                                Text(data.category.component1() + " ∙ ", fontSize = 14.sp, color = Color("#75807A".toColorInt()))
+                                Text(data.time, fontSize = 14.sp, color = Color("#75807A".toColorInt()))
                             }
                             Text(modifier = Modifier.padding(vertical = 25.dp),
-                                text = "Description", fontSize = 16.sp,)
+                                text = data.description, fontSize = 16.sp,)
 
                         }
 /*                        // 구분선
@@ -565,7 +567,7 @@ fun PostContentScreen(navController: NavHostController, userID:String) {
                                     moduBlack
 
                             )
-                            Text(text = "likes"+"명", style = moduBold, fontSize = 14.sp)
+                            Text(text = "${data.likesCount}"+"명", style = moduBold, fontSize = 14.sp)
                             Text(text = "이 좋아해요", color = moduBlack, fontSize = 14.sp)
                             Spacer(modifier = Modifier.weight(1f))
                             Icon(
@@ -728,6 +730,6 @@ fun Tagitem(modalType:MutableState<Int>,
 @Preview
 @Composable
 fun PostContentPreview(){
-    PostContentScreen(navController = rememberNavController(), userID ="" )
+    /*PostContentScreen(navController = rememberNavController(), data =  )*/
 
 }

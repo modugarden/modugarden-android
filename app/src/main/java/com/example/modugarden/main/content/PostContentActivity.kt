@@ -5,19 +5,21 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.rememberNavController
+import com.example.modugarden.data.FollowPost
 import com.example.modugarden.route.NavigationGraphPostContent
 
 class PostContentActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            PostContentNavScreen()
+            val data = intent.getParcelableExtra<FollowPost>("post-data")
+            PostContentNavScreen(data!!)
         }
     }
 }
 
 @Composable
-fun PostContentNavScreen() {
+fun PostContentNavScreen(data:FollowPost) {
     val navController = rememberNavController()
-    NavigationGraphPostContent(navController)
+    NavigationGraphPostContent(navController, data = data)
 }

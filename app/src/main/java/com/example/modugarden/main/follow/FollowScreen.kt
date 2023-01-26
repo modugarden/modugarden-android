@@ -1,5 +1,7 @@
 package com.example.modugarden.main.follow
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,12 +47,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import androidx.core.net.toUri
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
+import com.example.modugarden.data.Category
+import com.example.modugarden.data.CommentDataBase
+import com.example.modugarden.data.FollowPost
 import com.example.modugarden.main.content.CategoryItem
 import com.example.modugarden.main.content.modalReportType
+import com.example.modugarden.main.content.updateTime
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduBlack
@@ -58,13 +65,30 @@ import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.google.accompanist.pager.ExperimentalPagerApi
+import java.time.LocalDateTime
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable //팔로우 피드.
 fun FollowScreen(navController: NavHostController) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
+
+    val followPost = FollowPost(
+        writer = dana,
+        title = "안녕하세요!",
+        category = listOf("식물 가꾸기"),
+        time= updateTime(LocalDateTime.now()),
+        image = listOf(
+            "https://ifh.cc/g/HHLBxb.jpg".toUri(),
+            "https://ifh.cc/g/roQrJq.jpg".toUri(),
+            "https://ifh.cc/g/cLgQS1.jpg".toUri()),
+        location = null,
+        description = "첫 게시물 입니다",
+        likesCount = 0,
+        likesList = null
+    )
     ModalBottomSheetLayout(sheetElevation = 0.dp,
         sheetBackgroundColor = Color.Transparent,
         sheetState = bottomSheetState,
@@ -182,11 +206,9 @@ fun FollowScreen(navController: NavHostController) {
 
                 }
                 //포스트 카드
-                itemsIndexed(
-                    listOf("user1")
-                ) { index, item ->
-                    PostCard(navController,item, scope, snackbarHostState, bottomSheetState)
-                }
+                item{PostCard(navController, followPost =followPost , scope, snackbarHostState, bottomSheetState)}
+
+
                 // 큐레이션 카드
                 item { CurationCard("user1", scope, snackbarHostState,bottomSheetState) }
                 // 팔로우 피드 맨 끝
@@ -230,6 +252,7 @@ fun FollowScreen(navController: NavHostController) {
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun FollowPreview(){

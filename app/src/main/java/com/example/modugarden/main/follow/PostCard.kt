@@ -1,6 +1,8 @@
 package com.example.modugarden.main.follow
 
 import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,6 +21,7 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -35,10 +38,16 @@ import androidx.compose.ui.text.font.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.core.graphics.toColorInt
+import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
+import com.example.modugarden.data.Category
+import com.example.modugarden.data.CommentDataBase
+import com.example.modugarden.data.FollowPost
+import com.example.modugarden.data.User
 import com.example.modugarden.main.content.PostContentActivity
+import com.example.modugarden.main.content.updateTime
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
@@ -49,12 +58,13 @@ import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable //팔로우 피드에 표시되는 포스트 카드 item.
 
 fun PostCard(navController:NavHostController,
-                userID:String,
+             followPost: FollowPost,
              scope: CoroutineScope,
              snackbarHostState: SnackbarHostState,
              bottomSheetState: ModalBottomSheetState
@@ -91,7 +101,7 @@ fun PostCard(navController:NavHostController,
                                         )
                                         Spacer(modifier = Modifier.width(18.dp))
                                         Text(
-                                                text = "$userID",
+                                                text = followPost.writer.name,
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 14.sp,
                                         )
@@ -106,8 +116,9 @@ fun PostCard(navController:NavHostController,
                                 )
                                 Column(Modifier.bounceClick {
                                         //인텐트로 정보 스크린에 넘겨주기
-                                        mContext.startActivity(
-                                                Intent(mContext, PostContentActivity::class.java))
+                                        val intent = Intent(mContext, PostContentActivity::class.java)
+                                        intent.putExtra("post-data",followPost)
+                                        mContext.startActivity(intent)
                                 })
                                 {       // 포스트 카드 이미지 슬라이드
                                         HorizontalPager(
@@ -160,7 +171,7 @@ fun PostCard(navController:NavHostController,
                                                                 .padding(18.dp)
                                                 ) {
                                                         Text(
-                                                                "Title",
+                                                                followPost.title,
                                                                 fontSize = 16.sp,
                                                                 fontWeight = FontWeight.Bold,
                                                                 color = Color("#17291F".toColorInt())
@@ -170,14 +181,13 @@ fun PostCard(navController:NavHostController,
                                                                 horizontalArrangement = Arrangement.SpaceBetween
                                                         ) {
                                                                 Text(
-                                                                        "category",
-                                                                        fontSize = 12.sp,
-                                                                        color = Color("#75807A".toColorInt())
+                                                                        text =  followPost.category.component1(),
+                                                                        color = moduGray_strong
                                                                 )
                                                                 Text(
-                                                                        "upload time",
+                                                                        followPost.time,
                                                                         fontSize = 12.sp,
-                                                                        color = Color("#75807A".toColorInt())
+                                                                        color = moduGray_strong
                                                                 )
                                                         }
 
@@ -304,7 +314,18 @@ fun DotsIndicator(
                 }
         }
 }
+val dana = User(
+        image = "https://ifh.cc/g/jDDHBg.png".toUri(),
+        name = "dana",
+        category = listOf(""),
+        follower = 1,
+        following = 1,
+        state = false,
+        post = null,
+        curation = null
+)
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
@@ -316,7 +337,22 @@ fun PostPreview(){
         val snackbarHostState = remember { SnackbarHostState() }
         val bottomSheetState= rememberModalBottomSheetState(
                 initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
-        PostCard(navController,userID = "userID", scope =scope , snackbarHostState = snackbarHostState,bottomSheetState)
+        val followPost = FollowPost(
+                writer = dana,
+                title = "Title",
+                time = updateTime(LocalDateTime.now()),
+                category = listOf("식물 가꾸기"),
+                image = listOf(
+                        "https://ifh.cc/g/HHLBxb.jpg".toUri(),
+                        "https://ifh.cc/g/roQrJq.jpg".toUri(),
+                        "https://ifh.cc/g/cLgQS1.jpg".toUri()),
+                location = null,
+                description = "description",
+                likesCount = 0,
+                likesList = null
+        )
+
+        PostCard(navController, followPost = followPost, scope =scope , snackbarHostState = snackbarHostState,bottomSheetState)
 
 }
 

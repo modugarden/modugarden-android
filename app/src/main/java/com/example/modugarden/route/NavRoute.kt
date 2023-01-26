@@ -1,5 +1,7 @@
 package com.example.modugarden.route
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
@@ -14,6 +16,7 @@ import com.google.accompanist.navigation.animation.composable
 import com.example.modugarden.R
 import com.example.modugarden.main.content.PostContentCommentScreen
 import com.example.modugarden.main.discover.DiscoverScreen
+import com.example.modugarden.main.discover.search.DiscoverSearchScreen
 import com.example.modugarden.main.follow.FollowScreen
 import com.example.modugarden.main.notification.NotificationScreen
 import com.example.modugarden.main.profile.MyProfileScreen
@@ -30,6 +33,7 @@ enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val ico
     NOTIFICATION("NOTIFICATION", "알림", R.drawable.ic_notification),
     MYPROFILE("MYPROFILE", "내 프로필", R.drawable.ic_user),
 }
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavigationGraphBNB(navController: NavHostController) {
@@ -53,8 +57,7 @@ fun NavigationGraphBNB(navController: NavHostController) {
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideOutDuration))
             }
         ) { FollowScreen(navController) }
-        composable(NAV_ROUTE_POSTCONTENT.COMMENT.routeName){ PostContentCommentScreen(
-            navController = navController, commentViewModel = commentViewModel)}
+        composable(NAV_ROUTE_POSTCONTENT.COMMENT.routeName){ PostContentCommentScreen(navController = navController, commentViewModel = commentViewModel)}
         composable(
             NAV_ROUTE_BNB.DISCOVER.routeName,
             enterTransition = {

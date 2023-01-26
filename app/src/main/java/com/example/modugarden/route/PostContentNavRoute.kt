@@ -11,6 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.modugarden.data.Comment
+import com.example.modugarden.data.FollowPost
 import com.example.modugarden.main.content.PostContentCommentScreen
 import com.example.modugarden.main.content.PostContentLocationScreen
 import com.example.modugarden.main.content.PostContentMapScreen
@@ -26,10 +27,11 @@ enum class NAV_ROUTE_POSTCONTENT(val routeName: String, val description: String)
 }
 @Composable
 fun NavigationGraphPostContent(navController: NavHostController,
-                               commentViewModel: CommentViewModel= viewModel()) {
+                               commentViewModel: CommentViewModel= viewModel(),
+                               data:FollowPost) {
     NavHost(navController = navController, startDestination = NAV_ROUTE_POSTCONTENT.MAIN.routeName) {
         composable(NAV_ROUTE_POSTCONTENT.MAIN.routeName) {
-            PostContentScreen(navController,"USER") }
+            PostContentScreen(navController,data) }
         composable(NAV_ROUTE_POSTCONTENT.COMMENT.routeName) {
             PostContentCommentScreen(navController,commentViewModel) }
         composable(NAV_ROUTE_POSTCONTENT.LOCATION.routeName) { PostContentLocationScreen(navController) }

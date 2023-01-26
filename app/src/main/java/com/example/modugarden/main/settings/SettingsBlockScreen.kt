@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.example.modugarden.R
-import com.example.modugarden.main.profile.User
+import com.example.modugarden.data.User
 import com.example.modugarden.main.profile.categoryResponse
 import com.example.modugarden.main.profile.curationResponse
 import com.example.modugarden.main.profile.postResponse

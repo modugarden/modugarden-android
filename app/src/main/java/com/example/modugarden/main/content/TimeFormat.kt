@@ -14,9 +14,16 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview
+@Composable
+fun ttt(){
+    Text(text = updateTime(LocalDateTime.now()))
+}
 //이거 쓰면됨
 @RequiresApi(Build.VERSION_CODES.O)
-fun updateTime(time:String) : String {
+fun updateTime(time:LocalDateTime) : String {
     return calculationTime(dateTimeToMillSec(time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
 }
 

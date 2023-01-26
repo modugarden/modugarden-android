@@ -31,6 +31,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.example.modugarden.R
+import com.example.modugarden.data.CurationCard
+import com.example.modugarden.data.PostCard
+import com.example.modugarden.data.User
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
@@ -146,7 +149,7 @@ fun ProfileTab (
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(18.dp)
     ) {
-        items(user.post) { postCard ->
+        items(user.post!!) { postCard ->
             // 이미지가 들어간 버튼을 넣어야 함
             Image(
                 painter = painterResource(id = postCard.image),
@@ -224,7 +227,7 @@ fun CuratorProfileTab(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(18.dp)
                 ) {
-                    items(user.post) { postCard ->
+                    items(user.post!!) { postCard ->
                         // 이미지가 들어간 버튼을 넣어야 함
                         Box(modifier = Modifier.bounceClick {
 
@@ -248,7 +251,7 @@ fun CuratorProfileTab(
                     verticalArrangement = Arrangement.spacedBy(18.dp),
                     contentPadding = PaddingValues(18.dp)
                 ) {
-                    items(user.curation) { curationCard ->
+                    items(user.curation!!) { curationCard ->
                         Row(
                             modifier = Modifier
                                 .height(90.dp)

@@ -86,12 +86,5 @@ class Converters{
     fun toMutable(boolean: Boolean): MutableState<Boolean>{
         return mutableStateOf(boolean)
     }
-    @TypeConverter
-    fun abc(state: SnapshotStateList<Comment>):List<Comment>{
-        return state.toList()
-    }
-    fun bca(list: List<Comment>): SnapshotStateList<List<Comment>> {
-        return mutableStateListOf(list)
-    }
 
 }
