@@ -196,7 +196,7 @@ fun MyProfileScreen() {
                                     modifier = Modifier
                                         .height(20.dp)
                                         .wrapContentWidth(),
-                                    text = "팔로워 ${user.follower} · 게시물 ${user.post.size}",
+                                    text = "팔로워 ${user.follower} · 게시물 ${user.post!!.size}",
                                     style = TextStyle(
                                         color = moduGray_normal,
                                         textAlign = TextAlign.Center,
@@ -238,8 +238,7 @@ fun MyProfileScreen() {
                                     shape = RoundedCornerShape(10.dp),
                                     elevation = 0.dp
                                 ) {
-                                    Text(
-                                        text = category,
+                                    Text( text = category,
                                         style = TextStyle(
                                             color = moduBlack,
                                             fontSize = 12.sp,
@@ -247,8 +246,7 @@ fun MyProfileScreen() {
                                         ),
                                         modifier = Modifier
                                             .padding(10.dp)
-                                            .align(Alignment.CenterVertically)
-                                    )
+                                            .align(Alignment.CenterVertically))
                                 }
                             }
                         }
@@ -284,7 +282,8 @@ fun MyProfileScreen() {
                                     .bounceClick {
                                         // 팔로우 api
                                         scope.launch {
-                                            scaffoldState.snackbarHostState.showSnackbar("${user.name} 님을 팔로우 했어요.")  }
+                                            scaffoldState.snackbarHostState.showSnackbar("${user.name} 님을 팔로우 했어요.")
+                                        }
                                         followState.value = !followState.value
                                     },
                                 shape = RoundedCornerShape(10.dp),

@@ -24,8 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
-import com.example.modugarden.main.profile.User
-import com.example.modugarden.main.profile.user
+import com.example.modugarden.data.User
+
 import com.example.modugarden.ui.theme.*
 import com.google.android.gms.common.api.Scope
 import com.skydoves.landscapist.glide.GlideImage

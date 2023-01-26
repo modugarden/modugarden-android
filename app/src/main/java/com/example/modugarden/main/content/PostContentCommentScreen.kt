@@ -82,18 +82,19 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 @SuppressLint("UnrememberedMutableState")
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
+@OptIn( ExperimentalMaterialApi::class)
 @Composable
 fun PostContentCommentScreen(navController: NavHostController,
                              commentViewModel: CommentViewModel) {
-
+    val commentDB = CommentDataBase.getInstance(LocalContext.current.applicationContext)!! // 댓글 데이터 베이스
+    val comments= remember{ mutableStateOf(commentDB.commentDao().getAll()) } // 댓글 리스트
     val data  :MutableState<Comment>
-    = remember{ mutableStateOf(Comment(id = UUID.randomUUID(), userID = "", description = "", time = 0, isReplying = mutableStateOf(false), parentID = null)) } // 신고 데이터
+            = remember{ mutableStateOf(Comment(id = UUID.randomUUID(), userID = "", description = "", time = 0,
+        isReplying = mutableStateOf(false), parentID = null)) } // 클릭한 댓글 데이터
 
-    val commentDB = CommentDataBase.getInstance(LocalContext.current.applicationContext)!! //데이터 베이스
-    var comments= remember{ mutableStateOf(commentDB.commentDao().getAll()) } // 코멘트 리스트
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
     val isTextFieldCommentFocused = remember { mutableStateOf(false) }
+
     val focusManager = LocalFocusManager.current
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
@@ -368,7 +369,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                                 time = 1,
                                                                 parentID = data.value.id,
                                                                 mode = true
-                                                            ), comments,commentDB
+                                                            ), comments, commentDB
                                                         )
                                                         data.value.isReplying.value = false
                                                     } else //댓글일 때
@@ -381,7 +382,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                                 time = 0,
                                                                 parentID = null,
                                                                 mode = false
-                                                            ), comments,commentDB
+                                                            ), comments, commentDB
                                                         )
                                                     }
 
