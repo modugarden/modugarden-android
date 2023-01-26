@@ -5,12 +5,9 @@ import android.os.Parcelable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
-
-
 @Parcelize
 data class FollowPost(
-    val writer : @RawValue User, // 글 작성자
-
+    val writer : User, // 글 작성자
     val title: String,
     val category: List<String>,
     val time : String = "",
@@ -19,6 +16,5 @@ data class FollowPost(
     val description: String,
     /*val commentData :  @RawValue CommentDataBase, // 댓글 데이터 배이스,*/
     val likesCount : Int, // 좋아요 개수
-    val likesList: @RawValue MutableList<User>? // 좋아요 누른 유저들,
-
+    val likesList:  MutableList<User>? // 좋아요 누른 유저들,
 ):Parcelable

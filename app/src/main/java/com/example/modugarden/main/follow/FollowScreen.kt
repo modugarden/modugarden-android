@@ -54,7 +54,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
 import com.example.modugarden.data.Category
 import com.example.modugarden.data.CommentDataBase
+import com.example.modugarden.data.FollowCuration
 import com.example.modugarden.data.FollowPost
+import com.example.modugarden.data.User
 import com.example.modugarden.main.content.CategoryItem
 import com.example.modugarden.main.content.modalReportType
 import com.example.modugarden.main.content.updateTime
@@ -75,6 +77,16 @@ fun FollowScreen(navController: NavHostController) {
     val snackbarHostState = remember { SnackbarHostState() }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
 
+    val dana = User(
+        image = "https://ifh.cc/g/jDDHBg.png".toUri(),
+        name = "dana",
+        category = listOf(""),
+        follower = 1,
+        following = 1,
+        state = false,
+        post = null,
+        curation = null
+    )
     val followPost = FollowPost(
         writer = dana,
         title = "안녕하세요!",
@@ -88,6 +100,23 @@ fun FollowScreen(navController: NavHostController) {
         description = "첫 게시물 입니다",
         likesCount = 0,
         likesList = null
+    )
+    val followCuration = FollowCuration(
+        writer = User(
+            image = "https://ifh.cc/g/jDDHBg.png".toUri(),
+            name = "dana",
+            category = listOf(""),
+            follower = 1,
+            following = 1,
+            state = false,
+            post = null,
+            curation = null
+        ),
+        title = "안녕하세요!",
+        time = updateTime(LocalDateTime.now()),
+        category = listOf("식물 가꾸기"),
+        thumbnail_image = "https://ifh.cc/g/roQrJq.jpg".toUri(),
+        url = "https://www.figma.com/file/qJWUWYtT61VA1cV7lnACwv/GUI?node-id=0%3A1&t=bFbrORNQ4xWyzAPK-0"
     )
     ModalBottomSheetLayout(sheetElevation = 0.dp,
         sheetBackgroundColor = Color.Transparent,
@@ -208,9 +237,8 @@ fun FollowScreen(navController: NavHostController) {
                 //포스트 카드
                 item{PostCard(navController, followPost =followPost , scope, snackbarHostState, bottomSheetState)}
 
-
                 // 큐레이션 카드
-                item { CurationCard("user1", scope, snackbarHostState,bottomSheetState) }
+                item { CurationCard(data = followCuration, scope, snackbarHostState,bottomSheetState) }
                 // 팔로우 피드 맨 끝
                 item { FollowEndCard(navController) }
             }

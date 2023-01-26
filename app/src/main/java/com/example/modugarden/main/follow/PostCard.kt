@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
@@ -114,7 +115,7 @@ fun PostCard(navController:NavHostController,
                                         R.drawable.plant2,
                                         R.drawable.plant3
                                 )
-                                Column(Modifier.bounceClick {
+                                Column(modifier = Modifier.clickable {
                                         //인텐트로 정보 스크린에 넘겨주기
                                         val intent = Intent(mContext, PostContentActivity::class.java)
                                         intent.putExtra("post-data",followPost)
@@ -314,16 +315,7 @@ fun DotsIndicator(
                 }
         }
 }
-val dana = User(
-        image = "https://ifh.cc/g/jDDHBg.png".toUri(),
-        name = "dana",
-        category = listOf(""),
-        follower = 1,
-        following = 1,
-        state = false,
-        post = null,
-        curation = null
-)
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
@@ -338,8 +330,17 @@ fun PostPreview(){
         val bottomSheetState= rememberModalBottomSheetState(
                 initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
         val followPost = FollowPost(
-                writer = dana,
-                title = "Title",
+                writer = User(
+                        image = "https://ifh.cc/g/jDDHBg.png".toUri(),
+                        name = "dana",
+                        category = listOf(""),
+                        follower = 1,
+                        following = 1,
+                        state = false,
+                        post = null,
+                        curation = null
+                ),
+                title = "안녕하세요!",
                 time = updateTime(LocalDateTime.now()),
                 category = listOf("식물 가꾸기"),
                 image = listOf(

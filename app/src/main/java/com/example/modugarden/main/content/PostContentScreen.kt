@@ -2,6 +2,8 @@ package com.example.modugarden.main.content
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -56,10 +58,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
 import com.example.modugarden.data.FollowPost
+import com.example.modugarden.data.User
 import com.example.modugarden.main.follow.DotsIndicator
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
@@ -74,8 +78,10 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
+import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
@@ -142,7 +148,7 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                                         contentScale = ContentScale.Crop
                                     )
                                     Spacer(modifier = Modifier.size(18.dp))
-                                    Text(text = "Title", style = moduBold, fontSize = 14.sp)
+                                    Text(text = data.title, style = moduBold, fontSize = 14.sp)
                                 }
                             }
 
@@ -208,9 +214,9 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Box(modifier = Modifier
-                                            .clip(CircleShape)
-                                            .background(moduGray_light)
-                                            .size(40.dp),
+                                        .clip(CircleShape)
+                                        .background(moduGray_light)
+                                        .size(40.dp),
                                             contentAlignment = Alignment.Center)
                                     {
                                         Icon(
@@ -302,27 +308,20 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                     Column(
                         Modifier
                             .weight(1f, true)
-                            .verticalScroll(scrollState)
                             .background(Color.White)
                     ) {
-                        // 포스트 카드 이미지 배열
-                        val images = listOf(
-                            R.drawable.plant1,
-                            R.drawable.plant2,
-                            R.drawable.plant3
-                        )
                         Box(Modifier.wrapContentSize()) {
                             // 포스트 카드 이미지 슬라이드
                             HorizontalPager(
-                                count = images.size,
+                                count = 3,
                                 state = order,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .aspectRatio(1f)
                                     .align(Alignment.TopCenter),
                             ) { page ->
-                                Image(
-                                    painter = painterResource(id = images[page]),
+                                GlideImage(
+                                    imageModel = data.image[page],
                                     contentDescription = null,
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
@@ -338,15 +337,12 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                                     .padding(bottom = 30.dp),
                                 dotSize = 8,
                                 dotPadding = 5,
-                                totalDots = images.size,
+                                totalDots = data.image.size,
                                 selectedIndex = order.currentPage,
                                 selectedColor = Color.White,
                                 unSelectedColor = Color("#75FFFFFF".toColorInt())
                             )
                         }
-
-
-
 
                         // 포스트 작성자 영역
                         Column(modifier = Modifier
@@ -354,7 +350,7 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                         ) {
 
                             Row(modifier = Modifier
-                                .padding(25.dp)
+                                .padding(25.dp, 18.dp)
                                 .bounceClick {
                                     //  포스트 작성자 프로필로
                                 }
@@ -424,10 +420,11 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .background(Color.White)
-                                .padding(30.dp, 25.dp)
+                                .padding(25.dp, 18.dp)
+                                .verticalScroll(scrollState)
                         ) {
                             Text(
-                                data.description,
+                                data.title,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color("#17291F".toColorInt())
@@ -436,8 +433,11 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                                 Text(data.category.component1() + " ∙ ", fontSize = 14.sp, color = Color("#75807A".toColorInt()))
                                 Text(data.time, fontSize = 14.sp, color = Color("#75807A".toColorInt()))
                             }
-                            Text(modifier = Modifier.padding(vertical = 25.dp),
-                                text = data.description, fontSize = 16.sp,)
+                            Column(modifier = Modifier.padding(vertical = 25.dp))
+                            {
+                                Text(text = data.description, fontSize = 16.sp,)
+                            }
+
 
                         }
 /*                        // 구분선
@@ -727,9 +727,34 @@ fun Tagitem(modalType:MutableState<Int>,
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun PostContentPreview(){
-    /*PostContentScreen(navController = rememberNavController(), data =  )*/
+    val dana = User(
+        image = "https://ifh.cc/g/jDDHBg.png".toUri(),
+        name = "dana",
+        category = listOf(""),
+        follower = 1,
+        following = 1,
+        state = false,
+        post = null,
+        curation = null
+    )
+    val followPost = FollowPost(
+        writer = dana,
+        title = "안녕하세요!",
+        category = listOf("식물 가꾸기"),
+        time= updateTime(LocalDateTime.now()),
+        image = listOf(
+            "https://ifh.cc/g/HHLBxb.jpg".toUri(),
+            "https://ifh.cc/g/roQrJq.jpg".toUri(),
+            "https://ifh.cc/g/cLgQS1.jpg".toUri()),
+        location = null,
+        description = "첫 게시물 입니다",
+        likesCount = 0,
+        likesList = null
+    )
+    PostContentScreen(navController = rememberNavController(), data = followPost )
 
 }
