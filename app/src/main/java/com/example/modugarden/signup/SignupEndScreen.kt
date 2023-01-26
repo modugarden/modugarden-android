@@ -71,7 +71,7 @@ fun SignupEndScreen(navController: NavHostController, data: Signup, signupViewMo
             Text("회원가입 완료", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduGray_strong, textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.CenterHorizontally))
             Spacer(modifier = Modifier.height(5.dp))
-            Text("${data.name}님, 환영해요!", fontWeight = FontWeight.Bold, fontSize = 24.sp, color = moduBlack, textAlign = TextAlign.Center,
+            Text("${data.name}님, 환영해요!\n${data.email},${data.password},${data.birthday},${data.category},${data.social}", fontWeight = FontWeight.Bold, fontSize = 24.sp, color = moduBlack, textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.CenterHorizontally))
             Spacer(modifier = Modifier.weight(1f))
             Card(

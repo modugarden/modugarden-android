@@ -29,10 +29,13 @@ enum class NAV_ROUTE_SIGNUP(val routeName: String, val description: String) { //
 @Composable
 fun NavigationGraphSignup(
     navController: NavHostController,
-    signupViewModel: SignupViewModel
+    signupViewModel: SignupViewModel,
+    social: Boolean,
+    social_email: String,
+    social_name: String
 ) {
     val data = signupViewModel.getAllData()
-    AnimatedNavHost(navController, startDestination = NAV_ROUTE_SIGNUP.EMAIL.routeName,
+    AnimatedNavHost(navController, startDestination = if(social) NAV_ROUTE_SIGNUP.TERMS.routeName else NAV_ROUTE_SIGNUP.EMAIL.routeName,
         modifier = Modifier.fillMaxSize()
     ) {
         composable(
@@ -107,7 +110,7 @@ fun NavigationGraphSignup(
             SignupPasswordScreen(navController, data, signupViewModel)
         }
         composable(
-            NAV_ROUTE_SIGNUP.TERMS.routeName+"/{email}/{password}",
+            NAV_ROUTE_SIGNUP.TERMS.routeName,
             enterTransition = {
                 slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
                         fadeIn(tween(500))
@@ -124,17 +127,11 @@ fun NavigationGraphSignup(
                 slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
                         fadeOut(tween(500))
             },
-            arguments = listOf(
-                navArgument("email") { type = NavType.StringType },
-                navArgument("password") { type = NavType.StringType },
-            )
         ) { backStackEntry ->
-            val email = backStackEntry.arguments?.getString("email") ?: ""
-            val password = backStackEntry.arguments?.getString("password") ?: ""
-            SignupTermsScreen(navController, data, signupViewModel)
+            SignupTermsScreen(navController, data, signupViewModel, social, social_email, social_name)
         }
         composable(
-            NAV_ROUTE_SIGNUP.INFO.routeName+"/{email}/{password}",
+            NAV_ROUTE_SIGNUP.INFO.routeName,
             enterTransition = {
                 slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
                         fadeIn(tween(500))
@@ -151,17 +148,11 @@ fun NavigationGraphSignup(
                 slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
                         fadeOut(tween(500))
             },
-            arguments = listOf(
-                navArgument("email") { type = NavType.StringType },
-                navArgument("password") { type = NavType.StringType },
-            )
         ) { backStackEntry ->
-            val email = backStackEntry.arguments?.getString("email") ?: ""
-            val password = backStackEntry.arguments?.getString("password") ?: ""
             SignupInfoScreen(navController, data, signupViewModel)
         }
         composable(
-            NAV_ROUTE_SIGNUP.CATEGORY.routeName+"/{email}/{password}/{name}/{birthday}",
+            NAV_ROUTE_SIGNUP.CATEGORY.routeName,
             enterTransition = {
                 slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
                         fadeIn(tween(500))
@@ -178,21 +169,11 @@ fun NavigationGraphSignup(
                 slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
                         fadeOut(tween(500))
             },
-            arguments = listOf(
-                navArgument("email") { type = NavType.StringType },
-                navArgument("password") { type = NavType.StringType },
-                navArgument("name") { type = NavType.StringType },
-                navArgument("birthday") { type = NavType.StringType },
-            )
         ) { backStackEntry ->
-            val email = backStackEntry.arguments?.getString("email") ?: ""
-            val password = backStackEntry.arguments?.getString("password") ?: ""
-            val name = backStackEntry.arguments?.getString("name") ?: ""
-            val birthday = backStackEntry.arguments?.getString("birthday") ?: ""
             SignupCategoryScreen(navController, data, signupViewModel)
         }
         composable(
-            NAV_ROUTE_SIGNUP.END.routeName+"/{name}",
+            NAV_ROUTE_SIGNUP.END.routeName,
             enterTransition = {
                               fadeIn(animationSpec = tween(500)) +
                                       scaleIn(animationSpec = tween(500, easing = EaseOutCirc))
@@ -205,11 +186,7 @@ fun NavigationGraphSignup(
                 slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
                         fadeOut(tween(500))
             },
-            arguments = listOf(
-                navArgument("name") { type = NavType.StringType }
-            )
         ) { backStackEntry ->
-            val name = backStackEntry.arguments?.getString("name") ?: ""
             SignupEndScreen(navController, data, signupViewModel)
         }
     }

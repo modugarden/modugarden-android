@@ -15,8 +15,11 @@ class SignupActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val signupViewModel: SignupViewModel by viewModels()
+        val social = intent.getBooleanExtra("social", false)
+        val social_email = intent.getStringExtra("social_email")
+        val social_name = intent.getStringExtra("social_name")
         setContent {
-            SignupNavScreen(signupViewModel)
+            SignupNavScreen(signupViewModel, social, social_email ?: "", social_name ?: "")
         }
     }
 }
@@ -24,11 +27,17 @@ class SignupActivity: ComponentActivity() {
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SignupNavScreen(
-    signupViewModel: SignupViewModel
+    signupViewModel: SignupViewModel,
+    social: Boolean,
+    social_email: String,
+    social_name: String
 ) {
     val navController = rememberAnimatedNavController()
     NavigationGraphSignup(
         navController = navController,
-        signupViewModel = signupViewModel
+        signupViewModel = signupViewModel,
+        social = social,
+        social_email = social_email,
+        social_name = social_name
     )
 }

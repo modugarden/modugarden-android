@@ -6,5 +6,6 @@ data class Signup(
     val isTermsCheck: Boolean,
     val name: String,
     val birthday: String,
-    val category: List<Boolean>
+    val category: List<Boolean>,
+    val social: Boolean
 )

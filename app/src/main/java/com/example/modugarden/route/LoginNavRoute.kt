@@ -12,6 +12,6 @@ enum class NAV_ROUTE_LOGIN(val routeName: String, val description: String) {
 @Composable
 fun NavigationGraphLogin(navController: NavHostController) {
     NavHost(navController, startDestination = NAV_ROUTE_LOGIN.LOGIN.routeName) {
-        composable(NAV_ROUTE_LOGIN.LOGIN.routeName) { MainLoginScreen() }
+        composable(NAV_ROUTE_LOGIN.LOGIN.routeName) { MainLoginScreen(navController) }
     }
 }
