@@ -15,14 +15,11 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.SnackbarData
 import androidx.compose.material.SnackbarDuration
-import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,8 +40,6 @@ import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
-import com.example.modugarden.data.Category
-import com.example.modugarden.data.CommentDataBase
 import com.example.modugarden.data.FollowPost
 import com.example.modugarden.data.User
 import com.example.modugarden.main.content.PostContentActivity
@@ -57,6 +52,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
+import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -65,7 +61,7 @@ import java.time.LocalDateTime
 @Composable //팔로우 피드에 표시되는 포스트 카드 item.
 
 fun PostCard(navController:NavHostController,
-             followPost: FollowPost,
+             data: FollowPost,
              scope: CoroutineScope,
              snackbarHostState: SnackbarHostState,
              bottomSheetState: ModalBottomSheetState
@@ -102,35 +98,28 @@ fun PostCard(navController:NavHostController,
                                         )
                                         Spacer(modifier = Modifier.width(18.dp))
                                         Text(
-                                                text = followPost.writer.name,
+                                                text = data.writer.name,
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 14.sp,
                                         )
                                 }
 
-
-                                // 포스트 카드 이미지 배열
-                                val images = listOf(
-                                        R.drawable.plant1,
-                                        R.drawable.plant2,
-                                        R.drawable.plant3
-                                )
                                 Column(modifier = Modifier.clickable {
                                         //인텐트로 정보 스크린에 넘겨주기
                                         val intent = Intent(mContext, PostContentActivity::class.java)
-                                        intent.putExtra("post-data",followPost)
+                                        intent.putExtra("post-data",data)
                                         mContext.startActivity(intent)
                                 })
                                 {       // 포스트 카드 이미지 슬라이드
                                         HorizontalPager(
-                                                count = images.size,
+                                                count = data.image.size,
                                                 state = order,
                                                 modifier = Modifier
                                                         .fillMaxWidth()
                                                         .aspectRatio(1f),
                                         ) { page ->
-                                                Image(
-                                                        painter = painterResource(id = images[page]),
+                                                GlideImage(
+                                                        imageModel = data.image[page],
                                                         contentDescription = null,
                                                         contentScale = ContentScale.Crop,
                                                         modifier = Modifier
@@ -147,7 +136,7 @@ fun PostCard(navController:NavHostController,
                                                         .background(Color.Transparent),
                                                 dotSize = 5,
                                                 dotPadding = 2,
-                                                totalDots = images.size,
+                                                totalDots = data.image.size,
                                                 selectedIndex = order.currentPage,
                                                 unSelectedColor = Color("#75807A66".toColorInt())
                                         )
@@ -172,7 +161,7 @@ fun PostCard(navController:NavHostController,
                                                                 .padding(18.dp)
                                                 ) {
                                                         Text(
-                                                                followPost.title,
+                                                                data.title,
                                                                 fontSize = 16.sp,
                                                                 fontWeight = FontWeight.Bold,
                                                                 color = Color("#17291F".toColorInt())
@@ -182,11 +171,11 @@ fun PostCard(navController:NavHostController,
                                                                 horizontalArrangement = Arrangement.SpaceBetween
                                                         ) {
                                                                 Text(
-                                                                        text =  followPost.category.component1(),
+                                                                        text =  data.category.component1(),
                                                                         color = moduGray_strong
                                                                 )
                                                                 Text(
-                                                                        followPost.time,
+                                                                        data.time,
                                                                         fontSize = 12.sp,
                                                                         color = moduGray_strong
                                                                 )
@@ -353,7 +342,7 @@ fun PostPreview(){
                 likesList = null
         )
 
-        PostCard(navController, followPost = followPost, scope =scope , snackbarHostState = snackbarHostState,bottomSheetState)
+        PostCard(navController, data = followPost, scope =scope , snackbarHostState = snackbarHostState,bottomSheetState)
 
 }
 

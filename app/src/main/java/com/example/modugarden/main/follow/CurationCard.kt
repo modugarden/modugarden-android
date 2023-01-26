@@ -190,7 +190,7 @@ fun CurationCard(data: FollowCuration,
             val isButtonClickedLike = remember { mutableStateOf(false) }
             val isButtonClickedSave = remember { mutableStateOf(false)}
             Row(
-                Modifier.padding(22.dp)) {
+                Modifier.padding(18.dp)) {
                 // 좋아요
                 Icon(modifier = Modifier
                     .padding(end = 18.dp)
@@ -265,23 +265,6 @@ fun CurationPreview(){
     // 팔로우 스낵바 메세지 상태 변수
     val snackbarHostState = remember { SnackbarHostState() }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
-    val followCuration = FollowCuration(
-        writer = User(
-            image = "https://ifh.cc/g/jDDHBg.png".toUri(),
-            name = "dana",
-            category = listOf(""),
-            follower = 1,
-            following = 1,
-            state = false,
-            post = null,
-            curation = null
-        ),
-        title = "안녕하세요!",
-        time = updateTime(LocalDateTime.now()),
-        category = listOf("식물 가꾸기"),
-        thumbnail_image = "https://ifh.cc/g/roQrJq.jpg".toUri(),
-        url = "https://www.figma.com/file/qJWUWYtT61VA1cV7lnACwv/GUI?node-id=0%3A1&t=bFbrORNQ4xWyzAPK-0"
-    )
 
-    CurationCard(data = followCuration,scope,snackbarHostState,bottomSheetState)
+    /*CurationCard(data = ,scope,snackbarHostState,bottomSheetState)*/
 }

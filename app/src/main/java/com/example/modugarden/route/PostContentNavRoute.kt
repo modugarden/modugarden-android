@@ -30,8 +30,7 @@ fun NavigationGraphPostContent(navController: NavHostController,
                                commentViewModel: CommentViewModel= viewModel(),
                                data:FollowPost) {
     NavHost(navController = navController, startDestination = NAV_ROUTE_POSTCONTENT.MAIN.routeName) {
-        composable(NAV_ROUTE_POSTCONTENT.MAIN.routeName) {
-            PostContentScreen(navController,data) }
+        composable(NAV_ROUTE_POSTCONTENT.MAIN.routeName) { PostContentScreen(navController,data) }
         composable(NAV_ROUTE_POSTCONTENT.COMMENT.routeName) {
             PostContentCommentScreen(navController,commentViewModel) }
         composable(NAV_ROUTE_POSTCONTENT.LOCATION.routeName) { PostContentLocationScreen(navController) }

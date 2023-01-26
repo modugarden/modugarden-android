@@ -15,15 +15,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.SnackbarData
@@ -40,84 +38,33 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
-import androidx.core.net.toUri
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
-import com.example.modugarden.data.Category
-import com.example.modugarden.data.CommentDataBase
 import com.example.modugarden.data.FollowCuration
 import com.example.modugarden.data.FollowPost
-import com.example.modugarden.data.User
+import com.example.modugarden.data.followCurations
+import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.CategoryItem
-import com.example.modugarden.main.content.modalReportType
-import com.example.modugarden.main.content.updateTime
-import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBackground
-import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
-import com.google.accompanist.pager.ExperimentalPagerApi
-import java.time.LocalDateTime
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable //팔로우 피드.
-fun FollowScreen(navController: NavHostController) {
+fun FollowScreen(navController: NavHostController, followPosts:List<FollowPost>, followCurations: List<FollowCuration>) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
 
-    val dana = User(
-        image = "https://ifh.cc/g/jDDHBg.png".toUri(),
-        name = "dana",
-        category = listOf(""),
-        follower = 1,
-        following = 1,
-        state = false,
-        post = null,
-        curation = null
-    )
-    val followPost = FollowPost(
-        writer = dana,
-        title = "안녕하세요!",
-        category = listOf("식물 가꾸기"),
-        time= updateTime(LocalDateTime.now()),
-        image = listOf(
-            "https://ifh.cc/g/HHLBxb.jpg".toUri(),
-            "https://ifh.cc/g/roQrJq.jpg".toUri(),
-            "https://ifh.cc/g/cLgQS1.jpg".toUri()),
-        location = null,
-        description = "첫 게시물 입니다",
-        likesCount = 0,
-        likesList = null
-    )
-    val followCuration = FollowCuration(
-        writer = User(
-            image = "https://ifh.cc/g/jDDHBg.png".toUri(),
-            name = "dana",
-            category = listOf(""),
-            follower = 1,
-            following = 1,
-            state = false,
-            post = null,
-            curation = null
-        ),
-        title = "안녕하세요!",
-        time = updateTime(LocalDateTime.now()),
-        category = listOf("식물 가꾸기"),
-        thumbnail_image = "https://ifh.cc/g/roQrJq.jpg".toUri(),
-        url = "https://www.figma.com/file/qJWUWYtT61VA1cV7lnACwv/GUI?node-id=0%3A1&t=bFbrORNQ4xWyzAPK-0"
-    )
     ModalBottomSheetLayout(sheetElevation = 0.dp,
         sheetBackgroundColor = Color.Transparent,
         sheetState = bottomSheetState,
@@ -235,10 +182,11 @@ fun FollowScreen(navController: NavHostController) {
 
                 }
                 //포스트 카드
-                item{PostCard(navController, followPost =followPost , scope, snackbarHostState, bottomSheetState)}
-
+                items(followPosts){
+                    PostCard(navController, data =it , scope, snackbarHostState, bottomSheetState)}
                 // 큐레이션 카드
-                item { CurationCard(data = followCuration, scope, snackbarHostState,bottomSheetState) }
+                items(followCurations) {
+                    CurationCard(data = it, scope, snackbarHostState,bottomSheetState) }
                 // 팔로우 피드 맨 끝
                 item { FollowEndCard(navController) }
             }
@@ -280,10 +228,11 @@ fun FollowScreen(navController: NavHostController) {
 
 }
 
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun FollowPreview(){
     val navController = rememberNavController()
-    FollowScreen(navController)
+    FollowScreen(navController, followPosts, followCurations)
 }

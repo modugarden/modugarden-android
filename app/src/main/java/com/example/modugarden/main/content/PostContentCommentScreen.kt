@@ -342,14 +342,14 @@ fun PostContentCommentScreen(navController: NavHostController,
                                         placeholder = {
                                             Text(
                                                 text = "댓글 입력",
-                                                fontSize = 12.sp,
+                                                fontSize = 16.sp,
                                                 color = moduGray_strong
                                             )
                                         },
                                         onValueChange = { textValue ->
                                             textFieldComment.value = textValue
                                         },
-                                        textStyle = TextStyle(fontSize = 12.sp, color = moduBlack),
+                                        textStyle = TextStyle(fontSize = 16.sp, color = moduBlack),
                                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                                         maxLines = 3
                                     )
@@ -457,19 +457,19 @@ fun CommentItem(comment: Comment,
                             Text(
                                 text = "${comment.userID} ∙ ",
                                 color = moduGray_strong,
-                                fontSize = 11.sp,
+                                fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
                                 text = "${comment.time}",
                                 color = moduGray_strong,
-                                fontSize = 11.sp
+                                fontSize = 14.sp
                             )
                         }
                         Text(
                             text = comment.description!!,
                             color = moduBlack,
-                            fontSize = 12.sp
+                            fontSize = 14.sp
                         )
                     }
                     Spacer(modifier = Modifier.weight(1f))

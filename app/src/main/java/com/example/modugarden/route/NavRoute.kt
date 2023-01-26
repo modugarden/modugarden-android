@@ -14,6 +14,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.composable
 import com.example.modugarden.R
+import com.example.modugarden.data.followCurations
+import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.PostContentCommentScreen
 import com.example.modugarden.main.discover.DiscoverScreen
 import com.example.modugarden.main.discover.search.DiscoverSearchScreen
@@ -56,7 +58,7 @@ fun NavigationGraphBNB(navController: NavHostController) {
                 fadeOut(animationSpec = tween(fadeOutDuration)) +
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideOutDuration))
             }
-        ) { FollowScreen(navController) }
+        ) { FollowScreen(navController, followPosts, followCurations) }
         composable(NAV_ROUTE_POSTCONTENT.COMMENT.routeName){ PostContentCommentScreen(navController = navController, commentViewModel = commentViewModel)}
         composable(
             NAV_ROUTE_BNB.DISCOVER.routeName,
