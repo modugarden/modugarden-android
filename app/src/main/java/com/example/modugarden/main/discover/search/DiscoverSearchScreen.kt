@@ -187,7 +187,7 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                     TabRow(
                         selectedTabIndex = pagerState.currentPage,
                         backgroundColor = Color.White,
-                        contentColor = Color.Black,
+                        contentColor = moduGray_strong,
                         indicator = { tabPositions ->
                             TabRowDefaults.Indicator(
                                 Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
@@ -203,15 +203,17 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                                         text = title,
                                         fontSize = 16.sp,
                                         style = TextStyle(
-                                            fontWeight = FontWeight.Bold,
-                                            color = moduBlack
-                                        )
+                                            color =
+                                            if(pagerState.currentPage == index) moduBlack
+                                            else moduGray_strong
+                                        ),
+                                        fontWeight = FontWeight(500)
                                     )
                                 },
                                 selected = pagerState.currentPage == index,
                                 onClick = {
                                     coroutineScope.launch {
-                                        pagerState.scrollToPage(index)
+                                        pagerState.animateScrollToPage(index)
                                     }
                                 }
                             )

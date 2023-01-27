@@ -9,6 +9,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.ui.theme.moduBlack
+import com.example.modugarden.ui.theme.moduGray_strong
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
@@ -44,13 +45,16 @@ fun DiscoverSearchResult(textFieldSearch: String,coroutineScope: CoroutineScope 
                     Text(
                         text = title,
                         fontSize = 16.sp,
-                        style = TextStyle(fontWeight = FontWeight.Bold, color = moduBlack)
+                        color =
+                        if(pagerState.currentPage == index) moduBlack
+                        else moduGray_strong,
+                        fontWeight = FontWeight(500)
                     )
                 },
                 selected = pagerState.currentPage == index,
                 onClick = {
                     coroutineScope.launch {
-                        pagerState.scrollToPage(index)
+                        pagerState.animateScrollToPage(index)
                     }
                 }
             )

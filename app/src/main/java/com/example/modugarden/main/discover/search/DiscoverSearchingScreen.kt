@@ -94,7 +94,10 @@ fun DiscoverSearchingScreen(navController: NavHostController) {
                                 }
 
                                 db.recentSearchDao().insert(RecentSearch(searchText.value))
-                                navController.navigate(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHRESULT.routeName + "/" + searchText.value)
+                                navController.navigate(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHRESULT.routeName + "/" + searchText.value) {
+                                    popUpTo(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHING.routeName)
+                                }
+
                             }
                         }
 
