@@ -66,11 +66,23 @@ fun MainLoginScreen(navController: NavController) {
             user = result.user
             Toast.makeText(mContext, "${user}", Toast.LENGTH_SHORT).show()
             //만약 로그인 한 이메일이 등록되지 않은 이메일이면 회원 가입 창으로 전환.
-            val intent = Intent(mContext, SignupActivity::class.java)
-            intent.putExtra("social", true)
-            intent.putExtra("social_email", user?.email)
-            intent.putExtra("social_name", user?.displayName)
-            mContext.startActivity(intent)
+            //이메일 중복 체크 API 불러오기.
+            //if(user?.email.state == 중복) //로그인 한 이메일이 동록된 이메일임.
+            if(user?.email == "k0278kim@gachon.ac.kr") { //로그인 한 이메일이 등록된 이메일일 때.
+                mContext.startActivity(
+                    Intent(mContext, MainActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                )
+            }
+            else { //로그인 한 이메일이 등록되지 않은 이메일일 때,
+                val intent = Intent(mContext, SignupActivity::class.java)
+                intent.putExtra("social", true)
+                intent.putExtra("social_email", user?.email)
+                intent.putExtra("social_name", user?.displayName)
+                mContext.startActivity(intent)
+            }
         },
         onAuthError = {
             user = null
@@ -125,41 +137,28 @@ fun MainLoginScreen(navController: NavController) {
                 )
             }
             Spacer(modifier = Modifier.height(50.dp))
-            Text("소셜 로그인/회원가입${user}", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduBlack, modifier = Modifier.align(Alignment.CenterHorizontally))
+            Text("소셜 로그인/회원가입", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduBlack)
             Spacer(Modifier.size(18.dp))
-            Row(
+            Card(
+                shape = RoundedCornerShape(15.dp),
+                backgroundColor = moduBackground,
+                elevation = 0.dp,
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
+                    .bounceClick {
+                        //구글 로그인
+                        val gso =
+                            GoogleSignInOptions
+                                .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                                .requestEmail()
+                                .requestIdToken(token)
+                                .requestProfile()
+                                .build()
+                        val googleSignInClient = GoogleSignIn.getClient(mContext, gso)
+                        launcher.launch(googleSignInClient.signInIntent)
+                    }
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.naver_icon),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(CircleShape)
-                        .bounceClick {
-
-                        }
-                )
-                Spacer(Modifier.size(15.dp))
-                Card(
-                    shape = CircleShape,
-                    backgroundColor = moduBackground,
-                    elevation = 0.dp,
-                    modifier = Modifier
-                        .size(50.dp)
-                        .bounceClick {
-                            //구글 로그인
-                            val gso =
-                                GoogleSignInOptions
-                                    .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                                    .requestEmail()
-                                    .requestIdToken(token)
-                                    .requestProfile()
-                                    .build()
-                            val googleSignInClient = GoogleSignIn.getClient(mContext, gso)
-                            launcher.launch(googleSignInClient.signInIntent)
-                        }
+                Row(
+                    Modifier.padding(18.dp)
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.google_icon),
@@ -167,9 +166,27 @@ fun MainLoginScreen(navController: NavController) {
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
                             .clip(CircleShape)
-                            .padding(10.dp)
-                            .align(Alignment.CenterVertically)
+                            .size(25.dp)
                     )
+                    Spacer(Modifier.size(18.dp))
+                    Row(
+                        Modifier.align(Alignment.CenterVertically)
+                    ) {
+                        Text(
+                            if (user != null) "${user?.email}" else "구글 계정",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = moduBlack,
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            "으로 로그인",
+                            fontSize = 14.sp,
+                            color = moduBlack,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(Modifier.weight(1f))
+                    }
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
