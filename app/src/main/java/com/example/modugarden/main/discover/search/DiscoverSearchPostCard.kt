@@ -19,13 +19,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
+import com.example.modugarden.data.PostCard
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
 
 
 //포스트, 큐레이션에 표시되는 카드들로 데이터 형식 알려주면 그때 넣겠삼삼
 @Composable
-fun DiscoverSearchCard(searchStr: String) {
+fun DiscoverSearchPostCard(postCard: PostCard) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -38,8 +39,9 @@ fun DiscoverSearchCard(searchStr: String) {
             modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
         ) {
+            //타이틀 이미지
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
+                painter = painterResource(id = postCard.image),
                 contentDescription = null,
                 modifier = Modifier
                     .size(width = 90.dp, height = 90.dp)
@@ -51,9 +53,10 @@ fun DiscoverSearchCard(searchStr: String) {
         Spacer(modifier = Modifier.width(18.dp))
 
         Column {
+            //타이틀
             Text(
                 modifier = Modifier.width(200.dp),
-                text = searchStr,
+                text = postCard.title,
                 style = TextStyle(color = moduBlack,
                     fontWeight = FontWeight(700),
                     fontSize = 14.sp),
@@ -64,7 +67,8 @@ fun DiscoverSearchCard(searchStr: String) {
 
             Spacer(modifier = Modifier.height(7.dp))
 
-            Text(text = "시간 시간 시간 시간",
+            //시간
+            Text(text = postCard.time,
                 style = TextStyle(color = Color(0xFF959DA7),
                     fontWeight = FontWeight(400),fontSize = 11.sp)
             )
@@ -83,7 +87,8 @@ fun DiscoverSearchCard(searchStr: String) {
                 )
 
                 Spacer(modifier = Modifier.width(10.dp))
-                Text(text = "작성자 작성자",
+                //작성자
+                Text(text = postCard.user,
                     style = TextStyle(color = Color(0xFF252525).copy(alpha = 0.8f),
                         fontWeight = FontWeight(400),fontSize = 11.sp)
                 )

@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
 import com.example.modugarden.data.Category
+import com.example.modugarden.data.CurationCard
+import com.example.modugarden.data.PostCard
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.ui.theme.*
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -28,6 +30,92 @@ import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
 
+
+val postResponse = listOf(
+    PostCard(
+        R.drawable.test_image1, "타이틀1", "카테고리1",
+        "2023년 1월 6일", "유저1"
+    ),
+    PostCard(
+        R.drawable.test_image2, "타이틀2", "카테고리2",
+        "2023년 1월 6일", "유저2"
+    ),
+    PostCard(
+        R.drawable.test_image3, "타이틀3", "카테고리3",
+        "2023년 1월 6일", "유저3"
+    ),
+    PostCard(
+        R.drawable.test_image4, "타이틀4", "카테고리4",
+        "2023년 1월 6일", "유저4"
+    ),
+    PostCard(
+        R.drawable.test_image5, "가천대 최고 존잘", "카테고리5",
+        "2023년 1월 6일", "유저5"
+    ),
+    PostCard(
+        R.drawable.test_image1, "타이틀6", "카테고리6",
+        "2023년 1월 6일", "유저6"
+    ),
+    PostCard(
+        R.drawable.test_image2, "타이틀7", "카테고리7",
+        "2023년 1월 6일", "유저7"
+    ),
+    PostCard(
+        R.drawable.test_image3, "타이틀7", "카테고리7",
+        "2023년 1월 6일", "유저7"
+    ),
+    PostCard(
+        R.drawable.test_image4, "타이틀7", "카테고리7",
+        "2023년 1월 6일", "유저7"
+    ),
+    PostCard(
+        R.drawable.test_image5, "여친구함 010-xxxx-xxxx", "카테고리7",
+        "2023년 1월 6일", "유저7"
+    ),
+    PostCard(
+        R.drawable.test_image1, "타이틀7", "카테고리7",
+        "2023년 1월 6일", "유저7"
+    ),
+    PostCard(
+        R.drawable.test_image2, "타이틀7", "카테고리7",
+        "2023년 1월 6일", "유저7"
+    ),
+    PostCard(
+        R.drawable.test_image3, "타이틀7", "카테고리7",
+        "2023년 1월 6일", "유저7"
+    )
+)
+
+val curationResponse = listOf(
+    CurationCard(
+        R.drawable.test_image1, "타이틀1", "카테고리1",
+        "2023년 1월 6일", "유저1"
+    ),
+    CurationCard(
+        R.drawable.test_image2, "타이틀2", "카테고리2",
+        "2023년 1월 6일", "유저2"
+    ),
+    CurationCard(
+        R.drawable.test_image3, "타이틀3", "카테고리3",
+        "2023년 1월 6일", "유저3"
+    ),
+    CurationCard(
+        R.drawable.test_image4, "타이틀4", "카테고리4",
+        "2023년 1월 6일", "유저4"
+    ),
+    CurationCard(
+        R.drawable.test_image5, "타이틀5", "카테고리5",
+        "2023년 1월 6일", "유저5"
+    ),
+    CurationCard(
+        R.drawable.test_image1, "타이틀6", "카테고리6",
+        "2023년 1월 6일", "유저6"
+    ),
+    CurationCard(
+        R.drawable.test_image2, "타이틀7", "카테고리7",
+        "2023년 1월 6일", "유저7"
+    )
+)
 
 //viewPager쓰면 넣어줘야하는 어노테이션
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
@@ -227,8 +315,8 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                     ) { page ->
                         when (page) {
                             //나중에 API로 받은 값(List)도 넣어줘야할듯
-                            0 -> DiscoverSearchPost("제목 제목 제목 제목")
-                            1 -> DiscoverSearchCuration()
+                            0 -> DiscoverSearchPost(postCards = postResponse)
+                            1 -> DiscoverSearchCuration(curationResponse)
                         }
 
                     }
