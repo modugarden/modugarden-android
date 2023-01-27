@@ -43,7 +43,7 @@ fun DiscoverSearchCard(searchStr: String) {
                 contentDescription = null,
                 modifier = Modifier
                     .size(width = 90.dp, height = 90.dp)
-                    .clip(RoundedCornerShape(10.dp)),
+                    .clip(RoundedCornerShape(15.dp)),
                 contentScale = ContentScale.Crop
             )
 
