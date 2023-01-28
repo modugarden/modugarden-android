@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -65,6 +66,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
 import com.example.modugarden.data.FollowPost
 import com.example.modugarden.data.User
+import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.follow.DotsIndicator
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
@@ -88,9 +90,7 @@ import java.time.LocalDateTime
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun PostContentScreen(navController: NavHostController, data:FollowPost) {
-
-
-    val order: PagerState = rememberPagerState()//뷰페이저, 인디케이터 페이지 상태 변수
+    val pagerState= rememberPagerState()//뷰페이저, 인디케이터 페이지 상태 변수
     val scrollState = rememberScrollState()//스크롤 상태 변수
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
@@ -306,131 +306,128 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                 .fillMaxSize()
                 .background(moduBackground)) {
                 Column {
-                    Column(
-                        Modifier
-                            .weight(1f, true)
-                            .background(Color.White)
-                    ) {
-                        Box(Modifier.wrapContentSize()) {
                             // 포스트 카드 이미지 슬라이드
+                    Box{
                             HorizontalPager(
+                                modifier = Modifier.wrapContentSize(),
                                 count = data.image.size,
-                                state = order,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f)
-                                    .align(Alignment.TopCenter),
+                                state = pagerState,
                             ) { page ->
-                                GlideImage(
-                                    imageModel = data.image[page],
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(1f),
-                                )
-
-                            }
-                            // 포스트 카드 이미지 슬라이드 인디케이터
-                            DotsIndicator(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(
-                                        brush = Brush.verticalGradient(
-                                            colors = listOf(
-                                                moduBlack.copy(alpha = 0f),
-                                                moduBlack.copy(alpha = 0.2f)
-                                            )
-                                        )
-                                    )
-                                    .align(Alignment.BottomCenter)
-                                    .padding(25.dp)
-                                    .align(Alignment.BottomCenter)
-                                    .padding(bottom = 30.dp),
-                                dotSize = 8,
-                                dotPadding = 5,
-                                totalDots = data.image.size,
-                                selectedIndex = order.currentPage,
-                                selectedColor = Color.White,
-                                unSelectedColor = Color("#75FFFFFF".toColorInt())
-                            )
-                        }
-
-                        // 포스트 작성자 영역
-                        Column(modifier = Modifier
-                            .background(Color.White)
-                        ) {
-
-                            Row(modifier = Modifier
-                                .padding(25.dp, 18.dp)
-                                .bounceClick {
-                                    //  포스트 작성자 프로필로
-                                }
-                            )
-                            {
-                                // 작성자 프로필 사진
-                                Image(
-                                    painter = painterResource(id = R.drawable.ic_user),
-                                    contentDescription = "",
-                                    modifier = Modifier
-                                        .size(45.dp)
-                                        .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
-                                )
-                                Spacer(modifier = Modifier.width(18.dp))
-                                Column(
-                                    modifier = Modifier
-                                        .align(Alignment.CenterVertically)
-                                ) {
-                                    // 작성자 아이디
-                                    Text(text = data.writer.name, style = moduBold, fontSize = 14.sp,)
-                                    // 작성자 카테고리
-                                    Text(text = data.writer.category.toString(), fontSize = 12.sp, color = moduGray_strong)
-                                }
-                                Column(
-                                    modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .align(Alignment.CenterVertically), horizontalAlignment = Alignment.End
-                                ) {
-                                    //팔로우 버튼
-                                    Card(
+                                    GlideImage(
+                                        imageModel = data.image[page],
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
                                         modifier = Modifier
-                                            .clip(RoundedCornerShape(7.dp))
-                                            .bounceClick {
-                                                // 누르면 스낵바 메세지 띄워짐
-                                                scope.launch {
-                                                    snackbarHostState.showSnackbar(
-                                                        "${data.writer.name} 님을 팔로우 하였습니다.",
-                                                        duration = SnackbarDuration.Short
-                                                    )
-                                                }
-                                            },
-                                        backgroundColor = moduPoint
-                                    ) {
-                                        Text(
-                                            modifier = Modifier.padding(15.dp, 8.dp),
-                                            text = "팔로우",
-                                            color = Color.White,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 13.sp
-                                        )
-                                    }
-                                }
-
+                                            .fillMaxWidth()
+                                            .aspectRatio(1f),
+                                    )
                             }
-                        }
-                        // 구분선
-                        Divider(
-                            color = moduGray_light, modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                        )
-
-                        // 제목, 카테고리, 업로드 시간
-                        Column(
+                        // 포스트 카드 이미지 슬라이드 인디케이터
+                        DotsIndicator(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .align(Alignment.BottomCenter)
+                                .background(
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(
+                                            moduBlack.copy(alpha = 0f),
+                                            moduBlack.copy(alpha = 0.2f)
+                                        )
+                                    )
+                                )
+                                .padding(bottom = 30.dp),
+                            dotSize = 8,
+                            dotPadding = 5,
+                            totalDots = data.image.size,
+                            selectedIndex = pagerState.currentPage,
+                            selectedColor = Color.White,
+                            unSelectedColor = Color("#75FFFFFF".toColorInt())
+                        )
+
+                    }
+                    // 포스트 작성자 영역
+                    Column(
+                        modifier = Modifier
+                            .background(Color.White)
+                    ) {
+                        Row(modifier = Modifier
+                            .padding(25.dp, 18.dp)
+                            .bounceClick {
+                                //  포스트 작성자 프로필로
+                            }
+                        )
+                        {
+                            // 작성자 프로필 사진
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_user),
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .size(45.dp)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                            Spacer(modifier = Modifier.width(18.dp))
+                            Column(
+                                modifier = Modifier
+                                    .align(Alignment.CenterVertically)
+                            ) {
+                                // 작성자 아이디
+                                Text(
+                                    text = data.writer.name,
+                                    style = moduBold,
+                                    fontSize = 14.sp,
+                                )
+                                // 작성자 카테고리
+                                Text(
+                                    text = data.writer.category.toString(),
+                                    fontSize = 12.sp,
+                                    color = moduGray_strong
+                                )
+                            }
+                            Column(
+                                modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.CenterVertically),
+                                horizontalAlignment = Alignment.End
+                            ) {
+                                //팔로우 버튼
+                                Card(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(7.dp))
+                                        .bounceClick {
+                                            // 누르면 스낵바 메세지 띄워짐
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    "${data.writer.name} 님을 팔로우 하였습니다.",
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
+                                        },
+                                    backgroundColor = moduPoint
+                                ) {
+                                    Text(
+                                        modifier = Modifier.padding(15.dp, 8.dp),
+                                        text = "팔로우",
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 13.sp
+                                    )
+                                }
+                            }
+
+                        }
+                    }
+                    // 구분선
+                    Divider(
+                        color = moduGray_light, modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                    )
+                    // 제목, 카테고리, 업로드 시간
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
                                 .background(Color.White)
                                 .padding(25.dp, 18.dp)
                                 .verticalScroll(scrollState)
@@ -441,17 +438,25 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                                 fontWeight = FontWeight.Bold,
                                 color = Color("#17291F".toColorInt())
                             )
-                            Row( modifier = Modifier.fillMaxWidth()) {
-                                Text(data.category.component1() + " ∙ ", fontSize = 14.sp, color = Color("#75807A".toColorInt()))
-                                Text(data.time, fontSize = 14.sp, color = Color("#75807A".toColorInt()))
+                            Row(modifier = Modifier.fillMaxWidth()) {
+                                Text(
+                                    data.category.component1() + " ∙ ",
+                                    fontSize = 14.sp,
+                                    color = Color("#75807A".toColorInt())
+                                )
+                                Text(
+                                    data.time,
+                                    fontSize = 14.sp,
+                                    color = Color("#75807A".toColorInt())
+                                )
                             }
                             Column(modifier = Modifier.padding(vertical = 25.dp))
                             {
-                                Text(text = data.description, fontSize = 16.sp,)
+                                Text(text = data.description[pagerState.currentPage], fontSize = 16.sp)
                             }
-
-
                         }
+
+
 /*                        // 구분선
                         Divider(color = moduGray_light, modifier = Modifier
                             .fillMaxWidth()
@@ -538,97 +543,101 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
 
                         }*/
 
-                    }
-                    // 좋아요, 댓글, 스크랩, 더보기
-                    Card(
-                        elevation = 50.dp
+
+
+                }
+
+// 좋아요, 댓글, 스크랩, 더보기
+                Card(
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    elevation = 50.dp
+                ) {
+                    // 구분선
+                    Divider(
+                        color = moduGray_light, modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                    )
+                    //버튼들
+                    Row(
+                        modifier = Modifier
+                            .padding(18.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // 구분선
-                        Divider(
-                            color = moduGray_light, modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
+                        // 좋아요, 스크랩 버튼 상태 변수
+                        val isButtonClickedLike = remember { mutableStateOf(false) }
+                        val isButtonClickedSave = remember { mutableStateOf(false) }
+                        // 좋아요
+                        Icon(modifier = Modifier
+                            .padding(end = 10.dp)
+                            .bounceClick {
+                                isButtonClickedLike.value = !isButtonClickedLike.value
+                            }, painter = painterResource
+                            (
+                            id =
+                            if (isButtonClickedLike.value)
+                                R.drawable.ic_heart_solid
+                            else
+                                R.drawable.ic_heart_line
+                        ),
+                            contentDescription = "좋아요",
+                            tint =
+                            if (isButtonClickedLike.value)
+                                Color(0xFFFF6767)
+                            else
+                                moduBlack
+
                         )
-                        //버튼들
-                        Row(
-                            modifier = Modifier
-                                .padding(18.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            // 좋아요, 스크랩 버튼 상태 변수
-                            val isButtonClickedLike = remember { mutableStateOf(false) }
-                            val isButtonClickedSave = remember { mutableStateOf(false) }
-                            // 좋아요
-                            Icon(modifier = Modifier
-                                .padding(end = 10.dp)
-                                .bounceClick {
-                                    isButtonClickedLike.value = !isButtonClickedLike.value
-                                }, painter = painterResource
-                                (
-                                id =
-                                if (isButtonClickedLike.value)
-                                    R.drawable.ic_heart_solid
-                                else
-                                    R.drawable.ic_heart_line
-                            ),
-                                contentDescription = "좋아요",
-                                tint =
-                                if (isButtonClickedLike.value)
-                                    Color(0xFFFF6767)
-                                else
-                                    moduBlack
-
-                            )
-                            Text(text = "${data.likesCount}"+"명", style = moduBold, fontSize = 14.sp)
-                            Text(text = "이 좋아해요", color = moduBlack, fontSize = 14.sp)
-                            Spacer(modifier = Modifier.weight(1f))
-                            Icon(
-                                modifier = Modifier.bounceClick {
-                                    modalType.value = modalLocationType
-                                    scope.launch {
-                                        bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                                    }
-                                },
-                                painter = painterResource(id = R.drawable.ic_location_line),
-                                contentDescription = "위치",
-                                tint = moduBlack
-                            )
-                            // 댓글
-                            Icon(
-                                modifier = Modifier
-                                    .padding(horizontal = 18.dp)
-                                    .bounceClick { navController.navigate(NAV_ROUTE_POSTCONTENT.COMMENT.routeName) },
-                                painter = painterResource(id = R.drawable.ic_chat_line),
-                                contentDescription = "댓글",
-                                tint = moduBlack
-                            )
-                            // 스크랩
-                            Icon(modifier =
-                            Modifier
-                                .bounceClick {
-                                    isButtonClickedSave.value = !isButtonClickedSave.value
+                        Text(text = "${data.likesCount}"+"명", style = moduBold, fontSize = 14.sp)
+                        Text(text = "이 좋아해요", color = moduBlack, fontSize = 14.sp)
+                        Spacer(modifier = Modifier.weight(1f))
+                        Icon(
+                            modifier = Modifier.bounceClick {
+                                modalType.value = modalLocationType
+                                scope.launch {
+                                    bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
                                 }
-                                .padding(
-                                    if (isButtonClickedSave.value)
-                                        1.75.dp
-                                    else
-                                        0.dp
-                                )
-                                ,
-                                painter = painterResource
-                                (id =
+                            },
+                            painter = painterResource(id = R.drawable.ic_location_line),
+                            contentDescription = "위치",
+                            tint = moduBlack
+                        )
+                        // 댓글
+                        Icon(
+                            modifier = Modifier
+                                .padding(horizontal = 18.dp)
+                                .bounceClick { navController.navigate(NAV_ROUTE_POSTCONTENT.COMMENT.routeName) },
+                            painter = painterResource(id = R.drawable.ic_chat_line),
+                            contentDescription = "댓글",
+                            tint = moduBlack
+                        )
+                        // 스크랩
+                        Icon(modifier =
+                        Modifier
+                            .bounceClick {
+                                isButtonClickedSave.value = !isButtonClickedSave.value
+                            }
+                            .padding(
                                 if (isButtonClickedSave.value)
-                                    R.drawable.ic_star_solid
+                                    1.75.dp
                                 else
-                                    R.drawable.ic_star_line
-                            ),
-                                contentDescription = "스크랩",
-                                tint = moduBlack
+                                    0.dp
                             )
+                            ,
+                            painter = painterResource
+                                (id =
+                            if (isButtonClickedSave.value)
+                                R.drawable.ic_star_solid
+                            else
+                                R.drawable.ic_star_line
+                            ),
+                            contentDescription = "스크랩",
+                            tint = moduBlack
+                        )
 
-                        }
                     }
                 }
+
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
@@ -753,20 +762,7 @@ fun PostContentPreview(){
         post = null,
         curation = null
     )
-    val followPost = FollowPost(
-        writer = dana,
-        title = "안녕하세요!",
-        category = listOf("식물 가꾸기"),
-        time= updateTime(LocalDateTime.now()),
-        image = listOf(
-            "https://ifh.cc/g/HHLBxb.jpg".toUri(),
-            "https://ifh.cc/g/roQrJq.jpg".toUri(),
-            "https://ifh.cc/g/cLgQS1.jpg".toUri()),
-        location = null,
-        description = "첫 게시물 입니다",
-        likesCount = 0,
-        likesList = null
-    )
-    PostContentScreen(navController = rememberNavController(), data = followPost )
+
+    PostContentScreen(navController = rememberNavController(), data = followPosts[0] )
 
 }
