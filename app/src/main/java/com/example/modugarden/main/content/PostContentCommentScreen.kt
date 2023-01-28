@@ -72,6 +72,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
 import com.example.modugarden.data.Comment
 import com.example.modugarden.data.CommentDataBase
+import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.ui.theme.addFocusCleaner
 import com.example.modugarden.ui.theme.bounceClick
@@ -94,7 +95,7 @@ fun PostContentCommentScreen(navController: NavHostController,
     val commentDB = CommentDataBase.getInstance(LocalContext.current.applicationContext)!! // 댓글 데이터 베이스
     val comments= remember{ mutableStateOf(commentDB.commentDao().getAll()) } // 댓글 리스트
     val data  :MutableState<Comment>
-            = remember{ mutableStateOf(Comment(id = UUID.randomUUID(), userID = "", description = "", time = 0,
+            = remember{ mutableStateOf(Comment(userID = "", description = "", time = 0,
         isReplying = mutableStateOf(false), parentID = null)) } // 클릭한 댓글 데이터
 
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
@@ -105,9 +106,6 @@ fun PostContentCommentScreen(navController: NavHostController,
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val showModalSheet = rememberSaveable{ mutableStateOf(false) } // 신고 모달 상태 변수
     val scope = rememberCoroutineScope()
-
-
-
 
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
@@ -376,7 +374,6 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                     if (data.value.isReplying.value) {
                                                         commentViewModel.addComment(
                                                             Comment(
-                                                                id = UUID.randomUUID(),
                                                                 userID = "reply",
                                                                 description = textFieldComment.value,
                                                                 time = 1,
@@ -389,7 +386,6 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                     {
                                                         commentViewModel.addComment(
                                                             Comment(
-                                                                id = UUID.randomUUID(),
                                                                 userID = "comment",
                                                                 description = textFieldComment.value,
                                                                 time = 0,
@@ -540,5 +536,5 @@ fun CategoryItem(category:String){
 fun PostContentCommentPreview(){
     val navController = rememberNavController()
     val commentViewModel:CommentViewModel= viewModel()
-    PostContentCommentScreen(navController = navController,commentViewModel)
+    /*PostContentCommentScreen(navController = navController,commentViewModel)*/
 }
