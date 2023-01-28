@@ -424,9 +424,7 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                             .fillMaxWidth()
                             .height(1.dp)
                     )
-                    HorizontalPager(
-                        count = data.image.size,
-                        state = pagerState){page -> // 제목, 카테고리, 업로드 시간
+                    // 제목, 카테고리, 업로드 시간
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -454,10 +452,10 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                             }
                             Column(modifier = Modifier.padding(vertical = 25.dp))
                             {
-                                Text(text = data.description[page], fontSize = 16.sp)
+                                Text(text = data.description[pagerState.currentPage], fontSize = 16.sp)
                             }
                         }
-                    }
+
 
 /*                        // 구분선
                         Divider(color = moduGray_light, modifier = Modifier
