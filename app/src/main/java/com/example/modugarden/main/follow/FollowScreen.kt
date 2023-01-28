@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.layout.rememberLazyNearestItemsRangeState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -52,10 +54,12 @@ import com.example.modugarden.data.FollowPost
 import com.example.modugarden.data.followCurations
 import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.CategoryItem
+import com.example.modugarden.main.content.modalReportPostType
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
+import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
@@ -64,10 +68,12 @@ fun FollowScreen(navController: NavHostController, followPosts:List<FollowPost>,
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
+    val scrollState = rememberLazyListState()
+    lateinit var data : Any
 
     ModalBottomSheetLayout(sheetElevation = 0.dp,
         sheetBackgroundColor = Color.Transparent,
-        sheetState = bottomSheetState,
+        sheetState = bottomSheetState ,
         sheetContent = {
                 Card(
                     modifier = Modifier
@@ -97,6 +103,7 @@ fun FollowScreen(navController: NavHostController, followPosts:List<FollowPost>,
                                 .padding(horizontal = 18.dp)
                         ) {
                             Text(text = "포스트 신고", style = moduBold, fontSize = 20.sp)
+                            /*Text(text = "큐레이션 신고", style = moduBold, fontSize = 20.sp)*/
 
                             Row(
                                 modifier = Modifier
@@ -145,20 +152,32 @@ fun FollowScreen(navController: NavHostController, followPosts:List<FollowPost>,
                 }
             })
     {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(moduBackground)
-        ) {
-            LazyColumn() {
-                // 상단 로고
-                item {
-                    Box(
+        Box(){
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(moduBackground)
+            )
+            {
+
+
+                    /*Icon(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(30.dp, 30.dp, 30.dp, 8.dp),
-                    ) {
-                        Row() {
+                            .align(Alignment.CenterEnd)
+                            .bounceClick { },
+                        painter = painterResource(id = R.drawable.ic_notification),
+                        contentDescription = "알림",
+                        tint = moduBlack
+                    )*/
+
+                LazyColumn(state = scrollState) {
+                    // 상단 로고
+                    item{
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(30.dp, 30.dp, 30.dp, 0.dp),
+                        ) {
                             Image(
                                 painter = painterResource(id = R.drawable.ic_house_with_garden),
                                 contentDescription = null
@@ -170,25 +189,19 @@ fun FollowScreen(navController: NavHostController, followPosts:List<FollowPost>,
                                 fontSize = 16.sp
                             )
                         }
-                        /*Icon(
-                            modifier = Modifier
-                                .align(Alignment.CenterEnd)
-                                .bounceClick { },
-                            painter = painterResource(id = R.drawable.ic_notification),
-                            contentDescription = "알림",
-                            tint = moduBlack
-                        )*/
                     }
+                    //포스트 카드
+                    items(followPosts.reversed()){
+                        PostCard(navController, data = it , scope, snackbarHostState, bottomSheetState)}
 
+                    // 큐레이션 카드
+                    items(followCurations) {
+                        CurationCard(data = it, scope, snackbarHostState,bottomSheetState) }
+
+                    // 팔로우 피드 맨 끝
+                    item { FollowEndCard(navController) }
                 }
-                //포스트 카드
-                items(followPosts){
-                    PostCard(navController, data =it , scope, snackbarHostState, bottomSheetState)}
-                // 큐레이션 카드
-                items(followCurations) {
-                    CurationCard(data = it, scope, snackbarHostState,bottomSheetState) }
-                // 팔로우 피드 맨 끝
-                item { FollowEndCard(navController) }
+
             }
             // 커스텀한 스낵바
             SnackbarHost(
@@ -222,9 +235,10 @@ fun FollowScreen(navController: NavHostController, followPosts:List<FollowPost>,
 
                     }
                 })
-
         }
-    }
+        }
+
+
 
 }
 

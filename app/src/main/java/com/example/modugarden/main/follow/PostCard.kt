@@ -43,6 +43,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
 import com.example.modugarden.data.FollowPost
 import com.example.modugarden.data.User
+import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.main.content.updateTime
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
@@ -133,7 +134,6 @@ fun PostCard(navController:NavHostController,
                                                         )
 
                                                 }
-
 
                                                 // 포스트 카드 이미지 슬라이드 인디케이터
                                                 DotsIndicator(
@@ -296,6 +296,7 @@ fun DotsIndicator(
         LazyRow(
                 modifier = modifier
         , horizontalArrangement = Arrangement.Center
+        , verticalAlignment = Alignment.Bottom
 
         ) {
                 items(totalDots) { index ->
@@ -335,29 +336,7 @@ fun PostPreview(){
         val snackbarHostState = remember { SnackbarHostState() }
         val bottomSheetState= rememberModalBottomSheetState(
                 initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
-        val followPost = FollowPost(
-                writer = User(
-                        image = "https://ifh.cc/g/jDDHBg.png".toUri(),
-                        name = "dana",
-                        category = listOf(""),
-                        follower = 1,
-                        following = 1,
-                        state = false,
-                        post = null,
-                        curation = null
-                ),
-                title = "안녕하세요!",
-                time = updateTime(LocalDateTime.now()),
-                category = listOf("식물 가꾸기"),
-                image = listOf(
-                        "https://ifh.cc/g/HHLBxb.jpg".toUri(),
-                        "https://ifh.cc/g/roQrJq.jpg".toUri(),
-                        "https://ifh.cc/g/cLgQS1.jpg".toUri()),
-                location = null,
-                description = "description",
-                likesCount = 0,
-                likesList = null
-        )
+        val followPost = followPosts[0]
 
         PostCard(navController, data = followPost, scope =scope , snackbarHostState = snackbarHostState,bottomSheetState)
 

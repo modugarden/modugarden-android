@@ -1,6 +1,7 @@
 package com.example.modugarden.data
 
 import android.content.Context
+import android.os.Parcelable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -19,12 +20,13 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.room.Update
+import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.RawValue
 import java.util.UUID
 @Entity(tableName = "comment")
 @TypeConverters(Converters::class)
+@Parcelize
 data class Comment(
-    @PrimaryKey
-    var id: UUID, //댓글 id
     @ColumnInfo(name = "userID")
     val userID: String? = null, // 댓글 작성자
     @ColumnInfo(name = "description")
@@ -32,16 +34,23 @@ data class Comment(
     @ColumnInfo(name = "time")
     var time: Int? = null, //  댓글 작성 및 수정 일시
     @ColumnInfo(name = "isReplying")
-    var isReplying: MutableState<Boolean> = mutableStateOf(false),//답글 작성중인지 // true면 작성중
+    var isReplying: @RawValue MutableState<Boolean> = mutableStateOf(false),//답글 작성중인지 // true면 작성중
     @ColumnInfo(name = "parentID")
-    val parentID:UUID?=null, // 답글을 달 댓글의 id
+    val parentID:Int?=null, // 답글을 달 댓글의 id
     @ColumnInfo(name = "mode") val mode: Boolean = false// 댓글인지 답글인지 // true면 답글, false면 댓글
     // /*var userProfile,*//
-)
+) : Parcelable{
+    @PrimaryKey(autoGenerate = true)
+    var id: Int=0//댓글 id,
+
+}
+
 @Dao
-public interface CommentDao{
+interface CommentDao{
     @Query("SELECT * FROM comment")
     fun getAll() : MutableList<Comment>
+    @Query("SELECT * FROM comment WHERE ")
+
     @Insert
     fun insert(comment: Comment)
     @Insert(onConflict = OnConflictStrategy.REPLACE)
