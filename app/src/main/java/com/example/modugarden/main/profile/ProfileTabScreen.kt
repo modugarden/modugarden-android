@@ -1,5 +1,6 @@
 package com.example.modugarden.main.profile
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,6 +20,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap.Companion.Square
@@ -34,135 +37,57 @@ import com.example.modugarden.R
 import com.example.modugarden.data.CurationCard
 import com.example.modugarden.data.PostCard
 import com.example.modugarden.data.User
-import com.example.modugarden.ui.theme.bounceClick
-import com.example.modugarden.ui.theme.moduGray_normal
-import com.example.modugarden.ui.theme.moduGray_strong
+import com.example.modugarden.ui.theme.*
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
 
-val pages = listOf("포스트", "큐레이션")
-
-val postResponse = listOf(
-    PostCard(
-        R.drawable.test_image1, "타이틀1", "카테고리1",
-        "2023년 1월 6일", "유저1"
-    ),
-    PostCard(
-        R.drawable.test_image2, "타이틀2", "카테고리2",
-        "2023년 1월 6일", "유저2"
-    ),
-    PostCard(
-        R.drawable.test_image3, "타이틀3", "카테고리3",
-        "2023년 1월 6일", "유저3"
-    ),
-    PostCard(
-        R.drawable.test_image4, "타이틀4", "카테고리4",
-        "2023년 1월 6일", "유저4"
-    ),
-    PostCard(
-        R.drawable.test_image5, "타이틀5", "카테고리5",
-        "2023년 1월 6일", "유저5"
-    ),
-    PostCard(
-        R.drawable.test_image1, "타이틀6", "카테고리6",
-        "2023년 1월 6일", "유저6"
-    ),
-    PostCard(
-        R.drawable.test_image2, "타이틀7", "카테고리7",
-        "2023년 1월 6일", "유저7"
-    ),
-    PostCard(
-        R.drawable.test_image3, "타이틀7", "카테고리7",
-        "2023년 1월 6일", "유저7"
-    ),
-    PostCard(
-        R.drawable.test_image4, "타이틀7", "카테고리7",
-        "2023년 1월 6일", "유저7"
-    ),
-    PostCard(
-        R.drawable.test_image5, "타이틀7", "카테고리7",
-        "2023년 1월 6일", "유저7"
-    ),
-    PostCard(
-        R.drawable.test_image1, "타이틀7", "카테고리7",
-        "2023년 1월 6일", "유저7"
-    ),
-    PostCard(
-        R.drawable.test_image2, "타이틀7", "카테고리7",
-        "2023년 1월 6일", "유저7"
-    ),
-    PostCard(
-        R.drawable.test_image3, "타이틀7", "카테고리7",
-        "2023년 1월 6일", "유저7"
-    )
-)
-
-val curationResponse = listOf(
-    CurationCard(
-        R.drawable.test_image1, "타이틀1", "카테고리1",
-        "2023년 1월 6일", "유저1"
-    ),
-    CurationCard(
-        R.drawable.test_image2, "타이틀2", "카테고리2",
-        "2023년 1월 6일", "유저2"
-    ),
-    CurationCard(
-        R.drawable.test_image3, "타이틀3", "카테고리3",
-        "2023년 1월 6일", "유저3"
-    ),
-    CurationCard(
-        R.drawable.test_image4, "타이틀4", "카테고리4",
-        "2023년 1월 6일", "유저4"
-    ),
-    CurationCard(
-        R.drawable.test_image5, "타이틀5", "카테고리5",
-        "2023년 1월 6일", "유저5"
-    ),
-    CurationCard(
-        R.drawable.test_image1, "타이틀6", "카테고리6",
-        "2023년 1월 6일", "유저6"
-    ),
-    CurationCard(
-        R.drawable.test_image2, "타이틀7", "카테고리7",
-        "2023년 1월 6일", "유저7"
-    )
-)
-
-val categoryResponse = listOf("식물 키우기", "식물 부수기", "식물 심기")
-
-val user = User(
-    "https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri(), "Mara", categoryResponse, 100, 50,
-    true, postResponse, curationResponse
-)
-
 @Composable
 fun ProfileTab (
     // 포스트 리스트
+    postList: List<PostCard> = user.post!!
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
-        verticalArrangement = Arrangement.spacedBy(18.dp),
-        horizontalArrangement = Arrangement.spacedBy(18.dp),
-        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(15.dp),
+        horizontalArrangement = Arrangement.spacedBy(15.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .drawBehind {
+                drawLine(
+                    color = moduGray_light,
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width, 0f),
+                    strokeWidth = 1.dp.toPx()
+                )
+            },
         contentPadding = PaddingValues(18.dp)
     ) {
-        items(user.post!!) { postCard ->
+        items(postList) { postCard ->
             // 이미지가 들어간 버튼을 넣어야 함
-            Image(
-                painter = painterResource(id = postCard.image),
-                contentDescription = null,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(5.dp))
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-                    .bounceClick {
+            Box(modifier = Modifier.bounceClick {
 
-                    },
-                contentScale = ContentScale.Crop
-            )
+            }) {
+                Image(
+                    painter = painterResource(id = postCard.image),
+                    contentDescription = null,
+                    modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(moduBackground),
+                    contentScale =
+                    if(postCard.category == "Upload") {
+                        ContentScale.None
+                    }
+                    else {
+                        ContentScale.Crop
+                    }
+                )
+            }
         }
     }
 }
@@ -172,43 +97,41 @@ fun ProfileTab (
 @Composable
 fun CuratorProfileTab(
     // 포스트 및 큐레이션 리스트
+    postList: List<PostCard> = user.post!!,
+    curationList: List<CurationCard> = user.curation!!
 ) {
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
 
     TabRow(
         selectedTabIndex = pagerState.currentPage,
+        backgroundColor = Color.White,
+        contentColor = moduBlack,
         indicator = { tabPositions ->
             TabRowDefaults.Indicator(
                 Modifier.pagerTabIndicatorOffset(pagerState,tabPositions),
-                color = Color.Black
+                color = moduBlack
             )
         }
     ) {
         pages.forEachIndexed { index, title ->
             Tab(
+                text = {
+                    Text(
+                        text = title,
+                        fontSize = 16.sp,
+                        color =
+                        if(pagerState.currentPage == index) moduBlack
+                        else moduGray_strong
+                    )
+                },
                 selected = pagerState.currentPage == index,
                 onClick = {
                     coroutineScope.launch {
-                        pagerState.scrollToPage(index)
+                        pagerState.animateScrollToPage(index)
                     }
-                },
-                modifier = Modifier
-                    .height(50.dp)
-                    .background(Color.White)
-            ) {
-                Text(
-                    text = title,
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontWeight =
-                        if(pagerState.currentPage == index)
-                            FontWeight.Bold
-                        else
-                            FontWeight.Normal
-                    )
-                )
-            }
+                }
+            )
         }
     }
 
@@ -227,7 +150,7 @@ fun CuratorProfileTab(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(18.dp)
                 ) {
-                    items(user.post!!) { postCard ->
+                    items(postList) { postCard ->
                         // 이미지가 들어간 버튼을 넣어야 함
                         Box(modifier = Modifier.bounceClick {
 
@@ -235,11 +158,19 @@ fun CuratorProfileTab(
                             Image(
                                 painter = painterResource(id = postCard.image),
                                 contentDescription = null,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f)
-                                    .clip(RoundedCornerShape(5.dp)),
-                                contentScale = ContentScale.Crop
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(1f)
+                                        .clip(RoundedCornerShape(15.dp))
+                                        .background(moduBackground),
+                                contentScale =
+                                if(postCard.category == "Upload") {
+                                    ContentScale.None
+                                }
+                                else {
+                                    ContentScale.Crop
+                                }
                             )
                         }
                     }
@@ -248,10 +179,10 @@ fun CuratorProfileTab(
             1 -> {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(15.dp),
                     contentPadding = PaddingValues(18.dp)
                 ) {
-                    items(user.curation!!) { curationCard ->
+                    items(curationList) { curationCard ->
                         Row(
                             modifier = Modifier
                                 .height(90.dp)
@@ -262,31 +193,52 @@ fun CuratorProfileTab(
                             Image(
                                 painter = painterResource(id = curationCard.thumbnail_image),
                                 contentDescription = null,
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(5.dp))
-                                    .size(90.dp),
-                                contentScale = ContentScale.Crop
+                                modifier =
+                                Modifier
+                                    .size(90.dp)
+                                    .clip(RoundedCornerShape(15.dp))
+                                    .background(moduBackground),
+                                contentScale =
+                                if(curationCard.category == "Upload") {
+                                    ContentScale.None
+                                }
+                                else {
+                                    ContentScale.Crop
+                                }
                             )
                             Spacer(modifier = Modifier.width(18.dp))
-                            Column(
-                                modifier = Modifier
-                                    .height(42.dp)
-                                    .align(Alignment.CenterVertically)
-                            ) {
+                            if(curationCard.category == "Upload") {
                                 Text(
                                     text = curationCard.title,
                                     style = TextStyle(
-                                        color = Color.Black,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 14.sp
+                                        color = moduGray_strong,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    modifier = Modifier.align(Alignment.CenterVertically)
+                                )
+                            }
+                            else {
+                                Column(
+                                    modifier = Modifier
+                                        .height(42.dp)
+                                        .align(Alignment.CenterVertically)
+                                ) {
+                                    Text(
+                                        text = curationCard.title,
+                                        style = TextStyle(
+                                            color = Color.Black,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 14.sp
+                                        )
                                     )
-                                )
-                                Spacer(modifier = Modifier.weight(1f))
-                                Text(
-                                    text = "${curationCard.category}, ${curationCard.time}",
-                                    fontSize = 12.sp,
-                                    color = moduGray_strong
-                                )
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Text(
+                                        text = "${curationCard.category}, ${curationCard.time}",
+                                        fontSize = 12.sp,
+                                        color = moduGray_strong
+                                    )
+                                }
                             }
                         }
                     }
