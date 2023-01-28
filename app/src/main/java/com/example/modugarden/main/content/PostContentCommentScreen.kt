@@ -2,6 +2,11 @@ package com.example.modugarden.main.content
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -82,7 +87,7 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 @SuppressLint("UnrememberedMutableState")
-@OptIn( ExperimentalMaterialApi::class)
+@OptIn( ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun PostContentCommentScreen(navController: NavHostController,
                              commentViewModel: CommentViewModel) {
@@ -94,7 +99,7 @@ fun PostContentCommentScreen(navController: NavHostController,
 
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
     val isTextFieldCommentFocused = remember { mutableStateOf(false) }
-
+    val isVisible = remember{mutableStateOf(false)}
     val focusManager = LocalFocusManager.current
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
@@ -271,34 +276,42 @@ fun PostContentCommentScreen(navController: NavHostController,
                         // 댓글 입력창
                         Column {
                             //답글 입력중일 때
-                            if(data.value.isReplying.value) {
-                                Box(
-                                    modifier = Modifier
-                                        .background(moduBackground)
-                                        .fillMaxWidth()
-                                        .padding(18.dp, 12.dp)
-                                ) {
-                                    Text(
-                                        modifier = Modifier.align(Alignment.CenterStart),
-                                        text = "@${data.value.userID} 님께 답글 남기는 중", color = moduGray_strong, fontSize = 12.sp
-                                    )
-                                    // 답글 창 닫기
-                                    Icon(
+
+                                AnimatedVisibility(
+                                    visible = data.value.isReplying.value,
+                                    enter = slideInVertically (initialOffsetY = {it}),
+                                    exit = slideOutVertically (targetOffsetY = {it})
+                                    ) {
+                                    Box(
                                         modifier = Modifier
-                                            .align(Alignment.CenterEnd)
-                                            .bounceClick {
-                                                data.value.isReplying.value = false
-                                            },
-                                        painter = painterResource(id = R.drawable.ic_xmark),
-                                        contentDescription = "",
-                                        tint = moduGray_strong
-                                    )
-                                }}
+                                            .background(moduBackground)
+                                            .fillMaxWidth()
+                                            .padding(18.dp, 12.dp)
+
+                                    ) {
+                                        Text(
+                                            modifier = Modifier.align(Alignment.CenterStart),
+                                            text = "@${data.value.userID} 님께 답글 남기는 중", color = moduGray_strong, fontSize = 12.sp
+                                        )
+                                        // 답글 창 닫기
+                                        Icon(
+                                            modifier = Modifier
+                                                .align(Alignment.CenterEnd)
+                                                .bounceClick {
+                                                    data.value.isReplying.value = false
+                                                },
+                                            painter = painterResource(id = R.drawable.ic_xmark),
+                                            contentDescription = "",
+                                            tint = moduGray_strong
+                                        )
+                                    }}
+
+
 
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .wrapContentHeight()
+                                    .background(Color.White)
                             ) {
                                 // 구분선
                                 Divider(

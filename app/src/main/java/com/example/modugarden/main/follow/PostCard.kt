@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -64,7 +65,8 @@ fun PostCard(navController:NavHostController,
              data: FollowPost,
              scope: CoroutineScope,
              snackbarHostState: SnackbarHostState,
-             bottomSheetState: ModalBottomSheetState
+             bottomSheetState: ModalBottomSheetState,
+
 ) {
 
         val isButtonClickedLike = remember { mutableStateOf(false) } // 버튼 바
@@ -111,36 +113,50 @@ fun PostCard(navController:NavHostController,
                                         mContext.startActivity(intent)
                                 })
                                 {       // 포스트 카드 이미지 슬라이드
-                                        HorizontalPager(
-                                                count = data.image.size,
-                                                state = order,
-                                                modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .aspectRatio(1f),
-                                        ) { page ->
-                                                GlideImage(
-                                                        imageModel = data.image[page],
-                                                        contentDescription = null,
-                                                        contentScale = ContentScale.Crop,
+                                        Box() {
+                                                // 포스트 카드 이미지 슬라이드
+                                                HorizontalPager(
+                                                        count = data.image.size,
+                                                        state = order,
                                                         modifier = Modifier
                                                                 .fillMaxWidth()
-                                                                .aspectRatio(1f),
+                                                                .aspectRatio(1f)
+                                                                .align(Alignment.TopCenter),
+                                                ) { page ->
+                                                        GlideImage(
+                                                                imageModel = data.image[page],
+                                                                contentDescription = null,
+                                                                contentScale = ContentScale.Crop,
+                                                                modifier = Modifier
+                                                                        .fillMaxWidth()
+                                                                        .aspectRatio(1f),
+                                                        )
+
+                                                }
+
+
+                                                // 포스트 카드 이미지 슬라이드 인디케이터
+                                                DotsIndicator(
+                                                        modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .background(
+                                                                        brush = Brush.verticalGradient(
+                                                                                colors = listOf(
+                                                                                        moduBlack.copy(alpha = 0f),
+                                                                                        moduBlack.copy(alpha = 0.2f)
+                                                                                )
+                                                                        )
+                                                                )
+                                                                .align(Alignment.BottomCenter)
+                                                                .padding(25.dp),
+                                                        dotSize = 8,
+                                                        dotPadding = 5,
+                                                        totalDots = data.image.size,
+                                                        selectedIndex = order.currentPage,
+                                                        selectedColor = Color.White,
+                                                        unSelectedColor = Color("#75FFFFFF".toColorInt())
                                                 )
                                         }
-
-                                        // 포스트 카드 이미지 슬라이드 인디케이터
-                                        DotsIndicator(
-                                                modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .padding(top = 18.dp)
-                                                        .background(Color.Transparent),
-                                                dotSize = 5,
-                                                dotPadding = 2,
-                                                totalDots = data.image.size,
-                                                selectedIndex = order.currentPage,
-                                                unSelectedColor = Color("#75807A66".toColorInt())
-                                        )
-
                                         Box(modifier = Modifier
                                                 .background(Color.White)
                                                 // 구분선
@@ -249,6 +265,7 @@ fun PostCard(navController:NavHostController,
                                        Spacer(modifier = Modifier.weight(1f))
                                                Icon(modifier = Modifier.bounceClick {
                                                        scope.launch {
+                                                               data
                                                                bottomSheetState.animateTo(
                                                                        ModalBottomSheetValue.Expanded)
                                                        }

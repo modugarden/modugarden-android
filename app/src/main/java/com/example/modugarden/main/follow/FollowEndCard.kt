@@ -64,7 +64,11 @@ fun FollowEndCard(navController: NavHostController) {
             // 탐색 버튼
             Card(modifier = Modifier
                 .bounceClick {
-                    navController.navigate(NAV_ROUTE_BNB.DISCOVER.routeName)
+                    navController.navigate(NAV_ROUTE_BNB.DISCOVER.routeName){
+                        popUpTo(navController.graph.id){
+                            inclusive= true
+                        }
+                    }
                 }
                 .padding(10.dp, 8.dp),
                 backgroundColor = moduPoint,

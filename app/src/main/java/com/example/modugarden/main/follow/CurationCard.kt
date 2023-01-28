@@ -104,87 +104,108 @@ fun CurationCard(data: FollowCuration,
                     fontSize = 14.sp,
                 )
             }
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1f), contentAlignment = Alignment.BottomCenter
-                ) {
-                // 큐레이션 썸네일
-                GlideImage(
-                    imageModel = data.thumbnail_image,
-                    contentDescription = "썸네일",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f))
-
-                // 외부 페이지 이동
-                    // 이미지 하단 블러처리
-                GlideImage(
-                    imageModel = data.thumbnail_image,
-                    contentDescription = "썸네일",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .drawWithContent { //ContentDrawScope
-                            clipRect(top = size.height / 1.11f) {
-                                this@drawWithContent.drawContent()
-                                drawRect(
-                                    moduBlack,
-                                    alpha = 0.4f, blendMode = BlendMode.DstIn
-                                )
-                            }
-                        }
-                        .blur(10.dp)
-                        .fillMaxWidth()
-
-                )
-                    // 안내 문구 및 아이콘
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .height(36.dp)
-                    .clickable {
-                        val intent = Intent(mContext, CurationContentActivity::class.java)
-                        intent.putExtra("url",data.url)
-                        mContext.startActivity(intent)
-                    },
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween ) {
-                    Text(modifier=Modifier.padding(start = 18.dp),
-                        text = "외부 페이지로 이동해요.",
-                        color = moduGray_light,
-                        fontSize = 12.sp)
-                    Icon(modifier=Modifier.padding(end=18.dp),
-                        painter = painterResource(id = R.drawable.ic_arrow_right),
-                        contentDescription = "외부 페이지 이동",
-                        tint = moduGray_light)
+            Column(modifier = Modifier
+                .clickable {
+                    val intent = Intent(mContext, CurationContentActivity::class.java)
+                    intent.putExtra("url",data.url)
+                    mContext.startActivity(intent)
                 }
-            }
-            Box(modifier = Modifier
-                .background(Color.White)
-                .drawBehind {
-                    val strokeWidth = 1 * density
-                    val y = size.height - strokeWidth / 2
+            )
+            {// 큐레이션 썸네일
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f), contentAlignment = Alignment.BottomCenter
+                ) {
 
-                    drawLine(
-                        Color("#EBEEED".toColorInt()),
-                        Offset(0f, y),
-                        Offset(size.width, y),
-                        strokeWidth
+                    GlideImage(
+                        imageModel = data.thumbnail_image,
+                        contentDescription = "썸네일",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
                     )
+
+                    // 외부 페이지 이동
+                    // 이미지 하단 블러처리
+                    GlideImage(
+                        imageModel = data.thumbnail_image,
+                        contentDescription = "썸네일",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .drawWithContent { //ContentDrawScope
+                                clipRect(top = size.height / 1.11f) {
+                                    this@drawWithContent.drawContent()
+                                    drawRect(
+                                        moduBlack,
+                                        alpha = 0.4f, blendMode = BlendMode.DstIn
+                                    )
+                                }
+                            }
+                            .blur(10.dp)
+                            .fillMaxWidth()
+
+                    )
+                    // 안내 문구 및 아이콘
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(36.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(start = 18.dp),
+                            text = "외부 페이지로 이동해요.",
+                            color = moduGray_light,
+                            fontSize = 12.sp
+                        )
+                        Icon(
+                            modifier = Modifier.padding(end = 18.dp),
+                            painter = painterResource(id = R.drawable.ic_arrow_right),
+                            contentDescription = "외부 페이지 이동",
+                            tint = moduGray_light
+                        )
+                    }
                 }
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(18.dp)
+                Box(modifier = Modifier
+                    .background(Color.White)
+                    .drawBehind {
+                        val strokeWidth = 1 * density
+                        val y = size.height - strokeWidth / 2
+
+                        drawLine(
+                            Color("#EBEEED".toColorInt()),
+                            Offset(0f, y),
+                            Offset(size.width, y),
+                            strokeWidth
+                        )
+                    }
                 ) {
-                    Text(data.title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color("#17291F".toColorInt()))
-                    Row() {
-                        Text(data.category[0], fontSize = 12.sp, color = Color("#75807A".toColorInt()))
-                        Spacer(modifier = Modifier.weight(1f))
-                        Text(data.time, fontSize = 12.sp, color = Color("#75807A".toColorInt()))
+                    Column(
+                        modifier = Modifier
+                            .padding(18.dp)
+                    ) {
+                        Text(
+                            data.title,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color("#17291F".toColorInt())
+                        )
+                        Row() {
+                            Text(
+                                data.category[0],
+                                fontSize = 12.sp,
+                                color = Color("#75807A".toColorInt())
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(data.time, fontSize = 12.sp, color = Color("#75807A".toColorInt()))
+                        }
+
                     }
 
                 }
-
             }
             // 버튼들 ( 좋아요, 스크랩, 신고 )
             val isButtonClickedLike = remember { mutableStateOf(false) }
@@ -243,6 +264,7 @@ fun CurationCard(data: FollowCuration,
                         scope.launch {
                         bottomSheetState.animateTo(
                             ModalBottomSheetValue.Expanded)
+
                     }},
                         painter = painterResource(id = R.drawable.ic_dot3_vertical),
                         contentDescription = "신고",

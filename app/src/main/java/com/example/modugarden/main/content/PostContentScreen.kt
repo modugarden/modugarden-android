@@ -48,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -313,7 +314,7 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                         Box(Modifier.wrapContentSize()) {
                             // 포스트 카드 이미지 슬라이드
                             HorizontalPager(
-                                count = 3,
+                                count = data.image.size,
                                 state = order,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -333,6 +334,17 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                             // 포스트 카드 이미지 슬라이드 인디케이터
                             DotsIndicator(
                                 modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                        brush = Brush.verticalGradient(
+                                            colors = listOf(
+                                                moduBlack.copy(alpha = 0f),
+                                                moduBlack.copy(alpha = 0.2f)
+                                            )
+                                        )
+                                    )
+                                    .align(Alignment.BottomCenter)
+                                    .padding(25.dp)
                                     .align(Alignment.BottomCenter)
                                     .padding(bottom = 30.dp),
                                 dotSize = 8,
