@@ -23,7 +23,8 @@ class ProfileSaveActivity: ComponentActivity() {
                     titleIcon = R.drawable.ic_arrow_left_bold,
                     titleIconOnClick = {
                         finish()
-                    }
+                    },
+                    bottomLine = false
                 )
                 CuratorProfileTab()
             }

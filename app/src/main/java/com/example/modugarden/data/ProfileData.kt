@@ -2,6 +2,7 @@ package com.example.modugarden.data
 
 import android.net.Uri
 import android.os.Parcelable
+import com.example.modugarden.R
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
 
@@ -19,17 +20,18 @@ data class User(
 
 @Parcelize
 data class PostCard(
-    val image: Int = 0,
-    val title: String = "Default Title",
-    val category: String = "Default Category",
+    val image: Int = R.drawable.ic_plus_big,
+    val title: String = "Upload",
+    val category: String = "Upload",
     val time: String = "No time",
     val user: String = "Default UserName"
 ) : Parcelable
+
 @Parcelize
 data class CurationCard(
-    val thumbnail_image: Int,
-    val title: String,
-    val category: String,
-    val time: String,
-    val user: String
+    val thumbnail_image: Int = R.drawable.ic_plus_big,
+    val title: String = "새 큐레이션 게시",
+    val category: String = "Upload",
+    val time: String = "No time",
+    val user: String = "No user"
 ) : Parcelable

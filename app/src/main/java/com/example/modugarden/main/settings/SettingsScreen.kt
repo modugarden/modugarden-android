@@ -28,7 +28,7 @@ enum class SettingsScreen(val title: String) {
     Notification(title = "알림"),
     Block(title = "차단한 사용자"),
     Terms(title = "약관 및 개인정보 처리 동의"),
-    Withdraw(title = "탈퇴하기")
+    Withdraw(title = "")
 }
 
 @Composable

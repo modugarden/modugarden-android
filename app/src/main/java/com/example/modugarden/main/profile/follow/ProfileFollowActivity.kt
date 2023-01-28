@@ -64,6 +64,8 @@ class ProfileFollowActivity : ComponentActivity() {
                     )
                 }
             ) {
+                val pagerState = rememberPagerState()
+                val coroutineScope = rememberCoroutineScope()
                 Column(
                     modifier = Modifier
                         .padding(it)
@@ -72,15 +74,14 @@ class ProfileFollowActivity : ComponentActivity() {
                 ) {
                     TopBar(
                         title = "팔로우",
-                        titleIcon = R.drawable.ic_arrow_left,
-                        titleIconOnClick = { finish() }
+                        titleIcon = R.drawable.ic_arrow_left_bold,
+                        titleIconOnClick = { finish() },
+                        bottomLine = false
                     )
-
-                    val pagerState = rememberPagerState()
-                    val coroutineScope = rememberCoroutineScope()
-
                     TabRow(
                         selectedTabIndex = pagerState.currentPage,
+                        backgroundColor = Color.White,
+                        contentColor = moduBlack,
                         indicator = { tabPositions ->
                             TabRowDefaults.Indicator(
                                 Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
@@ -90,28 +91,22 @@ class ProfileFollowActivity : ComponentActivity() {
                     ) {
                         pages.forEachIndexed { index, title ->
                             Tab(
+                                text = {
+                                    Text(
+                                        text = title,
+                                        fontSize = 16.sp,
+                                        color =
+                                        if(pagerState.currentPage == index) moduBlack
+                                        else moduGray_strong
+                                    )
+                                },
                                 selected = pagerState.currentPage == index,
                                 onClick = {
                                     coroutineScope.launch {
-                                        pagerState.scrollToPage(index)
+                                        pagerState.animateScrollToPage(index)
                                     }
-                                },
-                                modifier = Modifier
-                                    .height(50.dp)
-                                    .background(Color.White)
-                            ) {
-                                Text(
-                                    text = title,
-                                    style = TextStyle(
-                                        color = Color.Black,
-                                        fontWeight =
-                                        if (pagerState.currentPage == index)
-                                            FontWeight.Bold
-                                        else
-                                            FontWeight.Normal
-                                    )
-                                )
-                            }
+                                }
+                            )
                         }
                     }
 
