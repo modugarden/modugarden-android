@@ -90,7 +90,7 @@ import java.time.LocalDateTime
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun PostContentScreen(navController: NavHostController, data:FollowPost) {
-    val order: PagerState = rememberPagerState()//뷰페이저, 인디케이터 페이지 상태 변수
+    val pagerState= rememberPagerState()//뷰페이저, 인디케이터 페이지 상태 변수
     val scrollState = rememberScrollState()//스크롤 상태 변수
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
@@ -306,16 +306,13 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                 .fillMaxSize()
                 .background(moduBackground)) {
                 Column {
-                        Box() {
                             // 포스트 카드 이미지 슬라이드
+                    Box{
                             HorizontalPager(
+                                modifier = Modifier.wrapContentSize(),
                                 count = data.image.size,
-                                state = order,
-                                modifier = Modifier
-                                    .align(Alignment.TopCenter),
+                                state = pagerState,
                             ) { page ->
-                                Column()
-                                {
                                     GlideImage(
                                         imageModel = data.image[page],
                                         contentDescription = null,
@@ -324,142 +321,143 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                                             .fillMaxWidth()
                                             .aspectRatio(1f),
                                     )
-                                    // 포스트 작성자 영역
-                                    Column(
-                                        modifier = Modifier
-                                            .background(Color.White)
-                                    ) {
-                                        Row(modifier = Modifier
-                                            .padding(25.dp, 18.dp)
-                                            .bounceClick {
-                                                //  포스트 작성자 프로필로
-                                            }
-                                        )
-                                        {
-                                            // 작성자 프로필 사진
-                                            Image(
-                                                painter = painterResource(id = R.drawable.ic_user),
-                                                contentDescription = "",
-                                                modifier = Modifier
-                                                    .size(45.dp)
-                                                    .clip(CircleShape),
-                                                contentScale = ContentScale.Crop
-                                            )
-                                            Spacer(modifier = Modifier.width(18.dp))
-                                            Column(
-                                                modifier = Modifier
-                                                    .align(Alignment.CenterVertically)
-                                            ) {
-                                                // 작성자 아이디
-                                                Text(
-                                                    text = data.writer.name,
-                                                    style = moduBold,
-                                                    fontSize = 14.sp,
-                                                )
-                                                // 작성자 카테고리
-                                                Text(
-                                                    text = data.writer.category.toString(),
-                                                    fontSize = 12.sp,
-                                                    color = moduGray_strong
-                                                )
-                                            }
-                                            Column(
-                                                modifier =
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .align(Alignment.CenterVertically),
-                                                horizontalAlignment = Alignment.End
-                                            ) {
-                                                //팔로우 버튼
-                                                Card(
-                                                    modifier = Modifier
-                                                        .clip(RoundedCornerShape(7.dp))
-                                                        .bounceClick {
-                                                            // 누르면 스낵바 메세지 띄워짐
-                                                            scope.launch {
-                                                                snackbarHostState.showSnackbar(
-                                                                    "${data.writer.name} 님을 팔로우 하였습니다.",
-                                                                    duration = SnackbarDuration.Short
-                                                                )
-                                                            }
-                                                        },
-                                                    backgroundColor = moduPoint
-                                                ) {
-                                                    Text(
-                                                        modifier = Modifier.padding(15.dp, 8.dp),
-                                                        text = "팔로우",
-                                                        color = Color.White,
-                                                        fontWeight = FontWeight.Bold,
-                                                        fontSize = 13.sp
-                                                    )
-                                                }
-                                            }
-
-                                        }
-                                    }
-                                    // 구분선
-                                    Divider(
-                                        color = moduGray_light, modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(1.dp)
-                                    )
-                                    // 제목, 카테고리, 업로드 시간
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .background(Color.White)
-                                            .padding(25.dp, 18.dp)
-                                            .verticalScroll(scrollState)
-                                    ) {
-                                        Text(
-                                            data.title,
-                                            fontSize = 20.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color("#17291F".toColorInt())
-                                        )
-                                        Row(modifier = Modifier.fillMaxWidth()) {
-                                            Text(
-                                                data.category.component1() + " ∙ ",
-                                                fontSize = 14.sp,
-                                                color = Color("#75807A".toColorInt())
-                                            )
-                                            Text(
-                                                data.time,
-                                                fontSize = 14.sp,
-                                                color = Color("#75807A".toColorInt())
-                                            )
-                                        }
-                                        Column(modifier = Modifier.padding(vertical = 25.dp))
-                                        {
-                                            Text(text = data.description[page], fontSize = 16.sp)
-                                        }
-                                    }
-                                }
-
-
-
                             }
-                            // 포스트 카드 이미지 슬라이드 인디케이터
-                            DotsIndicator(
-                                modifier = Modifier
-                                    .aspectRatio(1f)
-                                    .background(
-                                        brush = Brush.verticalGradient(
-                                            colors = listOf(
-                                                moduBlack.copy(alpha = 0f),
-                                                moduBlack.copy(alpha = 0.2f)
-                                            )
+                        // 포스트 카드 이미지 슬라이드 인디케이터
+                        DotsIndicator(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.BottomCenter)
+                                .background(
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(
+                                            moduBlack.copy(alpha = 0f),
+                                            moduBlack.copy(alpha = 0.2f)
                                         )
                                     )
-                                    .padding(bottom = 30.dp),
-                                dotSize = 8,
-                                dotPadding = 5,
-                                totalDots = data.image.size,
-                                selectedIndex = order.currentPage,
-                                selectedColor = Color.White,
-                                unSelectedColor = Color("#75FFFFFF".toColorInt())
+                                )
+                                .padding(bottom = 30.dp),
+                            dotSize = 8,
+                            dotPadding = 5,
+                            totalDots = data.image.size,
+                            selectedIndex = pagerState.currentPage,
+                            selectedColor = Color.White,
+                            unSelectedColor = Color("#75FFFFFF".toColorInt())
+                        )
+
+                    }
+                    // 포스트 작성자 영역
+                    Column(
+                        modifier = Modifier
+                            .background(Color.White)
+                    ) {
+                        Row(modifier = Modifier
+                            .padding(25.dp, 18.dp)
+                            .bounceClick {
+                                //  포스트 작성자 프로필로
+                            }
+                        )
+                        {
+                            // 작성자 프로필 사진
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_user),
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .size(45.dp)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
                             )
+                            Spacer(modifier = Modifier.width(18.dp))
+                            Column(
+                                modifier = Modifier
+                                    .align(Alignment.CenterVertically)
+                            ) {
+                                // 작성자 아이디
+                                Text(
+                                    text = data.writer.name,
+                                    style = moduBold,
+                                    fontSize = 14.sp,
+                                )
+                                // 작성자 카테고리
+                                Text(
+                                    text = data.writer.category.toString(),
+                                    fontSize = 12.sp,
+                                    color = moduGray_strong
+                                )
+                            }
+                            Column(
+                                modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.CenterVertically),
+                                horizontalAlignment = Alignment.End
+                            ) {
+                                //팔로우 버튼
+                                Card(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(7.dp))
+                                        .bounceClick {
+                                            // 누르면 스낵바 메세지 띄워짐
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    "${data.writer.name} 님을 팔로우 하였습니다.",
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
+                                        },
+                                    backgroundColor = moduPoint
+                                ) {
+                                    Text(
+                                        modifier = Modifier.padding(15.dp, 8.dp),
+                                        text = "팔로우",
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 13.sp
+                                    )
+                                }
+                            }
+
                         }
+                    }
+                    // 구분선
+                    Divider(
+                        color = moduGray_light, modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                    )
+                    HorizontalPager(
+                        count = data.image.size,
+                        state = pagerState){page -> // 제목, 카테고리, 업로드 시간
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.White)
+                                .padding(25.dp, 18.dp)
+                                .verticalScroll(scrollState)
+                        ) {
+                            Text(
+                                data.title,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color("#17291F".toColorInt())
+                            )
+                            Row(modifier = Modifier.fillMaxWidth()) {
+                                Text(
+                                    data.category.component1() + " ∙ ",
+                                    fontSize = 14.sp,
+                                    color = Color("#75807A".toColorInt())
+                                )
+                                Text(
+                                    data.time,
+                                    fontSize = 14.sp,
+                                    color = Color("#75807A".toColorInt())
+                                )
+                            }
+                            Column(modifier = Modifier.padding(vertical = 25.dp))
+                            {
+                                Text(text = data.description[page], fontSize = 16.sp)
+                            }
+                        }
+                    }
 
 /*                        // 구분선
                         Divider(color = moduGray_light, modifier = Modifier
@@ -550,6 +548,7 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
 
 
                 }
+
 // 좋아요, 댓글, 스크랩, 더보기
                 Card(
                     modifier = Modifier.align(Alignment.BottomCenter),
