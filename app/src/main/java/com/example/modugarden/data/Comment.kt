@@ -40,8 +40,10 @@ data class Comment(
     @ColumnInfo(name = "mode") val mode: Boolean = false// 댓글인지 답글인지 // true면 답글, false면 댓글
     // /*var userProfile,*//
 ) : Parcelable{
-    @PrimaryKey(autoGenerate = true)
+   @PrimaryKey(autoGenerate = true)
     var id: Int=0//댓글 id,
+    /*@PrimaryKey (autoGenerate = true)
+    var boardId : Int=0*/
 
 }
 
@@ -49,7 +51,7 @@ data class Comment(
 interface CommentDao{
     @Query("SELECT * FROM comment")
     fun getAll() : MutableList<Comment>
-    @Query("SELECT * FROM comment WHERE ")
+   /* @Query("SELECT * FROM comment WHERE id ")*/
 
     @Insert
     fun insert(comment: Comment)
