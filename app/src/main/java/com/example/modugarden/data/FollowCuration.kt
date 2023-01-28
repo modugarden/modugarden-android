@@ -2,9 +2,9 @@ package com.example.modugarden.data
 
 import android.net.Uri
 import android.os.Parcelable
+import androidx.room.PrimaryKey
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
-import kotlinx.parcelize.RawValue
-import java.net.URL
 
 @Parcelize
 data class FollowCuration(
@@ -16,4 +16,8 @@ data class FollowCuration(
     val url : String,
     /*val likesCount : Int, // 좋아요 개수
     val likesList: @RawValue MutableList<User>? // 좋아요 누른 유저들,*/
-    ) : Parcelable
+    ) :Parcelable{
+    @IgnoredOnParcel
+    @PrimaryKey(autoGenerate = true)
+    var id: Int = 0
+    }

@@ -11,7 +11,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.composable
 import com.example.modugarden.R
 import com.example.modugarden.data.followCurations
@@ -59,7 +63,8 @@ fun NavigationGraphBNB(navController: NavHostController) {
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideOutDuration))
             }
         ) { FollowScreen(navController, followPosts, followCurations) }
-        composable(NAV_ROUTE_POSTCONTENT.COMMENT.routeName){ PostContentCommentScreen(navController = navController, commentViewModel = commentViewModel)}
+
+      //코멘트
         composable(
             NAV_ROUTE_BNB.DISCOVER.routeName,
             enterTransition = {
