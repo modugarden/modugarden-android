@@ -1,12 +1,9 @@
 package com.example.modugarden.signup
 
 import android.app.Activity
-import android.graphics.Rect
-import android.view.ViewTreeObserver
-import android.view.WindowInsets
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,23 +12,30 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
+import com.example.modugarden.api.RetrofitApiBuilder
+import com.example.modugarden.api.SignupEmailAuthenticationAPI
+import com.example.modugarden.api.SignupEmailIsDuplicatedAPI
 import com.example.modugarden.data.Signup
+import com.example.modugarden.data.SignupEmailAuthenticationDTO
+import com.example.modugarden.data.SignupEmailIsDuplicated
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.SignupViewModel
+import com.google.gson.JsonObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.create
 
 @Composable
 fun SignupEmailScreen(navController: NavHostController, data: Signup, signupViewModel: SignupViewModel) {
@@ -80,9 +84,76 @@ fun SignupEmailScreen(navController: NavHostController, data: Signup, signupView
                                 .matcher(textFieldMail.value)
                                 .matches()
                         ) {
-                            certNumber = "123456" //인증번호 생성 API에서 반환된 값을 저장하여 '이메일 인증' 화면으로 넘긴다.
-                            signupViewModel.saveEmail(textFieldMail.value)
-                            navController.navigate(NAV_ROUTE_SIGNUP.EMAIL_CERT.routeName + "/" + certNumber + "/${textFieldMail.value}")
+                            val jsonData = JsonObject().apply {
+                                addProperty("email", textFieldMail.value)
+                            }
+                            val SignupEmailIsDuplicated = RetrofitApiBuilder.retrofit.create(SignupEmailIsDuplicatedAPI::class.java)
+                            SignupEmailIsDuplicated.getSignupEmailIsDuplicatedAPI(jsonData)
+                                .enqueue(object: Callback<SignupEmailIsDuplicated> {
+                                    override fun onResponse(
+                                        call: Call<SignupEmailIsDuplicated>,
+                                        response: Response<SignupEmailIsDuplicated>
+                                    ) {
+                                        if(response.isSuccessful) {
+                                            val res = response.body()
+                                            if(res != null) {
+                                                if(!(res.result.duplicate)) {
+                                                    signupViewModel.saveEmail(textFieldMail.value)
+                                                    val SignupEmailAuthenticationAPI = RetrofitApiBuilder.retrofit.create(SignupEmailAuthenticationAPI::class.java) //해당 이메일로 인증번호 생성 후 전송
+                                                    val authJson = JsonObject().apply {
+                                                        addProperty("email", textFieldMail.value)
+                                                    }
+                                                    SignupEmailAuthenticationAPI.signupEmailAuthentication(authJson)
+                                                        .enqueue(object: Callback<SignupEmailAuthenticationDTO> {
+                                                            override fun onResponse(
+                                                                call: Call<SignupEmailAuthenticationDTO>,
+                                                                response: Response<SignupEmailAuthenticationDTO>
+                                                            ) {
+                                                                Log.d("apires", response.body().toString())
+                                                                if(response.isSuccessful) {
+                                                                    val res = response.body()
+                                                                    if(res != null) {
+                                                                        if(res.isSuccess) {
+                                                                            signupViewModel.saveCert(res.result.authCode)
+                                                                            navController.navigate(NAV_ROUTE_SIGNUP.EMAIL_CERT.routeName)
+                                                                        }
+                                                                    }
+                                                                    else {
+                                                                        Toast.makeText(mContext, "인증번호를 보내지 못했어요", Toast.LENGTH_SHORT).show()
+                                                                    }
+                                                                }
+                                                                else {
+                                                                    Toast.makeText(mContext, "인증번호를 받지 못했어요", Toast.LENGTH_SHORT).show()
+                                                                }
+                                                            }
+
+                                                            override fun onFailure(
+                                                                call: Call<SignupEmailAuthenticationDTO>,
+                                                                t: Throwable
+                                                            ) {
+                                                                Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                                                            }
+
+                                                        })
+                                                }
+                                                else {
+                                                    Toast.makeText(mContext, "중복된 이메일이에요", Toast.LENGTH_SHORT).show()
+                                                }
+                                            }
+                                        }
+                                        else {
+                                            Toast.makeText(mContext, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+
+                                    override fun onFailure(
+                                        call: Call<SignupEmailIsDuplicated>,
+                                        t: Throwable
+                                    ) {
+                                        Toast.makeText(mContext, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
+                                    }
+
+                                })
                         } else {
                             isTextFieldError.value = true
                             textFieldDescription.value = "이메일 형식에 맞게 입력해야 해요"

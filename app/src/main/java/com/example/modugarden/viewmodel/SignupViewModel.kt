@@ -13,6 +13,7 @@ class SignupViewModel: ViewModel() {
     private val inBirthday = mutableStateOf("20/12/2003")
     private val inCategory = mutableStateOf(listOf<Boolean>())
     private val inSocial = mutableStateOf(false)
+    private val inCert = mutableStateOf("!!!")
 
     fun saveEmail(email: String) {
         inEmail.value = email
@@ -35,7 +36,10 @@ class SignupViewModel: ViewModel() {
     fun saveSocial(social: Boolean) {
         inSocial.value = social
     }
+    fun saveCert(cert: String) {
+        inCert.value = cert
+    }
     fun getAllData(): Signup {
-        return Signup(inEmail.value, inPassword.value, inIsTermsCheck.value, inName.value, inBirthday.value, inCategory.value, inSocial.value)
+        return Signup(inEmail.value, inPassword.value, inIsTermsCheck.value, inName.value, inBirthday.value, inCategory.value, inSocial.value, inCert.value)
     }
 }

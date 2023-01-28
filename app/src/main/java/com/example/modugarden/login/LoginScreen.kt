@@ -3,6 +3,7 @@ package com.example.modugarden.login
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.ManagedActivityResultLauncher
@@ -10,6 +11,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -37,19 +39,34 @@ import com.example.modugarden.MainActivity
 import com.example.modugarden.signup.SignupActivity
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.R
+import com.example.modugarden.api.LoginAPI
+import com.example.modugarden.api.LoginDTO
+import com.example.modugarden.api.RetrofitBuilder.loginAPI
+import com.example.modugarden.api.RetrofitBuilder.signupEmailAuthenticationAPI
+import com.example.modugarden.api.RetrofitBuilder.signupEmailIsDuplicatedAPI
+import com.example.modugarden.data.SignupEmailAuthenticationDTO
+import com.example.modugarden.data.SignupEmailIsDuplicatedDTO
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.viewmodel.SignupViewModel
+import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.gson.JsonObject
+import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.create
 
 @Composable
 fun MainLoginScreen(navController: NavController) {
@@ -68,21 +85,51 @@ fun MainLoginScreen(navController: NavController) {
             //만약 로그인 한 이메일이 등록되지 않은 이메일이면 회원 가입 창으로 전환.
             //이메일 중복 체크 API 불러오기.
             //if(user?.email.state == 중복) //로그인 한 이메일이 동록된 이메일임.
-            if(user?.email == "k0278kim@gachon.ac.kr") { //로그인 한 이메일이 등록된 이메일일 때.
-                mContext.startActivity(
-                    Intent(mContext, MainActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                )
+            val jsonData = JsonObject().apply {
+                addProperty("email", user?.email)
             }
-            else { //로그인 한 이메일이 등록되지 않은 이메일일 때,
-                val intent = Intent(mContext, SignupActivity::class.java)
-                intent.putExtra("social", true)
-                intent.putExtra("social_email", user?.email)
-                intent.putExtra("social_name", user?.displayName)
-                mContext.startActivity(intent)
-            }
+            signupEmailIsDuplicatedAPI.getSignupEmailIsDuplicatedAPI(jsonData).enqueue(object: Callback<SignupEmailIsDuplicatedDTO> {
+                override fun onResponse(
+                    call: Call<SignupEmailIsDuplicatedDTO>,
+                    response: Response<SignupEmailIsDuplicatedDTO>
+                ) {
+                    if(response.isSuccessful) {
+                        val res = response.body()
+                        if(res != null) {
+                            if(res.isSuccess) {
+                                if(!(res.result.duplicate)) {
+                                    val intent = Intent(mContext, SignupActivity::class.java)
+                                    intent.putExtra("social", true)
+                                    intent.putExtra("social_email", user?.email)
+                                    intent.putExtra("social_name", user?.displayName)
+                                    mContext.startActivity(intent)
+                                }
+                                else {
+                                    mContext.startActivity(
+                                        Intent(mContext, MainActivity::class.java)
+                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                    )
+                                }
+                            }
+                            else {
+                                Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        else {
+                            Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    else {
+                        Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<SignupEmailIsDuplicatedDTO>, t: Throwable) {
+                    Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                }
+            })
         },
         onAuthError = {
             user = null
@@ -114,12 +161,46 @@ fun MainLoginScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .bounceClick {
-                        mContext.startActivity(
-                            Intent(mContext, MainActivity::class.java)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        )
+                        val jsonObject = JsonObject().apply {
+                            addProperty("email", textFieldId.value)
+                            addProperty("password", textFieldPw.value)
+                        }
+                        loginAPI.login(jsonObject)
+                            .enqueue(object: retrofit2.Callback<LoginDTO> {
+                                override fun onResponse(
+                                    call: Call<LoginDTO>,
+                                    response: Response<LoginDTO>
+                                ) {
+                                    if(response.isSuccessful) {
+                                        val res = response.body()
+                                        if(res != null) {
+                                            Log.e("apires", res.message)
+                                            if(res.isSuccess) {
+                                                mContext.startActivity(
+                                                    Intent(mContext, MainActivity::class.java)
+                                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                                )
+                                            }
+                                            else {
+                                                Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                        else {
+                                            Toast.makeText(mContext, "정보를 정상적으로 받지 못했어요", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                    else {
+                                        Log.e("apires", "....;")
+                                    }
+                                }
+
+                                override fun onFailure(call: Call<LoginDTO>, t: Throwable) {
+                                    Log.e("apires", t.message.toString())
+                                }
+
+                            })
                     },
                 backgroundColor = moduPoint,
                 shape = RoundedCornerShape(10.dp),
@@ -137,11 +218,12 @@ fun MainLoginScreen(navController: NavController) {
                 )
             }
             Spacer(modifier = Modifier.height(50.dp))
-            Text("소셜 로그인/회원가입", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduBlack)
+            Text("소셜 계정", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduBlack)
             Spacer(Modifier.size(18.dp))
             Card(
                 shape = RoundedCornerShape(15.dp),
-                backgroundColor = moduBackground,
+                backgroundColor = Color.White,
+                border = BorderStroke(1.dp, moduGray_light),
                 elevation = 0.dp,
                 modifier = Modifier
                     .bounceClick {
@@ -160,8 +242,8 @@ fun MainLoginScreen(navController: NavController) {
                 Row(
                     Modifier.padding(18.dp)
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.google_icon),
+                    GlideImage(
+                        imageModel = if(user != null) user?.photoUrl else R.drawable.google_icon,
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
@@ -173,7 +255,7 @@ fun MainLoginScreen(navController: NavController) {
                         Modifier.align(Alignment.CenterVertically)
                     ) {
                         Text(
-                            if (user != null) "${user?.email}" else "구글 계정",
+                            if (user != null) "${user?.displayName}" else "구글 계정",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             color = moduBlack,

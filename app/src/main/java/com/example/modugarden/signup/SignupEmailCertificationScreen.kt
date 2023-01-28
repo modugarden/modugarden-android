@@ -24,14 +24,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
+import com.example.modugarden.api.RetrofitBuilder.signupAPI
+import com.example.modugarden.api.RetrofitBuilder.signupEmailAuthenticationAPI
+import com.example.modugarden.api.SignupAPI
+import com.example.modugarden.api.SignupEmailAuthenticationAPI
 import com.example.modugarden.data.Signup
+import com.example.modugarden.data.SignupEmailAuthenticationDTO
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.SignupViewModel
+import com.google.gson.JsonObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @Composable
-fun SignupEmailCertificationScreen(navController: NavHostController, certNumber: String, data: Signup, signupViewModel: SignupViewModel) {
-    val certNumberNow = remember { mutableStateOf(certNumber) }//현재 스크린의 certNumber.
+fun SignupEmailCertificationScreen(navController: NavHostController, data: Signup, signupViewModel: SignupViewModel) {
+    val certNumberNow = remember { mutableStateOf(data.cert) }//현재 스크린의 certNumber.
     val textFieldCert = remember { mutableStateOf("") }
     val isTextFieldCertFocused = remember { mutableStateOf(false) }
     val isTextFieldError = remember { mutableStateOf(false) } //에러 저장.
@@ -82,7 +91,42 @@ fun SignupEmailCertificationScreen(navController: NavHostController, certNumber:
                         .bounceClick {
                             //이메일로 인증번호 다시 전송하는 API 연결
                             //API 결괏값으로 인증번호 저장.
-                            certNumberNow.value = "000000" //다시 받은 인증번호를 현재 스크린의 인증번호 변수에 저장.
+                            val emailJson = JsonObject().apply {
+                                addProperty("email", data.email)
+                            }
+                            signupEmailAuthenticationAPI.signupEmailAuthentication(emailJson)
+                                .enqueue(object: Callback<SignupEmailAuthenticationDTO> {
+                                    override fun onResponse(
+                                        call: Call<SignupEmailAuthenticationDTO>,
+                                        response: Response<SignupEmailAuthenticationDTO>
+                                    ) {
+                                        Log.d("apires", response.body().toString())
+                                        if(response.isSuccessful) {
+                                            val res = response.body()
+                                            if(res != null) {
+                                                if(res.isSuccess) {
+                                                    signupViewModel.saveCert(res.result.authCode)
+                                                    Toast.makeText(mContext, "인증번호를 다시 보냈어요", Toast.LENGTH_SHORT).show()
+                                                    certNumberNow.value = res.result.authCode
+                                                }
+                                            }
+                                            else {
+                                                Toast.makeText(mContext, "인증번호를 보내지 못했어요", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                        else {
+                                            Toast.makeText(mContext, "인증번호를 받지 못했어요", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+
+                                    override fun onFailure(
+                                        call: Call<SignupEmailAuthenticationDTO>,
+                                        t: Throwable
+                                    ) {
+                                        Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                                    }
+
+                                })
                             Toast.makeText(mContext, "${data.email}로 인증번호를 재전송했어요", Toast.LENGTH_SHORT).show()
                         },
                     backgroundColor = moduBackground,
@@ -98,9 +142,14 @@ fun SignupEmailCertificationScreen(navController: NavHostController, certNumber:
                     .bounceClick {
                         Log.d("certnumber", certNumberNow.value)
                         if (textFieldCert.value != "") {
-                            if (textFieldCert.value == certNumberNow.value) //인증번호와 입력한 값이 맞다면
-                                navController.navigate(NAV_ROUTE_SIGNUP.PASSWORD.routeName+"/${data.email}")
-                            else {
+                            if (textFieldCert.value == certNumberNow.value) {//인증번호와 입력한 값이 맞다면
+                                if ("!" !in textFieldCert.value) {
+                                    navController.navigate(NAV_ROUTE_SIGNUP.PASSWORD.routeName + "/${data.email}")
+                                }
+                                else {
+                                    Toast.makeText(mContext, "느낌표가 들어가면 안돼요", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
                                 isTextFieldError.value = true
                                 textFieldDescription.value = "인증번호가 틀렸어요"
                             }

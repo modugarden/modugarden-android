@@ -7,5 +7,6 @@ data class Signup(
     val name: String,
     val birthday: String,
     val category: List<Boolean>,
-    val social: Boolean
+    val social: Boolean,
+    val cert: String
 )

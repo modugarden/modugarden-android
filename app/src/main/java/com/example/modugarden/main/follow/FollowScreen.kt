@@ -54,7 +54,6 @@ import com.example.modugarden.data.FollowPost
 import com.example.modugarden.data.followCurations
 import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.CategoryItem
-import com.example.modugarden.main.content.modalReportPostType
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
