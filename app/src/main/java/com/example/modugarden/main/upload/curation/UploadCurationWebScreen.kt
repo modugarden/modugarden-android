@@ -22,18 +22,25 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
 import com.example.modugarden.ui.theme.*
+import com.example.modugarden.viewmodel.UploadCurationViewModel
+import com.google.gson.JsonObject
 import kotlinx.coroutines.launch
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.File
 
 @Composable
-fun UploadCurationWebScreen(navController: NavHostController, url: String) {
+fun UploadCurationWebScreen(
+    navController: NavHostController,
+    uploadCurationViewModel: UploadCurationViewModel,
+    url: String
+) {
     val mContext = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }

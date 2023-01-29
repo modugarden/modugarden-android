@@ -54,7 +54,7 @@ fun NavigationGraphUploadCuration(
             )
         ) { backStackEntry ->
             val url = backStackEntry.arguments?.getString("url") ?: ""
-            UploadCurationWebScreen(navController = navController, url = url)
+            UploadCurationWebScreen(navController = navController, uploadCurationViewModel, url = url)
         }
     }
 }
