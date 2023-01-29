@@ -11,22 +11,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
-import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.composable
 import com.example.modugarden.R
 import com.example.modugarden.data.followCurations
 import com.example.modugarden.data.followPosts
-import com.example.modugarden.main.content.PostContentCommentScreen
 import com.example.modugarden.main.discover.DiscoverScreen
-import com.example.modugarden.main.discover.search.DiscoverSearchScreen
 import com.example.modugarden.main.follow.FollowScreen
+import com.example.modugarden.main.follow.FollowingScreen
 import com.example.modugarden.main.notification.NotificationScreen
 import com.example.modugarden.main.profile.MyProfileScreen
-import com.example.modugarden.main.upload.UploadScreen
+import com.example.modugarden.main.profile.myId
+import com.example.modugarden.main.profile.user
+import com.example.modugarden.main.settings.upload.UploadScreen
 import com.example.modugarden.signup.*
 import com.example.modugarden.viewmodel.CommentViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -62,9 +59,10 @@ fun NavigationGraphBNB(navController: NavHostController) {
                 fadeOut(animationSpec = tween(fadeOutDuration)) +
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideOutDuration))
             }
-        ) { FollowScreen(navController, followPosts, followCurations) }
+        ) {
+            FollowScreen(navController, followPosts, followCurations)
+        }
 
-      //코멘트
         composable(
             NAV_ROUTE_BNB.DISCOVER.routeName,
             enterTransition = {
@@ -163,7 +161,7 @@ fun NavigationGraphBNB(navController: NavHostController) {
                 fadeOut(animationSpec = tween(fadeOutDuration)) +
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideOutDuration))
             }
-        ) { MyProfileScreen() }
+        ) { MyProfileScreen(user, myId) }
     }
 }
 

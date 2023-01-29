@@ -39,6 +39,13 @@ import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_strong
+import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun PostContentMapScreen(navController: NavHostController) {
@@ -50,10 +57,28 @@ fun PostContentMapScreen(navController: NavHostController) {
             .addFocusCleaner(focusManager)
     )
     {
+
+        Box {
+            val singapore = LatLng(1.35, 103.87)
+            val cameraPositionState = rememberCameraPositionState {
+                position = CameraPosition.fromLatLngZoom(singapore, 10f)
+            }
+            GoogleMap(
+                Modifier.fillMaxSize(),
+                cameraPositionState = cameraPositionState
+            ){
+                Marker(
+                    state = MarkerState(position = singapore),
+                    title = "Singapore",
+                    snippet = "Marker in Singapore"
+                )
+            }
+        }
         // 상단
         Column(
             modifier = Modifier
                 .background(Color.White)
+                .align(Alignment.TopCenter),
         ) {
             Row(
                 modifier = Modifier

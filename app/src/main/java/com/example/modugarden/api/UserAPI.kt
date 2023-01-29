@@ -8,7 +8,6 @@ import retrofit2.http.Query
 interface UserAPI {
     @GET("/users")
     fun getUserByNickname(
-        @Header("Authorization") authorization: String,
         @Query("nickname") nickname: String
     ): Call<FindByNicknameRes>
 }

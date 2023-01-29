@@ -9,9 +9,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.modugarden.main.upload.curation.UploadCurationImageInfoScreen
-import com.example.modugarden.main.upload.curation.UploadCurationInfoScreen
-import com.example.modugarden.main.upload.curation.UploadCurationWebScreen
+import com.example.modugarden.main.settings.upload.curation.UploadCurationImageInfoScreen
+import com.example.modugarden.main.settings.upload.curation.UploadCurationInfoScreen
+import com.example.modugarden.main.settings.upload.curation.UploadCurationWebScreen
 import com.example.modugarden.viewmodel.UploadCurationViewModel
 
 enum class NAV_ROUTE_UPLOAD_CURATION(val routeName: String, val description: String) { //upload 패키지 루트.

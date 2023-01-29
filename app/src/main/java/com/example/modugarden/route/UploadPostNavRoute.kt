@@ -13,9 +13,14 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import com.google.accompanist.navigation.animation.composable
 import androidx.navigation.navArgument
-import com.example.modugarden.main.upload.curation.UploadCurationInfoScreen
-import com.example.modugarden.main.upload.curation.UploadCurationWebScreen
-import com.example.modugarden.main.upload.post.*
+import com.example.modugarden.main.settings.upload.curation.UploadCurationInfoScreen
+import com.example.modugarden.main.settings.upload.curation.UploadCurationWebScreen
+import com.example.modugarden.main.settings.upload.post.UploadPostImageDetail
+import com.example.modugarden.main.settings.upload.post.UploadPostImageEditScreen
+import com.example.modugarden.main.settings.upload.post.UploadPostImageListScreen
+import com.example.modugarden.main.settings.upload.post.UploadPostInfoScreen
+import com.example.modugarden.main.settings.upload.post.UploadPostTagLocationScreen
+/*import com.example.modugarden.main.upload.post.**/
 import com.example.modugarden.viewmodel.UploadCurationViewModel
 import com.example.modugarden.viewmodel.UploadPostViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost

@@ -3,6 +3,7 @@ package com.example.modugarden.main.content
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -95,9 +96,12 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val modalType = rememberSaveable{ mutableStateOf(0) } // 신고 or 위치 모달 타입 정하는 변수
+
     val activity = (LocalContext.current as? Activity)//액티비티 종료할 때 필요한 변수
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }// 팔로우 스낵바 메세지 상태 변수
+
+    Log.i("board:",data.boardId)
         ModalBottomSheetLayout(
             sheetElevation = 0.dp,
             sheetBackgroundColor = Color.Transparent,
@@ -231,7 +235,7 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                                         modifier = Modifier
                                             .align(Alignment.CenterVertically)
                                     ) {
-                                        Text(text = "Location", style = moduBold, fontSize = 14.sp,)
+                                        Text(text = data.location!![pagerState.currentPage], style = moduBold, fontSize = 14.sp,)
                                         Text(text = "adress", fontSize = 12.sp, color = Color.Gray)
                                     }
 
@@ -276,7 +280,7 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                                         modifier = Modifier
                                             .weight(1f)
                                             .bounceClick {
-                                                navController.navigate(NAV_ROUTE_POSTCONTENT.MAP.routeName)
+                                                navController.navigate("${NAV_ROUTE_POSTCONTENT.MAP.routeName}")
                                             },
                                         shape = RoundedCornerShape(10.dp),
                                         backgroundColor = moduPoint,
@@ -353,13 +357,15 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                         Row(modifier = Modifier
                             .padding(25.dp, 18.dp)
                             .bounceClick {
+                                navController.navigate(NAV_ROUTE_POSTCONTENT.WRITER.routeName)
                                 //  포스트 작성자 프로필로
+
                             }
                         )
                         {
                             // 작성자 프로필 사진
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_user),
+                            GlideImage(
+                                imageModel = data.writer.image,
                                 contentDescription = "",
                                 modifier = Modifier
                                     .size(45.dp)
@@ -432,23 +438,28 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                                 .padding(25.dp, 18.dp)
                                 .verticalScroll(scrollState)
                         ) {
-                            Text(
-                                data.title,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color("#17291F".toColorInt())
-                            )
-                            Row(modifier = Modifier.fillMaxWidth()) {
+                            if(pagerState.currentPage>0) {
                                 Text(
-                                    data.category.component1() + " ∙ ",
-                                    fontSize = 14.sp,
-                                    color = Color("#75807A".toColorInt())
+                                    text = data.title,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = moduBlack
                                 )
-                                Text(
-                                    data.time,
-                                    fontSize = 14.sp,
-                                    color = Color("#75807A".toColorInt())
-                                )
+
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    Text(
+                                        modifier = Modifier.height(20.dp),
+                                        text = data.category.component1() + " ∙ ",
+                                        fontSize = 14.sp,
+                                        color = moduGray_strong
+                                    )
+                                    Text(
+                                        modifier = Modifier.height(20.dp),
+                                        text = "",
+                                        fontSize = 14.sp,
+                                        color = moduGray_strong
+                                    )
+                                }
                             }
                             Column(modifier = Modifier.padding(vertical = 25.dp))
                             {
@@ -457,57 +468,7 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                         }
 
 
-/*                        // 구분선
-                        Divider(color = moduGray_light, modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp))
-                        // 댓글 영역
-                        Column(modifier = Modifier
-                            .background(Color.White)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .padding(18.dp, 18.dp, 18.dp, 0.dp)
-                                    .fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            )
-                            {
-                                Text(text = "댓글", style = moduBold, fontSize = 16.sp)
-                                Spacer(modifier = Modifier.size(10.dp))
-                                // 댓글 갯수
-                                Text(text = "2", color = moduGray_strong, fontSize = 16.sp)
-                                Spacer(modifier = Modifier.weight(1f))
-                                // 댓글 더보기 아이콘
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_chevron_right),
-                                    contentDescription = "프로필 더보기 버튼",
-                                    tint = moduBlack
-                                )
-                            }
-                            Row(
-                                modifier = Modifier
-                                    .padding(18.dp)
-                                    .fillMaxWidth()
-                                    .bounceClick { navController.navigate(NAV_ROUTE_POSTCONTENT.COMMENT.routeName) },
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                // 댓글 작성자 프로필 사진
-                                //API로 받아와야품
-                                Image(
-                                    painter = painterResource(id = R.drawable.ic_user),
-                                    contentDescription = "",
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
-                                )
-                                Spacer(modifier = Modifier.size(10.dp))
-                                // 댓글 내용
-                                Text(text = "comment", color = moduBlack)
-                            }
-                        }
-
-                        // 구분선
+                /*        // 구분선
                         Divider(
                             color = moduGray_light,
                             modifier = Modifier
@@ -541,9 +502,9 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                                 Tagitem(modalType,scope,bottomSheetState)
                             }
 
-                        }*/
+                        }
 
-
+*/
 
                 }
 
@@ -606,7 +567,7 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                         Icon(
                             modifier = Modifier
                                 .padding(horizontal = 18.dp)
-                                .bounceClick { navController.navigate(NAV_ROUTE_POSTCONTENT.COMMENT.routeName) },
+                                .bounceClick { navController.navigate("${NAV_ROUTE_POSTCONTENT.COMMENT.routeName}/${data.boardId}") },
                             painter = painterResource(id = R.drawable.ic_chat_line),
                             contentDescription = "댓글",
                             tint = moduBlack
