@@ -375,13 +375,13 @@ fun MyProfileScreen(data:User,id:Int) {
                                         .background(color = Color.Transparent)
                                         .bounceClick {
                                             RetrofitBuilder.userAPI
-                                                .getUserByNickname(
-                                                    "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkbGRtc3RqcTk5QGdtYWlsLmNvbSIsInJvbGVzIjpbIlJPTEVfR0VORVJBTCJdLCJpYXQiOjE2NzQ4ODQ5ODYsImV4cCI6MTY3NDg4Njc4Nn0.hMxdk8INOCOp_NJiXkwj3QjytFXRW1le_wHvf1Q_4V4",
-                                                    "Mara"
-                                                )
+                                                .getUserByNickname("Mara")
                                                 .enqueue(object : Callback<FindByNicknameRes> {
                                                     override fun onResponse(call: Call<FindByNicknameRes>, response: Response<FindByNicknameRes>) {
-                                                        Log.d(ContentValues.TAG, "onResponse: \n${response.message()}")
+                                                        Log.d(ContentValues.TAG, "onResponse: " +
+                                                                "\n${response.code()}" +
+                                                                "\n${response.body()}" +
+                                                                "\n${response.message()}")
                                                     }
 
                                                     override fun onFailure(call: Call<FindByNicknameRes>, t: Throwable) {
