@@ -101,7 +101,7 @@ fun MainLoginScreen(navController: NavController) {
                                     val intent = Intent(mContext, SignupActivity::class.java)
                                     intent.putExtra("social", true)
                                     intent.putExtra("social_email", user?.email)
-                                    intent.putExtra("social_name", user?.displayName)
+                                    intent.putExtra("social_name", user?.tenantId)
                                     mContext.startActivity(intent)
                                 }
                                 else {
