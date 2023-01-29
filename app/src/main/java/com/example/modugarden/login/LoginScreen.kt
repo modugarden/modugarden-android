@@ -44,6 +44,7 @@ import com.example.modugarden.api.LoginDTO
 import com.example.modugarden.api.RetrofitBuilder.loginAPI
 import com.example.modugarden.api.RetrofitBuilder.signupEmailAuthenticationAPI
 import com.example.modugarden.api.RetrofitBuilder.signupEmailIsDuplicatedAPI
+import com.example.modugarden.api.TokenStore
 import com.example.modugarden.data.SignupEmailAuthenticationDTO
 import com.example.modugarden.data.SignupEmailIsDuplicatedDTO
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
@@ -182,6 +183,8 @@ fun MainLoginScreen(navController: NavController) {
                                                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                                                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                                 )
+                                                TokenStore.accessToken = res.result.accessToken
+                                                TokenStore.refreshToken = res.result.refreshToken
                                             }
                                             else {
                                                 Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
