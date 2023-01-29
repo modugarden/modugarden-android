@@ -438,7 +438,7 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                                 .padding(25.dp, 18.dp)
                                 .verticalScroll(scrollState)
                         ) {
-                            if(pagerState.currentPage>0) {
+                            if(pagerState.currentPage==0) {
                                 Text(
                                     text = data.title,
                                     fontSize = 20.sp,
