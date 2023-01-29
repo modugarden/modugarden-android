@@ -87,20 +87,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-@SuppressLint("UnrememberedMutableState")
 @OptIn( ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun PostContentCommentScreen(navController: NavHostController,
-                             commentViewModel: CommentViewModel) {
+                             commentViewModel: CommentViewModel, id:String) {
+    Log.i("board-",id)
     val commentDB = CommentDataBase.getInstance(LocalContext.current.applicationContext)!! // 댓글 데이터 베이스
-    val comments= remember{ mutableStateOf(commentDB.commentDao().getAll()) } // 댓글 리스트
+
+    val comments= remember{ mutableStateOf(commentDB.commentDao().getComments(id)) } // 댓글 리스트
     val data  :MutableState<Comment>
-            = remember{ mutableStateOf(Comment(userID = "", description = "", time = 0,
+            = remember{ mutableStateOf(Comment(id = UUID.randomUUID().toString(), boardId = "", userID = "", description = "", time = 0,
         isReplying = mutableStateOf(false), parentID = null)) } // 클릭한 댓글 데이터
 
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
     val isTextFieldCommentFocused = remember { mutableStateOf(false) }
-    val isVisible = remember{mutableStateOf(false)}
     val focusManager = LocalFocusManager.current
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
@@ -374,6 +374,8 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                     if (data.value.isReplying.value) {
                                                         commentViewModel.addComment(
                                                             Comment(
+                                                                id = UUID.randomUUID().toString(),
+                                                                boardId = id,
                                                                 userID = "reply",
                                                                 description = textFieldComment.value,
                                                                 time = 1,
@@ -386,6 +388,8 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                     {
                                                         commentViewModel.addComment(
                                                             Comment(
+                                                                id = UUID.randomUUID().toString(),
+                                                                boardId = id,
                                                                 userID = "comment",
                                                                 description = textFieldComment.value,
                                                                 time = 0,

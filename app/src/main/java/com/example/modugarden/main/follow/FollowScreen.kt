@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.layout.rememberLazyNearestItemsRangeState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,8 +31,10 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -54,21 +55,32 @@ import com.example.modugarden.data.FollowPost
 import com.example.modugarden.data.followCurations
 import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.CategoryItem
+import com.example.modugarden.main.content.modalReportPost
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
-import kotlinx.coroutines.launch
+import com.skydoves.landscapist.glide.GlideImage
 
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun FollowScreen(navController: NavHostController,followPosts: List<FollowPost>,followCurations: List<FollowCuration>){
+    val following = 1
+    if (following==1){
+        FollowingScreen(navController = navController, followPosts = followPosts, followCurations = followCurations)
+    }
+    else NoFollowingScreen(navController = navController)
+
+}
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable //팔로우 피드.
-fun FollowScreen(navController: NavHostController, followPosts:List<FollowPost>, followCurations: List<FollowCuration>) {
+fun FollowingScreen(navController: NavHostController, followPosts:List<FollowPost>, followCurations: List<FollowCuration>) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val scrollState = rememberLazyListState()
-    lateinit var data : Any
+    var modalType = rememberSaveable{ mutableStateOf(0) }
 
     ModalBottomSheetLayout(sheetElevation = 0.dp,
         sheetBackgroundColor = Color.Transparent,
@@ -100,9 +112,10 @@ fun FollowScreen(navController: NavHostController, followPosts:List<FollowPost>,
                         Column(
                             modifier = Modifier
                                 .padding(horizontal = 18.dp)
-                        ) {
+                        ) {if (modalType.value== modalReportPost) {
                             Text(text = "포스트 신고", style = moduBold, fontSize = 20.sp)
-                            /*Text(text = "큐레이션 신고", style = moduBold, fontSize = 20.sp)*/
+                        }
+                            else Text(text = "큐레이션 신고", style = moduBold, fontSize = 20.sp)
 
                             Row(
                                 modifier = Modifier
@@ -110,8 +123,8 @@ fun FollowScreen(navController: NavHostController, followPosts:List<FollowPost>,
                                     .padding(vertical = 18.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.ic_user),
+                                GlideImage(
+                                    imageModel = painterResource(id = R.drawable.ic_user),
                                     contentDescription = "",
                                     modifier = Modifier
                                         .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
@@ -191,11 +204,11 @@ fun FollowScreen(navController: NavHostController, followPosts:List<FollowPost>,
                     }
                     //포스트 카드
                     items(followPosts.reversed()){
-                        PostCard(navController, data = it , scope, snackbarHostState, bottomSheetState)}
+                        PostCard(navController, data = it , scope, snackbarHostState, bottomSheetState, modalType)}
 
                     // 큐레이션 카드
                     items(followCurations) {
-                        CurationCard(data = it, scope, snackbarHostState,bottomSheetState) }
+                        CurationCard(data = it, scope, snackbarHostState,bottomSheetState, modalType) }
 
                     // 팔로우 피드 맨 끝
                     item { FollowEndCard(navController) }
@@ -237,8 +250,6 @@ fun FollowScreen(navController: NavHostController, followPosts:List<FollowPost>,
         }
         }
 
-
-
 }
 
 
@@ -247,5 +258,5 @@ fun FollowScreen(navController: NavHostController, followPosts:List<FollowPost>,
 @Composable
 fun FollowPreview(){
     val navController = rememberNavController()
-    FollowScreen(navController, followPosts, followCurations)
+    FollowingScreen(navController, followPosts, followCurations)
 }

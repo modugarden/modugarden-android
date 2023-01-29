@@ -1,4 +1,4 @@
-package com.example.modugarden.main.upload
+package com.example.modugarden.main.settings.upload
 
 import android.app.DatePickerDialog
 import android.content.Intent
@@ -36,8 +36,8 @@ import androidx.navigation.NavHostController
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
 import com.example.modugarden.data.Category
-import com.example.modugarden.main.upload.curation.UploadCurationActivity
-import com.example.modugarden.main.upload.post.UploadPostActivity
+import com.example.modugarden.main.settings.upload.curation.UploadCurationActivity
+import com.example.modugarden.main.settings.upload.post.UploadPostActivity
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
 import com.example.modugarden.ui.theme.*

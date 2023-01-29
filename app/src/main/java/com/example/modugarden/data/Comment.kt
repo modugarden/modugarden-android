@@ -27,32 +27,28 @@ import java.util.UUID
 @TypeConverters(Converters::class)
 @Parcelize
 data class Comment(
-    @ColumnInfo(name = "userID")
+    @PrimaryKey
+    var id: String,
+    @ColumnInfo(name = "boardId")
+    val boardId: String,
     val userID: String? = null, // 댓글 작성자
-    @ColumnInfo(name = "description")
     var description: String? = null, //댓글 내용
-    @ColumnInfo(name = "time")
     var time: Int? = null, //  댓글 작성 및 수정 일시
-    @ColumnInfo(name = "isReplying")
     var isReplying: @RawValue MutableState<Boolean> = mutableStateOf(false),//답글 작성중인지 // true면 작성중
     @ColumnInfo(name = "parentID")
-    val parentID:Int?=null, // 답글을 달 댓글의 id
-    @ColumnInfo(name = "mode") val mode: Boolean = false// 댓글인지 답글인지 // true면 답글, false면 댓글
+    val parentID:String?=null, // 답글을 달 댓글의 id
+    val mode: Boolean = false// 댓글인지 답글인지 // true면 답글, false면 댓글
     // /*var userProfile,*//
 ) : Parcelable{
-   @PrimaryKey(autoGenerate = true)
-    var id: Int=0//댓글 id,
-    /*@PrimaryKey (autoGenerate = true)
-    var boardId : Int=0*/
-
+  //댓글 id,
 }
 
 @Dao
 interface CommentDao{
     @Query("SELECT * FROM comment")
     fun getAll() : MutableList<Comment>
-   /* @Query("SELECT * FROM comment WHERE id ")*/
-
+   @Query("SELECT * FROM comment WHERE boardId = :boardId ")
+   fun getComments(boardId:String) : MutableList<Comment>
     @Insert
     fun insert(comment: Comment)
     @Insert(onConflict = OnConflictStrategy.REPLACE)

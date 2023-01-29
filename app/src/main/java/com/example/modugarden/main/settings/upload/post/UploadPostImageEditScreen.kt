@@ -1,4 +1,4 @@
-package com.example.modugarden.main.upload.post
+package com.example.modugarden.main.settings.upload.post
 
 import android.util.Log
 import androidx.compose.animation.AnimatedContent
