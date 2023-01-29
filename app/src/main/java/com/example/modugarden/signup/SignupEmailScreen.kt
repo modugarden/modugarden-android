@@ -2,6 +2,7 @@ package com.example.modugarden.signup
 
 import android.app.Activity
 import android.util.Log
+import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
@@ -22,12 +23,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
-import com.example.modugarden.api.RetrofitApiBuilder
+import com.example.modugarden.api.RetrofitBuilder.signupEmailAuthenticationAPI
+import com.example.modugarden.api.RetrofitBuilder.signupEmailIsDuplicatedAPI
 import com.example.modugarden.api.SignupEmailAuthenticationAPI
 import com.example.modugarden.api.SignupEmailIsDuplicatedAPI
 import com.example.modugarden.data.Signup
 import com.example.modugarden.data.SignupEmailAuthenticationDTO
-import com.example.modugarden.data.SignupEmailIsDuplicated
+import com.example.modugarden.data.SignupEmailIsDuplicatedDTO
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.SignupViewModel
@@ -80,30 +82,29 @@ fun SignupEmailScreen(navController: NavHostController, data: Signup, signupView
             Card(
                 modifier = Modifier
                     .bounceClick {
-                        if (android.util.Patterns.EMAIL_ADDRESS
+                        if (Patterns.EMAIL_ADDRESS
                                 .matcher(textFieldMail.value)
                                 .matches()
                         ) {
                             val jsonData = JsonObject().apply {
                                 addProperty("email", textFieldMail.value)
                             }
-                            val SignupEmailIsDuplicated = RetrofitApiBuilder.retrofit.create(SignupEmailIsDuplicatedAPI::class.java)
-                            SignupEmailIsDuplicated.getSignupEmailIsDuplicatedAPI(jsonData)
-                                .enqueue(object: Callback<SignupEmailIsDuplicated> {
+                            signupEmailIsDuplicatedAPI
+                                .getSignupEmailIsDuplicatedAPI(jsonData)
+                                .enqueue(object: Callback<SignupEmailIsDuplicatedDTO> {
                                     override fun onResponse(
-                                        call: Call<SignupEmailIsDuplicated>,
-                                        response: Response<SignupEmailIsDuplicated>
+                                        call: Call<SignupEmailIsDuplicatedDTO>,
+                                        response: Response<SignupEmailIsDuplicatedDTO>
                                     ) {
                                         if(response.isSuccessful) {
                                             val res = response.body()
                                             if(res != null) {
                                                 if(!(res.result.duplicate)) {
                                                     signupViewModel.saveEmail(textFieldMail.value)
-                                                    val SignupEmailAuthenticationAPI = RetrofitApiBuilder.retrofit.create(SignupEmailAuthenticationAPI::class.java) //해당 이메일로 인증번호 생성 후 전송
                                                     val authJson = JsonObject().apply {
                                                         addProperty("email", textFieldMail.value)
                                                     }
-                                                    SignupEmailAuthenticationAPI.signupEmailAuthentication(authJson)
+                                                    signupEmailAuthenticationAPI.signupEmailAuthentication(authJson)
                                                         .enqueue(object: Callback<SignupEmailAuthenticationDTO> {
                                                             override fun onResponse(
                                                                 call: Call<SignupEmailAuthenticationDTO>,
@@ -147,7 +148,7 @@ fun SignupEmailScreen(navController: NavHostController, data: Signup, signupView
                                     }
 
                                     override fun onFailure(
-                                        call: Call<SignupEmailIsDuplicated>,
+                                        call: Call<SignupEmailIsDuplicatedDTO>,
                                         t: Throwable
                                     ) {
                                         Toast.makeText(mContext, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
