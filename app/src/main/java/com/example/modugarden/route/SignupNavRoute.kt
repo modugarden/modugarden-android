@@ -58,7 +58,7 @@ fun NavigationGraphSignup(
             },
         ) { SignupEmailScreen(navController, data, signupViewModel) }
         composable(
-            NAV_ROUTE_SIGNUP.EMAIL_CERT.routeName,
+            NAV_ROUTE_SIGNUP.EMAIL_CERT.routeName+"/{certNumber}/{email}",
             enterTransition = {
                               slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
                                       fadeIn(tween(500))
@@ -75,8 +75,14 @@ fun NavigationGraphSignup(
                                 slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
                                         fadeOut(tween(500))
             },
-        ) {
-            SignupEmailCertificationScreen(navController, data, signupViewModel)
+            arguments = listOf(
+                navArgument("certNumber") { type = NavType.StringType },
+                navArgument("email") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val certNumber = backStackEntry.arguments?.getString("certNumber") ?: ""
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            SignupEmailCertificationScreen(navController, certNumber, data, signupViewModel)
         }
         composable(
             NAV_ROUTE_SIGNUP.PASSWORD.routeName+"/{email}",

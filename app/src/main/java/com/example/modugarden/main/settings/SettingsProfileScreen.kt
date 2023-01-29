@@ -41,7 +41,6 @@ import com.bumptech.glide.Glide
 import com.example.modugarden.R
 import com.example.modugarden.main.profile.myId
 import com.example.modugarden.main.profile.user
-import com.example.modugarden.main.profile.userId
 import com.example.modugarden.ui.theme.*
 import com.skydoves.landscapist.glide.GlideImage
 

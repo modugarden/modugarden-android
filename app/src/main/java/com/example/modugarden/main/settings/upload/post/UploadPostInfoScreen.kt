@@ -1,4 +1,4 @@
-package com.example.modugarden.main.upload.post
+package com.example.modugarden.main.settings.upload.post
 
 import android.app.Activity
 import android.content.Intent
@@ -27,7 +27,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.modugarden.data.Category
 import com.example.modugarden.data.UploadPost
-import com.example.modugarden.main.upload.EditTextLikeButton
+import com.example.modugarden.main.settings.upload.EditTextLikeButton
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.UploadPostViewModel
 import com.example.modugarden.R

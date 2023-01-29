@@ -29,6 +29,7 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -57,6 +58,7 @@ import com.example.modugarden.data.FollowPost
 import com.example.modugarden.data.User
 import com.example.modugarden.main.content.CurationContentActivity
 import com.example.modugarden.main.content.PostContentActivity
+import com.example.modugarden.main.content.modalReportCuration
 import com.example.modugarden.main.content.updateTime
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
@@ -71,7 +73,8 @@ import java.time.LocalDateTime
 fun CurationCard(data: FollowCuration,
                  scope: CoroutineScope,
                  snackbarHostState: SnackbarHostState,
-                 bottomSheetState: ModalBottomSheetState
+                 bottomSheetState: ModalBottomSheetState,
+                 modalType: MutableState<Int>
 ) {
     val mContext = LocalContext.current
     Card(
@@ -261,6 +264,7 @@ fun CurationCard(data: FollowCuration,
                 Spacer(modifier = Modifier.weight(1f))
                 // 신고
                     Icon(modifier = Modifier.bounceClick {
+                        modalType.value = modalReportCuration
                         scope.launch {
                         bottomSheetState.animateTo(
                             ModalBottomSheetValue.Expanded)
