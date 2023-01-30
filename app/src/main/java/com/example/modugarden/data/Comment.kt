@@ -28,15 +28,15 @@ import java.util.UUID
 @Parcelize
 data class Comment(
     @PrimaryKey
-    var id: String,
+    var id: Int,
     @ColumnInfo(name = "boardId")
-    val boardId: String,
+    val boardId:Int,
     val userID: String? = null, // 댓글 작성자
     var description: String? = null, //댓글 내용
     var time: Int? = null, //  댓글 작성 및 수정 일시
     var isReplying: @RawValue MutableState<Boolean> = mutableStateOf(false),//답글 작성중인지 // true면 작성중
     @ColumnInfo(name = "parentID")
-    val parentID:String?=null, // 답글을 달 댓글의 id
+    val parentID:Int, // 답글을 달 댓글의 id
     val mode: Boolean = false// 댓글인지 답글인지 // true면 답글, false면 댓글
     // /*var userProfile,*//
 ) : Parcelable{
@@ -48,7 +48,7 @@ interface CommentDao{
     @Query("SELECT * FROM comment")
     fun getAll() : MutableList<Comment>
    @Query("SELECT * FROM comment WHERE boardId = :boardId ")
-   fun getComments(boardId:String) : MutableList<Comment>
+   fun getComments(boardId:Int) : MutableList<Comment>
     @Insert
     fun insert(comment: Comment)
     @Insert(onConflict = OnConflictStrategy.REPLACE)

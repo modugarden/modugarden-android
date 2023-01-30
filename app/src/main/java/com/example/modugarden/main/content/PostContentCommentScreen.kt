@@ -90,14 +90,14 @@ import java.util.UUID
 @OptIn( ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun PostContentCommentScreen(navController: NavHostController,
-                             commentViewModel: CommentViewModel, id:String) {
-    Log.i("board-",id)
+                             commentViewModel: CommentViewModel, id:Int) {
+
     val commentDB = CommentDataBase.getInstance(LocalContext.current.applicationContext)!! // 댓글 데이터 베이스
 
     val comments= remember{ mutableStateOf(commentDB.commentDao().getComments(id)) } // 댓글 리스트
     val data  :MutableState<Comment>
-            = remember{ mutableStateOf(Comment(id = UUID.randomUUID().toString(), boardId = "", userID = "", description = "", time = 0,
-        isReplying = mutableStateOf(false), parentID = null)) } // 클릭한 댓글 데이터
+            = remember{ mutableStateOf(Comment(id = 0, boardId = 0, userID = "", description = "", time = 0,
+        isReplying = mutableStateOf(false), parentID = 0)) } // 클릭한 댓글 데이터
 
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
     val isTextFieldCommentFocused = remember { mutableStateOf(false) }
@@ -374,7 +374,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                     if (data.value.isReplying.value) {
                                                         commentViewModel.addComment(
                                                             Comment(
-                                                                id = UUID.randomUUID().toString(),
+                                                                id = 0,
                                                                 boardId = id,
                                                                 userID = "reply",
                                                                 description = textFieldComment.value,
@@ -388,12 +388,12 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                     {
                                                         commentViewModel.addComment(
                                                             Comment(
-                                                                id = UUID.randomUUID().toString(),
+                                                                id = 1,
                                                                 boardId = id,
                                                                 userID = "comment",
                                                                 description = textFieldComment.value,
                                                                 time = 0,
-                                                                parentID = null,
+                                                                parentID = 1,
                                                                 mode = false
                                                             ), comments, commentDB
                                                         )

@@ -18,7 +18,7 @@ import java.util.UUID
 @Parcelize
 data class FollowPost(
     @PrimaryKey
-    var boardId: String,
+    var boardId: Int,
     val writer : User, // 글 작성자
     val title: String,
     val category: List<String>,
@@ -45,7 +45,7 @@ val dana = User(
 @RequiresApi(Build.VERSION_CODES.O)
 val followPosts = listOf(
     FollowPost(
-        boardId = UUID.randomUUID().toString(),
+        boardId =0,
         writer = dana,
         title = "안녕하세요!",
         category = listOf("식물 가꾸기"),
@@ -61,7 +61,7 @@ val followPosts = listOf(
         comments = null
 ),
     FollowPost(
-        boardId = UUID.randomUUID().toString(),
+        boardId = 1,
         writer = dana,
         title = "두번째 게시물입니다.",
         category = listOf("식물 가꾸기"),

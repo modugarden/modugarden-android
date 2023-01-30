@@ -12,8 +12,8 @@ class PostContentActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val data = intent.getParcelableExtra<FollowPost>("post_data")
-            PostContentNavScreen(data!!)
+                val data = intent.getParcelableExtra<FollowPost>("post_data")
+                PostContentNavScreen(data!!)
         }
     }
 }

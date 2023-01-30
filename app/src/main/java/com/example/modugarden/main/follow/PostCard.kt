@@ -48,6 +48,7 @@ import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.main.content.modalReportPost
 import com.example.modugarden.main.content.updateTime
+import com.example.modugarden.route.NAV_ROUTE_BNB
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
@@ -246,7 +247,7 @@ fun PostCard(navController:NavHostController,
                                        Icon(modifier = Modifier
                                                .padding(end = 18.dp)
                                                .bounceClick {
-                                                       navController.navigate("${NAV_ROUTE_POSTCONTENT.COMMENT.routeName}/${data.boardId}")
+                                                       navController.navigate("${NAV_ROUTE_BNB.COMMENT.routeName}/${data.boardId}")
                                                },
                                                painter = painterResource(id = R.drawable.ic_chat_line),
                                                contentDescription = "댓글",

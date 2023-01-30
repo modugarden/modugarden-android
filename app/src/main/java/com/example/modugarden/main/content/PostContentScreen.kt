@@ -101,7 +101,6 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }// 팔로우 스낵바 메세지 상태 변수
 
-    Log.i("board:",data.boardId)
         ModalBottomSheetLayout(
             sheetElevation = 0.dp,
             sheetBackgroundColor = Color.Transparent,
@@ -567,7 +566,8 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                         Icon(
                             modifier = Modifier
                                 .padding(horizontal = 18.dp)
-                                .bounceClick { navController.navigate("${NAV_ROUTE_POSTCONTENT.COMMENT.routeName}/${data.boardId}") },
+                                .bounceClick {
+                                    navController.navigate("${NAV_ROUTE_POSTCONTENT.COMMENT.routeName}/${data.boardId}") },
                             painter = painterResource(id = R.drawable.ic_chat_line),
                             contentDescription = "댓글",
                             tint = moduBlack
