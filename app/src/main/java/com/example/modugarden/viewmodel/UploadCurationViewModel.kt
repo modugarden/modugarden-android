@@ -28,4 +28,7 @@ class UploadCurationViewModel: ViewModel() {
     fun getAllData(): UploadCuration {
         return UploadCuration(inTitle.value, inCategory.value, inImage.value, inUri.value)
     }
+    fun getInImage():List<Uri> {
+        return inImage.value
+    }
 }

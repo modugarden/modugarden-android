@@ -559,3 +559,17 @@ fun searchTextField(
         }
     }
 }
+
+@Composable
+fun ShowProgressBar() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White.copy(alpha = 0f))
+    ) {
+        CircularProgressIndicator(
+            color = moduPoint,
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
