@@ -19,7 +19,6 @@ import com.example.modugarden.R
 import com.example.modugarden.data.followCurations
 import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.PostContentCommentScreen
-import com.example.modugarden.main.content.PostContentScreen
 import com.example.modugarden.main.discover.DiscoverScreen
 import com.example.modugarden.main.follow.FollowScreen
 import com.example.modugarden.main.notification.NotificationScreen
@@ -67,7 +66,7 @@ fun NavigationGraphBNB(navController: NavHostController,commentViewModel : Comme
 
         composable("${ NAV_ROUTE_BNB.COMMENT.routeName }/{feed_data}", arguments = listOf(navArgument(name="feed_data"){type= NavType.IntType})){
                 backStackEntry ->
-            PostContentCommentScreen(navController,commentViewModel, id = backStackEntry.arguments!!.getInt("feed_data"))
+            PostContentCommentScreen(navController,commentViewModel, boardId = backStackEntry.arguments!!.getInt("feed_data"))
         }
         composable(
             NAV_ROUTE_BNB.DISCOVER.routeName,
