@@ -1,4 +1,4 @@
-package com.example.modugarden.main.settings.upload.curation
+package com.example.modugarden.main.upload.curation
 
 import android.app.Activity
 import androidx.compose.animation.core.animateDpAsState
@@ -25,7 +25,7 @@ import androidx.navigation.NavHostController
 import com.example.modugarden.R
 import com.example.modugarden.data.Category
 import com.example.modugarden.data.UploadCuration
-import com.example.modugarden.main.settings.upload.EditTextLikeButton
+import com.example.modugarden.main.upload.EditTextLikeButton
 import com.example.modugarden.route.NAV_ROUTE_UPLOAD_CURATION
 import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
 import com.example.modugarden.ui.theme.*

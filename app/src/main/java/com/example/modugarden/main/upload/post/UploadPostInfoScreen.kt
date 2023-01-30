@@ -1,7 +1,6 @@
-package com.example.modugarden.main.settings.upload.post
+package com.example.modugarden.main.upload.post
 
 import android.app.Activity
-import android.content.Intent
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,7 +12,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -23,17 +21,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.modugarden.data.Category
 import com.example.modugarden.data.UploadPost
-import com.example.modugarden.main.settings.upload.EditTextLikeButton
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.UploadPostViewModel
 import com.example.modugarden.R
-import com.example.modugarden.main.content.CategoryItem
 import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)

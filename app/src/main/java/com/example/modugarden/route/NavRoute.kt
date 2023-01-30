@@ -22,13 +22,11 @@ import com.example.modugarden.main.content.PostContentCommentScreen
 import com.example.modugarden.main.content.PostContentScreen
 import com.example.modugarden.main.discover.DiscoverScreen
 import com.example.modugarden.main.follow.FollowScreen
-import com.example.modugarden.main.follow.FollowingScreen
 import com.example.modugarden.main.notification.NotificationScreen
 import com.example.modugarden.main.profile.MyProfileScreen
 import com.example.modugarden.main.profile.myId
 import com.example.modugarden.main.profile.user
-import com.example.modugarden.main.settings.upload.UploadScreen
-import com.example.modugarden.signup.*
+import com.example.modugarden.main.upload.UploadScreen
 import com.example.modugarden.viewmodel.CommentViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 
