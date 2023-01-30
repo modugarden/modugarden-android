@@ -31,7 +31,7 @@ import androidx.navigation.NavHostController
 import com.example.modugarden.R
 import com.example.modugarden.api.CurationUploadResponse
 import com.example.modugarden.api.RetrofitBuilder.curationCreateAPI
-import com.example.modugarden.main.settings.upload.curation.UriUtil.toFile
+import com.example.modugarden.main.upload.curation.UriUtil.toFile
 import com.example.modugarden.ui.theme.BottomButton
 import com.example.modugarden.ui.theme.SnackBar
 import com.example.modugarden.ui.theme.TopBar
