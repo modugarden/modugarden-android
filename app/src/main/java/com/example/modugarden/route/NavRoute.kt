@@ -12,19 +12,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.composable
 import com.example.modugarden.R
 import com.example.modugarden.data.followCurations
 import com.example.modugarden.data.followPosts
+import com.example.modugarden.main.content.PostContentCommentScreen
 import com.example.modugarden.main.discover.DiscoverScreen
 import com.example.modugarden.main.follow.FollowScreen
-import com.example.modugarden.main.follow.FollowingScreen
 import com.example.modugarden.main.notification.NotificationScreen
 import com.example.modugarden.main.profile.MyProfileScreen
 import com.example.modugarden.main.profile.myId
 import com.example.modugarden.main.profile.user
-import com.example.modugarden.main.settings.upload.UploadScreen
-import com.example.modugarden.signup.*
+import com.example.modugarden.main.upload.UploadScreen
 import com.example.modugarden.viewmodel.CommentViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 
@@ -39,16 +40,15 @@ enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val ico
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun NavigationGraphBNB(navController: NavHostController) {
+fun NavigationGraphBNB(navController: NavHostController,commentViewModel : CommentViewModel = viewModel() ) {
 
     val fadeInDuration = 500
     val fadeOutDuration = 50
     val slideInDuration = 200
     val slideOutDuration = 200
-    val commentViewModel : CommentViewModel = viewModel()
+
     AnimatedNavHost(navController, startDestination = NAV_ROUTE_BNB.FOLLOW.routeName,
-        modifier = Modifier.fillMaxSize()
-    ) {
+        modifier = Modifier.fillMaxSize()) {
         composable(
             NAV_ROUTE_BNB.FOLLOW.routeName,
             enterTransition = {
@@ -60,8 +60,8 @@ fun NavigationGraphBNB(navController: NavHostController) {
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideOutDuration))
             }
         ) {
-            FollowScreen(navController, followPosts, followCurations)
-        }
+                backStackEntry ->
+            FollowScreen(navController, followPosts, followCurations) }
 
         composable(
             NAV_ROUTE_BNB.DISCOVER.routeName,

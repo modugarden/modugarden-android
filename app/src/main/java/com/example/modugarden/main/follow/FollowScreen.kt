@@ -64,7 +64,7 @@ import com.skydoves.landscapist.glide.GlideImage
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun FollowScreen(navController: NavHostController,followPosts: List<FollowPost>,followCurations: List<FollowCuration>){
+fun FollowScreen(navController: NavHostController, followPosts: List<FollowPost>, followCurations: List<FollowCuration>){
     val following = 1
     if (following==1){
         FollowingScreen(navController = navController, followPosts = followPosts, followCurations = followCurations)

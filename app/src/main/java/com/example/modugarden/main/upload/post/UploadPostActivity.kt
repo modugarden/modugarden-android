@@ -1,4 +1,4 @@
-package com.example.modugarden.main.settings.upload.post
+package com.example.modugarden.main.upload.post
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

@@ -279,7 +279,12 @@ fun MainLoginScreen(navController: NavController) {
             Card(
                 modifier = Modifier
                     .bounceClick {
-                        mContext.startActivity(Intent(mContext, SignupActivity::class.java))
+                        mContext.startActivity(
+                            Intent(mContext, MainActivity::class.java)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        )
                     }
                     .align(Alignment.CenterHorizontally),
                 backgroundColor = Color.White,

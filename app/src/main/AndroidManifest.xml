@@ -48,10 +48,10 @@
         <activity android:name=".main.content.CurationContentActivity"
             android:windowSoftInputMode="adjustResize"/>
         <activity
-            android:name=".main.settings.upload.post.UploadPostActivity"
+            android:name="com.example.modugarden.main.upload.post.UploadPostActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".main.settings.upload.curation.UploadCurationActivity"
+            android:name="com.example.modugarden.main.upload.curation.UploadCurationActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".main.profile.follow.ProfileFollowActivity"

@@ -3,7 +3,6 @@ package com.example.modugarden.main.follow
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -38,16 +37,14 @@ import androidx.compose.ui.text.font.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.core.graphics.toColorInt
-import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
 import com.example.modugarden.data.FollowPost
-import com.example.modugarden.data.User
 import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.main.content.modalReportPost
-import com.example.modugarden.main.content.updateTime
+import com.example.modugarden.route.NAV_ROUTE_BNB
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
@@ -59,7 +56,6 @@ import com.google.accompanist.pager.rememberPagerState
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable //팔로우 피드에 표시되는 포스트 카드 item.
@@ -95,7 +91,7 @@ fun PostCard(navController:NavHostController,
                                         verticalAlignment = Alignment.CenterVertically
                                 ) {
                                         GlideImage(
-                                                imageModel = data.writer.image,
+                                                imageModel = data.user.image,
                                                 contentDescription = null,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
@@ -104,7 +100,7 @@ fun PostCard(navController:NavHostController,
                                         )
                                         Spacer(modifier = Modifier.width(18.dp))
                                         Text(
-                                                text = data.writer.name,
+                                                text = data.user.name,
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 14.sp,
                                         )
@@ -114,6 +110,7 @@ fun PostCard(navController:NavHostController,
                                         //인텐트로 정보 스크린에 넘겨주기
                                         val intent = Intent(mContext, PostContentActivity::class.java)
                                         intent.putExtra("post_data",data)
+                                        intent.putExtra("run",true)
                                         mContext.startActivity(intent)
                                 })
                                 {       // 포스트 카드 이미지 슬라이드
@@ -219,11 +216,11 @@ fun PostCard(navController:NavHostController,
                                                .bounceClick {
                                                        if (isButtonClickedLike.value) {
                                                                isButtonClickedLike.value = false
-                                                               data.likesCount = data.likesCount + 1
+                                                               data.liKeNum = data.liKeNum + 1
                                                        }
                                                        else {
                                                                isButtonClickedLike.value = true
-                                                               data.likesCount = data.likesCount - 1
+                                                               data.liKeNum = data.liKeNum - 1
                                                        }
 
                                                }
@@ -246,7 +243,16 @@ fun PostCard(navController:NavHostController,
                                        Icon(modifier = Modifier
                                                .padding(end = 18.dp)
                                                .bounceClick {
-                                                       navController.navigate("${NAV_ROUTE_POSTCONTENT.COMMENT.routeName}/${data.boardId}")
+                                                       /*navController.navigate("${NAV_ROUTE_BNB.COMMENT.routeName}/${data.boardId}"){
+                                                               popUpTo(navController.graph.id){
+                                                                       inclusive= true
+                                                               }
+                                                       }*/
+                                                       val intent = Intent(mContext, PostContentActivity::class.java)
+                                                       intent.putExtra("post_data",data)
+                                                       intent.putExtra("run",false)
+                                                       mContext.startActivity(intent)
+
                                                },
                                                painter = painterResource(id = R.drawable.ic_chat_line),
                                                contentDescription = "댓글",

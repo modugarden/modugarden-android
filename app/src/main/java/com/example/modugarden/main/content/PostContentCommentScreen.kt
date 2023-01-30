@@ -1,10 +1,9 @@
 package com.example.modugarden.main.content
 
-import android.annotation.SuppressLint
+import android.app.Activity
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
@@ -46,9 +45,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -72,7 +69,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
 import com.example.modugarden.data.Comment
 import com.example.modugarden.data.CommentDataBase
-import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.ui.theme.addFocusCleaner
 import com.example.modugarden.ui.theme.bounceClick
@@ -85,19 +81,18 @@ import com.example.modugarden.ui.theme.moduPoint
 import com.example.modugarden.viewmodel.CommentViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 @OptIn( ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun PostContentCommentScreen(navController: NavHostController,
-                             commentViewModel: CommentViewModel, id:String) {
-    Log.i("board-",id)
+                             commentViewModel: CommentViewModel, boardId:Int, run: Boolean) {
+
     val commentDB = CommentDataBase.getInstance(LocalContext.current.applicationContext)!! // 댓글 데이터 베이스
 
-    val comments= remember{ mutableStateOf(commentDB.commentDao().getComments(id)) } // 댓글 리스트
+    val comments= remember{ mutableStateOf(commentDB.commentDao().getComments(boardId)) } // 댓글 리스트
     val data  :MutableState<Comment>
-            = remember{ mutableStateOf(Comment(id = UUID.randomUUID().toString(), boardId = "", userID = "", description = "", time = 0,
-        isReplying = mutableStateOf(false), parentID = null)) } // 클릭한 댓글 데이터
+            = remember{ mutableStateOf(Comment(id = 0, boardId = 0, userID = "", description = "", time = 0,
+        isReplying = mutableStateOf(false), parentID = 0)) } // 클릭한 댓글 데이터
 
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
     val isTextFieldCommentFocused = remember { mutableStateOf(false) }
@@ -106,6 +101,7 @@ fun PostContentCommentScreen(navController: NavHostController,
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val showModalSheet = rememberSaveable{ mutableStateOf(false) } // 신고 모달 상태 변수
     val scope = rememberCoroutineScope()
+    val activity = (LocalContext.current as? Activity)//액티비티 종료할 때 필요한 변수
 
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
@@ -218,7 +214,10 @@ fun PostContentCommentScreen(navController: NavHostController,
                                 // 뒤로가기 아이콘 (변경 필요)
                                 Icon(
                                     modifier = Modifier
-                                        .bounceClick { navController.popBackStack() },
+                                        .bounceClick {
+                                            if(run) navController.popBackStack()
+                                            else activity?.finish()
+                                        },
                                     painter = painterResource(id = R.drawable.ic_arrow_left_bold),
                                     contentDescription = "뒤로가기 아이콘", tint = moduBlack
                                 )
@@ -374,8 +373,8 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                     if (data.value.isReplying.value) {
                                                         commentViewModel.addComment(
                                                             Comment(
-                                                                id = UUID.randomUUID().toString(),
-                                                                boardId = id,
+                                                                id = 0,
+                                                                boardId = boardId,
                                                                 userID = "reply",
                                                                 description = textFieldComment.value,
                                                                 time = 1,
@@ -388,12 +387,12 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                     {
                                                         commentViewModel.addComment(
                                                             Comment(
-                                                                id = UUID.randomUUID().toString(),
-                                                                boardId = id,
+                                                                id = 1,
+                                                                boardId = boardId,
                                                                 userID = "comment",
                                                                 description = textFieldComment.value,
                                                                 time = 0,
-                                                                parentID = null,
+                                                                parentID = 1,
                                                                 mode = false
                                                             ), comments, commentDB
                                                         )

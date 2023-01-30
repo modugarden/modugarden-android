@@ -1,4 +1,4 @@
-package com.example.modugarden.main.settings.upload.curation
+package com.example.modugarden.main.upload.curation
 
 import android.app.Activity
 import android.content.Context

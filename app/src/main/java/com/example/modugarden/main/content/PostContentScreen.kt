@@ -3,7 +3,6 @@ package com.example.modugarden.main.content
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -80,12 +79,10 @@ import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.ui.theme.moduPoint
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
@@ -101,7 +98,6 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }// 팔로우 스낵바 메세지 상태 변수
 
-    Log.i("board:",data.boardId)
         ModalBottomSheetLayout(
             sheetElevation = 0.dp,
             sheetBackgroundColor = Color.Transparent,
@@ -365,7 +361,7 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                         {
                             // 작성자 프로필 사진
                             GlideImage(
-                                imageModel = data.writer.image,
+                                imageModel = data.user.image,
                                 contentDescription = "",
                                 modifier = Modifier
                                     .size(45.dp)
@@ -379,13 +375,13 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                             ) {
                                 // 작성자 아이디
                                 Text(
-                                    text = data.writer.name,
+                                    text = data.user.name,
                                     style = moduBold,
                                     fontSize = 14.sp,
                                 )
                                 // 작성자 카테고리
                                 Text(
-                                    text = data.writer.category.toString(),
+                                    text = data.user.category.toString(),
                                     fontSize = 12.sp,
                                     color = moduGray_strong
                                 )
@@ -405,7 +401,7 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                                             // 누르면 스낵바 메세지 띄워짐
                                             scope.launch {
                                                 snackbarHostState.showSnackbar(
-                                                    "${data.writer.name} 님을 팔로우 하였습니다.",
+                                                    "${data.user.name} 님을 팔로우 하였습니다.",
                                                     duration = SnackbarDuration.Short
                                                 )
                                             }
@@ -438,7 +434,7 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                                 .padding(25.dp, 18.dp)
                                 .verticalScroll(scrollState)
                         ) {
-                            if(pagerState.currentPage>0) {
+                            if(pagerState.currentPage==0) {
                                 Text(
                                     text = data.title,
                                     fontSize = 20.sp,
@@ -549,7 +545,7 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                                 moduBlack
 
                         )
-                        Text(text = "${data.likesCount}"+"명", style = moduBold, fontSize = 14.sp)
+                        Text(text = "${data.liKeNum}"+"명", style = moduBold, fontSize = 14.sp)
                         Text(text = "이 좋아해요", color = moduBlack, fontSize = 14.sp)
                         Spacer(modifier = Modifier.weight(1f))
                         Icon(
@@ -567,7 +563,8 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                         Icon(
                             modifier = Modifier
                                 .padding(horizontal = 18.dp)
-                                .bounceClick { navController.navigate("${NAV_ROUTE_POSTCONTENT.COMMENT.routeName}/${data.boardId}") },
+                                .bounceClick {
+                                    navController.navigate("${NAV_ROUTE_POSTCONTENT.COMMENT.routeName}/${data.boardId}") },
                             painter = painterResource(id = R.drawable.ic_chat_line),
                             contentDescription = "댓글",
                             tint = moduBlack

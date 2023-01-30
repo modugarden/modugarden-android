@@ -3,7 +3,6 @@ package com.example.modugarden.main.follow
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -51,22 +50,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
-import androidx.core.net.toUri
 import com.example.modugarden.R
 import com.example.modugarden.data.FollowCuration
-import com.example.modugarden.data.FollowPost
-import com.example.modugarden.data.User
 import com.example.modugarden.main.content.CurationContentActivity
-import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.main.content.modalReportCuration
-import com.example.modugarden.main.content.updateTime
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_light
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable //팔로우 피드에 표시되는 큐레이션 카드 item.
@@ -93,7 +86,7 @@ fun CurationCard(data: FollowCuration,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 GlideImage(
-                    imageModel = data.writer.image,
+                    imageModel = data.user.image,
                     contentDescription = null,
                     modifier = Modifier
                         .size(26.dp)
@@ -102,7 +95,7 @@ fun CurationCard(data: FollowCuration,
                 )
                 Spacer(modifier = Modifier.width(18.dp))
                 Text(
-                    text = data.writer.name,
+                    text = data.user.name,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                 )
@@ -110,7 +103,7 @@ fun CurationCard(data: FollowCuration,
             Column(modifier = Modifier
                 .clickable {
                     val intent = Intent(mContext, CurationContentActivity::class.java)
-                    intent.putExtra("url",data.url)
+                    intent.putExtra("url",data.link)
                     mContext.startActivity(intent)
                 }
             )
@@ -122,7 +115,7 @@ fun CurationCard(data: FollowCuration,
                 ) {
 
                     GlideImage(
-                        imageModel = data.thumbnail_image,
+                        imageModel = data.previewImage,
                         contentDescription = "썸네일",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -133,7 +126,7 @@ fun CurationCard(data: FollowCuration,
                     // 외부 페이지 이동
                     // 이미지 하단 블러처리
                     GlideImage(
-                        imageModel = data.thumbnail_image,
+                        imageModel = data.previewImage,
                         contentDescription = "썸네일",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier

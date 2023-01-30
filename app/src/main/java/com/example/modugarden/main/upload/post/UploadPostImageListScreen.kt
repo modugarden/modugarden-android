@@ -1,4 +1,4 @@
-package com.example.modugarden.main.settings.upload.post
+package com.example.modugarden.main.upload.post
 
 import android.app.Activity
 import android.net.Uri
@@ -10,11 +10,9 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -24,37 +22,26 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
 import com.example.modugarden.data.UploadPost
-import com.example.modugarden.route.NAV_ROUTE_UPLOAD_CURATION
 import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.UploadPostViewModel
 import com.skydoves.landscapist.glide.GlideImage
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable

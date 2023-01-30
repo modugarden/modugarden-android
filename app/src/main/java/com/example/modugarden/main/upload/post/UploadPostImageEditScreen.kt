@@ -1,4 +1,4 @@
-package com.example.modugarden.main.settings.upload.post
+package com.example.modugarden.main.upload.post
 
 import android.util.Log
 import androidx.compose.animation.AnimatedContent
@@ -48,14 +48,10 @@ import com.example.modugarden.viewmodel.UploadPostViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.example.modugarden.R
-import com.example.modugarden.main.follow.DotsIndicator
 import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
 import com.example.modugarden.ui.theme.*
-import com.example.modugarden.ui.theme.EditText
-import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 import com.skydoves.landscapist.glide.GlideImage
-import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalAnimationApi::class)
 @Composable
