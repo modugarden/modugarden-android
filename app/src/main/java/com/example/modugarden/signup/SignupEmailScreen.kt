@@ -26,10 +26,10 @@ import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder.signupEmailAuthenticationAPI
 import com.example.modugarden.api.RetrofitBuilder.signupEmailIsDuplicatedAPI
 import com.example.modugarden.api.SignupEmailAuthenticationAPI
+import com.example.modugarden.api.SignupEmailAuthenticationDTO
 import com.example.modugarden.api.SignupEmailIsDuplicatedAPI
+import com.example.modugarden.api.SignupEmailIsDuplicatedDTO
 import com.example.modugarden.data.Signup
-import com.example.modugarden.data.SignupEmailAuthenticationDTO
-import com.example.modugarden.data.SignupEmailIsDuplicatedDTO
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.SignupViewModel

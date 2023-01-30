@@ -2,6 +2,7 @@ package com.example.modugarden.login
 
 import android.app.Activity
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -44,9 +45,8 @@ import com.example.modugarden.api.LoginDTO
 import com.example.modugarden.api.RetrofitBuilder.loginAPI
 import com.example.modugarden.api.RetrofitBuilder.signupEmailAuthenticationAPI
 import com.example.modugarden.api.RetrofitBuilder.signupEmailIsDuplicatedAPI
+import com.example.modugarden.api.SignupEmailIsDuplicatedDTO
 import com.example.modugarden.api.TokenStore
-import com.example.modugarden.data.SignupEmailAuthenticationDTO
-import com.example.modugarden.data.SignupEmailIsDuplicatedDTO
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.viewmodel.SignupViewModel
 import com.google.android.gms.auth.api.identity.BeginSignInRequest

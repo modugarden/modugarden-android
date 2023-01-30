@@ -1,6 +1,5 @@
 package com.example.modugarden.api
 
-import com.example.modugarden.data.SignupEmailIsDuplicatedDTO
 import com.google.gson.JsonObject
 import retrofit2.Call
 import retrofit2.http.Body

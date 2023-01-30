@@ -32,24 +32,52 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
+import com.example.modugarden.api.RetrofitBuilder.signupNicknameIsDuplicatedAPI
+import com.example.modugarden.api.SignupNicknameIsDuplicatedDTO
 import com.example.modugarden.data.Signup
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.SignupViewModel
+import com.google.gson.JsonObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.*
 
 @Composable
 fun SignupInfoScreen(navController: NavHostController, data: Signup, signupViewModel: SignupViewModel) {
     val textFieldName = remember { mutableStateOf(data.name) } //비밀번호 입력 데이터
     val isTextFieldNameFocused = remember { mutableStateOf(false) }
-    val textFieldBirthday = remember { mutableStateOf(data.birthday) } //비밀번호 확인 입력 데이터
+    val textFieldBirthday = remember { mutableStateOf(data.birthday) }
     val isTextFieldBirthdayFocused = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val keyboard by keyboardAsState()
     val dpScale = animateDpAsState(if(keyboard.toString() == "Closed") 18.dp else 0.dp)
-    val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 10.dp else 0.dp)
+    val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 15.dp else 0.dp)
     val mContext = LocalContext.current
     Log.d("certnumber", "${data.email}/${data.password}")
+    val newData = signupViewModel.getAllData()
+
+    val mCalendar = Calendar.getInstance()
+    val mYear = mCalendar.get(Calendar.YEAR)
+    val mMonth = mCalendar.get(Calendar.MONTH)
+    val mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
+
+    mCalendar.time = Date()
+
+    val mDate = remember { mutableStateOf(data.birthday) }
+    val mDatePickerDialog = DatePickerDialog(
+        mContext,
+        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
+            mDate.value = "$mYear/${mMonth+1}/$mDayOfMonth"
+        }, mYear, mMonth, mDay
+    )
+
+    textFieldBirthday.value = mDate.value
+    Log.d("apires", data.birthday)
+
+    val focusRequester = remember { FocusRequester() }
+
     Box(
         modifier = Modifier
             .background(Color.White)
@@ -79,7 +107,28 @@ fun SignupInfoScreen(navController: NavHostController, data: Signup, signupViewM
                 Spacer(modifier = Modifier.height(40.dp))
                 EditText(title = "닉네임", data = textFieldName, isTextFieldFocused = isTextFieldNameFocused, singleLine = true)
                 Spacer(modifier = Modifier.height(20.dp))
-                EditTextLikeButtonDatePicker(title = "생년월일", data = textFieldBirthday, isTextFieldFocused = isTextFieldBirthdayFocused, data)
+                Column {
+                    Text("생년월일", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = if (isTextFieldBirthdayFocused.value) moduPoint else moduGray_strong)
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Card(
+                        modifier = Modifier
+                            .bounceClick {
+                                mDatePickerDialog.show()
+                            }
+                            .focusRequester(focusRequester)
+                            .fillMaxWidth(),
+                        elevation = 0.dp,
+                        backgroundColor = if(isTextFieldBirthdayFocused.value) moduTextFieldPoint else moduBackground,
+                        shape = RoundedCornerShape(10.dp),
+                    ) {
+                        Text(
+                            "${textFieldBirthday.value.split("/")[0]}년 ${textFieldBirthday.value.split("/")[1]}월 ${textFieldBirthday.value.split("/")[2]}일",
+                            color = moduBlack,
+                            fontSize = 20.sp,
+                            modifier = Modifier.padding(15.dp)
+                        )
+                    }
+                }
             }
             Spacer(modifier = Modifier.weight(1f))
 
@@ -88,9 +137,79 @@ fun SignupInfoScreen(navController: NavHostController, data: Signup, signupViewM
                 modifier = Modifier
                     .bounceClick {
                         if (textFieldName.value != "" && textFieldBirthday.value != "") {
-                            signupViewModel.saveName(textFieldName.value)
-                            signupViewModel.saveBirthday("${textFieldBirthday.value.split(".")[2]}/${textFieldBirthday.value.split(".")[1]}/${textFieldBirthday.value.split(".")[0]}")
-                            navController.navigate(NAV_ROUTE_SIGNUP.CATEGORY.routeName)
+                            val jsonObject = JsonObject()
+                            jsonObject.addProperty("nickname", textFieldName.value)
+                            signupNicknameIsDuplicatedAPI
+                                .signupNicknameIsDuplicatedAPI(jsonObject)
+                                .enqueue(object :
+                                    Callback<SignupNicknameIsDuplicatedDTO> {
+                                    override fun onResponse(
+                                        call: Call<SignupNicknameIsDuplicatedDTO>,
+                                        response: Response<SignupNicknameIsDuplicatedDTO>
+                                    ) {
+                                        if (response.isSuccessful) {
+                                            val res = response.body()
+                                            if (res != null) {
+                                                if (res.isSuccess) {
+                                                    if (!(res.result.isDuplicated)) {
+                                                        signupViewModel.saveName(textFieldName.value)
+                                                        signupViewModel.saveBirthday(textFieldBirthday.value.split("/")[0]+"/"+ textFieldBirthday.value.split("/")[1]+"/"+ textFieldBirthday.value.split("/")[2])
+                                                        Toast
+                                                            .makeText(
+                                                                mContext,
+                                                                data.birthday,
+                                                                Toast.LENGTH_SHORT
+                                                            )
+                                                            .show()
+                                                        navController.navigate(NAV_ROUTE_SIGNUP.CATEGORY.routeName)
+                                                    } else {
+                                                        Toast
+                                                            .makeText(
+                                                                mContext,
+                                                                "다른 사람이 이미 닉네임을 사용중이에요",
+                                                                Toast.LENGTH_SHORT
+                                                            )
+                                                            .show()
+                                                    }
+                                                } else {
+                                                    Toast
+                                                        .makeText(
+                                                            mContext,
+                                                            "서버가 응답하지 않아요",
+                                                            Toast.LENGTH_SHORT
+                                                        )
+                                                        .show()
+                                                }
+                                            } else {
+                                                Toast
+                                                    .makeText(
+                                                        mContext,
+                                                        "서버가 응답하지 않아요",
+                                                        Toast.LENGTH_SHORT
+                                                    )
+                                                    .show()
+                                            }
+                                        } else {
+                                            Toast
+                                                .makeText(
+                                                    mContext,
+                                                    "서버가 응답하지 않아요",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                .show()
+                                        }
+                                    }
+
+                                    override fun onFailure(
+                                        call: Call<SignupNicknameIsDuplicatedDTO>,
+                                        t: Throwable
+                                    ) {
+                                        Toast
+                                            .makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT)
+                                            .show()
+                                    }
+
+                                })
                         }
                     }
                     .padding(dpScale.value)
@@ -120,48 +239,9 @@ fun EditTextLikeButtonDatePicker(
     title: String,
     data: MutableState<String>,
     isTextFieldFocused: MutableState<Boolean>,
-    viewModelData: Signup
+    viewModelData: Signup,
+    viewModel: SignupViewModel
 ) {
-    val mContext = LocalContext.current
-    
-    val mCalendar = Calendar.getInstance()
-    val mYear = mCalendar.get(Calendar.YEAR)
-    val mMonth = mCalendar.get(Calendar.MONTH)
-    val mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
 
-    mCalendar.time = Date()
 
-    val mDate = remember { mutableStateOf(viewModelData.birthday) }
-    val mDatePickerDialog = DatePickerDialog(
-        mContext,
-        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            mDate.value = "$mDayOfMonth/${mMonth+1}/$mYear"
-        }, mYear, mMonth, mDay
-    )
-
-    data.value = "${mDate.value.split("/")[2]}.${mDate.value.split("/")[1]}.${mDate.value.split("/")[0]}"
-
-    val focusRequester = remember { FocusRequester() }
-    Column {
-        Text(title, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = if (isTextFieldFocused.value) moduPoint else moduGray_strong)
-        Spacer(modifier = Modifier.height(5.dp))
-        Card(
-            modifier = Modifier
-                .bounceClick {
-                    mDatePickerDialog.show()
-                }
-                .focusRequester(focusRequester)
-                .fillMaxWidth(),
-            elevation = 0.dp,
-            backgroundColor = if(isTextFieldFocused.value) moduTextFieldPoint else moduBackground,
-            shape = RoundedCornerShape(10.dp),
-        ) {
-            Text(
-                "${data.value.split(".")[0]}년 ${data.value.split(".")[1]}월 ${data.value.split(".")[2]}일",
-                color = moduBlack,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(15.dp)
-            )
-        }
-    }
 }

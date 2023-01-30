@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
 
 object RetrofitBuilder {
     val userAPI: UserAPI
@@ -11,7 +12,8 @@ object RetrofitBuilder {
     val signupAPI: SignupAPI
     val signupEmailAuthenticationAPI: SignupEmailAuthenticationAPI
     val signupEmailIsDuplicatedAPI: SignupEmailIsDuplicatedAPI
-    val  curationCreateAPI: CurationCreateAPI
+    val signupNicknameIsDuplicatedAPI: SignupNicknameIsDuplicatedAPI
+    val curationCreateAPI: CurationCreateAPI
 
     val gson = GsonBuilder().setLenient().create()
 
@@ -36,6 +38,7 @@ object RetrofitBuilder {
         signupAPI = retrofitWithNoInterceptor.create(SignupAPI::class.java)
         signupEmailAuthenticationAPI = retrofitWithNoInterceptor.create(SignupEmailAuthenticationAPI::class.java)
         signupEmailIsDuplicatedAPI = retrofitWithNoInterceptor.create(SignupEmailIsDuplicatedAPI::class.java)
+        signupNicknameIsDuplicatedAPI = retrofitWithNoInterceptor.create(SignupNicknameIsDuplicatedAPI::class.java)
         curationCreateAPI = retrofit.create(CurationCreateAPI::class.java)
     }
 }

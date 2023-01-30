@@ -1,4 +1,4 @@
-package com.example.modugarden.data
+package com.example.modugarden.api
 
 data class SignupEmailIsDuplicatedDTO(
     val code: Int,
