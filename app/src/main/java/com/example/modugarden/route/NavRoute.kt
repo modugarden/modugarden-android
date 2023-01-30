@@ -19,7 +19,6 @@ import com.example.modugarden.R
 import com.example.modugarden.data.followCurations
 import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.PostContentCommentScreen
-import com.example.modugarden.main.content.PostContentScreen
 import com.example.modugarden.main.discover.DiscoverScreen
 import com.example.modugarden.main.follow.FollowScreen
 import com.example.modugarden.main.notification.NotificationScreen
@@ -37,7 +36,6 @@ enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val ico
     UPLOAD("UPLOAD", "업로드", R.drawable.ic_plus_solid),
     NOTIFICATION("NOTIFICATION", "알림", R.drawable.ic_notification),
     MYPROFILE("MYPROFILE", "내 프로필", R.drawable.ic_user),
-    COMMENT("COMMENT","댓글",R.drawable.ic_home)
 }
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalAnimationApi::class)
@@ -65,10 +63,6 @@ fun NavigationGraphBNB(navController: NavHostController,commentViewModel : Comme
                 backStackEntry ->
             FollowScreen(navController, followPosts, followCurations) }
 
-        composable("${ NAV_ROUTE_BNB.COMMENT.routeName }/{feed_data}", arguments = listOf(navArgument(name="feed_data"){type= NavType.IntType})){
-                backStackEntry ->
-            PostContentCommentScreen(navController,commentViewModel, id = backStackEntry.arguments!!.getInt("feed_data"))
-        }
         composable(
             NAV_ROUTE_BNB.DISCOVER.routeName,
             enterTransition = {

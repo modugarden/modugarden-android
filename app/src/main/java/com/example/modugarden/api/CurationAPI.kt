@@ -7,8 +7,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface CurationAPI {
-
-    // 큐레이션 피드 불러오가
+    // 큐레이션 피드 불러오기
     @GET("/curations")
     fun getFeedCuration(
         @Body category :String
@@ -25,4 +24,24 @@ interface CurationAPI {
     fun unlikeCuration(
         @Body curation_id: Int
     ): Call<CurationLikeResponse>
+
+    //큐레이션 좋아요 수
+    @GET("/curations/like/{curation_id}")
+    fun getLikeCuration(
+        @Body curation_id: Int
+    ):Call<CurationLikeResponse>
+
+    //큐레이션 보관
+    @POST("/curations/{curation_id}/storage")
+    fun storeCuration(
+        @Body curation_id: Int
+    ): Call <CurationStoreResponse>
+
+    //큐레이션 보관 취소
+    @DELETE("/curations/{curation_id}/storage")
+    fun storeCancelCuration(
+        @Body curation_id: Int
+    ): Call <CurationStoreResponse>
+
+
 }

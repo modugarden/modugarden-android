@@ -1,18 +1,12 @@
 package com.example.modugarden.route
 
-import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.modugarden.data.Comment
 import com.example.modugarden.data.FollowPost
 import com.example.modugarden.main.content.PostContentCommentScreen
 import com.example.modugarden.main.content.PostContentLocationScreen
@@ -21,7 +15,6 @@ import com.example.modugarden.main.content.PostContentScreen
 import com.example.modugarden.main.profile.MyProfileScreen
 import com.example.modugarden.main.profile.userId
 import com.example.modugarden.viewmodel.CommentViewModel
-import java.util.UUID
 
 //PostContentScreen, PostContentCommentScreen, PostContentMapScreen
 enum class NAV_ROUTE_POSTCONTENT(val routeName: String, val description: String) {
@@ -41,9 +34,8 @@ fun NavigationGraphPostContent(navController: NavHostController,
             , arguments = listOf(navArgument(name="comment_data"){type= NavType.IntType})) {
                 backStackEntry ->
             PostContentCommentScreen(navController,commentViewModel,
-                backStackEntry.arguments!!.getInt("comment_data")
-            ) }
-        composable(NAV_ROUTE_POSTCONTENT.WRITER.routeName){ MyProfileScreen(data = data.writer,userId)}
+                backStackEntry.arguments!!.getInt("comment_data"),true) }
+        composable(NAV_ROUTE_POSTCONTENT.WRITER.routeName){ MyProfileScreen(data = data.user,userId)}
         composable(NAV_ROUTE_POSTCONTENT.LOCATION.routeName) { PostContentLocationScreen(navController) }
         composable(NAV_ROUTE_POSTCONTENT.MAP.routeName) { PostContentMapScreen(navController ) }
     }
