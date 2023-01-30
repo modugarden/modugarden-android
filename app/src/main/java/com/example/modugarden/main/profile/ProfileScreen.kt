@@ -24,7 +24,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.core.net.toUri
 import com.example.modugarden.R
@@ -144,7 +143,10 @@ val user = User(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable //프로필, 인수로 유저의 정보를 받아옴
-fun MyProfileScreen(data:User,id:Int) {
+fun MyProfileScreen(
+    data: User = user,
+    id: Int
+) {
     val focusManager = LocalFocusManager.current
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
@@ -375,7 +377,7 @@ fun MyProfileScreen(data:User,id:Int) {
                                         .background(color = Color.Transparent)
                                         .bounceClick {
                                             RetrofitBuilder.userAPI
-                                                .getUserByNickname("Mara")
+                                                .findByNickname("Mara")
                                                 .enqueue(object : Callback<FindByNicknameRes> {
                                                     override fun onResponse(call: Call<FindByNicknameRes>, response: Response<FindByNicknameRes>) {
                                                         Log.d(ContentValues.TAG, "onResponse: " +

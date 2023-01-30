@@ -11,14 +11,15 @@ object RetrofitBuilder {
     val signupAPI: SignupAPI
     val signupEmailAuthenticationAPI: SignupEmailAuthenticationAPI
     val signupEmailIsDuplicatedAPI: SignupEmailIsDuplicatedAPI
-    val  curationCreateAPI: CurationCreateAPI
+    val curationCreateAPI: CurationCreateAPI
+    val followAPI: FollowAPI
 
     val gson = GsonBuilder().setLenient().create()
 
     init {
         val client = OkHttpClient
             .Builder()
-            .addInterceptor(TokenInterceptor)
+            .addNetworkInterceptor(TokenInterceptor)
 
         val retrofit = Retrofit.Builder()
             .baseUrl("http://3.38.50.190:8080")
@@ -31,11 +32,14 @@ object RetrofitBuilder {
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
 
+
         userAPI = retrofit.create(UserAPI::class.java)
+        curationCreateAPI = retrofit.create(CurationCreateAPI::class.java)
+        followAPI = retrofit.create(FollowAPI::class.java)
+
         loginAPI = retrofitWithNoInterceptor.create(LoginAPI::class.java)
         signupAPI = retrofitWithNoInterceptor.create(SignupAPI::class.java)
         signupEmailAuthenticationAPI = retrofitWithNoInterceptor.create(SignupEmailAuthenticationAPI::class.java)
         signupEmailIsDuplicatedAPI = retrofitWithNoInterceptor.create(SignupEmailIsDuplicatedAPI::class.java)
-        curationCreateAPI = retrofit.create(CurationCreateAPI::class.java)
     }
 }
