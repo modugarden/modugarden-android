@@ -38,10 +38,10 @@ fun NavigationGraphPostContent(navController: NavHostController,
     NavHost(navController = navController, startDestination = NAV_ROUTE_POSTCONTENT.MAIN.routeName) {
         composable(NAV_ROUTE_POSTCONTENT.MAIN.routeName) { PostContentScreen(navController,data) }
         composable("${ NAV_ROUTE_POSTCONTENT.COMMENT.routeName }/{comment_data}"
-            , arguments = listOf(navArgument(name="comment_data"){type= NavType.StringType})) {
+            , arguments = listOf(navArgument(name="comment_data"){type= NavType.IntType})) {
                 backStackEntry ->
             PostContentCommentScreen(navController,commentViewModel,
-                backStackEntry.arguments!!.getString("comment_data").toString()
+                backStackEntry.arguments!!.getInt("comment_data")
             ) }
         composable(NAV_ROUTE_POSTCONTENT.WRITER.routeName){ MyProfileScreen(data = data.writer,userId)}
         composable(NAV_ROUTE_POSTCONTENT.LOCATION.routeName) { PostContentLocationScreen(navController) }
