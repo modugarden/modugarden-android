@@ -11,7 +11,7 @@ interface CurationCreateAPI {
     @Multipart
     @POST("curations")
     fun createCuration(
-        @Part curationCreateRequest: JsonObject,
+        @Part CreateCurationRequest: JsonObject,
         @Part imageFile: MultipartBody.Part
     ): Call<CurationUploadResponse>
 }

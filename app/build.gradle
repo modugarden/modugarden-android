@@ -112,4 +112,10 @@ dependencies {
     // define any required OkHttp artifacts without version
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.squareup.okhttp3:logging-interceptor")
+
+    // optional - Jetpack Compose integration
+    //paging라이브러리
+    implementation("androidx.paging:paging-compose:1.0.0-alpha17")
+
+
 }

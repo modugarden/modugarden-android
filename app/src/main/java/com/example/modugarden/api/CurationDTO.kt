@@ -19,19 +19,14 @@ data class GetFeedCurationContent(
     val userProfileImage: String
 )
 
+//createCuration request바디
 data class CreateCurationRequest(
-    val content: CreateCurationContent,
     val link: String,
-    val title: String
+    val title: String,
+    val category: String
 )
 
-data class CreateCurationContent(
-    val category: String,
-    val createdDate: String,
-    val id: String,
-    val modifiedDate: String
-)
-
+//createCuration 리스폰스 바디
 data class CurationUploadResponse(
     val code: Int,
     val isSuccess: Boolean,
