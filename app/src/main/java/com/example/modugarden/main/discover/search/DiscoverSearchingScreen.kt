@@ -105,7 +105,7 @@ fun DiscoverSearchingScreen(navController: NavHostController) {
             }
             Text(
                 modifier = Modifier
-                    .padding(top = 34.dp, start = 18.dp),
+                    .padding(top = 26.dp, start = 18.dp, bottom = 8.dp),
                 text = "최근 검색어",
                 style = TextStyle(
                     color = moduBlack,

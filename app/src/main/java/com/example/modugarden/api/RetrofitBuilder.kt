@@ -11,6 +11,7 @@ object RetrofitBuilder {
     val signupAPI: SignupAPI
     val signupEmailAuthenticationAPI: SignupEmailAuthenticationAPI
     val signupEmailIsDuplicatedAPI: SignupEmailIsDuplicatedAPI
+    val  curationCreateAPI: CurationCreateAPI
 
     val gson = GsonBuilder().setLenient().create()
 
@@ -35,5 +36,6 @@ object RetrofitBuilder {
         signupAPI = retrofitWithNoInterceptor.create(SignupAPI::class.java)
         signupEmailAuthenticationAPI = retrofitWithNoInterceptor.create(SignupEmailAuthenticationAPI::class.java)
         signupEmailIsDuplicatedAPI = retrofitWithNoInterceptor.create(SignupEmailIsDuplicatedAPI::class.java)
+        curationCreateAPI = retrofit.create(CurationCreateAPI::class.java)
     }
 }
