@@ -14,10 +14,10 @@ interface CommentAPI {
         @Body parentId : Int
     ): Call<CommentDTO>
 
-    @GET("/boards/{board_id}/comments")
+/*    @GET("/boards/{board_id}/comments")
     fun getComments(
         @Body boardId : Int
-    ) : Call<GetCommentsResult>
+    ) : Call<GetCommentsResult>*/
 
     @PATCH("/boards/{board_id}/comments/{comment_id}")
     fun editComment(

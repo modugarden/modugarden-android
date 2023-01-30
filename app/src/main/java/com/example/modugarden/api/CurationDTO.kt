@@ -12,6 +12,17 @@ data class CurationLikeResult(
     val id: Int,
     val likeNum: Int
 )
+data class CurationStoreResponse(
+    val code: Int,
+    val isSuccess: Boolean,
+    val messege :String,
+    val result : CurationStoreResult
+)
+
+data class CurationStoreResult(
+    val curationId: Int,
+    val userId: Int
+)
 
 data class GetFeedCuration(
     val content: GetFeedCurationContent,
