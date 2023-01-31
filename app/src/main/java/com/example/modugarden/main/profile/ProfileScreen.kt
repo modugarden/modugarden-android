@@ -27,7 +27,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.core.net.toUri
 import com.example.modugarden.R
-import com.example.modugarden.api.*
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.*
 import com.example.modugarden.data.CurationCard
 import com.example.modugarden.data.NewUser
 import com.example.modugarden.data.PostCard

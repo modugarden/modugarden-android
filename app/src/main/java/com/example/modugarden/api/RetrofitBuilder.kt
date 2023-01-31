@@ -1,5 +1,6 @@
 package com.example.modugarden.api
 
+import com.example.modugarden.api.api.*
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -9,11 +10,11 @@ object RetrofitBuilder {
     val userAPI: UserAPI
     val loginAPI: LoginAPI
     val signupAPI: SignupAPI
-    val signupEmailAuthenticationAPI: SignupEmailAuthenticationAPI
-    val signupEmailIsDuplicatedAPI: SignupEmailIsDuplicatedAPI
-    val curationCreateAPI: CurationCreateAPI
     val followAPI: FollowAPI
     val curationAPI: CurationAPI
+    val curationCreateAPI: CurationCreateAPI
+    val fcmSaveAPI: FcmSaveAPI
+    val postCreateAPI: PostCreateAPI
 
     val gson = GsonBuilder().setLenient().create()
 
@@ -38,8 +39,8 @@ object RetrofitBuilder {
         followAPI = retrofit.create(FollowAPI::class.java)
         loginAPI = retrofitWithNoInterceptor.create(LoginAPI::class.java)
         signupAPI = retrofitWithNoInterceptor.create(SignupAPI::class.java)
-        signupEmailAuthenticationAPI = retrofitWithNoInterceptor.create(SignupEmailAuthenticationAPI::class.java)
-        signupEmailIsDuplicatedAPI = retrofitWithNoInterceptor.create(SignupEmailIsDuplicatedAPI::class.java)
+        fcmSaveAPI = retrofit.create(FcmSaveAPI::class.java)
+        postCreateAPI = retrofit.create(PostCreateAPI::class.java)
         curationAPI = retrofit.create(CurationAPI::class.java)
     }
 }

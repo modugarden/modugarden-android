@@ -23,13 +23,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
-import com.example.modugarden.api.RetrofitBuilder.signupEmailAuthenticationAPI
-import com.example.modugarden.api.RetrofitBuilder.signupEmailIsDuplicatedAPI
-import com.example.modugarden.api.SignupEmailAuthenticationAPI
-import com.example.modugarden.api.SignupEmailIsDuplicatedAPI
+import com.example.modugarden.api.RetrofitBuilder.signupAPI
+import com.example.modugarden.api.dto.SignupEmailAuthenticationDTO
+import com.example.modugarden.api.dto.SignupEmailIsDuplicatedDTO
 import com.example.modugarden.data.Signup
-import com.example.modugarden.data.SignupEmailAuthenticationDTO
-import com.example.modugarden.data.SignupEmailIsDuplicatedDTO
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.SignupViewModel
@@ -37,7 +34,6 @@ import com.google.gson.JsonObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.create
 
 @Composable
 fun SignupEmailScreen(navController: NavHostController, data: Signup, signupViewModel: SignupViewModel) {
@@ -89,7 +85,7 @@ fun SignupEmailScreen(navController: NavHostController, data: Signup, signupView
                             val jsonData = JsonObject().apply {
                                 addProperty("email", textFieldMail.value)
                             }
-                            signupEmailIsDuplicatedAPI
+                                    signupAPI
                                 .getSignupEmailIsDuplicatedAPI(jsonData)
                                 .enqueue(object: Callback<SignupEmailIsDuplicatedDTO> {
                                     override fun onResponse(
@@ -104,7 +100,7 @@ fun SignupEmailScreen(navController: NavHostController, data: Signup, signupView
                                                     val authJson = JsonObject().apply {
                                                         addProperty("email", textFieldMail.value)
                                                     }
-                                                    signupEmailAuthenticationAPI.signupEmailAuthentication(authJson)
+                                                    signupAPI.signupEmailAuthentication(authJson)
                                                         .enqueue(object: Callback<SignupEmailAuthenticationDTO> {
                                                             override fun onResponse(
                                                                 call: Call<SignupEmailAuthenticationDTO>,

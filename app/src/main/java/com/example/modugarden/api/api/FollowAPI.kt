@@ -1,5 +1,7 @@
-package com.example.modugarden.api;
+package com.example.modugarden.api.api;
 
+import com.example.modugarden.api.dto.FollowDtoRes
+import com.example.modugarden.api.dto.FollowListDtoRes
 import retrofit2.Call
 import retrofit2.http.DELETE
 import retrofit2.http.GET

@@ -10,7 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.modugarden.api.GetFeedCuration
+import com.example.modugarden.api.dto.GetFeedCuration
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.data.Category
 import com.example.modugarden.ui.theme.ShowProgressBar

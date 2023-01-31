@@ -1,5 +1,4 @@
-package com.example.modugarden.data
-
+package com.example.modugarden.api.dto
 data class SignupEmailAuthenticationDTO(
     val code: Int,
     val isSuccess: Boolean,

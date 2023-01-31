@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
-import com.example.modugarden.api.CurationUploadResponse
+import com.example.modugarden.api.dto.CurationUploadResponse
 import com.example.modugarden.api.RetrofitBuilder.curationCreateAPI
 import com.example.modugarden.main.upload.curation.UriUtil.toFile
 import com.example.modugarden.ui.theme.BottomButton
