@@ -161,7 +161,7 @@ fun NavigationGraphBNB(navController: NavHostController,commentViewModel : Comme
                 fadeOut(animationSpec = tween(fadeOutDuration)) +
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideOutDuration))
             }
-        ) { MyProfileScreen(user, myId) }
+        ) { MyProfileScreen() }
     }
 }
 

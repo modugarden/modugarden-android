@@ -183,6 +183,7 @@ fun MainLoginScreen(navController: NavController) {
                                                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                                                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                                 )
+
                                                 TokenStore.accessToken = res.result.accessToken
                                                 TokenStore.refreshToken = res.result.refreshToken
                                             }
