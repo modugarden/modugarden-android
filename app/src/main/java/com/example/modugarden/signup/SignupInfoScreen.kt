@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
-import com.example.modugarden.api.RetrofitBuilder.signupNicknameIsDuplicatedAPI
-import com.example.modugarden.api.SignupNicknameIsDuplicatedDTO
+import com.example.modugarden.api.RetrofitBuilder.signupAPI
+import com.example.modugarden.api.dto.SignupNicknameIsDuplicatedDTO
 import com.example.modugarden.data.Signup
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.*
@@ -139,7 +139,7 @@ fun SignupInfoScreen(navController: NavHostController, data: Signup, signupViewM
                         if (textFieldName.value != "" && textFieldBirthday.value != "") {
                             val jsonObject = JsonObject()
                             jsonObject.addProperty("nickname", textFieldName.value)
-                            signupNicknameIsDuplicatedAPI
+                            signupAPI
                                 .signupNicknameIsDuplicatedAPI(jsonObject)
                                 .enqueue(object :
                                     Callback<SignupNicknameIsDuplicatedDTO> {

@@ -24,8 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
-import com.example.modugarden.api.FollowListDtoRes
-import com.example.modugarden.api.FollowListDtoResContent
+import com.example.modugarden.api.dto.FollowListDtoRes
+import com.example.modugarden.api.dto.FollowListDtoResContent
 import com.example.modugarden.data.User
 
 import com.example.modugarden.ui.theme.*

@@ -1,8 +1,8 @@
-package com.example.modugarden.api
+package com.example.modugarden.api.api
 
+import com.example.modugarden.api.dto.CommentDTO
 import retrofit2.Call
 import retrofit2.http.Body
-import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 

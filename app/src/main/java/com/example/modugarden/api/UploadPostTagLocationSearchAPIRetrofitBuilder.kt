@@ -1,5 +1,6 @@
 package com.example.modugarden.api
 
+import com.example.modugarden.api.api.UploadPostTagLocationSearchAPI
 import com.google.gson.GsonBuilder
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

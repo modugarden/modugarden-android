@@ -1,4 +1,4 @@
-package com.example.modugarden.api
+package com.example.modugarden.api.dto
 
 // 팔로우/언팔로우
 data class FollowDtoRes(
