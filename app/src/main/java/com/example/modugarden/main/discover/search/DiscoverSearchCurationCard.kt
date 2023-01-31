@@ -19,14 +19,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
-import com.example.modugarden.data.CurationCard
+import com.example.modugarden.api.GetFeedCurationContent
+import com.example.modugarden.ui.theme.ShowProgressBar
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
+import com.skydoves.landscapist.glide.GlideImage
 
 
 //포스트, 큐레이션에 표시되는 카드들로 데이터 형식 알려주면 그때 넣겠삼삼
 @Composable
-fun DiscoverSearchCurationCard(curationCard: CurationCard) {
+fun DiscoverSearchCurationCard(curationData: GetFeedCurationContent) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -40,13 +42,21 @@ fun DiscoverSearchCurationCard(curationCard: CurationCard) {
                 .clip(RoundedCornerShape(10.dp))
         ) {
             //큐레이션 카드 이미지
-            Image(
-                painter = painterResource(id = curationCard.thumbnail_image),
-                contentDescription = null,
+
+            GlideImage( // CoilImage, FrescoImage
+                imageModel = curationData.preview_image,
                 modifier = Modifier
                     .size(width = 90.dp, height = 90.dp)
                     .clip(RoundedCornerShape(15.dp)),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                // shows an indicator while loading an image.
+                loading = {
+                    ShowProgressBar()
+                },
+                // shows an error text if fail to load an image.
+                failure = {
+                    Text(text = "image request failed.")
+                }
             )
 
         }
@@ -56,7 +66,7 @@ fun DiscoverSearchCurationCard(curationCard: CurationCard) {
             //타이틀
             Text(
                 modifier = Modifier.width(200.dp),
-                text = curationCard.title,
+                text = curationData.title,
                 style = TextStyle(color = moduBlack,
                     fontWeight = FontWeight(700),
                     fontSize = 14.sp),
@@ -68,7 +78,7 @@ fun DiscoverSearchCurationCard(curationCard: CurationCard) {
             Spacer(modifier = Modifier.height(7.dp))
 
             //시간
-            Text(text = curationCard.time,
+            Text(text = curationData.created_Date.split("T")[0],
                 style = TextStyle(color = Color(0xFF959DA7),
                     fontWeight = FontWeight(400),fontSize = 11.sp)
             )
@@ -88,7 +98,7 @@ fun DiscoverSearchCurationCard(curationCard: CurationCard) {
 
                 Spacer(modifier = Modifier.width(10.dp))
                 //작성자
-                Text(text = curationCard.user,
+                Text(text = curationData.user_nickname,
                     style = TextStyle(color = Color(0xFF252525).copy(alpha = 0.8f),
                         fontWeight = FontWeight(400),fontSize = 11.sp)
                 )

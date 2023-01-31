@@ -1,16 +1,13 @@
 package com.example.modugarden.api
 
 import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.POST
+import retrofit2.http.*
 
 interface CurationAPI {
     // 큐레이션 피드 불러오기
     @GET("/curations")
     fun getFeedCuration(
-        @Body category :String
+        @Query("category") category :String
     ):Call<GetFeedCuration>
 
     // 큐레이션 좋아요 추가
