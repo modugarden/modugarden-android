@@ -24,6 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
+import com.example.modugarden.api.FollowListDtoRes
+import com.example.modugarden.api.FollowListDtoResContent
 import com.example.modugarden.data.User
 
 import com.example.modugarden.ui.theme.*
@@ -34,7 +36,7 @@ import kotlinx.coroutines.launch
 // 팔로잉, 팔로워 프로필 카드
 @Composable
 fun ProfileCard(
-    user: User,
+    user: FollowListDtoResContent,
     onClick: (Boolean) -> Unit = {}
 ) {
     Row(
@@ -45,7 +47,7 @@ fun ProfileCard(
             }
     ) {
         GlideImage(
-            imageModel = user.image,
+            imageModel = user.profileImage,
             contentDescription = null,
             modifier = Modifier
                 .size(50.dp)
@@ -57,7 +59,7 @@ fun ProfileCard(
                 .padding(start = 20.dp, top = 6.dp, bottom = 6.dp)
         )  {
             Text(
-                text = user.name,
+                text = user.nickname,
                 style = TextStyle(
                     color = moduBlack,
                     fontSize = 14.sp,
@@ -66,7 +68,7 @@ fun ProfileCard(
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = user.category.toString(),
+                text = user.categories.toString(),
                 style = TextStyle(
                     color = moduGray_normal,
                     fontSize = 11.sp

@@ -13,7 +13,7 @@ data class FollowDtoResResult(
 )
 // 팔로우/언팔로우 끝
 
-// 타 유저 팔로잉/팔로워 목록
+// 유저 팔로잉/팔로워 목록
 data class FollowListDtoRes(
     val content: List<FollowListDtoResContent>,
     val first: Boolean,
@@ -28,4 +28,4 @@ data class FollowListDtoResContent(
     val profileImage: String,
     val userId: Int
 )
-// 타 유저 팔로잉/팔로워 목록 끝
+// 유저 팔로잉/팔로워 목록 끝

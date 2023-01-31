@@ -18,7 +18,7 @@ interface UserAPI {
 
     @GET("/users/{userId}/info")
     fun readUserInfo(
-        @Path("userId") id: String
+        @Path("userId") id: Int
     ): Call<UserInfoRes>
 
     @PATCH("/users/me/category")
