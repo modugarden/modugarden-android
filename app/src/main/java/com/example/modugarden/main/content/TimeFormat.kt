@@ -6,25 +6,23 @@ import androidx.annotation.RequiresApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.substring
 import androidx.compose.ui.tooling.preview.Preview
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview
-@Composable
-fun ttt(){
-    Text(text = updateTime(LocalDateTime.now()))
-}
 //이거 쓰면됨
 @RequiresApi(Build.VERSION_CODES.O)
-fun updateTime(time:LocalDateTime) : String {
-    return calculationTime(dateTimeToMillSec(time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
+fun timeFomatter (createdTime:String) : String {
+    val date = createdTime.split("T")[0]
+    val time = createdTime.split("T")[1].split(".")[0]
+    val dateTime = "$date $time"
+    return calculationTime(dateTimeToMillSec(dateTime))
 }
 
 @SuppressLint("SimpleDateFormat")
@@ -47,8 +45,11 @@ fun calculationTime(createDateTime: Long): String{
     var value = ""
     val differenceValue = nowDateTime - createDateTime //현재 시간 - 비교가 될 시간
     when {
-        differenceValue < 60000 -> { //59초 보다 적다면
+        differenceValue < 1000 ->{ //1초보다 적다면
             value = "방금 전"
+        }
+        differenceValue < 60000 -> { //59초 보다 적다면
+            value = TimeUnit.MILLISECONDS.toSeconds(differenceValue).toString() + "초 전"
         }
         differenceValue < 3600000 -> { //59분 보다 적다면
             value =  TimeUnit.MILLISECONDS.toMinutes(differenceValue).toString() + "분 전"
