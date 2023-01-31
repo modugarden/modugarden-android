@@ -37,7 +37,7 @@ import retrofit2.Response
 @Composable //회원가입 할 때 카테고리를 묻는 화면.
 fun SignupCategoryScreen(navController: NavHostController, data: Signup, signupViewModel: SignupViewModel) {
     val mContext = LocalContext.current
-    var categoryCheck = remember { mutableStateListOf(false, false, false) }
+    val categoryCheck = remember { mutableStateListOf(false, false, false) }
     Box(
         modifier = Modifier
             .background(Color.White)
