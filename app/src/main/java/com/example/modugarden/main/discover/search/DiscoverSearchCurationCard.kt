@@ -19,7 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
-import com.example.modugarden.api.GetFeedCurationContent
+import com.example.modugarden.api.GetCurationContent
 import com.example.modugarden.ui.theme.ShowProgressBar
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
@@ -28,7 +28,7 @@ import com.skydoves.landscapist.glide.GlideImage
 
 //포스트, 큐레이션에 표시되는 카드들로 데이터 형식 알려주면 그때 넣겠삼삼
 @Composable
-fun DiscoverSearchCurationCard(curationData: GetFeedCurationContent) {
+fun DiscoverSearchCurationCard(curationData: GetCurationContent) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

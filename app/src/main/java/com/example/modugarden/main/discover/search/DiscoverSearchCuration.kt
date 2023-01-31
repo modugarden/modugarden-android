@@ -10,7 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.modugarden.api.GetFeedCuration
+import com.example.modugarden.api.GetCuration
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.data.Category
 import com.example.modugarden.ui.theme.ShowProgressBar
@@ -24,16 +24,16 @@ fun DiscoverSearchCuration(searchCategory: Category){
 
     val context = LocalContext.current
 
-    var responseBody  by remember { mutableStateOf(GetFeedCuration()) }
+    var responseBody  by remember { mutableStateOf(GetCuration()) }
 
     var isLoading by remember { mutableStateOf(true) }
 
     RetrofitBuilder.curationAPI
-        .getFeedCuration(searchCategory.category)
-        .enqueue(object: Callback<GetFeedCuration> {
+        .getCategorySearchCuration(searchCategory.category)
+        .enqueue(object: Callback<GetCuration> {
             override fun onResponse(
-                call: Call<GetFeedCuration>,
-                response: Response<GetFeedCuration>
+                call: Call<GetCuration>,
+                response: Response<GetCuration>
             ) {
                 if(response.isSuccessful) {
                     val res = response.body()
@@ -49,7 +49,7 @@ fun DiscoverSearchCuration(searchCategory: Category){
                 }
             }
 
-            override fun onFailure(call: Call<GetFeedCuration>, t: Throwable) {
+            override fun onFailure(call: Call<GetCuration>, t: Throwable) {
                 Toast.makeText(context, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
 
                 Log.d("upload-result", "왜안됍")

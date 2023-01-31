@@ -24,13 +24,13 @@ data class CurationStoreResult(
     val userId: Int
 )
 
-data class GetFeedCuration(
-    val content: List<GetFeedCurationContent>? = null,
+data class GetCuration(
+    val content: List<GetCurationContent>? = null,
     val first: Boolean? = null,
     val hasNext: Boolean? = null,
     val last: Boolean? = null
 )
-data class GetFeedCurationContent(
+data class GetCurationContent(
     val id: Int,
     val title: String,
     val link: String,
@@ -65,7 +65,7 @@ data class GetCurationResponse(
     val code: Int,
     val isSuccess: Boolean,
     val message :String,
-    val result : List<GetFeedCurationContent>
+    val result : List<GetCurationContent>
 )
 
 data class  DeleteCuartionResponse(

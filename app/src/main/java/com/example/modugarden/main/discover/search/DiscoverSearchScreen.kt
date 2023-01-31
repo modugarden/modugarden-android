@@ -1,7 +1,5 @@
 package com.example.modugarden.main.discover.search
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,8 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
-import com.example.modugarden.api.GetFeedCuration
-import com.example.modugarden.api.RetrofitBuilder.curationAPI
 import com.example.modugarden.data.Category
 import com.example.modugarden.data.CurationCard
 import com.example.modugarden.data.PostCard
@@ -33,9 +29,6 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 
 val postResponse = listOf(
