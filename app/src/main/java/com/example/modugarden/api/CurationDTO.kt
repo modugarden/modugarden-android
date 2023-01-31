@@ -61,3 +61,41 @@ data class CurationUploadResponse(
 data class CurationId(
     val id: Int
 )
+data class GetCurationResponse(
+    val code: Int,
+    val isSuccess: Boolean,
+    val message :String,
+    val result : List<GetFeedCurationContent>
+)
+
+data class  DeleteCuartionResponse(
+    val code: Int,
+    val isSuccess: Boolean,
+    val message: String,
+    val curationId: CurationId
+)
+data class GetCurationLikeStateResponse(
+    val code: Int,
+    val isSuccess: Boolean,
+    val message :String,
+    val result : CurationLikeState
+)
+data class CurationLikeState(
+    val check : Boolean,
+    val curation_id : Long,
+    val user_id: Long
+)
+
+data class GetCurationStoreStateResponse(
+    val code: Int,
+    val isSuccess: Boolean,
+    val message :String,
+    val result : GetCurationStoreState
+)
+
+data class GetCurationStoreState(
+    val check : Boolean,
+    val curation_id :Long,
+    val user_id : Long
+)
+
