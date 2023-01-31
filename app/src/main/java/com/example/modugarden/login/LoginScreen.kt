@@ -177,49 +177,44 @@ fun MainLoginScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .bounceClick {
-                        val jsonObject = JsonObject().apply {
+                        val jsonData = JsonObject()
+                        jsonData.apply {
                             addProperty("email", textFieldId.value)
                             addProperty("password", textFieldPw.value)
                         }
-                        loginAPI.login(jsonObject)
-                            .enqueue(object: retrofit2.Callback<LoginDTO> {
-                                override fun onResponse(
-                                    call: Call<LoginDTO>,
-                                    response: Response<LoginDTO>
-                                ) {
-                                    if(response.isSuccessful) {
-                                        val res = response.body()
-                                        if(res != null) {
-                                            Log.e("apires", res.message)
-                                            if(res.isSuccess) {
-                                                mContext.startActivity(
-                                                    Intent(mContext, MainActivity::class.java)
-                                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                                )
-
-                                                TokenStore.accessToken = res.result.accessToken
-                                                TokenStore.refreshToken = res.result.refreshToken
-                                            }
-                                            else {
-                                                Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
-                                            }
+                        loginAPI.login(jsonData).enqueue(object: Callback<LoginDTO> {
+                            override fun onResponse(
+                                call: Call<LoginDTO>,
+                                response: Response<LoginDTO>
+                            ) {
+                                if(response.isSuccessful) {
+                                    val res = response.body()
+                                    if(res != null) {
+                                        if(res.isSuccess) {
+                                            mContext.startActivity(
+                                                Intent(mContext, MainActivity::class.java)
+                                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                            )
                                         }
                                         else {
-                                            Toast.makeText(mContext, "정보를 정상적으로 받지 못했어요", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                     else {
-                                        Log.e("apires", "....;")
+                                        Toast.makeText(mContext, "res == null", Toast.LENGTH_SHORT).show()
                                     }
                                 }
-
-                                override fun onFailure(call: Call<LoginDTO>, t: Throwable) {
-                                    Log.e("apires", t.message.toString())
+                                else {
+                                    Toast.makeText(mContext, "response != isSuccessful", Toast.LENGTH_SHORT).show()
                                 }
+                            }
 
-                            })
+                            override fun onFailure(call: Call<LoginDTO>, t: Throwable) {
+                                Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                            }
+                        })
                     },
                 backgroundColor = moduPoint,
                 shape = RoundedCornerShape(10.dp),

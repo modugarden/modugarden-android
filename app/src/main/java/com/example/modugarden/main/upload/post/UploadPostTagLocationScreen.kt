@@ -58,7 +58,7 @@ fun UploadPostTagLocationScreen(
     val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 10.dp else 0.dp)
 
     val errorListener = remember { mutableStateOf(false) }
-    var errorText = remember { mutableStateOf("") }
+    val errorText = remember { mutableStateOf("") }
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)

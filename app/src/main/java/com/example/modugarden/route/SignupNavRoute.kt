@@ -58,31 +58,25 @@ fun NavigationGraphSignup(
             },
         ) { SignupEmailScreen(navController, data, signupViewModel) }
         composable(
-            NAV_ROUTE_SIGNUP.EMAIL_CERT.routeName+"/{certNumber}/{email}",
+            NAV_ROUTE_SIGNUP.EMAIL_CERT.routeName,
             enterTransition = {
-                              slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
-                                      fadeIn(tween(500))
+                slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeIn(tween(500))
             },
             exitTransition =  {
-                              slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
-                                      fadeOut(tween(500))
+                slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeOut(tween(500))
             },
             popEnterTransition = {
-                                 slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
-                                         fadeIn(tween(500))
+                slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeIn(tween(500))
             },
             popExitTransition = {
-                                slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
-                                        fadeOut(tween(500))
+                slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeOut(tween(500))
             },
-            arguments = listOf(
-                navArgument("certNumber") { type = NavType.StringType },
-                navArgument("email") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val certNumber = backStackEntry.arguments?.getString("certNumber") ?: ""
-            val email = backStackEntry.arguments?.getString("email") ?: ""
-            SignupEmailCertificationScreen(navController, certNumber, data, signupViewModel)
+        ) {
+            SignupEmailCertificationScreen(navController, data, signupViewModel)
         }
         composable(
             NAV_ROUTE_SIGNUP.PASSWORD.routeName+"/{email}",
@@ -158,8 +152,8 @@ fun NavigationGraphSignup(
                         fadeIn(tween(500))
             },
             exitTransition =  {
-                              fadeOut(animationSpec = tween(500)) +
-                                      scaleOut(animationSpec = tween(500, easing = EaseOutCirc))
+                fadeOut(animationSpec = tween(500)) +
+                        scaleOut(animationSpec = tween(500, easing = EaseOutCirc))
             },
             popEnterTransition = {
                 slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
@@ -175,8 +169,8 @@ fun NavigationGraphSignup(
         composable(
             NAV_ROUTE_SIGNUP.END.routeName,
             enterTransition = {
-                              fadeIn(animationSpec = tween(500)) +
-                                      scaleIn(animationSpec = tween(500, easing = EaseOutCirc))
+                fadeIn(animationSpec = tween(500)) +
+                        scaleIn(animationSpec = tween(500, easing = EaseOutCirc))
             },
             popEnterTransition = {
                 slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
