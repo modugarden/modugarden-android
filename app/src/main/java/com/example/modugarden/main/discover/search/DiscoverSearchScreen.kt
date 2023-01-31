@@ -1,5 +1,7 @@
 package com.example.modugarden.main.discover.search
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
+import com.example.modugarden.api.GetFeedCuration
+import com.example.modugarden.api.RetrofitBuilder.curationAPI
 import com.example.modugarden.data.Category
 import com.example.modugarden.data.CurationCard
 import com.example.modugarden.data.PostCard
@@ -29,6 +33,9 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 val postResponse = listOf(
@@ -128,23 +135,20 @@ fun DiscoverSearchScreen(navController: NavHostController) {
     val coroutineScope = rememberCoroutineScope()
 
     //어떤 카테고리 보여주는지 왼쪽 위에 아이콘이랑 카테고리 이름 바꿔줄 변수
-    var selectedCategory by remember { mutableStateOf(Category.TRIP) }
+    var selectedCategory by remember { mutableStateOf(Category.GARDENING) }
 
     //viewPager에 사용할 포스트, 큐레이션 나타내주는 변수
     val mainPages = listOf("포스트", "큐레이션")
 
     val focusManager = LocalFocusManager.current
-    val textFieldSearch = remember { mutableStateOf("") } //textField 데이터 값.
 
-
-    var isTextFieldVisible by remember { mutableStateOf(false) }
+    val isTextFieldVisible by remember { mutableStateOf(false) }
 
 
     val showModalSheet = rememberSaveable{ mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
     val scope = rememberCoroutineScope()
-
 
     ModalBottomSheet(
         title = "카테고리",
@@ -316,7 +320,7 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                         when (page) {
                             //나중에 API로 받은 값(List)도 넣어줘야할듯
                             0 -> DiscoverSearchPost(postCards = postResponse)
-                            1 -> DiscoverSearchCuration(curationResponse)
+                            1 -> DiscoverSearchCuration(selectedCategory)
                         }
 
                     }
