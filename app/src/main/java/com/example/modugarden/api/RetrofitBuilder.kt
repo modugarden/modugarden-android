@@ -12,6 +12,9 @@ object RetrofitBuilder {
     val signupAPI: SignupAPI
     val signupEmailAuthenticationAPI: SignupEmailAuthenticationAPI
     val signupEmailIsDuplicatedAPI: SignupEmailIsDuplicatedAPI
+    val curationCreateAPI: CurationCreateAPI
+    val followAPI: FollowAPI
+    val curationAPI: CurationAPI
     val signupNicknameIsDuplicatedAPI: SignupNicknameIsDuplicatedAPI
     val curationCreateAPI: CurationCreateAPI
 
@@ -20,7 +23,7 @@ object RetrofitBuilder {
     init {
         val client = OkHttpClient
             .Builder()
-            .addInterceptor(TokenInterceptor)
+            .addNetworkInterceptor(TokenInterceptor)
 
         val retrofit = Retrofit.Builder()
             .baseUrl("http://3.38.50.190:8080")
@@ -34,11 +37,14 @@ object RetrofitBuilder {
             .build()
 
         userAPI = retrofit.create(UserAPI::class.java)
+        curationCreateAPI = retrofit.create(CurationCreateAPI::class.java)
+        followAPI = retrofit.create(FollowAPI::class.java)
         loginAPI = retrofitWithNoInterceptor.create(LoginAPI::class.java)
         signupAPI = retrofitWithNoInterceptor.create(SignupAPI::class.java)
         signupEmailAuthenticationAPI = retrofitWithNoInterceptor.create(SignupEmailAuthenticationAPI::class.java)
         signupEmailIsDuplicatedAPI = retrofitWithNoInterceptor.create(SignupEmailIsDuplicatedAPI::class.java)
         signupNicknameIsDuplicatedAPI = retrofitWithNoInterceptor.create(SignupNicknameIsDuplicatedAPI::class.java)
         curationCreateAPI = retrofit.create(CurationCreateAPI::class.java)
+        curationAPI = retrofit.create(CurationAPI::class.java)
     }
 }

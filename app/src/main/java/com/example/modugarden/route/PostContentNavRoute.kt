@@ -13,7 +13,6 @@ import com.example.modugarden.main.content.PostContentLocationScreen
 import com.example.modugarden.main.content.PostContentMapScreen
 import com.example.modugarden.main.content.PostContentScreen
 import com.example.modugarden.main.profile.MyProfileScreen
-import com.example.modugarden.main.profile.userId
 import com.example.modugarden.viewmodel.CommentViewModel
 
 //PostContentScreen, PostContentCommentScreen, PostContentMapScreen
@@ -35,7 +34,7 @@ fun NavigationGraphPostContent(navController: NavHostController,
                 backStackEntry ->
             PostContentCommentScreen(navController,commentViewModel,
                 backStackEntry.arguments!!.getInt("comment_data"),true) }
-        composable(NAV_ROUTE_POSTCONTENT.WRITER.routeName){ MyProfileScreen(data = data.user,userId)}
+        composable(NAV_ROUTE_POSTCONTENT.WRITER.routeName){ MyProfileScreen()}
         composable(NAV_ROUTE_POSTCONTENT.LOCATION.routeName) { PostContentLocationScreen(navController) }
         composable(NAV_ROUTE_POSTCONTENT.MAP.routeName) { PostContentMapScreen(navController ) }
     }

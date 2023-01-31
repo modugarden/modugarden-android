@@ -1,23 +1,77 @@
 package com.example.modugarden.main.discover.search
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.modugarden.data.CurationCard
+import com.example.modugarden.api.GetFeedCuration
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.data.Category
+import com.example.modugarden.ui.theme.ShowProgressBar
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 @Composable
-fun DiscoverSearchCuration(curationCards: List<CurationCard>){
+fun DiscoverSearchCuration(searchCategory: Category){
 
-    LazyColumn(modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp)
-    ) {
-        itemsIndexed(curationCards) { idx, item ->
-            DiscoverSearchCurationCard(item)
+    val context = LocalContext.current
+
+    var responseBody  by remember { mutableStateOf(GetFeedCuration()) }
+
+    var isLoading by remember { mutableStateOf(true) }
+
+    RetrofitBuilder.curationAPI
+        .getFeedCuration(searchCategory.category)
+        .enqueue(object: Callback<GetFeedCuration> {
+            override fun onResponse(
+                call: Call<GetFeedCuration>,
+                response: Response<GetFeedCuration>
+            ) {
+                if(response.isSuccessful) {
+                    val res = response.body()
+                    if(res != null) {
+                        responseBody = res
+                        Log.d("upload-result123", responseBody.toString())
+                        isLoading = false
+                    }
+                }
+                else {
+                    Toast.makeText(context, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
+                    Log.d("upload-result", response.toString())
+                }
+            }
+
+            override fun onFailure(call: Call<GetFeedCuration>, t: Throwable) {
+                Toast.makeText(context, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
+
+                Log.d("upload-result", "왜안됍")
+            }
+
+        })
+
+    if(isLoading){
+        ShowProgressBar()
+    }
+    else {
+        val curations = responseBody.content
+
+        Log.d("upload-result213123nn", responseBody.toString())
+
+        LazyColumn(modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp)
+        ) {
+            itemsIndexed(curations!!) { idx, item ->
+                DiscoverSearchCurationCard(item)
+            }
         }
     }
+
 }

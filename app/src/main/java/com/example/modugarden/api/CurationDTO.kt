@@ -25,22 +25,22 @@ data class CurationStoreResult(
 )
 
 data class GetFeedCuration(
-    val content: GetFeedCurationContent,
-    val first: Boolean,
-    val hasNext: Boolean,
-    val last: Boolean
+    val content: List<GetFeedCurationContent>? = null,
+    val first: Boolean? = null,
+    val hasNext: Boolean? = null,
+    val last: Boolean? = null
 )
-
 data class GetFeedCurationContent(
-    val category: List<String>,
     val id: Int,
-    val liKeNum: Int,
-    val link: String,
-    val previewImage: String,
     val title: String,
-    val userId: Int,
-    val userNickname: String,
-    val userProfileImage: String
+    val link: String,
+    val preview_image: String,
+    val likeNum: Int,
+    val created_Date: String,
+    val user_id: Int,
+    val user_nickname: String,
+    val user_profile_image: String,
+    val category_category: String
 )
 
 //createCuration request바디
