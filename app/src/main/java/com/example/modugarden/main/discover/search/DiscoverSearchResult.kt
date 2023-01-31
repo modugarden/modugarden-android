@@ -69,7 +69,7 @@ fun DiscoverSearchResult(textFieldSearch: String,coroutineScope: CoroutineScope 
         when (page) {
             //나중에 API로 받은 값(List)도 넣어줘야할듯
             0 -> DiscoverSearchPost(postResponse)
-            1 -> DiscoverSearchCuration(curationResponse)
+            1 -> DiscoverSearchNoResultScreen(textFieldSearch)
             2 -> DiscoverSearchUser(textFieldSearch, coroutineScope, snackbarHostState)
         }
 
