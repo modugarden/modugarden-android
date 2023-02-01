@@ -20,7 +20,7 @@ import retrofit2.Response
 
 
 @Composable
-fun DiscoverSearchCuration(searchCategory: Category){
+fun DiscoverCategorySearchCuration(searchCategory: Category){
 
     val context = LocalContext.current
 
@@ -29,7 +29,7 @@ fun DiscoverSearchCuration(searchCategory: Category){
     var isLoading by remember { mutableStateOf(true) }
 
     RetrofitBuilder.curationAPI
-        .getFeedCuration(searchCategory.category)
+        .getCategoryCuration(searchCategory.category)
         .enqueue(object: Callback<GetFeedCuration> {
             override fun onResponse(
                 call: Call<GetFeedCuration>,
@@ -63,14 +63,19 @@ fun DiscoverSearchCuration(searchCategory: Category){
     else {
         val curations = responseBody.content
 
-        Log.d("upload-result213123nn", responseBody.toString())
-
-        LazyColumn(modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp)
-        ) {
-            itemsIndexed(curations!!) { idx, item ->
-                DiscoverSearchCurationCard(item)
+        if(curations == null){
+            DiscoverSearchNoResultScreen(searchCategory.category)
+        }
+        else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp)
+            ) {
+                itemsIndexed(curations) { idx, item ->
+                    DiscoverSearchCurationCard(item)
+                }
             }
+
         }
     }
 

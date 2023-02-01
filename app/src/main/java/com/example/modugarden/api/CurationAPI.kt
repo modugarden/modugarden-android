@@ -1,14 +1,31 @@
 package com.example.modugarden.api
 
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.*
 
 interface CurationAPI {
-    // 큐레이션 피드 불러오기
+
+    // 카테고리로 큐레이션 피드 불러오기
     @GET("/curations")
-    fun getFeedCuration(
+    fun getCategoryCuration(
         @Query("category") category :String
     ):Call<GetFeedCuration>
+
+    // 카테고리로 큐레이션 피드 불러오기
+    @GET("/curations/search")
+    fun getSearchCuration(
+        @Query("title") title :String
+    ):Call<GetFeedCuration>
+
+    //큐레이션 피드 올리기
+    @Multipart
+    @POST("curations")
+    fun curationCreate(
+        @Part("curationCreateRequest") CreateCurationRequest: RequestBody,
+        @Part file: MultipartBody.Part
+    ): Call<CurationUploadResponse>
 
     // 큐레이션 좋아요 추가
     @POST("/curations/{curation_id}/like")
@@ -39,6 +56,7 @@ interface CurationAPI {
     fun storeCancelCuration(
         @Body curation_id: Int
     ): Call <CurationStoreResponse>
+
 
 
 }

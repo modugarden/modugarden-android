@@ -11,7 +11,6 @@ object RetrofitBuilder {
     val signupAPI: SignupAPI
     val signupEmailAuthenticationAPI: SignupEmailAuthenticationAPI
     val signupEmailIsDuplicatedAPI: SignupEmailIsDuplicatedAPI
-    val curationCreateAPI: CurationCreateAPI
     val followAPI: FollowAPI
     val curationAPI: CurationAPI
 
@@ -34,7 +33,6 @@ object RetrofitBuilder {
             .build()
 
         userAPI = retrofit.create(UserAPI::class.java)
-        curationCreateAPI = retrofit.create(CurationCreateAPI::class.java)
         followAPI = retrofit.create(FollowAPI::class.java)
         loginAPI = retrofitWithNoInterceptor.create(LoginAPI::class.java)
         signupAPI = retrofitWithNoInterceptor.create(SignupAPI::class.java)
