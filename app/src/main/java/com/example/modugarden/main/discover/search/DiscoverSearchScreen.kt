@@ -319,7 +319,7 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                         when (page) {
                             //나중에 API로 받은 값(List)도 넣어줘야할듯
                             0 -> DiscoverSearchPost(postCards = postResponse)
-                            1 -> DiscoverSearchCuration(selectedCategory)
+                            1 -> DiscoverCategorySearchCuration(selectedCategory)
                         }
 
                     }

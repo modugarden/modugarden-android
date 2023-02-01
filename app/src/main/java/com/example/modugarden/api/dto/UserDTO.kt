@@ -8,10 +8,10 @@ enum class UserAuthority {
 
 // 닉네임으로 찾기
 data class FindByNicknameRes(
-    val content: List<FindByNicknameResContent>,
-    val first: Boolean,
-    val hasNext: Boolean,
-    val last: Boolean
+    val content: List<FindByNicknameResContent> ?= null,
+    val first: Boolean ?= null,
+    val hasNext: Boolean ?= null,
+    val last: Boolean ?= null
 )
 data class FindByNicknameResContent(
     val categories: List<String>,
