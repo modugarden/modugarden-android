@@ -41,6 +41,9 @@ import com.example.modugarden.ApplicationClass.Companion.accessToken
 import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.refreshToken
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.RetrofitBuilder.fcmSaveAPI
+import com.example.modugarden.api.dto.FcmSaveDTO
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -97,6 +100,11 @@ fun MainLoginScreen(navController: NavController) {
                                     val jsonData = JsonObject().apply {
                                         addProperty("email", user?.email)
                                     }
+                                    val fcmToken = sharedPreferences.getString("fcm token", "")
+                                    val jsonDataFcmToken = JsonObject()
+                                    jsonDataFcmToken.apply {
+                                        addProperty("fcmToken", fcmToken ?: "")
+                                    }
                                     loginAPI.loginSocialAPI(jsonData).enqueue(object: Callback<LoginDTO> {
                                         override fun onResponse(
                                             call: Call<LoginDTO>,
@@ -117,6 +125,32 @@ fun MainLoginScreen(navController: NavController) {
                                                         editor.putString(refreshToken, res1.result.refreshToken)
                                                         editor.putInt(clientId, res1.result.userId)
                                                         editor.apply()
+                                                        fcmSaveAPI.fcmSaveAPI(jsonDataFcmToken).enqueue(object: Callback<FcmSaveDTO> {
+                                                            override fun onResponse(call: Call<FcmSaveDTO>, response: Response<FcmSaveDTO>) {
+                                                                if(response.isSuccessful) {
+                                                                    val res = response.body()
+                                                                    if(res != null) {
+                                                                        if(res.isSuccess) {
+                                                                            Log.d("apires", "토큰을 정상적으로 서버에 저장했어요")
+                                                                        }
+                                                                        else {
+                                                                            Log.e("apires", res.message)
+                                                                        }
+                                                                    }
+                                                                    else {
+                                                                        Log.e("apires", "res == null")
+                                                                    }
+                                                                }
+                                                                else {
+                                                                    Log.e("apires", "response == not Successful")
+                                                                }
+                                                            }
+
+                                                            override fun onFailure(call: Call<FcmSaveDTO>, t: Throwable) {
+                                                                Log.e("apires", "토큰 전송 실패!")
+                                                            }
+
+                                                        })
                                                     }
                                                     else {
                                                         Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
