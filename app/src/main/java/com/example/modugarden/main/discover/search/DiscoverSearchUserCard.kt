@@ -75,8 +75,9 @@ fun DiscoverSearchUserCard(userData : FindByNicknameResContent, coroutineScope :
 
                 Spacer(modifier = Modifier.height(7.dp))
 
+
                 Text(
-                    text = "카테고리 카테고리",
+                    text =  userData.categories.joinToString(", ","",""),
                     style = TextStyle(
                         color = Color(0xFF959DA7),
                         fontWeight = FontWeight(400), fontSize = 11.sp

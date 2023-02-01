@@ -90,7 +90,7 @@ fun DiscoverSearchCurationCard(curationData: GetSearchCurationContent) {
                     fontWeight = FontWeight(400),fontSize = 11.sp)
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(9.dp))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -99,15 +99,18 @@ fun DiscoverSearchCurationCard(curationData: GetSearchCurationContent) {
                     painter = painterResource(id = R.drawable.ic_launcher_background),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(width = 20.dp, height = 20.dp)
+                        .size(width = 23.dp, height = 23.dp)
                         .clip(CircleShape)
                 )
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 //작성자
-                Text(text = curationData.user_nickname,
+                Text(
+                    modifier = Modifier
+                        .padding(bottom = 3.dp),
+                    text = curationData.user_nickname,
                     style = TextStyle(color = Color(0xFF252525).copy(alpha = 0.8f),
-                        fontWeight = FontWeight(400),fontSize = 11.sp)
+                        fontWeight = FontWeight(400),fontSize = 13.sp)
                 )
 
 

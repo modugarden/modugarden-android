@@ -19,7 +19,7 @@ import retrofit2.Response
 
 
 @Composable
-fun DiscoverSearchUser(searchStr : String, coroutineScope: CoroutineScope, snackbarHostState: SnackbarHostState){
+fun DiscoverSearchUser(searchStr : String, coroutineScope: CoroutineScope, snackBarHostState: SnackbarHostState){
 
     var responseBody  by remember { mutableStateOf((FindByNicknameRes())) }
 
@@ -58,7 +58,7 @@ fun DiscoverSearchUser(searchStr : String, coroutineScope: CoroutineScope, snack
     else {
         val users = responseBody.content
 
-        if(users == null){
+        if(users!!.isEmpty()){
             DiscoverSearchNoResultScreen(searchStr)
         }
         else {
@@ -67,7 +67,7 @@ fun DiscoverSearchUser(searchStr : String, coroutineScope: CoroutineScope, snack
                 contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp)
             ) {
                 itemsIndexed(users) { idx, item ->
-                    DiscoverSearchUserCard(item, coroutineScope, snackbarHostState)
+                    DiscoverSearchUserCard(item, coroutineScope, snackBarHostState)
                 }
             }
         }

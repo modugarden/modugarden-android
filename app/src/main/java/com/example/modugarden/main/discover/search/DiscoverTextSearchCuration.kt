@@ -11,9 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.modugarden.api.RetrofitBuilder
-import com.example.modugarden.api.dto.GetCuration
 import com.example.modugarden.api.dto.GetSearchCuration
-import com.example.modugarden.data.Category
 import com.example.modugarden.ui.theme.ShowProgressBar
 import retrofit2.Call
 import retrofit2.Callback
@@ -21,16 +19,16 @@ import retrofit2.Response
 
 
 @Composable
-fun DiscoverSearchCuration(searchCategory: Category){
+fun DiscoverTextSearchCuration(searchText: String){
 
     val context = LocalContext.current
 
-    var responseBody  by remember { mutableStateOf(GetFeedCuration()) }
+    var responseBody  by remember { mutableStateOf(GetSearchCuration()) }
 
     var isLoading by remember { mutableStateOf(true) }
 
     RetrofitBuilder.curationAPI
-        .getCategorySearchCuration(searchCategory.category)
+        .getTitleSearchCuration(searchText)
         .enqueue(object: Callback<GetSearchCuration> {
             override fun onResponse(
                 call: Call<GetSearchCuration>,
@@ -50,7 +48,7 @@ fun DiscoverSearchCuration(searchCategory: Category){
                 }
             }
 
-            override fun onFailure(call: Call<GetFeedCuration>, t: Throwable) {
+            override fun onFailure(call: Call<GetSearchCuration>, t: Throwable) {
                 Toast.makeText(context, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
 
                 Log.d("upload-result", "왜안됍")

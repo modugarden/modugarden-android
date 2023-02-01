@@ -1,14 +1,8 @@
 package com.example.modugarden.api.api
 
+import com.example.modugarden.api.dto.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import com.example.modugarden.api.dto.CurationLikeResponse
-import com.example.modugarden.api.dto.CurationStoreResponse
-import com.example.modugarden.api.dto.DeleteCurationResponse
-import com.example.modugarden.api.dto.GetCuration
-import com.example.modugarden.api.dto.GetCurationLikeStateResponse
-import com.example.modugarden.api.dto.GetCurationResponse
-import com.example.modugarden.api.dto.GetSearchCuration
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -21,16 +15,11 @@ interface CurationAPI {
     ):Call<GetSearchCuration>
 
     // 탐색 피드 - 제목으로 큐레이션 검색
-    @GET("/curations")
+    @GET("/curations/search")
     fun getTitleSearchCuration(
         @Query("title") title: String
-    ) : Call<GetCuration>
+    ) : Call<GetSearchCuration>
 
-    // 카테고리로 큐레이션 피드 불러오기
-    @GET("/curations/search")
-    fun getSearchCuration(
-        @Query("title") title :String
-    ):Call<GetFeedCuration>
 
     //큐레이션 피드 올리기
     @Multipart
