@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.example.modugarden.R
+import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.dto.FollowListDtoRes
 import com.example.modugarden.api.dto.FollowListDtoResContent
 import com.example.modugarden.api.RetrofitBuilder
@@ -39,19 +40,19 @@ import retrofit2.Response
 
 val pages = listOf("팔로워", "팔로잉")
 
-val followerList = listOf(
-    User("https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri(),
-        "Mara", categoryResponse, 100, 50,
-    true, postResponse, curationResponse
-    )
-)
-
-val followingList = listOf(
-    User("https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri(),
-        "Mara", categoryResponse, 100, 50,
-    true, postResponse, curationResponse
-    )
-)
+//val followerList = listOf(
+//    User("https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri(),
+//        "Mara", categoryResponse, 100, 50,
+//    true, postResponse, curationResponse
+//    )
+//)
+//
+//val followingList = listOf(
+//    User("https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri(),
+//        "Mara", categoryResponse, 100, 50,
+//    true, postResponse, curationResponse
+//    )
+//)
 
 
 @OptIn(ExperimentalPagerApi::class)
@@ -85,11 +86,12 @@ class ProfileFollowActivity : ComponentActivity() {
                         }
                     })
                 RetrofitBuilder.followAPI.otherFollowingList(id)
-                    .enqueue(object : Callback<FollowListDtoRes> {
+                    .enqueue(object : AuthCallBack<FollowListDtoRes>(this, "성공") {
                         override fun onResponse(
                             call: Call<FollowListDtoRes>,
                             response: Response<FollowListDtoRes>
                         ) {
+                            super.onResponse(call, response)
                             Log.d("onResponse", response.code().toString() +
                                      "\n" + (response.body()?.content)
                             )

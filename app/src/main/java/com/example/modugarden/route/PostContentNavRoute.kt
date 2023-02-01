@@ -34,7 +34,7 @@ fun NavigationGraphPostContent(navController: NavHostController,
                 backStackEntry ->
             PostContentCommentScreen(navController,commentViewModel,
                 backStackEntry.arguments!!.getInt("comment_data"),true) }
-        composable(NAV_ROUTE_POSTCONTENT.WRITER.routeName){ MyProfileScreen()}
+        composable(NAV_ROUTE_POSTCONTENT.WRITER.routeName){ MyProfileScreen(1)}
         composable(NAV_ROUTE_POSTCONTENT.LOCATION.routeName) { PostContentLocationScreen(navController) }
         composable(NAV_ROUTE_POSTCONTENT.MAP.routeName) { PostContentMapScreen(navController ) }
     }
