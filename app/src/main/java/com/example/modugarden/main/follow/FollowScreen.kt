@@ -64,26 +64,25 @@ import com.example.modugarden.route.NavigationGraphFollow
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
-import com.example.modugarden.ui.theme.moduGray_strong
 import com.skydoves.landscapist.glide.GlideImage
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun FollowScreen(){
+fun FollowScreen(navController: NavHostController){
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        val navController = rememberNavController()
-        NavigationGraphFollow(navController = navController)
+        val navFollowController = rememberNavController()
+        NavigationGraphFollow(navController=navController,navFollowController = navFollowController)
     }
 }
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun FollowMainScreen(navController: NavHostController, followPosts: List<FollowPost>){
+fun FollowMainScreen(navController: NavHostController,navFollowController: NavHostController, followPosts: List<FollowPost>){
     val following = 1
     val context = LocalContext.current.applicationContext
     var responseBody  by remember { mutableStateOf(GetCuration(null)) }
@@ -117,7 +116,7 @@ fun FollowMainScreen(navController: NavHostController, followPosts: List<FollowP
     val curations = responseBody.content
     if (following==1){
         if (curations != null) {
-            FollowingScreen(navController = navController, followPosts = followPosts, followCurations = curations)
+            FollowingScreen(navController = navController, navFollowController = navFollowController, followPosts = followPosts, followCurations = curations)
         }
     }
     else NoFollowingScreen(navController = navController)
@@ -126,12 +125,13 @@ fun FollowMainScreen(navController: NavHostController, followPosts: List<FollowP
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable //팔로우 피드.
-fun FollowingScreen(navController: NavHostController, followPosts:List<FollowPost>,followCurations: List<GetCurationContent>) {
+fun FollowingScreen(navController: NavHostController,navFollowController: NavHostController, followPosts:List<FollowPost>,followCurations: List<GetCurationContent>) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val scrollState = rememberLazyListState()
     var modalType = rememberSaveable{ mutableStateOf(0) }
+
 
     ModalBottomSheetLayout(sheetElevation = 0.dp,
         sheetBackgroundColor = Color.Transparent,
@@ -250,10 +250,11 @@ fun FollowingScreen(navController: NavHostController, followPosts:List<FollowPos
                     }
                     //포스트 카드
                     items(followPosts.reversed()){
-                        PostCard(navController, data = it , scope, snackbarHostState, bottomSheetState, modalType)}
+                        PostCard(navFollowController, data = it , scope, snackbarHostState, bottomSheetState, modalType)}
 
                       items(followCurations.reversed()) {
                             CurationCard(
+                                navFollowController,
                                 data = it,
                              scope = scope,
                                 snackbarHostState= snackbarHostState,

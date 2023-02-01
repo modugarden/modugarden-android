@@ -48,7 +48,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
-fun PostContentMapScreen(navController: NavHostController) {
+fun PostContentMapScreen(navController: NavHostController,data:String) {
     val focusManager = LocalFocusManager.current
     Box(
         modifier = Modifier
@@ -130,7 +130,7 @@ fun PostContentMapScreen(navController: NavHostController) {
                     .align(Alignment.CenterVertically)
             ) {
                 // 위치
-                Text(text = "location", style = moduBold, fontSize = 12.sp,)
+                Text(text = data, style = moduBold, fontSize = 12.sp,)
                 // 상세 주소
                 Text(text = "adress", fontSize = 14.sp, color = Color.Gray)
             }
@@ -141,9 +141,10 @@ fun PostContentMapScreen(navController: NavHostController) {
 
     }
 
+/*
 @Preview
 @Composable
 fun PostContentMapPreview() {
     val navController = rememberNavController()
     PostContentMapScreen(navController = navController)
-}
+}*/

@@ -2,6 +2,8 @@ package com.example.modugarden.main.follow
 
 import android.content.Intent
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -50,22 +52,30 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import androidx.navigation.NavHostController
 import com.example.modugarden.R
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.CurationLikeResponse
 import com.example.modugarden.api.dto.GetCurationContent
 import com.example.modugarden.main.content.CurationContentActivity
 import com.example.modugarden.main.content.modalReportCuration
 import com.example.modugarden.main.content.timeFomatter
+import com.example.modugarden.route.NAV_ROUTE_FOLLOW
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_light
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Response
+import javax.security.auth.callback.Callback
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable //팔로우 피드에 표시되는 큐레이션 카드 item.
 fun CurationCard(
+    navController: NavHostController,
     data: GetCurationContent,
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
@@ -85,7 +95,9 @@ fun CurationCard(
         ) {
             Row(
                 modifier = Modifier
-                    .padding(18.dp),
+                    .padding(18.dp)
+                    .bounceClick {  navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName){
+                    } },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 GlideImage(
@@ -215,10 +227,33 @@ fun CurationCard(
                 Icon(modifier = Modifier
                     .padding(end = 18.dp)
                     .bounceClick {
-                        if (isButtonClickedLike.value)
-                            isButtonClickedLike.value = false
-                        else
-                            isButtonClickedLike.value = true
+                        isButtonClickedLike.value = !isButtonClickedLike.value
+                        RetrofitBuilder.curationAPI
+                            .likeCuration(data.id)
+                            .enqueue(object :retrofit2.Callback<CurationLikeResponse>{
+                                override fun onResponse(
+                                    call: Call<CurationLikeResponse>,
+                                    response: Response<CurationLikeResponse>
+                                ) {
+                                    if(response.isSuccessful) {
+                                        val res = response.body()
+                                        if(res != null) {
+                                            Log.d("like-result", res.toString())
+                                        }
+                                    }
+                                    else {
+                                        Toast.makeText(mContext, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
+                                        Log.d("like-result", response.toString())
+                                    }
+
+                                }
+                                override fun onFailure(
+                                    call: Call<CurationLikeResponse>,
+                                    t: Throwable
+                                ) {
+                                    Toast.makeText(mContext, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
+                                }
+                            })
                     }
                     ,painter = painterResource
                         (id =
