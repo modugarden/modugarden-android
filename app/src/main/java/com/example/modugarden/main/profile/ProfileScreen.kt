@@ -16,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.*
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -382,50 +383,77 @@ fun MyProfileScreen(
                                             RetrofitBuilder.userAPI
                                                 .findByNickname("Mara")
                                                 .enqueue(object : Callback<FindByNicknameRes> {
-                                                    override fun onResponse(call: Call<FindByNicknameRes>, response: Response<FindByNicknameRes>) {
-                                                        Log.d(ContentValues.TAG, "onResponse: " +
-                                                                "\n${response.code()}" +
-                                                                "\n${response.body()}" +
-                                                                "\n${response.message()}")
+                                                    override fun onResponse(
+                                                        call: Call<FindByNicknameRes>,
+                                                        response: Response<FindByNicknameRes>
+                                                    ) {
+                                                        Log.d(
+                                                            ContentValues.TAG, "onResponse: " +
+                                                                    "\n${response.code()}" +
+                                                                    "\n${response.body()}" +
+                                                                    "\n${response.message()}"
+                                                        )
                                                     }
 
-                                                    override fun onFailure(call: Call<FindByNicknameRes>, t: Throwable) {
-                                                        Log.e(ContentValues.TAG, "onFailure: ${t.message}")
+                                                    override fun onFailure(
+                                                        call: Call<FindByNicknameRes>,
+                                                        t: Throwable
+                                                    ) {
+                                                        Log.e(
+                                                            ContentValues.TAG,
+                                                            "onFailure: ${t.message}"
+                                                        )
                                                     }
                                                 })
                                         }
                                 )
                             }
                         } else {
-                            Card(
+                            FollowCard(
+                                id = 6,
                                 modifier = Modifier
-                                    .align(Alignment.CenterVertically)
+                                    .align(CenterVertically)
                                     .width(74.dp)
-                                    .height(36.dp)
-                                    .bounceClick {
-                                        // 팔로우 api
-                                        scope.launch {
-                                            scaffoldState.snackbarHostState.showSnackbar("${data.nickname} 님을 팔로우 했어요.")
-                                        }
-                                        followState.value = !followState.value
-                                    },
-                                shape = RoundedCornerShape(10.dp),
-                                backgroundColor = if(followState.value) { moduBackground } else { moduPoint },
-                                elevation = 0.dp
-                            ) {
-                                Text(
-                                    text = if(followState.value) { "팔로잉" } else { "팔로우" },
-                                    style = TextStyle(
-                                        color = if(followState.value) { Color.Black } else { Color.White },
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        textAlign = TextAlign.Center
-                                    ),
-                                    modifier = Modifier
-                                        .padding(vertical = 6.dp, horizontal = 10.dp)
-                                        .align(Alignment.CenterVertically)
-                                )
-                            }
+                                    .height(36.dp),
+                                snackBarAction = {
+                                    scope.launch {
+                                        scaffoldState.snackbarHostState.showSnackbar("${data.nickname} 님을 팔로우 했어요.")
+                                    }
+                                },
+                                followState = followState,
+                                contentModifier = Modifier
+                                    .align(CenterVertically)
+                                    .padding(vertical = 6.dp, horizontal = 10.dp)
+                            )
+//                            Card(
+//                                modifier = Modifier
+//                                    .align(Alignment.CenterVertically)
+//                                    .width(74.dp)
+//                                    .height(36.dp)
+//                                    .bounceClick {
+//                                        // 팔로우 api
+//                                        scope.launch {
+//                                            scaffoldState.snackbarHostState.showSnackbar("${data.nickname} 님을 팔로우 했어요.")
+//                                        }
+//                                        followState.value = !followState.value
+//                                    },
+//                                shape = RoundedCornerShape(10.dp),
+//                                backgroundColor = if(followState.value) { moduBackground } else { moduPoint },
+//                                elevation = 0.dp
+//                            ) {
+//                                Text(
+//                                    text = if(followState.value) { "팔로잉" } else { "팔로우" },
+//                                    style = TextStyle(
+//                                        color = if(followState.value) { Color.Black } else { Color.White },
+//                                        fontSize = 14.sp,
+//                                        fontWeight = FontWeight.Bold,
+//                                        textAlign = TextAlign.Center
+//                                    ),
+//                                    modifier = Modifier
+//                                        .padding(vertical = 6.dp, horizontal = 10.dp)
+//                                        .align(Alignment.CenterVertically)
+//                                )
+//                            }
                         }
                     }
                     // 탭 구현
