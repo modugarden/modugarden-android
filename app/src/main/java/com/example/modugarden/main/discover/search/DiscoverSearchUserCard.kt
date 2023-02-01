@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun DiscoverSearchUserCard(userData : FindByNicknameResContent, coroutineScope : CoroutineScope, snackbarHostState: SnackbarHostState) {
 
-    val followState = remember{ mutableStateOf(false) }
+    val followState = remember{ mutableStateOf(userData.follow) }
 
     Row(
         modifier = Modifier
@@ -66,56 +66,75 @@ fun DiscoverSearchUserCard(userData : FindByNicknameResContent, coroutineScope :
                     style = TextStyle(
                         color = moduBlack,
                         fontWeight = FontWeight(700),
-                        fontSize = 14.sp
+                        fontSize = 15.sp
                     ),
                     //넘치면 ....으로 표시해주는놈
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )
 
-                Spacer(modifier = Modifier.height(7.dp))
+                Spacer(modifier = Modifier.height(5.dp))
 
 
                 Text(
                     text =  userData.categories.joinToString(", ","",""),
                     style = TextStyle(
                         color = Color(0xFF959DA7),
-                        fontWeight = FontWeight(400), fontSize = 11.sp
+                        fontWeight = FontWeight(400), fontSize = 13.sp
                     )
                 )
             }
         }
         Spacer(modifier = Modifier.weight(1f))
 
-        //팔로우 버튼
-        Card(
+        FollowCard(
+            id = userData.userId,
             modifier = Modifier
-                .width(51.dp)
-                .height(24.dp)
-                .bounceClick {
-                    followState.value = followState.value.not()
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar(
-                            "$userData 님을 팔로우 하였습니다.",
-                            duration = SnackbarDuration.Short
-                        )
-                    }
-                },
-            backgroundColor =
-            if(followState.value) moduBackground else Color(0xFF6CD09A),
-            shape = RoundedCornerShape(5.dp)
-        ){
-            Box(contentAlignment = Alignment.Center) {
-                Text(
-                    text =  if(followState.value) "팔로잉" else "팔로우",
-                    style = TextStyle(
-                        color =  if(followState.value) moduBlack else Color.White,
-                        fontWeight = FontWeight(700), fontSize = 11.sp
-                    ),
+                .align(Alignment.CenterVertically)
+                .width(60.dp)
+                .height(32.dp),
+            snackBarAction = {
+                coroutineScope.launch {
+                    if(followState.value) snackbarHostState.showSnackbar("${userData.nickname} 님을 팔로우 했어요.")
+                    else snackbarHostState.showSnackbar("${userData.nickname} 님을 언팔로우 했어요.")
 
-                )
-            }
-        }
+                }
+            },
+            followState = followState,
+            contentModifier = Modifier
+                .align(Alignment.CenterVertically)
+                .padding(vertical = 6.dp, horizontal = 10.dp)
+        )
+
+//        //팔로우 버튼
+//        Card(
+//            modifier = Modifier
+//                .width(51.dp)
+//                .height(24.dp)
+//                .bounceClick {
+//                    followState.value = followState.value.not()
+//                    coroutineScope.launch {
+//                        snackbarHostState.showSnackbar(
+//                            "$userData 님을 팔로우 하였습니다.",
+//                            duration = SnackbarDuration.Short
+//                        )
+//                    }
+//                },
+//            backgroundColor =
+//            if(followState.value) moduBackground else Color(0xFF6CD09A),
+//            shape = RoundedCornerShape(5.dp)
+//        ){
+//            Box(contentAlignment = Alignment.Center) {
+//                Text(
+//                    text =  if(followState.value) "팔로잉" else "팔로우",
+//                    style = TextStyle(
+//                        color =  if(followState.value) moduBlack else Color.White,
+//                        fontWeight = FontWeight(700), fontSize = 11.sp
+//                    ),
+//
+//                )
+//            }
+//        }
 
 
     }
