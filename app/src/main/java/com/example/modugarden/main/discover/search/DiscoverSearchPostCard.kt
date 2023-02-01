@@ -18,15 +18,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
+import com.example.modugarden.api.dto.PostDTO
+import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.data.PostCard
+import com.example.modugarden.ui.theme.ShowProgressBar
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
+import com.skydoves.landscapist.glide.GlideImage
 
 
 //포스트, 큐레이션에 표시되는 카드들로 데이터 형식 알려주면 그때 넣겠삼삼
 @Composable
-fun DiscoverSearchPostCard(postCard: PostCard) {
+fun DiscoverSearchPostCard(postData: GetSearchCurationPost) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -40,23 +45,33 @@ fun DiscoverSearchPostCard(postCard: PostCard) {
                 .clip(RoundedCornerShape(10.dp))
         ) {
             //타이틀 이미지
-            Image(
-                painter = painterResource(id = postCard.image),
-                contentDescription = null,
+            GlideImage( // CoilImage, FrescoImage
+                imageModel = postData.preview_img,
                 modifier = Modifier
                     .size(width = 90.dp, height = 90.dp)
                     .clip(RoundedCornerShape(15.dp)),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                // shows an indicator while loading an image.
+                loading = {
+                    ShowProgressBar()
+                },
+                // shows an error text if fail to load an image.
+                failure = {
+                    Text(text = "image request failed.")
+                },
+                requestOptions = {
+                    RequestOptions()
+                        .override(256,256)
+                }
             )
 
         }
         Spacer(modifier = Modifier.width(18.dp))
-
         Column {
             //타이틀
             Text(
-                modifier = Modifier.width(200.dp),
-                text = postCard.title,
+                modifier = Modifier.width(230.dp),
+                text = postData.title,
                 style = TextStyle(color = moduBlack,
                     fontWeight = FontWeight(700),
                     fontSize = 14.sp),
@@ -68,7 +83,8 @@ fun DiscoverSearchPostCard(postCard: PostCard) {
             Spacer(modifier = Modifier.height(7.dp))
 
             //시간
-            Text(text = postCard.time,
+            val timeLine = postData.created_Date.split("T")[0].split("-")
+            Text(text = "${timeLine[0]}년 ${timeLine[1]}월 ${timeLine[2]}일",
                 style = TextStyle(color = Color(0xFF959DA7),
                     fontWeight = FontWeight(400),fontSize = 11.sp)
             )
@@ -78,7 +94,6 @@ fun DiscoverSearchPostCard(postCard: PostCard) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 Image(
                     painter = painterResource(id = R.drawable.ic_launcher_background),
                     contentDescription = null,
@@ -86,9 +101,13 @@ fun DiscoverSearchPostCard(postCard: PostCard) {
                         .size(width = 23.dp, height = 23.dp)
                         .clip(CircleShape)
                 )
+
                 Spacer(modifier = Modifier.width(8.dp))
                 //작성자
-                Text(text = postCard.user,
+                Text(
+                    modifier = Modifier
+                        .padding(bottom = 3.dp),
+                    text = postData.user_nickname,
                     style = TextStyle(color = Color(0xFF252525).copy(alpha = 0.8f),
                         fontWeight = FontWeight(400),fontSize = 13.sp)
                 )
