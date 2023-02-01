@@ -23,15 +23,15 @@ interface FollowAPI {
     ): Call<FollowDtoRes>
 
     // 타 유저 팔로워 리스트
-    @GET("/follow/{user_id}/follower")
+    @GET("/follow/{other_id}/follower")
     fun otherFollowerList(
-        @Path("user_id") id: Int
+        @Path("other_id") id: Int
     ): Call<FollowListDtoRes>
 
     // 타 유저 팔로잉 리스트
-    @GET("/follow/{user_id}/following")
+    @GET("/follow/{other_id}/following")
     fun otherFollowingList(
-        @Path("user_id") id: Int
+        @Path("other_id") id: Int
     ): Call<FollowListDtoRes>
 
     // 내 팔로워 리스트

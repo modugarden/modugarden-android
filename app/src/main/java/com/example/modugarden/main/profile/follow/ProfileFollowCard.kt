@@ -47,7 +47,7 @@ fun ProfileCard(
             }
     ) {
         GlideImage(
-            imageModel = user.profileImage,
+            imageModel = user.profileImg,
             contentDescription = null,
             modifier = Modifier
                 .size(50.dp)
