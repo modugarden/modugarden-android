@@ -12,30 +12,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.composable
 import com.example.modugarden.R
-import com.example.modugarden.data.followCurations
 import com.example.modugarden.data.followPosts
-import com.example.modugarden.main.content.PostContentCommentScreen
 import com.example.modugarden.main.discover.DiscoverScreen
+import com.example.modugarden.main.follow.FollowMainScreen
 import com.example.modugarden.main.follow.FollowScreen
 import com.example.modugarden.main.notification.NotificationScreen
 import com.example.modugarden.main.profile.MyProfileScreen
-import com.example.modugarden.main.profile.myId
-import com.example.modugarden.main.profile.user
 import com.example.modugarden.main.upload.UploadScreen
 import com.example.modugarden.viewmodel.CommentViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 
 enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val icon: Int) { //main 패키지 루트.
-
     FOLLOW("FOLLOW", "팔로우", R.drawable.ic_home),
     DISCOVER("DISCOVER", "탐색", R.drawable.ic_search),
     UPLOAD("UPLOAD", "업로드", R.drawable.ic_plus_solid),
     NOTIFICATION("NOTIFICATION", "알림", R.drawable.ic_notification),
     MYPROFILE("MYPROFILE", "내 프로필", R.drawable.ic_user),
+
 }
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalAnimationApi::class)
@@ -49,6 +44,9 @@ fun NavigationGraphBNB(navController: NavHostController,commentViewModel : Comme
 
     AnimatedNavHost(navController, startDestination = NAV_ROUTE_BNB.FOLLOW.routeName,
         modifier = Modifier.fillMaxSize()) {
+        composable(NAV_ROUTE_FOLLOW.USERPROFILE.routeName){
+            MyProfileScreen()
+        }
         composable(
             NAV_ROUTE_BNB.FOLLOW.routeName,
             enterTransition = {
@@ -60,7 +58,7 @@ fun NavigationGraphBNB(navController: NavHostController,commentViewModel : Comme
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideOutDuration))
             }
         ) {
-            FollowScreen(navController, followPosts) }
+            FollowScreen() }
 
         composable(
             NAV_ROUTE_BNB.DISCOVER.routeName,

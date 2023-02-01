@@ -45,6 +45,7 @@ import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.main.content.modalReportPost
 import com.example.modugarden.route.NAV_ROUTE_BNB
+import com.example.modugarden.route.NAV_ROUTE_FOLLOW
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
@@ -87,7 +88,8 @@ fun PostCard(navController:NavHostController,
                                         modifier = Modifier
                                                 .padding(18.dp)
                                                 .bounceClick {
-                                                        navController.navigate(NAV_ROUTE_POSTCONTENT.WRITER.routeName)},//프로필
+                                                        navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName){
+                                                        }},//프로필
                                         verticalAlignment = Alignment.CenterVertically
                                 ) {
                                         GlideImage(

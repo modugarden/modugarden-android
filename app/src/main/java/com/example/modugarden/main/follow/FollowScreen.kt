@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.GetCuration
@@ -59,6 +60,7 @@ import com.example.modugarden.api.dto.GetCurationContent
 import com.example.modugarden.data.FollowPost
 import com.example.modugarden.main.content.CategoryItem
 import com.example.modugarden.main.content.modalReportPost
+import com.example.modugarden.route.NavigationGraphFollow
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
@@ -67,10 +69,21 @@ import com.skydoves.landscapist.glide.GlideImage
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun FollowScreen(navController: NavHostController, followPosts: List<FollowPost>){
+fun FollowScreen(){
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        val navController = rememberNavController()
+        NavigationGraphFollow(navController = navController)
+    }
+}
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun FollowMainScreen(navController: NavHostController, followPosts: List<FollowPost>){
     val following = 1
     val context = LocalContext.current.applicationContext
     var responseBody  by remember { mutableStateOf(GetCuration(null)) }
@@ -119,9 +132,6 @@ fun FollowingScreen(navController: NavHostController, followPosts:List<FollowPos
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val scrollState = rememberLazyListState()
     var modalType = rememberSaveable{ mutableStateOf(0) }
-
-
-
 
     ModalBottomSheetLayout(sheetElevation = 0.dp,
         sheetBackgroundColor = Color.Transparent,
@@ -246,13 +256,14 @@ fun FollowingScreen(navController: NavHostController, followPosts:List<FollowPos
                     items(followPosts.reversed()){
                         PostCard(navController, data = it , scope, snackbarHostState, bottomSheetState, modalType)}
 
-                      items(followCurations) {
+                      items(followCurations.reversed()) {
                             CurationCard(
+                                navController = navController,
                                 data = it,
-                                scope,
-                                snackbarHostState,
-                                bottomSheetState,
-                                modalType
+                             scope = scope,
+                                snackbarHostState= snackbarHostState,
+                                bottomSheetState = bottomSheetState,
+                                modalType = modalType
                             )
                         }
 
