@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
-import com.example.modugarden.api.dto.GetFeedCuration
 import com.example.modugarden.api.RetrofitBuilder.curationAPI
 import com.example.modugarden.data.Category
 import com.example.modugarden.data.CurationCard

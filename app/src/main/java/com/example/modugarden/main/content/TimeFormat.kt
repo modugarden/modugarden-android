@@ -16,6 +16,13 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview
+@Composable
+fun pre(){
+    val time = "2023-02-01T06:27:52.926639"
+    Text(text = timeFomatter(time))
+}
 //이거 쓰면됨
 @RequiresApi(Build.VERSION_CODES.O)
 fun timeFomatter (createdTime:String) : String {

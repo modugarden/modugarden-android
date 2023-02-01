@@ -2,7 +2,11 @@ package com.example.modugarden.api.api
 
 import com.example.modugarden.api.dto.CurationLikeResponse
 import com.example.modugarden.api.dto.CurationStoreResponse
-import com.example.modugarden.api.dto.GetFeedCuration
+import com.example.modugarden.api.dto.DeleteCurationResponse
+import com.example.modugarden.api.dto.GetCuration
+import com.example.modugarden.api.dto.GetCurationLikeStateResponse
+import com.example.modugarden.api.dto.GetCurationResponse
+import com.example.modugarden.api.dto.GetSearchCuration
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -11,7 +15,7 @@ interface CurationAPI {
     @GET("/curations")
     fun getCategorySearchCuration(
         @Query("category") category :String
-    ):Call<GetCuration>
+    ):Call<GetSearchCuration>
 
     // 탐색 피드 - 제목으로 큐레이션 검색
     @GET("/curations")
@@ -22,31 +26,31 @@ interface CurationAPI {
     // 큐레이션 좋아요 추가
     @POST("/curations/{curation_id}/like")
     fun likeCuration(
-        @Body curation_id: Int
+        @Path ("curation_id") curation_id: Int
     ): Call<CurationLikeResponse>
 
     //큐레이션 좋아요 제거
     @DELETE("/curations/{curation_id}/unlike")
     fun unlikeCuration(
-        @Body curation_id: Int
+        @Path("curation_id") curation_id: Int
     ): Call<CurationLikeResponse>
 
     //큐레이션 좋아요 수
     @GET("/curations/like/{curation_id}")
     fun getCurationLike(
-        @Query("curation_id") curation_id: Long
+        @Path("curation_id") curation_id: Long
     ):Call<CurationLikeResponse>
 
     //큐레이션 보관하기
     @POST("/curations/{curation_id}/storage")
     fun storeCuration(
-        @Body curation_id: Long
+        @Path ("curation_id") curation_id: Long
     ): Call <CurationStoreResponse>
 
     //큐레이션 보관 취소
     @DELETE("/curations/{curation_id}/storage")
     fun storeCancelCuration(
-        @Body curation_id: Long
+        @Path("curation_id") curation_id: Long
     ): Call <CurationStoreResponse>
 
     // 내 프로필- 큐레이션 조회
@@ -55,7 +59,8 @@ interface CurationAPI {
 
     // 내 프로필 - 큐레이션 좋아요 여부 조회
     @GET("/curations/me/like/{curation_id}")
-    fun getStateCurationLike(  @Body curation_id: Long
+    fun getStateCurationLike(
+        @Path("curation_id") curation_id: Long
     ): Call <GetCurationLikeStateResponse>
 
     //프로필 페이지 - 저장한 큐레이션 조회
@@ -71,7 +76,7 @@ interface CurationAPI {
     // 회원 - 큐레이션 조회
     @GET("/curations/users/{user_id}")
     fun getUserCuration(
-        @Query ("curation_id") user_id: Long
+        @Path ("user_id") user_id: Long
     ): Call <GetCuration>
 
 
@@ -85,6 +90,6 @@ interface CurationAPI {
     @DELETE ("/curations/{curation_id}")
     fun deleteCurationContent (
         @Body curation_id: Long
-    ): Call <DeleteCuartionResponse>
+    ): Call <DeleteCurationResponse>
 
 }
