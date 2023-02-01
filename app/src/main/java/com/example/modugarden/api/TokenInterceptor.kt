@@ -1,6 +1,6 @@
 package com.example.modugarden.api
 
-import android.util.Log
+import com.example.modugarden.ApplicationClass.Companion.accessToken
 import okhttp3.Interceptor
 import okhttp3.Response
 
@@ -8,7 +8,7 @@ object TokenInterceptor: Interceptor{
     override fun intercept(chain: Interceptor.Chain): Response {
 
         val finalRequest = chain.request().newBuilder()
-            .addHeader("authorization", "Bearer ${TokenStore.accessToken}")
+            .addHeader("authorization", "Bearer $accessToken")
             .build()
 
         val response = chain.proceed(finalRequest)

@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.modugarden.ApplicationClass
 import com.example.modugarden.BuildConfig.GOOGLE_WEB_KEY
 import com.example.modugarden.MainActivity
 import com.example.modugarden.signup.SignupActivity
@@ -36,7 +37,10 @@ import com.example.modugarden.api.dto.LoginDTO
 import com.example.modugarden.api.RetrofitBuilder.loginAPI
 import com.example.modugarden.api.RetrofitBuilder.signupAPI
 import com.example.modugarden.api.dto.SignupEmailIsDuplicatedDTO
-import com.example.modugarden.api.TokenStore
+import com.example.modugarden.ApplicationClass.Companion.accessToken
+import com.example.modugarden.ApplicationClass.Companion.clientId
+import com.example.modugarden.ApplicationClass.Companion.refreshToken
+import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -60,6 +64,7 @@ fun MainLoginScreen(navController: NavController) {
     val isTextFieldFocusedPw = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val mContext = LocalContext.current
+    val editor = sharedPreferences.edit()
 
     var user by remember { mutableStateOf(Firebase.auth.currentUser) }
     val launcher = rememberFirebaseAuthLauncher(
@@ -197,6 +202,12 @@ fun MainLoginScreen(navController: NavController) {
                                                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                                                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                             )
+
+                                            Log.d("Login Info", res.result.toString())
+                                            editor.putString(accessToken, res.result.accessToken)
+                                            editor.putString(refreshToken, res.result.refreshToken)
+                                            editor.putInt(clientId, res.result.userId)
+                                            editor.apply()
                                         }
                                         else {
                                             Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()

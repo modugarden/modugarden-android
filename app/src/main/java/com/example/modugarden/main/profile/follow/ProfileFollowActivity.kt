@@ -66,16 +66,17 @@ class ProfileFollowActivity : ComponentActivity() {
             val scope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState()
             val id = intent.extras?.getInt("userId")
-            Log.d("myId", id.toString())
+            Log.d("userId", id.toString())
 
             if (id != null) {
-                RetrofitBuilder.followAPI.myFollowerList()
+                RetrofitBuilder.followAPI.otherFollowerList(id)
                     .enqueue(object : Callback<FollowListDtoRes> {
                         override fun onResponse(
                             call: Call<FollowListDtoRes>,
                             response: Response<FollowListDtoRes>
                         ) {
-                            Log.d("onResponse", response.body().toString())
+                            Log.d("onResponse", response.code().toString() +
+                                    "\n" + (response.body()?.content))
                             newFollowerList = response.body()?.content
                         }
 
@@ -83,13 +84,15 @@ class ProfileFollowActivity : ComponentActivity() {
                             Log.d("onFailure", "안됨")
                         }
                     })
-                RetrofitBuilder.followAPI.myFollowingList()
+                RetrofitBuilder.followAPI.otherFollowingList(id)
                     .enqueue(object : Callback<FollowListDtoRes> {
                         override fun onResponse(
                             call: Call<FollowListDtoRes>,
                             response: Response<FollowListDtoRes>
                         ) {
-                            Log.d("onResponse", response.body().toString())
+                            Log.d("onResponse", response.code().toString() +
+                                     "\n" + (response.body()?.content)
+                            )
                             newFollowingList = response.body()?.content
                         }
 

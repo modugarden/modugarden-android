@@ -24,7 +24,7 @@ data class NewUser(
     val categories: List<String> = listOf("식물 가꾸기"),
     val follow: Boolean = true,
     val followerCount: Int = 100,
-    val id: Int = 15,
+    val id: Int = 3,
     val nickname: String = "mara",
     val postCount: Int = 10,
     val profileImage: String? = null,
