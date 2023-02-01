@@ -51,9 +51,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import com.example.modugarden.R
-import com.example.modugarden.data.FollowCuration
+import com.example.modugarden.api.dto.GetCurationContent
 import com.example.modugarden.main.content.CurationContentActivity
 import com.example.modugarden.main.content.modalReportCuration
+import com.example.modugarden.main.content.timeFomatter
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_light
@@ -61,13 +62,15 @@ import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable //팔로우 피드에 표시되는 큐레이션 카드 item.
-fun CurationCard(data: FollowCuration,
-                 scope: CoroutineScope,
-                 snackbarHostState: SnackbarHostState,
-                 bottomSheetState: ModalBottomSheetState,
-                 modalType: MutableState<Int>
+fun CurationCard(
+    data: GetCurationContent,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+    bottomSheetState: ModalBottomSheetState,
+    modalType: MutableState<Int>
 ) {
     val mContext = LocalContext.current
     Card(
@@ -86,7 +89,7 @@ fun CurationCard(data: FollowCuration,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 GlideImage(
-                    imageModel = data.user.image,
+                    imageModel = data.preview_image,
                     contentDescription = null,
                     modifier = Modifier
                         .size(26.dp)
@@ -95,7 +98,7 @@ fun CurationCard(data: FollowCuration,
                 )
                 Spacer(modifier = Modifier.width(18.dp))
                 Text(
-                    text = data.user.name,
+                    text = data.user_nickname,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                 )
@@ -115,7 +118,7 @@ fun CurationCard(data: FollowCuration,
                 ) {
 
                     GlideImage(
-                        imageModel = data.previewImage,
+                        imageModel = data.preview_image,
                         contentDescription = "썸네일",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -126,7 +129,7 @@ fun CurationCard(data: FollowCuration,
                     // 외부 페이지 이동
                     // 이미지 하단 블러처리
                     GlideImage(
-                        imageModel = data.previewImage,
+                        imageModel = data.preview_image,
                         contentDescription = "썸네일",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -191,12 +194,12 @@ fun CurationCard(data: FollowCuration,
                         )
                         Row() {
                             Text(
-                                data.category[0],
+                                data.category_category,
                                 fontSize = 12.sp,
                                 color = Color("#75807A".toColorInt())
                             )
                             Spacer(modifier = Modifier.weight(1f))
-                            Text(data.time, fontSize = 12.sp, color = Color("#75807A".toColorInt()))
+                            Text( timeFomatter(data.created_date), fontSize = 12.sp, color = Color("#75807A".toColorInt()))
                         }
 
                     }
