@@ -3,9 +3,7 @@ package com.example.modugarden.main.upload.curation
 import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Bitmap.CompressFormat.PNG
 import android.graphics.BitmapFactory
-import android.graphics.BitmapFactory.Options
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
@@ -29,8 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
-import com.example.modugarden.api.CurationUploadResponse
-import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.RetrofitBuilder.curationAPI
+import com.example.modugarden.api.dto.CurationUploadResponse
 import com.example.modugarden.main.upload.curation.UriUtil.toFile
 import com.example.modugarden.ui.theme.BottomButton
 import com.example.modugarden.ui.theme.SnackBar
@@ -44,7 +42,6 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Call
 import retrofit2.Response
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
@@ -109,7 +106,7 @@ fun UploadCurationWebScreen(
                 val jsonBody = jsonData.toString().toRequestBody(mediaType)
 
 
-                curationCreateAPI
+                curationAPI
                     .curationCreate(jsonBody, requestFile)
                     .enqueue(object: retrofit2.Callback<CurationUploadResponse> {
                         override fun onResponse(

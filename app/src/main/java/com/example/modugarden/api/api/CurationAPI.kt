@@ -4,6 +4,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import com.example.modugarden.api.dto.CurationLikeResponse
 import com.example.modugarden.api.dto.CurationStoreResponse
+import com.example.modugarden.api.dto.CurationUploadResponse
 import com.example.modugarden.api.dto.GetFeedCuration
 import retrofit2.Call
 import retrofit2.http.*
@@ -24,9 +25,9 @@ interface CurationAPI {
 
     //큐레이션 피드 올리기
     @Multipart
-    @POST("curations")
+    @POST("/curations")
     fun curationCreate(
-        @Part("curationCreateRequest") CreateCurationRequest: RequestBody,
+        @Part("curationCreateRequest") curationCreateRequest: RequestBody,
         @Part file: MultipartBody.Part
     ): Call<CurationUploadResponse>
 

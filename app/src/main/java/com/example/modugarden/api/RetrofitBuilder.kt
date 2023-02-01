@@ -1,5 +1,6 @@
 package com.example.modugarden.api
 
+import com.example.modugarden.api.api.*
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -11,7 +12,6 @@ object RetrofitBuilder {
     val signupAPI: SignupAPI
     val followAPI: FollowAPI
     val curationAPI: CurationAPI
-    val curationCreateAPI: CurationCreateAPI
     val fcmSaveAPI: FcmSaveAPI
     val postCreateAPI: PostCreateAPI
 
