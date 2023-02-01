@@ -9,8 +9,8 @@ data class CurationLikeResponse(
 )
 //likeCuration result
 data class CurationLikeResult(
-    val id: Long,
-    val like_num: Long
+    val id: Int,
+    val like_num: Int
 )
 data class CurationStoreResponse(
     val code: Int,
@@ -20,8 +20,8 @@ data class CurationStoreResponse(
 )
 
 data class CurationStoreResult(
-    val curation_id: Long,
-    val user_id: Long
+    val curation_id: Int,
+    val user_id: Int
 )
 
 data class GetSearchCuration(
@@ -38,26 +38,26 @@ data class GetCuration(
 )
 
 data class GetSearchCurationContent(
-    val id: Long,
+    val id: Int,
     val title: String,
     val link: String,
     val preview_image: String,
-    val likeNum: Long,
+    val likeNum: Int,
     val created_Date: String,
-    val user_id: Long,
+    val user_id: Int,
     val user_nickname: String,
     val user_profile_image: String,
     val category_category: String
 )
 
 data class GetCurationContent(
-    val id: Long,
+    val id: Int,
     val title: String,
     val link: String,
     val preview_image: String,
-    val likeNum: Long,
+    val likeNum: Int,
     val created_date: String,
-    val user_id: Long,
+    val user_id: Int,
     val user_nickname: String,
     val user_profile_image: String,
     val category_category: String
@@ -78,7 +78,7 @@ data class CurationUploadResponse(
 )
 
 data class CurationId(
-    val id: Long
+    val id: Int
 )
 data class GetCurationResponse(
     val code: Int,
@@ -101,8 +101,8 @@ data class GetCurationLikeStateResponse(
 )
 data class CurationLikeState(
     val check : Boolean,
-    val curation_id : Long,
-    val user_id: Long
+    val curation_id : Int,
+    val user_id: Int
 )
 
 data class GetCurationStoreStateResponse(
@@ -114,7 +114,7 @@ data class GetCurationStoreStateResponse(
 
 data class GetCurationStoreState(
     val check : Boolean,
-    val curation_id :Long,
-    val user_id : Long
+    val curation_id :Int,
+    val user_id : Int
 )
 
