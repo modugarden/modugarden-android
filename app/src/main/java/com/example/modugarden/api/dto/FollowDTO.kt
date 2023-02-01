@@ -25,7 +25,23 @@ data class FollowListDtoResContent(
     val categories: List<String>,
     val follow: Boolean,
     val nickname: String,
-    val profileImage: String,
+    val profileImg: String,
     val userId: Int
 )
+//{
+//    "content": [
+//    {
+//        "categories": [
+//        "string"
+//        ],
+//        "follow": true,
+//        "nickname": "string",
+//        "profileImage": "string",
+//        "userId": 0
+//    }
+//    ],
+//    "first": true,
+//    "hasNext": true,
+//    "last": true
+//}
 // 유저 팔로잉/팔로워 목록 끝

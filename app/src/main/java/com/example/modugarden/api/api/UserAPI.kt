@@ -42,9 +42,4 @@ interface UserAPI {
 
     @GET("/users/me/setting-info")
     fun readUserSettingInfo(): Call<UserSettingInfoRes>
-
-    @POST("/users/nickname/isDuplicated")
-    fun isNicknameDuplicated(
-        @Body nickname: NicknameDuplicatedCheckReq
-    ): Call<NicknameDuplicatedCheckRes>
 }
