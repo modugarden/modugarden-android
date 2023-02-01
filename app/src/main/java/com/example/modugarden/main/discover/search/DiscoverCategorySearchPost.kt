@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.modugarden.api.RetrofitBuilder
-import com.example.modugarden.api.dto.GetSearchCuration
 import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.data.Category
 import com.example.modugarden.ui.theme.ShowProgressBar
@@ -22,7 +21,7 @@ import retrofit2.Response
 //탐색피드에서 탭 래이아웃 아래에 보여줄 검색결과 뜨는 Composable인데
 //생각해보면 Post랑 Curation이랑 똑같이 생겨서 보내줄 인수만 바꿔줘도 되지 않을까???
 @Composable
-fun DiscoverSearchPost(searchCategory: Category){
+fun DiscoverCategorySearchPost(searchCategory: Category){
     val context = LocalContext.current
 
     var responseBody  by remember { mutableStateOf(GetSearchPost()) }
