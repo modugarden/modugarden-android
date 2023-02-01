@@ -113,6 +113,10 @@ fun MainLoginScreen(navController: NavController) {
                                                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                                         )
                                                         Log.e("apires", res1.result.accessToken)
+                                                        editor.putString(accessToken, res1.result.accessToken)
+                                                        editor.putString(refreshToken, res1.result.refreshToken)
+                                                        editor.putInt(clientId, res1.result.userId)
+                                                        editor.apply()
                                                     }
                                                     else {
                                                         Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
@@ -196,6 +200,7 @@ fun MainLoginScreen(navController: NavController) {
                                     val res = response.body()
                                     if(res != null) {
                                         if(res.isSuccess) {
+                                            Log.e("apires", res.result.accessToken)
                                             mContext.startActivity(
                                                 Intent(mContext, MainActivity::class.java)
                                                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
