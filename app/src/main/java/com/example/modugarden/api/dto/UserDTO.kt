@@ -27,18 +27,18 @@ data class UserInfoRes(
     val code: Int,
     val isSuccess: Boolean,
     val message: String,
-    val result: UserInfoResult
+    val result: UserInfoResResult
 )
 
-data class UserInfoResult(
-    val categories: List<String>,
-    val follow: Boolean,
-    val followerCount: Int,
-    val id: Int,
-    val nickname: String,
-    val postCount: Int,
-    val profileImage: String,
-    val userAuthority: String
+data class UserInfoResResult(
+    val categories: List<String> = listOf(),
+    val follow: Boolean = false,
+    val followerCount: Int = 0,
+    val id: Int = 0,
+    val nickname: String = "",
+    val postCount: Int = 0,
+    val profileImage: String = "",
+    val userAuthority: String = UserAuthority.ROLE_GENERAL.name
 )
 // 아이디로 유저 정보 가져오기 끝
 
@@ -65,7 +65,7 @@ data class MyUserInfoRes(
     val code: Int,
     val isSuccess: Boolean,
     val message: String,
-    val result: UserInfoResult
+    val result: UserInfoResResult
 )
 
 data class MyUserInfoResult(

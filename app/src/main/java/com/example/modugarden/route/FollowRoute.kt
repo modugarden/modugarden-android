@@ -36,7 +36,7 @@ fun NavigationGraphFollow(
         composable(
             NAV_ROUTE_FOLLOW.USERPROFILE.routeName
         ) { backStackEntry ->
-            MyProfileScreen()
+            MyProfileScreen(1)
         }
     }
 }

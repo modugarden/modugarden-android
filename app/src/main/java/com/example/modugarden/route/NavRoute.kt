@@ -12,6 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.example.modugarden.ApplicationClass
+import com.example.modugarden.ApplicationClass.Companion.clientId
+import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.google.accompanist.navigation.animation.composable
 import com.example.modugarden.R
 import com.example.modugarden.data.followPosts
@@ -22,6 +27,7 @@ import com.example.modugarden.main.notification.NotificationScreen
 import com.example.modugarden.main.profile.MyProfileScreen
 import com.example.modugarden.main.upload.UploadScreen
 import com.example.modugarden.viewmodel.CommentViewModel
+import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 
 enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val icon: Int) { //main 패키지 루트.
@@ -35,7 +41,11 @@ enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val ico
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun NavigationGraphBNB(navController: NavHostController,commentViewModel : CommentViewModel = viewModel() ) {
+fun NavigationGraphBNB(
+    navController: NavHostController,
+    commentViewModel : CommentViewModel = viewModel(),
+    userViewModel: UserViewModel = viewModel()
+) {
 
     val fadeInDuration = 500
     val fadeOutDuration = 50
@@ -45,7 +55,7 @@ fun NavigationGraphBNB(navController: NavHostController,commentViewModel : Comme
     AnimatedNavHost(navController, startDestination = NAV_ROUTE_BNB.FOLLOW.routeName,
         modifier = Modifier.fillMaxSize()) {
         composable(NAV_ROUTE_FOLLOW.USERPROFILE.routeName){
-            MyProfileScreen()
+            MyProfileScreen(userViewModel.userId)
         }
         composable(
             NAV_ROUTE_BNB.FOLLOW.routeName,
@@ -158,7 +168,7 @@ fun NavigationGraphBNB(navController: NavHostController,commentViewModel : Comme
                 fadeOut(animationSpec = tween(fadeOutDuration)) +
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideOutDuration))
             }
-        ) { MyProfileScreen() }
+        ) { MyProfileScreen(sharedPreferences.getInt(clientId, 0)) }
     }
 }
 

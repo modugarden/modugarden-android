@@ -258,7 +258,6 @@ fun FollowingScreen(navController: NavHostController, followPosts:List<FollowPos
 
                       items(followCurations.reversed()) {
                             CurationCard(
-                                navController = navController,
                                 data = it,
                              scope = scope,
                                 snackbarHostState= snackbarHostState,

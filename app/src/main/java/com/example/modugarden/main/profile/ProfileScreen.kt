@@ -30,10 +30,10 @@ import androidx.core.net.toUri
 import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
+import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.*
 import com.example.modugarden.data.CurationCard
-import com.example.modugarden.data.NewUser
 import com.example.modugarden.data.PostCard
 import com.example.modugarden.data.User
 import com.example.modugarden.main.profile.follow.ProfileFollowActivity
@@ -148,13 +148,25 @@ val myId = sharedPreferences.getInt(clientId, 3)
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable //프로필, 인수로 유저의 정보를 받아옴
-fun MyProfileScreen(
-    data: NewUser = NewUser()
+fun MyProfileScreen (
+    userId: Int
 ) {
     val focusManager = LocalFocusManager.current
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
+    val context = LocalContext.current
+    val data = remember { mutableStateOf( UserInfoResResult() ) }
+
+    RetrofitBuilder.userAPI.readUserInfo(userId)
+        .enqueue(object : AuthCallBack<UserInfoRes>(context, "성공!") {
+            override fun onResponse(call: Call<UserInfoRes>, response: Response<UserInfoRes>) {
+                super.onResponse(call, response)
+                data.value = response.body()?.result!!
+            }
+        })
+
+
     ModalBottomSheet(
         title = "",
         bottomSheetState = bottomSheetState,
@@ -188,8 +200,6 @@ fun MyProfileScreen(
                         .padding(it)
                         .background(color = Color.White)
                 ) {
-                    val context = LocalContext.current
-
                     // 프로필, 설정(또는 메뉴), 팔로우 목록을 묶고 있는 박스 레이아웃
                     Box(
                         Modifier
@@ -200,7 +210,7 @@ fun MyProfileScreen(
                     ) {
                         // 설정(내 프로필) 또는 메뉴
 
-                        if (data.id == myId) {
+                        if (data.value.id == myId) {
                             Row(
                                 modifier = Modifier.align(Alignment.TopEnd)
                             ) {
@@ -258,12 +268,12 @@ fun MyProfileScreen(
                                         Intent(
                                             context,
                                             ProfileFollowActivity::class.java
-                                        ).putExtra("userId", data.id)
+                                        ).putExtra("userId", data.value.id)
                                     )
                                 }
                         ) {
                            GlideImage(
-                                imageModel = data.profileImage,
+                                imageModel = data.value.profileImage,
                                 contentDescription = null,
                                 modifier = Modifier
                                     .size(50.dp)
@@ -272,14 +282,14 @@ fun MyProfileScreen(
                             Column(
                                 modifier = Modifier
                                     .padding(start = 10.dp)
-                                    .align(Alignment.CenterVertically)
+                                    .align(CenterVertically)
                             ) {
                                 Row(
                                     modifier = Modifier
                                         .height(30.dp)
                                 ) {
                                     Text(
-                                        text = data.nickname,
+                                        text = data.value.nickname,
                                         style = TextStyle(
                                             color = moduBlack,
                                             textAlign = TextAlign.Center,
@@ -287,14 +297,14 @@ fun MyProfileScreen(
                                             fontWeight = FontWeight.Bold
                                         ),
                                         modifier = Modifier
-                                            .align(Alignment.CenterVertically)
+                                            .align(CenterVertically)
                                     )
-                                    if(data.userAuthority == UserAuthority.ROLE_CURATOR.name) {
+                                    if(data.value.userAuthority == UserAuthority.ROLE_CURATOR.name) {
                                         Image(
                                             painter = painterResource(id = R.drawable.ic_check_solid),
                                             contentDescription = null,
                                             modifier = Modifier
-                                                .align(Alignment.CenterVertically)
+                                                .align(CenterVertically)
                                                 .padding(start = 5.dp)
                                                 .size(18.dp)
                                         )
@@ -304,7 +314,7 @@ fun MyProfileScreen(
                                     modifier = Modifier
                                         .height(20.dp)
                                         .wrapContentWidth(),
-                                    text = "팔로워 ${data.followerCount} · 게시물 ${data.postCount}",
+                                    text = "팔로워 ${data.value.followerCount} · 게시물 ${data.value.postCount}",
                                     style = TextStyle(
                                         color = moduGray_normal,
                                         textAlign = TextAlign.Center,
@@ -317,7 +327,7 @@ fun MyProfileScreen(
                                 painter = painterResource(id = R.drawable.ic_chevron_right),
                                 contentDescription = null,
                                 modifier = Modifier
-                                    .align(Alignment.CenterVertically)
+                                    .align(CenterVertically)
                                     .padding(vertical = 15.dp)
                                     .size(20.dp),
                                 tint = moduGray_normal
@@ -337,7 +347,7 @@ fun MyProfileScreen(
                             modifier = Modifier.fillMaxHeight(),
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            items(data.categories) { category ->
+                            items(data.value.categories) { category ->
                                 Card(
                                     Modifier
                                         .wrapContentWidth()
@@ -354,14 +364,14 @@ fun MyProfileScreen(
                                         ),
                                         modifier = Modifier
                                             .padding(10.dp)
-                                            .align(Alignment.CenterVertically))
+                                            .align(CenterVertically))
                                 }
                             }
                         }
                         Spacer(modifier = Modifier.weight(1f))
-                        val followState = remember { mutableStateOf(data.follow) }
+                        val followState = remember { mutableStateOf(data.value.follow) }
                         // 카테고리 추가(내 프로필) 또는 팔로우 버튼 역할을 할 카드
-                        if (data.id == myId) {
+                        if (data.value.id == myId) {
                             Card(
                                 modifier = Modifier
                                     .width(36.dp)
@@ -417,8 +427,10 @@ fun MyProfileScreen(
                                     .height(36.dp),
                                 snackBarAction = {
                                     scope.launch {
-                                        scaffoldState.snackbarHostState.showSnackbar("${data.nickname} 님을 팔로우 했어요.")
+                                        if (followState.value) scaffoldState.snackbarHostState.showSnackbar("${data.value.nickname} 님을 팔로우 했어요.")
+                                        else scaffoldState.snackbarHostState.showSnackbar("${data.value.nickname} 님을 언팔로우 했어요.")
                                     }
+
                                 },
                                 followState = followState,
                                 contentModifier = Modifier
@@ -459,9 +471,9 @@ fun MyProfileScreen(
                     // 탭 구현
                     // 탭으로 넘길 때 만약 내 프로필이라면 포스트, 큐레이션 추가 버튼까지 넘겨야됨
                     // 그럼 포스트리스트랑 큐레이션리스트의 맨 앞에 추가해서 넣으면 됨
-                    if (data.userAuthority == UserAuthority.ROLE_CURATOR.name)
+                    if (data.value.userAuthority == UserAuthority.ROLE_CURATOR.name)
                     {
-                        if(data.id == myId)
+                        if(data.value.id == myId)
                             CuratorProfileTab(
                                 listOf(PostCard()).plus(user.post!!),
                                 listOf(CurationCard()).plus(user.curation!!)
@@ -469,9 +481,9 @@ fun MyProfileScreen(
                         else
                             CuratorProfileTab(user.post!!, user.curation!!)
                     }
-                    else if(data.userAuthority == UserAuthority.ROLE_GENERAL.name)
+                    else if(data.value.userAuthority == UserAuthority.ROLE_GENERAL.name)
                     {
-                        if(data.id == myId)
+                        if(data.value.id == myId)
                             ProfileTab(listOf(PostCard()).plus(user.post!!))
                         else
                             ProfileTab(user.post!!)
