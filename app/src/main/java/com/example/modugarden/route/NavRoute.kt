@@ -43,7 +43,6 @@ enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val ico
 @Composable
 fun NavigationGraphBNB(
     navController: NavHostController,
-    commentViewModel : CommentViewModel = viewModel(),
     userViewModel: UserViewModel = viewModel()
 ) {
 
@@ -68,7 +67,7 @@ fun NavigationGraphBNB(
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideOutDuration))
             }
         ) {
-            FollowScreen() }
+            FollowScreen(navController) }
 
         composable(
             NAV_ROUTE_BNB.DISCOVER.routeName,

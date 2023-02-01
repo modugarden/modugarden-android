@@ -276,7 +276,7 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                                         modifier = Modifier
                                             .weight(1f)
                                             .bounceClick {
-                                                navController.navigate("${NAV_ROUTE_POSTCONTENT.MAP.routeName}")
+                                                navController.navigate("${NAV_ROUTE_POSTCONTENT.MAP.routeName}/${data.location?.get(pagerState.currentPage)}")
                                             },
                                         shape = RoundedCornerShape(10.dp),
                                         backgroundColor = moduPoint,
