@@ -1,4 +1,4 @@
-package com.example.modugarden.api
+package com.example.modugarden.api.api
 
 import com.example.modugarden.BuildConfig.google_maps_key
 import com.example.modugarden.data.MapsGeocoding

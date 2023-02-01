@@ -3,7 +3,9 @@ package com.example.modugarden.main.upload.curation
 import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Bitmap.CompressFormat.PNG
 import android.graphics.BitmapFactory
+import android.graphics.BitmapFactory.Options
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
@@ -107,7 +109,7 @@ fun UploadCurationWebScreen(
                 val jsonBody = jsonData.toString().toRequestBody(mediaType)
 
 
-                RetrofitBuilder.curationAPI
+                curationCreateAPI
                     .curationCreate(jsonBody, requestFile)
                     .enqueue(object: retrofit2.Callback<CurationUploadResponse> {
                         override fun onResponse(

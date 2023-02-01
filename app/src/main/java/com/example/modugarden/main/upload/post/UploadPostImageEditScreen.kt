@@ -1,6 +1,7 @@
 package com.example.modugarden.main.upload.post
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
@@ -33,6 +34,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -48,10 +50,24 @@ import com.example.modugarden.viewmodel.UploadPostViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.example.modugarden.R
+import com.example.modugarden.api.dto.CurationUploadResponse
+import com.example.modugarden.api.RetrofitBuilder.postCreateAPI
+import com.example.modugarden.main.upload.curation.UriUtil.toFile
 import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
 import com.example.modugarden.ui.theme.*
 import com.google.accompanist.pager.rememberPagerState
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.io.File
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalAnimationApi::class)
 @Composable
@@ -64,6 +80,10 @@ fun UploadPostImageEditScreen(
     val focusManager = LocalFocusManager.current
     val descriptionData = remember { data.description }
     val locationData = remember { data.location }
+
+    val scope = rememberCoroutineScope()
+
+    val mContext = LocalContext.current
 
     val pagerState = rememberPagerState()
 
@@ -132,7 +152,7 @@ fun UploadPostImageEditScreen(
                                             .padding(18.dp)
                                             .bounceClick {
                                                 //위치 태그 추가 창으로 이동
-                                                navController.navigate(NAV_ROUTE_UPLOAD_POST.TAGLOCATION.routeName+"/${page}")
+                                                navController.navigate(NAV_ROUTE_UPLOAD_POST.TAGLOCATION.routeName + "/${page}")
                                             }
                                     ) {
                                         //위치 아이콘
@@ -143,12 +163,16 @@ fun UploadPostImageEditScreen(
                                                 .size(40.dp)
                                         )
                                         Spacer(Modifier.size(18.dp))
-                                        Text(if(locationData[page].isNotEmpty()) locationData[page].split(",")[0] else "위치 태그 추가", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = if(locationData[page].isNotEmpty()) moduBlack else moduBlack, modifier = Modifier.align(Alignment.CenterVertically).weight(1f))
+                                        Text(if(locationData[page].isNotEmpty()) locationData[page].split(",")[0] else "위치 태그 추가", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = if(locationData[page].isNotEmpty()) moduBlack else moduBlack, modifier = Modifier
+                                            .align(Alignment.CenterVertically)
+                                            .weight(1f))
                                         Spacer(Modifier.size(18.dp))
                                         Image(
                                             painter = painterResource(id = R.drawable.ic_chevron_right_bold),
                                             contentDescription = null,
-                                            modifier = Modifier.size(20.dp).align(Alignment.CenterVertically)
+                                            modifier = Modifier
+                                                .size(20.dp)
+                                                .align(Alignment.CenterVertically)
                                         )
                                     }
                                 }
@@ -238,9 +262,74 @@ fun UploadPostImageEditScreen(
                 .align(Alignment.BottomCenter)
         ) {
             BottomButton(
-                title = "업로드",
+                title = if(pagerState.currentPage < data.image.size - 1) "다음" else "업로드",
                 onClick = {
-                    //포스트 업로드 데이터 전달 API 연결.
+                    if(pagerState.currentPage == data.image.size - 1) {
+                        var imageList = listOf<MultipartBody.Part>()
+                        val jsonData = JsonObject()
+                        val jsonDataContent = JsonArray()
+                        val jsonDataLocation = JsonArray()
+                        //포스트 업로드 데이터 전달 API 연결.
+                        for(i in 0 until data.image.size) {
+                            val file = toFile(mContext, data.image[i])
+                            val requestFile = MultipartBody.Part.createFormData(
+                                name = "file",
+                                filename = file.name,
+                                body = file.asRequestBody("image/*".toMediaType())
+                            )
+                            imageList += requestFile
+                            jsonDataContent.add(data.description[i])
+                            jsonDataLocation.add(data.location[i])
+                        }
+
+                        jsonData.apply {
+                            addProperty("category", data.category.category)
+                            add("content", jsonDataContent)
+                            add("location", jsonDataLocation)
+                            addProperty("title", data.title)
+                        }
+
+                        val mediaType = "application/json; charset=utf-8".toMediaType()
+                        val jsonBody = jsonData.toString().toRequestBody(mediaType)
+
+                        postCreateAPI.postCreateAPI(jsonBody, imageList)
+                            .enqueue(object: Callback<CurationUploadResponse> {
+                                override fun onResponse(
+                                    call: Call<CurationUploadResponse>,
+                                    response: Response<CurationUploadResponse>
+                                ) {
+                                    if(response.isSuccessful) {
+                                        val res = response.body()
+                                        if(res != null) {
+                                            if(res.isSuccess) {
+                                                Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
+                                            }
+                                            Log.e("apires", res.toString())
+                                        }
+                                        else {
+                                            Log.e("apires", response.toString())
+                                        }
+                                    }
+                                    else {
+                                        Toast.makeText(mContext, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
+                                        Log.e("apires", response.toString())
+                                        Log.e("apires", jsonData.toString())
+                                    }
+                                }
+
+                                override fun onFailure(
+                                    call: Call<CurationUploadResponse>,
+                                    t: Throwable
+                                ) {
+                                    Toast.makeText(mContext, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
+                                }
+                            })
+                    }
+                    else {
+                        scope.launch {
+                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                        }
+                    }
                 }
             )
         }

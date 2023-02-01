@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
-import com.example.modugarden.api.GetFeedCurationContent
+import com.example.modugarden.api.dto.GetFeedCurationContent
 import com.example.modugarden.ui.theme.ShowProgressBar
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack

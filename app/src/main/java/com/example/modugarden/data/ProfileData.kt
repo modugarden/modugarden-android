@@ -3,6 +3,7 @@ package com.example.modugarden.data
 import android.net.Uri
 import android.os.Parcelable
 import com.example.modugarden.R
+import com.example.modugarden.api.dto.UserAuthority
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
 
@@ -16,6 +17,27 @@ data class User(
     val state: Boolean,
     val post: @RawValue List<PostCard>?,
     val curation: @RawValue List<CurationCard>?
+) : Parcelable
+
+@Parcelize
+data class NewUser(
+    val categories: List<String> = listOf("식물 가꾸기"),
+    val follow: Boolean = true,
+    val followerCount: Int = 100,
+    val id: Int = 15,
+    val nickname: String = "mara",
+    val postCount: Int = 10,
+    val profileImage: String? = null,
+    val userAuthority: String = UserAuthority.ROLE_CURATOR.name
+) : Parcelable
+
+@Parcelize
+data class FollowData(
+    val categories: List<String>,
+    val follow: Boolean,
+    val nickname: String,
+    val profileImage: String,
+    val userId: Int
 ) : Parcelable
 
 @Parcelize

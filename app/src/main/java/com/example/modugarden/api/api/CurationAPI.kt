@@ -2,6 +2,9 @@ package com.example.modugarden.api
 
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import com.example.modugarden.api.dto.CurationLikeResponse
+import com.example.modugarden.api.dto.CurationStoreResponse
+import com.example.modugarden.api.dto.GetFeedCuration
 import retrofit2.Call
 import retrofit2.http.*
 

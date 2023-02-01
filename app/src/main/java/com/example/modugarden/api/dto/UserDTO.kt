@@ -1,4 +1,4 @@
-package com.example.modugarden.api
+package com.example.modugarden.api.dto
 
 enum class UserAuthority {
     ROLE_BLOCKED,
@@ -102,7 +102,7 @@ data class UserSettingInfoRes(
     val code: Int,
     val isSuccess: Boolean,
     val message: String,
-    val result: UpdateUserNicknameResResult
+    val result: UserSettingInfoResResult
 )
 
 data class UserSettingInfoResResult(

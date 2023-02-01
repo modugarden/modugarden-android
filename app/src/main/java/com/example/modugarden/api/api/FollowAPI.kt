@@ -1,5 +1,7 @@
-package com.example.modugarden.api;
+package com.example.modugarden.api.api;
 
+import com.example.modugarden.api.dto.FollowDtoRes
+import com.example.modugarden.api.dto.FollowListDtoRes
 import retrofit2.Call
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -8,34 +10,41 @@ import retrofit2.http.Path;
 
 interface FollowAPI {
 
+    // 팔로우
     @POST("/follow/{following_id}")
     fun follow (
-        @Path("following_id") id: String
+        @Path("following_id") id: Int
     ): Call<FollowDtoRes>
 
+    // 언팔로우
     @DELETE("/follow/{following_id}")
     fun unFollow (
-        @Path("following_id") id: String
+        @Path("following_id") id: Int
     ): Call<FollowDtoRes>
 
+    // 타 유저 팔로워 리스트
     @GET("/follow/{user_id}/follower")
     fun otherFollowerList(
-        @Path("user_id") id: String
+        @Path("user_id") id: Int
     ): Call<FollowListDtoRes>
 
+    // 타 유저 팔로잉 리스트
     @GET("/follow/{user_id}/following")
     fun otherFollowingList(
-        @Path("user_id") id: String
+        @Path("user_id") id: Int
     ): Call<FollowListDtoRes>
 
+    // 내 팔로워 리스트
     @GET("/follow/me/follower")
     fun myFollowerList(): Call<FollowListDtoRes>
 
+    // 내 팔로잉 리스트
     @GET("/follow/me/following")
     fun myFollowingList(): Call<FollowListDtoRes>
 
+    // 팔로우중인지 확인
     @GET("/follow/isFollowed/{id}")
     fun isFollowed(
-        @Path("id") id: String
+        @Path("id") id: Int
     ): Call<FollowDtoRes>
 }
