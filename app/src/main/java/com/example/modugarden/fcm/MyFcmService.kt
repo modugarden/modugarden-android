@@ -35,35 +35,6 @@ class MyFcmService: FirebaseMessagingService() {
     private fun sendTokenToServer(token: String) {
         val prefs = getSharedPreferences("prefs", 0)
         val editor = prefs.edit()
-        val jsonData = JsonObject().apply {
-            addProperty("fcmToken", token)
-        }
-        fcmSaveAPI.fcmSaveAPI(jsonData).enqueue(object: Callback<FcmSaveDTO> {
-            override fun onResponse(call: Call<FcmSaveDTO>, response: Response<FcmSaveDTO>) {
-                if(response.isSuccessful) {
-                    val res = response.body()
-                    if(res != null) {
-                        if(res.isSuccess) {
-                            Log.d("apires", "토큰을 정상적으로 서버에 저장했어요")
-                        }
-                        else {
-                            Log.e("apires", res.message)
-                        }
-                    }
-                    else {
-                        Log.e("apires", "res == null")
-                    }
-                }
-                else {
-                    Log.e("apires", "response == not Successful")
-                }
-            }
-
-            override fun onFailure(call: Call<FcmSaveDTO>, t: Throwable) {
-                Log.e("apires", "토큰 전송 실패!")
-            }
-
-        })
 
         editor.putString("fcm token", token).apply()
     }

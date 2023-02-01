@@ -238,18 +238,14 @@ fun FollowingScreen(navController: NavHostController, followPosts:List<FollowPos
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(30.dp, 30.dp, 30.dp, 0.dp),
+                                .padding(30.dp, 30.dp, 30.dp, 20.dp),
                         ) {
+                            Spacer(Modifier.weight(1f))
                             Image(
-                                painter = painterResource(id = R.drawable.ic_house_with_garden),
-                                contentDescription = null
+                                painter = painterResource(id = R.drawable.ic_logo_modern),
+                                contentDescription = null,
                             )
-                            Text(
-                                text = " 모두의 정원",
-                                color = moduGray_strong,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
-                            )
+                            Spacer(Modifier.weight(1f))
                         }
                     }
                     //포스트 카드
