@@ -44,9 +44,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import com.example.modugarden.ApplicationClass
 import com.example.modugarden.R
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.FollowDtoRes
 import com.example.modugarden.main.follow.moduBold
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import kotlin.math.pow
 
 //바운스 버튼
@@ -570,6 +576,70 @@ fun ShowProgressBar() {
         CircularProgressIndicator(
             color = moduPoint,
             modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
+@Composable
+fun FollowCard(
+    id: Int,
+    modifier: Modifier,
+    snackBarAction: () -> Unit,
+    followState: MutableState<Boolean>,
+    contentModifier: Modifier
+) {
+    Card(
+        modifier = modifier
+            .bounceClick {
+                // 팔로우 api
+                if(!followState.value) {
+                    RetrofitBuilder.followAPI.follow(id).enqueue(
+                        object : Callback<FollowDtoRes> {
+                            override fun onResponse(
+                                call: Call<FollowDtoRes>,
+                                response: Response<FollowDtoRes>
+                            ) {
+                                snackBarAction()
+                                followState.value = !followState.value
+                            }
+
+                            override fun onFailure(call: Call<FollowDtoRes>, t: Throwable) {
+
+                            }
+                        }
+                    )
+                }
+                else {
+                    RetrofitBuilder.followAPI.unFollow(id).enqueue(
+                        object : Callback<FollowDtoRes> {
+                            override fun onResponse(
+                                call: Call<FollowDtoRes>,
+                                response: Response<FollowDtoRes>
+                            ) {
+                                snackBarAction()
+                                followState.value = !followState.value
+                            }
+
+                            override fun onFailure(call: Call<FollowDtoRes>, t: Throwable) {
+
+                            }
+                        }
+                    )
+                }
+            },
+        shape = RoundedCornerShape(10.dp),
+        backgroundColor = if(followState.value) { moduBackground } else { moduPoint },
+        elevation = 0.dp
+    ) {
+        Text(
+            text = if(followState.value) { "팔로잉" } else { "팔로우" },
+            style = TextStyle(
+                color = if(followState.value) { Color.Black } else { Color.White },
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            ),
+            modifier = contentModifier
         )
     }
 }
