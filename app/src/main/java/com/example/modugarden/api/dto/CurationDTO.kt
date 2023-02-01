@@ -55,7 +55,7 @@ data class CurationUploadResponse(
     val code: Int,
     val isSuccess: Boolean,
     val message: String,
-    val curationId: CurationId
+    val result: CurationId
 )
 
 data class CurationId(

@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.modugarden.R
+import com.example.modugarden.api.dto.FindByNicknameResContent
 import com.example.modugarden.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -30,7 +31,7 @@ import kotlinx.coroutines.launch
 
 //포스트, 큐레이션에 표시되는 카드들로 데이터 형식 알려주면 그때 넣겠삼삼
 @Composable
-fun DiscoverSearchUserCard(searchStr : String, coroutineScope : CoroutineScope, snackbarHostState: SnackbarHostState) {
+fun DiscoverSearchUserCard(userData : FindByNicknameResContent, coroutineScope : CoroutineScope, snackbarHostState: SnackbarHostState) {
 
     val followState = remember{ mutableStateOf(false) }
 
@@ -61,7 +62,7 @@ fun DiscoverSearchUserCard(searchStr : String, coroutineScope : CoroutineScope, 
             Column {
                 Text(
                     modifier = Modifier.width(200.dp),
-                    text = searchStr,
+                    text = userData.nickname,
                     style = TextStyle(
                         color = moduBlack,
                         fontWeight = FontWeight(700),
@@ -94,7 +95,7 @@ fun DiscoverSearchUserCard(searchStr : String, coroutineScope : CoroutineScope, 
                     followState.value = followState.value.not()
                     coroutineScope.launch {
                         snackbarHostState.showSnackbar(
-                            "$searchStr 님을 팔로우 하였습니다.",
+                            "$userData 님을 팔로우 하였습니다.",
                             duration = SnackbarDuration.Short
                         )
                     }

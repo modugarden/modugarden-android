@@ -182,9 +182,9 @@ object UriUtil {
         val file = FileUtil.createTempFile(context, fileName)
         FileUtil.copyToFile(context, uri, file)
 
-        val bmp = BitmapFactory.decodeFile(file.absolutePath)
-        //압축하는 함수
-        bitmapToFile(bmp, file)
+//        val bmp = BitmapFactory.decodeFile(file.absolutePath)
+//        //압축하는 함수
+//        bitmapToFile(bmp, file)
 
         return File(file.absolutePath)
     }
