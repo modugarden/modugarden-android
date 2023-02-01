@@ -1,5 +1,6 @@
-package com.example.modugarden.api
+package com.example.modugarden.api.api
 
+import com.example.modugarden.api.dto.*
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -41,9 +42,4 @@ interface UserAPI {
 
     @GET("/users/me/setting-info")
     fun readUserSettingInfo(): Call<UserSettingInfoRes>
-
-    @POST("/users/nickname/isDuplicated")
-    fun isNicknameDuplicated(
-        @Body nickname: NicknameDuplicatedCheckReq
-    ): Call<NicknameDuplicatedCheckRes>
 }

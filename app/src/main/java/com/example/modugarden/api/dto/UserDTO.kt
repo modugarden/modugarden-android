@@ -1,4 +1,4 @@
-package com.example.modugarden.api
+package com.example.modugarden.api.dto
 
 enum class UserAuthority {
     ROLE_BLOCKED,

@@ -22,8 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.example.modugarden.R
-import com.example.modugarden.api.FollowListDtoRes
-import com.example.modugarden.api.FollowListDtoResContent
+import com.example.modugarden.api.dto.FollowListDtoRes
+import com.example.modugarden.api.dto.FollowListDtoResContent
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.data.User
 import com.example.modugarden.main.profile.*
@@ -66,16 +66,17 @@ class ProfileFollowActivity : ComponentActivity() {
             val scope = rememberCoroutineScope()
             val scaffoldState = rememberScaffoldState()
             val id = intent.extras?.getInt("userId")
-            Log.d("myId", id.toString())
+            Log.d("userId", id.toString())
 
             if (id != null) {
-                RetrofitBuilder.followAPI.myFollowerList()
+                RetrofitBuilder.followAPI.otherFollowerList(id)
                     .enqueue(object : Callback<FollowListDtoRes> {
                         override fun onResponse(
                             call: Call<FollowListDtoRes>,
                             response: Response<FollowListDtoRes>
                         ) {
-                            Log.d("onResponse", response.body().toString())
+                            Log.d("onResponse", response.code().toString() +
+                                    "\n" + (response.body()?.content))
                             newFollowerList = response.body()?.content
                         }
 
@@ -83,13 +84,15 @@ class ProfileFollowActivity : ComponentActivity() {
                             Log.d("onFailure", "안됨")
                         }
                     })
-                RetrofitBuilder.followAPI.myFollowingList()
+                RetrofitBuilder.followAPI.otherFollowingList(id)
                     .enqueue(object : Callback<FollowListDtoRes> {
                         override fun onResponse(
                             call: Call<FollowListDtoRes>,
                             response: Response<FollowListDtoRes>
                         ) {
-                            Log.d("onResponse", response.body().toString())
+                            Log.d("onResponse", response.code().toString() +
+                                     "\n" + (response.body()?.content)
+                            )
                             newFollowingList = response.body()?.content
                         }
 

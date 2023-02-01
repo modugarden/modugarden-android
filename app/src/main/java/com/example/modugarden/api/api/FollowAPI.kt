@@ -1,5 +1,7 @@
-package com.example.modugarden.api;
+package com.example.modugarden.api.api;
 
+import com.example.modugarden.api.dto.FollowDtoRes
+import com.example.modugarden.api.dto.FollowListDtoRes
 import retrofit2.Call
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -21,15 +23,15 @@ interface FollowAPI {
     ): Call<FollowDtoRes>
 
     // 타 유저 팔로워 리스트
-    @GET("/follow/{user_id}/follower")
+    @GET("/follow/{other_id}/follower")
     fun otherFollowerList(
-        @Path("user_id") id: Int
+        @Path("other_id") id: Int
     ): Call<FollowListDtoRes>
 
     // 타 유저 팔로잉 리스트
-    @GET("/follow/{user_id}/following")
+    @GET("/follow/{other_id}/following")
     fun otherFollowingList(
-        @Path("user_id") id: Int
+        @Path("other_id") id: Int
     ): Call<FollowListDtoRes>
 
     // 내 팔로워 리스트

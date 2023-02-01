@@ -1,18 +1,13 @@
 package com.example.modugarden.login
 
-import android.app.Activity
 import android.content.Intent
-import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -27,36 +22,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.modugarden.ApplicationClass
 import com.example.modugarden.BuildConfig.GOOGLE_WEB_KEY
 import com.example.modugarden.MainActivity
 import com.example.modugarden.signup.SignupActivity
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.R
-import com.example.modugarden.api.LoginAPI
-import com.example.modugarden.api.LoginDTO
+import com.example.modugarden.api.dto.LoginDTO
 import com.example.modugarden.api.RetrofitBuilder.loginAPI
-import com.example.modugarden.api.RetrofitBuilder.signupEmailAuthenticationAPI
-import com.example.modugarden.api.RetrofitBuilder.signupEmailIsDuplicatedAPI
-import com.example.modugarden.api.TokenStore
-import com.example.modugarden.data.SignupEmailAuthenticationDTO
-import com.example.modugarden.data.SignupEmailIsDuplicatedDTO
-import com.example.modugarden.route.NAV_ROUTE_SIGNUP
-import com.example.modugarden.viewmodel.SignupViewModel
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.example.modugarden.api.RetrofitBuilder.signupAPI
+import com.example.modugarden.api.dto.SignupEmailIsDuplicatedDTO
+import com.example.modugarden.ApplicationClass.Companion.accessToken
+import com.example.modugarden.ApplicationClass.Companion.clientId
+import com.example.modugarden.ApplicationClass.Companion.refreshToken
+import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -67,7 +55,6 @@ import kotlinx.coroutines.tasks.await
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.create
 
 @Composable
 fun MainLoginScreen(navController: NavController) {
@@ -77,6 +64,7 @@ fun MainLoginScreen(navController: NavController) {
     val isTextFieldFocusedPw = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val mContext = LocalContext.current
+    val editor = sharedPreferences.edit()
 
     var user by remember { mutableStateOf(Firebase.auth.currentUser) }
     val launcher = rememberFirebaseAuthLauncher(
@@ -89,7 +77,7 @@ fun MainLoginScreen(navController: NavController) {
             val jsonData = JsonObject().apply {
                 addProperty("email", user?.email)
             }
-            signupEmailIsDuplicatedAPI.getSignupEmailIsDuplicatedAPI(jsonData).enqueue(object: Callback<SignupEmailIsDuplicatedDTO> {
+            signupAPI.getSignupEmailIsDuplicatedAPI(jsonData).enqueue(object: Callback<SignupEmailIsDuplicatedDTO> {
                 override fun onResponse(
                     call: Call<SignupEmailIsDuplicatedDTO>,
                     response: Response<SignupEmailIsDuplicatedDTO>
@@ -106,12 +94,44 @@ fun MainLoginScreen(navController: NavController) {
                                     mContext.startActivity(intent)
                                 }
                                 else {
-                                    mContext.startActivity(
-                                        Intent(mContext, MainActivity::class.java)
-                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                    )
+                                    val jsonData = JsonObject().apply {
+                                        addProperty("email", user?.email)
+                                    }
+                                    loginAPI.loginSocialAPI(jsonData).enqueue(object: Callback<LoginDTO> {
+                                        override fun onResponse(
+                                            call: Call<LoginDTO>,
+                                            response: Response<LoginDTO>
+                                        ) {
+                                            if(response.isSuccessful) {
+                                                val res1 = response.body()
+                                                if(res1 != null) {
+                                                    if(res1.isSuccess) {
+                                                        mContext.startActivity(
+                                                            Intent(mContext, MainActivity::class.java)
+                                                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                                        )
+                                                        Log.e("apires", res1.result.accessToken)
+                                                    }
+                                                    else {
+                                                        Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                                                    }
+                                                }
+                                                else {
+                                                    Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                                                }
+                                            }
+                                            else {
+                                                Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+
+                                        override fun onFailure(call: Call<LoginDTO>, t: Throwable) {
+                                            Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                                        }
+
+                                    })
                                 }
                             }
                             else {
@@ -162,49 +182,50 @@ fun MainLoginScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .bounceClick {
-                        val jsonObject = JsonObject().apply {
+                        val jsonData = JsonObject()
+                        jsonData.apply {
                             addProperty("email", textFieldId.value)
                             addProperty("password", textFieldPw.value)
                         }
-                        loginAPI.login(jsonObject)
-                            .enqueue(object: retrofit2.Callback<LoginDTO> {
-                                override fun onResponse(
-                                    call: Call<LoginDTO>,
-                                    response: Response<LoginDTO>
-                                ) {
-                                    if(response.isSuccessful) {
-                                        val res = response.body()
-                                        if(res != null) {
-                                            Log.e("apires", res.message)
-                                            if(res.isSuccess) {
-                                                mContext.startActivity(
-                                                    Intent(mContext, MainActivity::class.java)
-                                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                                )
+                        loginAPI.login(jsonData).enqueue(object: Callback<LoginDTO> {
+                            override fun onResponse(
+                                call: Call<LoginDTO>,
+                                response: Response<LoginDTO>
+                            ) {
+                                if(response.isSuccessful) {
+                                    val res = response.body()
+                                    if(res != null) {
+                                        if(res.isSuccess) {
+                                            mContext.startActivity(
+                                                Intent(mContext, MainActivity::class.java)
+                                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                            )
 
-                                                TokenStore.accessToken = res.result.accessToken
-                                                TokenStore.refreshToken = res.result.refreshToken
-                                            }
-                                            else {
-                                                Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
-                                            }
+                                            Log.d("Login Info", res.result.toString())
+                                            editor.putString(accessToken, res.result.accessToken)
+                                            editor.putString(refreshToken, res.result.refreshToken)
+                                            editor.putInt(clientId, res.result.userId)
+                                            editor.apply()
                                         }
                                         else {
-                                            Toast.makeText(mContext, "정보를 정상적으로 받지 못했어요", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                     else {
-                                        Log.e("apires", "....;")
+                                        Toast.makeText(mContext, "res == null", Toast.LENGTH_SHORT).show()
                                     }
                                 }
-
-                                override fun onFailure(call: Call<LoginDTO>, t: Throwable) {
-                                    Log.e("apires", t.message.toString())
+                                else {
+                                    Toast.makeText(mContext, "response != isSuccessful", Toast.LENGTH_SHORT).show()
                                 }
+                            }
 
-                            })
+                            override fun onFailure(call: Call<LoginDTO>, t: Throwable) {
+                                Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                            }
+                        })
                     },
                 backgroundColor = moduPoint,
                 shape = RoundedCornerShape(10.dp),
@@ -281,10 +302,7 @@ fun MainLoginScreen(navController: NavController) {
                 modifier = Modifier
                     .bounceClick {
                         mContext.startActivity(
-                            Intent(mContext, MainActivity::class.java)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            Intent(mContext, SignupActivity::class.java)
                         )
                     }
                     .align(Alignment.CenterHorizontally),

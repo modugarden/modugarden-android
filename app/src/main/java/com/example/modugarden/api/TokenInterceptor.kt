@@ -1,14 +1,17 @@
 package com.example.modugarden.api
 
-import android.util.Log
+import com.example.modugarden.ApplicationClass.Companion.accessToken
+import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import okhttp3.Interceptor
 import okhttp3.Response
 
 object TokenInterceptor: Interceptor{
     override fun intercept(chain: Interceptor.Chain): Response {
 
+        val ACCESS_TOKEN = sharedPreferences.getString(accessToken, null)
+
         val finalRequest = chain.request().newBuilder()
-            .addHeader("authorization", "Bearer ${TokenStore.accessToken}")
+            .addHeader("authorization", "Bearer $ACCESS_TOKEN")
             .build()
 
         val response = chain.proceed(finalRequest)

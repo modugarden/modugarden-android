@@ -1,5 +1,8 @@
-package com.example.modugarden.api
+package com.example.modugarden.api.api
 
+import com.example.modugarden.api.dto.CurationLikeResponse
+import com.example.modugarden.api.dto.CurationStoreResponse
+import com.example.modugarden.api.dto.GetFeedCuration
 import retrofit2.Call
 import retrofit2.http.*
 

@@ -26,8 +26,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.core.net.toUri
+import com.example.modugarden.ApplicationClass.Companion.clientId
+import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
-import com.example.modugarden.api.*
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.*
 import com.example.modugarden.data.CurationCard
 import com.example.modugarden.data.NewUser
 import com.example.modugarden.data.PostCard
@@ -140,7 +143,7 @@ val user = User(
     true, postResponse, curationResponse
 )
 
-const val myId = 123
+val myId = sharedPreferences.getInt(clientId, 3)
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable //프로필, 인수로 유저의 정보를 받아옴

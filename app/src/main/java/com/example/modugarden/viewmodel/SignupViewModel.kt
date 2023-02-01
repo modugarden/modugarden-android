@@ -10,7 +10,7 @@ class SignupViewModel: ViewModel() {
     private val inPassword = mutableStateOf("")
     private val inIsTermsCheck = mutableStateOf(false)
     private val inName = mutableStateOf("")
-    private val inBirthday = mutableStateOf("20/12/2003")
+    private val inBirthday = mutableStateOf("2003/12/20")
     private val inCategory = mutableStateOf(listOf<Boolean>())
     private val inSocial = mutableStateOf(false)
     private val inCert = mutableStateOf("!!!")

@@ -1,4 +1,4 @@
-package com.example.modugarden.api
+package com.example.modugarden.api.dto
 
 // likeCuration 리스폰스 바디
 data class CurationLikeResponse(

@@ -1,4 +1,4 @@
-package com.example.modugarden.api
+package com.example.modugarden.api.dto
 
 data class LoginDTO(
     val code: Int,
@@ -8,5 +8,7 @@ data class LoginDTO(
 )
 data class Result(
     val accessToken: String,
-    val refreshToken: String
+    val accessToken_expiredDate: String,
+    val refreshToken: String,
+    val userId: Int
 )
