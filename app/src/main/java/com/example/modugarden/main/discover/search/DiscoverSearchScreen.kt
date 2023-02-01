@@ -19,10 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
-import com.example.modugarden.api.RetrofitBuilder.curationAPI
 import com.example.modugarden.data.Category
-import com.example.modugarden.data.CurationCard
-import com.example.modugarden.data.PostCard
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.ui.theme.*
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -30,9 +27,6 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 //viewPager쓰면 넣어줘야하는 어노테이션
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
@@ -229,7 +223,7 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                     ) { page ->
                         when (page) {
                             //나중에 API로 받은 값(List)도 넣어줘야할듯
-                            0 -> DiscoverSearchPost(selectedCategory)
+                            0 -> DiscoverCategorySearchPost(selectedCategory)
                             1 -> DiscoverCategorySearchCuration(selectedCategory)
                         }
 
