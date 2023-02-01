@@ -60,8 +60,7 @@ fun NavigationGraphBNB(navController: NavHostController,commentViewModel : Comme
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideOutDuration))
             }
         ) {
-                backStackEntry ->
-            FollowScreen(navController, followPosts, followCurations) }
+            FollowScreen(navController, followPosts) }
 
         composable(
             NAV_ROUTE_BNB.DISCOVER.routeName,

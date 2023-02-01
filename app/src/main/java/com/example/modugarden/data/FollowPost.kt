@@ -6,7 +6,6 @@ import android.os.Parcelable
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import androidx.room.PrimaryKey
-import com.example.modugarden.main.content.updateTime
 import kotlinx.parcelize.Parcelize
 import java.time.LocalDateTime
 
@@ -44,7 +43,7 @@ val followPosts = listOf(
         user = dana,
         title = "안녕하세요!",
         category = listOf("식물 가꾸기"),
-        time= updateTime(LocalDateTime.now()),
+        time= "",
         image = listOf(
             "https://ifh.cc/g/HHLBxb.jpg".toUri(),
             "https://cdn.shopify.com/s/files/1/0275/2102/4023/files/IMG_3001_3.jpg?v=1661443717&width=1100.jpg".toUri(),
@@ -60,7 +59,7 @@ val followPosts = listOf(
         user = dana,
         title = "두번째 게시물입니다.",
         category = listOf("식물 가꾸기"),
-        time= updateTime(LocalDateTime.now()),
+        time= "",
         image = listOf(
             "https://ifh.cc/g/HHLBxb.jpg".toUri(),
             "https://cdn.shopify.com/s/files/1/0275/2102/4023/files/IMG_3001_3.jpg?v=1661443717&width=1100.jpg".toUri(),
@@ -77,7 +76,7 @@ val followCurations = listOf(
     FollowCuration(
         user = dana,
         title = "안녕하세요!",
-        time = updateTime(LocalDateTime.now()),
+        time = "",
         category = listOf("플랜테리어"),
         previewImage = "https://ifh.cc/g/cLgQS1.jpg".toUri(),
         link = "https://www.figma.com/file/qJWUWYtT61VA1cV7lnACwv/GUI?node-id=0%3A1&t=bFbrORNQ4xWyzAPK-0",

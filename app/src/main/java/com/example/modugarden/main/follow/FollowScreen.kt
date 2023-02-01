@@ -1,6 +1,8 @@
 package com.example.modugarden.main.follow
 
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,29 +33,30 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
-import com.example.modugarden.data.FollowCuration
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.GetCuration
+import com.example.modugarden.api.dto.GetCurationContent
 import com.example.modugarden.data.FollowPost
-import com.example.modugarden.data.followCurations
-import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.CategoryItem
 import com.example.modugarden.main.content.modalReportPost
 import com.example.modugarden.ui.theme.moduBackground
@@ -61,13 +64,48 @@ import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.skydoves.landscapist.glide.GlideImage
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun FollowScreen(navController: NavHostController, followPosts: List<FollowPost>, followCurations: List<FollowCuration>){
+fun FollowScreen(navController: NavHostController, followPosts: List<FollowPost>){
     val following = 1
+    val context = LocalContext.current.applicationContext
+    var responseBody  by remember { mutableStateOf(GetCuration(null)) }
+    RetrofitBuilder.curationAPI
+        .getUserCuration(4)
+        .enqueue(object: Callback<GetCuration> {
+            override fun onResponse(
+                call: Call<GetCuration>,
+                response: Response<GetCuration>
+            ) {
+                if(response.isSuccessful) {
+                    val res = response.body()
+                    if(res != null) {
+                        responseBody = res
+                        Log.d("userCuration-result", responseBody.toString())
+                    }
+                }
+                else {
+                    Toast.makeText(context, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
+                    Log.d("upload-result", response.toString())
+                }
+            }
+
+            override fun onFailure(call: Call<GetCuration>, t: Throwable) {
+                Toast.makeText(context, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
+
+                Log.d("upload-result", "왜안됍")
+            }
+
+        })
+    val curations = responseBody.content
     if (following==1){
-        FollowingScreen(navController = navController, followPosts = followPosts, followCurations = followCurations)
+        if (curations != null) {
+            FollowingScreen(navController = navController, followPosts = followPosts, followCurations = curations)
+        }
     }
     else NoFollowingScreen(navController = navController)
 
@@ -75,12 +113,15 @@ fun FollowScreen(navController: NavHostController, followPosts: List<FollowPost>
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable //팔로우 피드.
-fun FollowingScreen(navController: NavHostController, followPosts:List<FollowPost>, followCurations: List<FollowCuration>) {
+fun FollowingScreen(navController: NavHostController, followPosts:List<FollowPost>,followCurations: List<GetCurationContent>) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val scrollState = rememberLazyListState()
     var modalType = rememberSaveable{ mutableStateOf(0) }
+
+
+
 
     ModalBottomSheetLayout(sheetElevation = 0.dp,
         sheetBackgroundColor = Color.Transparent,
@@ -171,8 +212,6 @@ fun FollowingScreen(navController: NavHostController, followPosts:List<FollowPos
                     .background(moduBackground)
             )
             {
-
-
                     /*Icon(
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
@@ -183,6 +222,7 @@ fun FollowingScreen(navController: NavHostController, followPosts:List<FollowPos
                     )*/
 
                 LazyColumn(state = scrollState) {
+
                     // 상단 로고
                     item{
                         Row(
@@ -206,9 +246,15 @@ fun FollowingScreen(navController: NavHostController, followPosts:List<FollowPos
                     items(followPosts.reversed()){
                         PostCard(navController, data = it , scope, snackbarHostState, bottomSheetState, modalType)}
 
-                    // 큐레이션 카드
-                    items(followCurations) {
-                        CurationCard(data = it, scope, snackbarHostState,bottomSheetState, modalType) }
+                      items(followCurations) {
+                            CurationCard(
+                                data = it,
+                                scope,
+                                snackbarHostState,
+                                bottomSheetState,
+                                modalType
+                            )
+                        }
 
                     // 팔로우 피드 맨 끝
                     item { FollowEndCard(navController) }
@@ -253,10 +299,4 @@ fun FollowingScreen(navController: NavHostController, followPosts:List<FollowPos
 }
 
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview
-@Composable
-fun FollowPreview(){
-    val navController = rememberNavController()
-    FollowingScreen(navController, followPosts, followCurations)
-}
+
