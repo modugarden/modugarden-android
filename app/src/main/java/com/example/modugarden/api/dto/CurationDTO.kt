@@ -25,14 +25,14 @@ data class CurationStoreResult(
 )
 
 data class GetSearchCuration(
-    val content: List<GetSearchCurationContent>?,
+    val content: List<GetSearchCurationContent> ?= null,
     val first: Boolean? = null,
     val hasNext: Boolean? = null,
     val last: Boolean? = null
 )
 data class GetCuration(
-    val content: List<GetCurationContent>?,
-    val first: Boolean? = null,
+    val content: List<GetCurationContent> ?= null,
+    val first: Boolean ?= null,
     val hasNext: Boolean? = null,
     val last: Boolean? = null
 )

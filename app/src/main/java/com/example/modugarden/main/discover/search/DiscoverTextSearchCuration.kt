@@ -11,9 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.modugarden.api.RetrofitBuilder
-import com.example.modugarden.api.dto.GetCuration
 import com.example.modugarden.api.dto.GetSearchCuration
-import com.example.modugarden.data.Category
 import com.example.modugarden.ui.theme.ShowProgressBar
 import retrofit2.Call
 import retrofit2.Callback
@@ -21,16 +19,16 @@ import retrofit2.Response
 
 
 @Composable
-fun DiscoverSearchCuration(searchCategory: Category){
+fun DiscoverTextSearchCuration(searchText: String){
 
     val context = LocalContext.current
 
-    var responseBody  by remember { mutableStateOf(GetSearchCuration(null)) }
+    var responseBody  by remember { mutableStateOf(GetSearchCuration()) }
 
     var isLoading by remember { mutableStateOf(true) }
 
     RetrofitBuilder.curationAPI
-        .getCategorySearchCuration(searchCategory.category)
+        .getTitleSearchCuration(searchText)
         .enqueue(object: Callback<GetSearchCuration> {
             override fun onResponse(
                 call: Call<GetSearchCuration>,
@@ -64,13 +62,17 @@ fun DiscoverSearchCuration(searchCategory: Category){
     else {
         val curations = responseBody.content
 
-        Log.d("upload-result213123nn", responseBody.toString())
-
-        LazyColumn(modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp)
-        ) {
-            itemsIndexed(curations!!) { idx, item ->
-                DiscoverSearchCurationCard(item)
+        if(curations == null){
+            DiscoverSearchNoResultScreen(searchText)
+        }
+        else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp)
+            ) {
+                itemsIndexed(curations) { idx, item ->
+                    DiscoverSearchCurationCard(item)
+                }
             }
         }
     }

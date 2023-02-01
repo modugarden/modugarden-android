@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
 import com.example.modugarden.api.dto.GetCurationContent
 import com.example.modugarden.api.dto.GetSearchCurationContent
@@ -57,6 +58,10 @@ fun DiscoverSearchCurationCard(curationData: GetSearchCurationContent) {
                 // shows an error text if fail to load an image.
                 failure = {
                     Text(text = "image request failed.")
+                },
+                requestOptions = {
+                    RequestOptions()
+                        .override(256,256)
                 }
             )
 
@@ -66,7 +71,7 @@ fun DiscoverSearchCurationCard(curationData: GetSearchCurationContent) {
         Column {
             //타이틀
             Text(
-                modifier = Modifier.width(200.dp),
+                modifier = Modifier.width(230.dp),
                 text = curationData.title,
                 style = TextStyle(color = moduBlack,
                     fontWeight = FontWeight(700),
@@ -79,12 +84,13 @@ fun DiscoverSearchCurationCard(curationData: GetSearchCurationContent) {
             Spacer(modifier = Modifier.height(7.dp))
 
             //시간
-            Text(text = curationData.created_Date.split("T")[0],
+            val timeLine = curationData.created_Date.split("T")[0].split("-")
+            Text(text = "${timeLine[0]}년 ${timeLine[1]}월 ${timeLine[2]}일",
                 style = TextStyle(color = Color(0xFF959DA7),
                     fontWeight = FontWeight(400),fontSize = 11.sp)
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(9.dp))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -93,15 +99,18 @@ fun DiscoverSearchCurationCard(curationData: GetSearchCurationContent) {
                     painter = painterResource(id = R.drawable.ic_launcher_background),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(width = 20.dp, height = 20.dp)
+                        .size(width = 23.dp, height = 23.dp)
                         .clip(CircleShape)
                 )
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 //작성자
-                Text(text = curationData.user_nickname,
+                Text(
+                    modifier = Modifier
+                        .padding(bottom = 3.dp),
+                    text = curationData.user_nickname,
                     style = TextStyle(color = Color(0xFF252525).copy(alpha = 0.8f),
-                        fontWeight = FontWeight(400),fontSize = 11.sp)
+                        fontWeight = FontWeight(400),fontSize = 13.sp)
                 )
 
 
