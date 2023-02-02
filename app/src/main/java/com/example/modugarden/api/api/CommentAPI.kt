@@ -19,12 +19,14 @@ interface CommentAPI {
 
    @GET("/boards/{board_id}/comments")
     fun getComments(
-        @Body boardId : Int
+       @Path ("board_id") board_id : Int
     ) : Call<GetCommentResponse>
 
     @PATCH("/boards/{board_id}/comments/{comment_id}")
     fun editComment(
-        @Body commentId : Int
+        @Path ("board_id") board_id : Int,
+        @Body content : String,
+        @Body parentId : Int
     ): Call <CommentDTO>
 
 }
