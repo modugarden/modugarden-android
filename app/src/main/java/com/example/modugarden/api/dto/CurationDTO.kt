@@ -118,3 +118,24 @@ data class GetCurationStoreState(
     val user_id : Int
 )
 
+data class GetFollowFeedCuration(
+    val content: List<GetFollowFeedCurationContent> ?= null,
+    val first: Boolean ?= null,
+    val hasNext: Boolean? = null,
+    val last: Boolean? = null
+)
+
+data class GetFollowFeedCurationContent(
+    val curation_id: Int,
+    val title: String,
+    val liked : Boolean,
+    val saved : Boolean,
+    val image:String,
+    val link : String,
+    val created_Date: String,
+    val user_id: Int,
+    val user_nickname: String,
+    val user_profile_image: String,
+    val category_category: String
+)
+
