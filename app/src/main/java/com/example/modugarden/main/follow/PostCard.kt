@@ -142,7 +142,7 @@ fun PostCard(navController:NavHostController,
                                                                         .aspectRatio(1f),
                                                                 requestOptions = {
                                                                         RequestOptions()
-                                                                                .override(256,256)
+                                                                                .override(700,700)
                                                                 },
                                                                 loading = {
                                                                         ShowProgressBar()
@@ -230,7 +230,7 @@ fun PostCard(navController:NavHostController,
                                        PostHeartCard(
                                                boardId = data.boardId,
                                                heartState = isButtonClickedLike,
-                                               modifier = Modifier
+                                               modifier = Modifier.padding(end = 18.dp)
                                        )
 //
 //                                       Icon(modifier = Modifier

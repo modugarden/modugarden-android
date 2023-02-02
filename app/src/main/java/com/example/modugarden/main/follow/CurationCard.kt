@@ -145,7 +145,14 @@ fun CurationCard(
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .aspectRatio(1f)
+                            .aspectRatio(1f),
+                        requestOptions = {
+                            RequestOptions()
+                                .override(700,700)
+                        },
+                        loading = {
+                            ShowProgressBar()
+                        },
                     )
 
                     // 외부 페이지 이동
@@ -243,7 +250,7 @@ fun CurationCard(
                 // 좋아요
                 CurationHeartCard(
                     curationId = data.id,
-                    modifier = Modifier,
+                    modifier = Modifier.padding(end = 18.dp),
                     heartState = isButtonClickedLike
                 )
 //                Icon(modifier = Modifier
@@ -291,29 +298,34 @@ fun CurationCard(
 //                            moduBlack
 //                )
                 // 스크랩
-                Icon(modifier = Modifier
-                    .bounceClick {
-                        isButtonClickedSave.value = !isButtonClickedSave.value
-
-                        if (isButtonClickedSave.value){
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    "게시물을 저장하였습니다.",
-                                    duration = SnackbarDuration.Short
-                                )
-                            }
-                        }
-                    }
-                    ,painter = painterResource
-                        (id =
-                    if (isButtonClickedSave.value)
-                        R.drawable.ic_star_solid
-                    else
-                        R.drawable.ic_star_line
-                    ),
-                    contentDescription = "스크랩",
-                    tint = moduBlack
+                CurationSaveCard(
+                    curationId = data.id,
+                    modifier = Modifier,
+                    saveState = isButtonClickedSave
                 )
+//                Icon(modifier = Modifier
+//                    .bounceClick {
+//                        isButtonClickedSave.value = !isButtonClickedSave.value
+//
+//                        if (isButtonClickedSave.value){
+//                            scope.launch {
+//                                snackbarHostState.showSnackbar(
+//                                    "게시물을 저장하였습니다.",
+//                                    duration = SnackbarDuration.Short
+//                                )
+//                            }
+//                        }
+//                    }
+//                    ,painter = painterResource
+//                        (id =
+//                    if (isButtonClickedSave.value)
+//                        R.drawable.ic_star_solid
+//                    else
+//                        R.drawable.ic_star_line
+//                    ),
+//                    contentDescription = "스크랩",
+//                    tint = moduBlack
+//                )
                 Spacer(modifier = Modifier.weight(1f))
                 // 신고
                     Icon(modifier = Modifier.bounceClick {

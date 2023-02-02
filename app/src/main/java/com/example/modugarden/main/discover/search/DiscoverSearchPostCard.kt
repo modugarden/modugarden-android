@@ -26,6 +26,7 @@ import com.example.modugarden.data.PostCard
 import com.example.modugarden.ui.theme.ShowProgressBar
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
+import com.example.modugarden.ui.theme.moduGray_strong
 import com.skydoves.landscapist.glide.GlideImage
 
 
@@ -90,7 +91,7 @@ fun DiscoverSearchPostCard(postData: GetSearchCurationPost) {
             )
 
             Spacer(modifier = Modifier.height(9.dp))
-
+    
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -110,6 +111,15 @@ fun DiscoverSearchPostCard(postData: GetSearchCurationPost) {
                     text = postData.user_nickname,
                     style = TextStyle(color = Color(0xFF252525).copy(alpha = 0.8f),
                         fontWeight = FontWeight(400),fontSize = 13.sp)
+                )
+                Spacer(modifier = Modifier.weight(1f))
+
+                Text(
+                    modifier = Modifier
+                        .padding(bottom = 2.dp, end = 10.dp),
+                    text = "♡ ${postData.likeNum}",
+                    style = TextStyle(color = moduGray_strong.copy(alpha = 0.8f),
+                        fontWeight = FontWeight(400),fontSize = 14.sp)
                 )
 
 

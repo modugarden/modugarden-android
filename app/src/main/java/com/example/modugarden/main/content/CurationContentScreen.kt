@@ -15,12 +15,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,17 +34,20 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
 import com.example.modugarden.main.follow.moduBold
-import com.example.modugarden.ui.theme.addFocusCleaner
-import com.example.modugarden.ui.theme.bounceClick
-import com.example.modugarden.ui.theme.moduBlack
-import com.example.modugarden.ui.theme.moduGray_light
-import com.example.modugarden.ui.theme.moduGray_strong
+import com.example.modugarden.ui.theme.*
+import kotlinx.coroutines.launch
 
 @Composable
 fun CurationContent( url :String) {
     val focusManager = LocalFocusManager.current
     //액티비티 종료할 때 사용할 변수
     val activity = (LocalContext.current as? Activity)
+    val isButtonClickedLike = remember { mutableStateOf(false) }
+    val isButtonClickedSave = remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -67,6 +69,39 @@ fun CurationContent( url :String) {
             {
                 Text(text = " 큐레이션 제목", style = moduBold, fontSize = 16.sp)
                 Spacer(modifier = Modifier.weight(1f))
+
+                CurationHeartCard(
+                    curationId = 0,
+                    modifier = Modifier,
+                    heartState = isButtonClickedLike
+                )
+
+                // 스크랩
+                Icon(modifier = Modifier
+                    .padding(end = 18.dp)
+                    .bounceClick {
+                        isButtonClickedSave.value = !isButtonClickedSave.value
+
+                        if (isButtonClickedSave.value){
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    "게시물을 저장하였습니다.",
+                                    duration = SnackbarDuration.Short
+                                )
+                            }
+                        }
+                    }
+                    ,painter = painterResource
+                        (id =
+                    if (isButtonClickedSave.value)
+                        R.drawable.ic_star_solid
+                    else
+                        R.drawable.ic_star_line
+                    ),
+                    contentDescription = "스크랩",
+                    tint = moduBlack
+                )
+
                 Icon(painter = painterResource(id = R.drawable.ic_xmark),
                     contentDescription = "창 닫기",
                     modifier = Modifier.bounceClick { activity?.finish() })
