@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.core.net.toUri
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
@@ -77,6 +78,7 @@ import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.ui.theme.moduPoint
+import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -87,7 +89,11 @@ import kotlinx.coroutines.launch
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun PostContentScreen(navController: NavHostController, data:FollowPost) {
+fun PostContentScreen(
+    navController: NavHostController,
+    data:FollowPost,
+    userViewModel: UserViewModel
+) {
     val pagerState= rememberPagerState()//뷰페이저, 인디케이터 페이지 상태 변수
     val scrollState = rememberScrollState()//스크롤 상태 변수
     val bottomSheetState = rememberModalBottomSheetState(
@@ -353,6 +359,7 @@ fun PostContentScreen(navController: NavHostController, data:FollowPost) {
                         Row(modifier = Modifier
                             .padding(25.dp, 18.dp)
                             .bounceClick {
+                                userViewModel.setUserId(1)
                                 navController.navigate(NAV_ROUTE_POSTCONTENT.WRITER.routeName)
                                 //  포스트 작성자 프로필로
 
@@ -721,6 +728,6 @@ fun PostContentPreview(){
         curation = null
     )
 
-    PostContentScreen(navController = rememberNavController(), data = followPosts[0] )
+    PostContentScreen(navController = rememberNavController(), data = followPosts[0], userViewModel = viewModel())
 
 }

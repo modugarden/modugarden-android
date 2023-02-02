@@ -40,26 +40,11 @@ import retrofit2.Response
 
 val pages = listOf("팔로워", "팔로잉")
 
-//val followerList = listOf(
-//    User("https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri(),
-//        "Mara", categoryResponse, 100, 50,
-//    true, postResponse, curationResponse
-//    )
-//)
-//
-//val followingList = listOf(
-//    User("https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri(),
-//        "Mara", categoryResponse, 100, 50,
-//    true, postResponse, curationResponse
-//    )
-//)
-
-
 @OptIn(ExperimentalPagerApi::class)
 class ProfileFollowActivity : ComponentActivity() {
 
-    var newFollowerList: List<FollowListDtoResContent>? = null
-    var newFollowingList: List<FollowListDtoResContent>? = null
+    var newFollowerList = mutableListOf<FollowListDtoResContent>()
+    var newFollowingList = mutableListOf<FollowListDtoResContent>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -78,7 +63,7 @@ class ProfileFollowActivity : ComponentActivity() {
                         ) {
                             Log.d("onResponse", response.code().toString() +
                                     "\n" + (response.body()?.content))
-                            newFollowerList = response.body()?.content
+                            response.body()?.let { newFollowerList.addAll(it.content) }
                         }
 
                         override fun onFailure(call: Call<FollowListDtoRes>, t: Throwable) {
@@ -95,7 +80,7 @@ class ProfileFollowActivity : ComponentActivity() {
                             Log.d("onResponse", response.code().toString() +
                                      "\n" + (response.body()?.content)
                             )
-                            newFollowingList = response.body()?.content
+                            response.body()?.let { newFollowingList.addAll(it.content) }
                         }
 
                         override fun onFailure(call: Call<FollowListDtoRes>, t: Throwable) {
@@ -103,7 +88,6 @@ class ProfileFollowActivity : ComponentActivity() {
                         }
                     })
             }
-
             Scaffold(
                 modifier = Modifier
                     .fillMaxSize()
@@ -169,50 +153,46 @@ class ProfileFollowActivity : ComponentActivity() {
                     ) { page ->
                         when (page) {
                             0 -> {
-                                if(newFollowerList != null) {
-                                    LazyColumn(
-                                        modifier = Modifier
-                                            .padding(18.dp)
-                                            .fillMaxSize(),
-                                        verticalArrangement = Arrangement.spacedBy(18.dp)
-                                    ) {
-                                        items(newFollowerList!!) { follower ->
-                                            ProfileCard(follower) { isFollowing ->
-                                                scope.launch {
-                                                    if (isFollowing)
-                                                        scaffoldState.snackbarHostState.showSnackbar(
-                                                            "${follower.nickname} 님을 언팔로우 했어요."
-                                                        )
-                                                    else
-                                                        scaffoldState.snackbarHostState.showSnackbar(
-                                                            "${follower.nickname} 님을 팔로우 했어요."
-                                                        )
-                                                }
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .padding(18.dp)
+                                        .fillMaxSize(),
+                                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                                ) {
+                                    items(newFollowerList) { follower ->
+                                        ProfileCard(follower) { isFollowing ->
+                                            scope.launch {
+                                                if (isFollowing)
+                                                    scaffoldState.snackbarHostState.showSnackbar(
+                                                        "${follower.nickname} 님을 언팔로우 했어요."
+                                                    )
+                                                else
+                                                    scaffoldState.snackbarHostState.showSnackbar(
+                                                        "${follower.nickname} 님을 팔로우 했어요."
+                                                    )
                                             }
                                         }
                                     }
                                 }
                             }
                             1 -> {
-                                if(newFollowingList != null) {
-                                    LazyColumn(
-                                        modifier = Modifier
-                                            .padding(18.dp)
-                                            .fillMaxSize(),
-                                        verticalArrangement = Arrangement.spacedBy(18.dp)
-                                    ) {
-                                        items(newFollowingList!!) { following ->
-                                            ProfileCard(following) { isFollowing ->
-                                                scope.launch {
-                                                    if (isFollowing)
-                                                        scaffoldState.snackbarHostState.showSnackbar(
-                                                            "${following.nickname} 님을 언팔로우 했어요."
-                                                        )
-                                                    else
-                                                        scaffoldState.snackbarHostState.showSnackbar(
-                                                            "${following.nickname} 님을 팔로우 했어요."
-                                                        )
-                                                }
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .padding(18.dp)
+                                        .fillMaxSize(),
+                                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                                ) {
+                                    items(newFollowingList) { following ->
+                                        ProfileCard(following) { isFollowing ->
+                                            scope.launch {
+                                                if (isFollowing)
+                                                    scaffoldState.snackbarHostState.showSnackbar(
+                                                        "${following.nickname} 님을 언팔로우 했어요."
+                                                    )
+                                                else
+                                                    scaffoldState.snackbarHostState.showSnackbar(
+                                                        "${following.nickname} 님을 팔로우 했어요."
+                                                    )
                                             }
                                         }
                                     }

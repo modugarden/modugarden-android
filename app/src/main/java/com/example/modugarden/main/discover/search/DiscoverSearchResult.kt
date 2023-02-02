@@ -8,8 +8,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_strong
+import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
@@ -19,7 +21,13 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun DiscoverSearchResult(textFieldSearch: String,coroutineScope: CoroutineScope ,snackbarHostState: SnackbarHostState) {
+fun DiscoverSearchResult(
+    textFieldSearch: String,
+    coroutineScope: CoroutineScope ,
+    snackbarHostState: SnackbarHostState,
+    navController: NavController,
+    userViewModel: UserViewModel
+) {
 
     //ViewPager쓸때 어디 페이지의 state를 확인할 변수
     val pagerState = rememberPagerState()
@@ -70,7 +78,7 @@ fun DiscoverSearchResult(textFieldSearch: String,coroutineScope: CoroutineScope 
             //나중에 API로 받은 값(List)도 넣어줘야할듯
             0 -> DiscoverCategorySearchPost(textFieldSearch)
             1 -> DiscoverTextSearchCuration(textFieldSearch)
-            2 -> DiscoverSearchUser(textFieldSearch, coroutineScope, snackbarHostState)
+            2 -> DiscoverSearchUser(textFieldSearch, coroutineScope, snackbarHostState, navController, userViewModel)
         }
 
     }

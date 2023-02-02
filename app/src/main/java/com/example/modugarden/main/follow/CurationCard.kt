@@ -63,6 +63,7 @@ import com.example.modugarden.main.content.modalReportCuration
 import com.example.modugarden.main.content.timeFomatter
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
 import com.example.modugarden.ui.theme.*
+import com.example.modugarden.viewmodel.UserViewModel
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -79,7 +80,8 @@ fun CurationCard(
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
     bottomSheetState: ModalBottomSheetState,
-    modalType: MutableState<Int>
+    modalType: MutableState<Int>,
+    userViewModel: UserViewModel
 ) {
     val mContext = LocalContext.current
     Card(
@@ -95,7 +97,9 @@ fun CurationCard(
             Row(
                 modifier = Modifier
                     .padding(18.dp)
-                    .bounceClick {  navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName){
+                    .bounceClick {
+                        userViewModel.setUserId(data.user_id)
+                        navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName){
                     } },
                 verticalAlignment = Alignment.CenterVertically
             ) {

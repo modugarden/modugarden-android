@@ -9,9 +9,11 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.modugarden.api.RetrofitBuilder.userAPI
 import com.example.modugarden.api.dto.FindByNicknameRes
 import com.example.modugarden.ui.theme.ShowProgressBar
+import com.example.modugarden.viewmodel.UserViewModel
 import kotlinx.coroutines.CoroutineScope
 import retrofit2.Call
 import retrofit2.Callback
@@ -19,7 +21,13 @@ import retrofit2.Response
 
 
 @Composable
-fun DiscoverSearchUser(searchStr : String, coroutineScope: CoroutineScope, snackBarHostState: SnackbarHostState){
+fun DiscoverSearchUser(
+    searchStr : String,
+    coroutineScope: CoroutineScope,
+    snackBarHostState: SnackbarHostState,
+    navController: NavController,
+    userViewModel: UserViewModel
+){
 
     var responseBody  by remember { mutableStateOf((FindByNicknameRes())) }
 
@@ -67,7 +75,7 @@ fun DiscoverSearchUser(searchStr : String, coroutineScope: CoroutineScope, snack
                 contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp)
             ) {
                 itemsIndexed(users) { idx, item ->
-                    DiscoverSearchUserCard(item, coroutineScope, snackBarHostState)
+                    DiscoverSearchUserCard(item, coroutineScope, snackBarHostState, navController, userViewModel)
                 }
             }
         }
