@@ -49,6 +49,7 @@ import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.RetrofitBuilder.curationAPI
 import com.example.modugarden.api.RetrofitBuilder.postAPI
 import com.example.modugarden.api.dto.CurationLikeResponse
+import com.example.modugarden.api.dto.CurationStoreResponse
 import com.example.modugarden.api.dto.FollowDtoRes
 import com.example.modugarden.api.dto.GetCurationLikeStateResponse
 import com.example.modugarden.api.dto.PostDTO.*
@@ -776,19 +777,19 @@ fun CurationSaveCard(
         }
     )
 
-    Icon(modifier = Modifier
+    Icon(modifier = modifier
         .bounceClick {
             if(saveState.value) {
-                curationAPI.unlikeCuration(curationId).enqueue(
-                    object : Callback<CurationLikeResponse> {
+                curationAPI.storeCancelCuration(curationId).enqueue(
+                    object : Callback<CurationStoreResponse> {
                         override fun onResponse(
-                            call: Call<CurationLikeResponse>,
-                            response: Response<CurationLikeResponse>
+                            call: Call<CurationStoreResponse>,
+                            response: Response<CurationStoreResponse>
                         ) {
                             saveState.value = false
                         }
                         override fun onFailure(
-                            call: Call<CurationLikeResponse>,
+                            call: Call<CurationStoreResponse>,
                             t: Throwable
                         ) {
 
@@ -798,17 +799,17 @@ fun CurationSaveCard(
                 )
             }
             else {
-                curationAPI.likeCuration(curationId).enqueue(
-                    object : Callback<CurationLikeResponse> {
+                curationAPI.storeCuration(curationId).enqueue(
+                    object : Callback<CurationStoreResponse> {
                         override fun onResponse(
-                            call: Call<CurationLikeResponse>,
-                            response: Response<CurationLikeResponse>
+                            call: Call<CurationStoreResponse>,
+                            response: Response<CurationStoreResponse>
                         ) {
                             saveState.value = true
                         }
 
                         override fun onFailure(
-                            call: Call<CurationLikeResponse>,
+                            call: Call<CurationStoreResponse>,
                             t: Throwable
                         ) {
 

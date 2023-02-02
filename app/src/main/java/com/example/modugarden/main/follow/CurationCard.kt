@@ -298,29 +298,34 @@ fun CurationCard(
 //                            moduBlack
 //                )
                 // 스크랩
-                Icon(modifier = Modifier
-                    .bounceClick {
-                        isButtonClickedSave.value = !isButtonClickedSave.value
-
-                        if (isButtonClickedSave.value){
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    "게시물을 저장하였습니다.",
-                                    duration = SnackbarDuration.Short
-                                )
-                            }
-                        }
-                    }
-                    ,painter = painterResource
-                        (id =
-                    if (isButtonClickedSave.value)
-                        R.drawable.ic_star_solid
-                    else
-                        R.drawable.ic_star_line
-                    ),
-                    contentDescription = "스크랩",
-                    tint = moduBlack
+                CurationSaveCard(
+                    curationId = data.id,
+                    modifier = Modifier,
+                    saveState = isButtonClickedSave
                 )
+//                Icon(modifier = Modifier
+//                    .bounceClick {
+//                        isButtonClickedSave.value = !isButtonClickedSave.value
+//
+//                        if (isButtonClickedSave.value){
+//                            scope.launch {
+//                                snackbarHostState.showSnackbar(
+//                                    "게시물을 저장하였습니다.",
+//                                    duration = SnackbarDuration.Short
+//                                )
+//                            }
+//                        }
+//                    }
+//                    ,painter = painterResource
+//                        (id =
+//                    if (isButtonClickedSave.value)
+//                        R.drawable.ic_star_solid
+//                    else
+//                        R.drawable.ic_star_line
+//                    ),
+//                    contentDescription = "스크랩",
+//                    tint = moduBlack
+//                )
                 Spacer(modifier = Modifier.weight(1f))
                 // 신고
                     Icon(modifier = Modifier.bounceClick {
