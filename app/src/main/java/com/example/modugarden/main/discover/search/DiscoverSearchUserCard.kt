@@ -22,16 +22,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.modugarden.R
 import com.example.modugarden.api.dto.FindByNicknameResContent
+import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.ui.theme.*
+import com.example.modugarden.viewmodel.UserViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
 //포스트, 큐레이션에 표시되는 카드들로 데이터 형식 알려주면 그때 넣겠삼삼
 @Composable
-fun DiscoverSearchUserCard(userData : FindByNicknameResContent, coroutineScope : CoroutineScope, snackbarHostState: SnackbarHostState) {
+fun DiscoverSearchUserCard(
+    userData : FindByNicknameResContent,
+    coroutineScope : CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+    navController: NavController,
+    userViewModel: UserViewModel
+) {
 
     val followState = remember{ mutableStateOf(userData.follow) }
 
@@ -44,7 +53,8 @@ fun DiscoverSearchUserCard(userData : FindByNicknameResContent, coroutineScope :
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .bounceClick {
-
+                    userViewModel.setUserId(userData.userId)
+                    navController.navigate(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHUSERPROFILE.routeName)
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {

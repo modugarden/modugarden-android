@@ -47,6 +47,7 @@ import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.main.content.modalReportPost
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
 import com.example.modugarden.ui.theme.*
+import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -63,7 +64,8 @@ fun PostCard(navController:NavHostController,
              scope: CoroutineScope,
              snackbarHostState: SnackbarHostState,
              bottomSheetState: ModalBottomSheetState,
-             modalType: MutableState<Int>
+             modalType: MutableState<Int>,
+             userViewModel: UserViewModel
 ) {
 
         val isButtonClickedLike = remember { mutableStateOf(false) } // 버튼 바
@@ -85,6 +87,7 @@ fun PostCard(navController:NavHostController,
                                         modifier = Modifier
                                                 .padding(18.dp)
                                                 .bounceClick {
+                                                        userViewModel.setUserId(1)
                                                         navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName){
                                                         }},//프로필
                                         verticalAlignment = Alignment.CenterVertically
