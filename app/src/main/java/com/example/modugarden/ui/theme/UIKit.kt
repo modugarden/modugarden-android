@@ -44,10 +44,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
-import com.example.modugarden.ApplicationClass
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.RetrofitBuilder.curationAPI
+import com.example.modugarden.api.RetrofitBuilder.postAPI
+import com.example.modugarden.api.dto.CurationLikeResponse
 import com.example.modugarden.api.dto.FollowDtoRes
+import com.example.modugarden.api.dto.GetCurationLikeStateResponse
+import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.main.follow.moduBold
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -578,6 +582,172 @@ fun ShowProgressBar() {
             modifier = Modifier.align(Alignment.Center)
         )
     }
+}
+
+@Composable
+fun PostHeartCard(
+    boardId: Int,
+    modifier: Modifier,
+    heartState: MutableState<Boolean>
+) {
+    postAPI.getPostLikeState(boardId).enqueue(
+        object : Callback<GetPostLikeStateResponse> {
+            override fun onResponse(
+                call: Call<GetPostLikeStateResponse>,
+                response: Response<GetPostLikeStateResponse>
+            ) {
+                heartState.value = response.body()?.result?.check ?: false
+            }
+
+            override fun onFailure(
+                call: Call<GetPostLikeStateResponse>,
+                t: Throwable
+            ) {
+
+            }
+
+        }
+    )
+
+    Icon(modifier = Modifier
+        .padding(end = 18.dp)
+        .bounceClick {
+            if(heartState.value) {
+                postAPI.unlikePost(boardId).enqueue(
+                    object : Callback<PostLikeResponse> {
+                        override fun onResponse(
+                            call: Call<PostLikeResponse>,
+                            response: Response<PostLikeResponse>
+                        ) {
+                            heartState.value = false
+                        }
+
+                        override fun onFailure(
+                            call: Call<PostLikeResponse>,
+                            t: Throwable
+                        ) {
+
+                        }
+
+                    }
+                )
+            }
+            else {
+                postAPI.likePost(boardId).enqueue(
+                    object : Callback<PostLikeResponse> {
+                        override fun onResponse(
+                            call: Call<PostLikeResponse>,
+                            response: Response<PostLikeResponse>
+                        ) {
+                            heartState.value = true
+                        }
+
+                        override fun onFailure(
+                            call: Call<PostLikeResponse>,
+                            t: Throwable
+                        ) {
+
+                        }
+
+                    }
+                )
+
+            }
+
+        }
+        ,painter = painterResource(
+            id = if (heartState.value) R.drawable.ic_heart_solid
+            else R.drawable.ic_heart_line
+        ),
+        contentDescription = "좋아요",
+        tint =
+        if (heartState.value) Color(0xFFFF6767)
+        else moduBlack
+
+    )
+}
+
+@Composable
+fun CurationHeartCard(
+    curationId: Int,
+    modifier: Modifier,
+    heartState: MutableState<Boolean>
+) {
+    curationAPI.getStateCurationLike(curationId).enqueue(
+        object : Callback<GetCurationLikeStateResponse> {
+            override fun onResponse(
+                call: Call<GetCurationLikeStateResponse>,
+                response: Response<GetCurationLikeStateResponse>
+            ) {
+                heartState.value = response.body()?.result?.check ?: false
+            }
+
+            override fun onFailure(
+                call: Call<GetCurationLikeStateResponse>,
+                t: Throwable
+            ) {
+
+            }
+
+        }
+    )
+
+    Icon(modifier = Modifier
+        .padding(end = 18.dp)
+        .bounceClick {
+            if(heartState.value) {
+                curationAPI.unlikeCuration(curationId).enqueue(
+                    object : Callback<CurationLikeResponse> {
+                        override fun onResponse(
+                            call: Call<CurationLikeResponse>,
+                            response: Response<CurationLikeResponse>
+                        ) {
+                            heartState.value = false
+                        }
+
+                        override fun onFailure(
+                            call: Call<CurationLikeResponse>,
+                            t: Throwable
+                        ) {
+
+                        }
+
+                    }
+                )
+            }
+            else {
+                curationAPI.likeCuration(curationId).enqueue(
+                    object : Callback<CurationLikeResponse> {
+                        override fun onResponse(
+                            call: Call<CurationLikeResponse>,
+                            response: Response<CurationLikeResponse>
+                        ) {
+                            heartState.value = true
+                        }
+
+                        override fun onFailure(
+                            call: Call<CurationLikeResponse>,
+                            t: Throwable
+                        ) {
+
+                        }
+
+                    }
+                )
+
+            }
+
+        }
+        ,painter = painterResource(
+            id = if (heartState.value) R.drawable.ic_heart_solid
+            else R.drawable.ic_heart_line
+        ),
+        contentDescription = "좋아요",
+        tint =
+        if (heartState.value) Color(0xFFFF6767)
+        else moduBlack
+
+    )
 }
 
 @Composable
