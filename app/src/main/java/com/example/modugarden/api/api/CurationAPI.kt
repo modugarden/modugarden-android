@@ -43,20 +43,20 @@ interface CurationAPI {
 
     //큐레이션 좋아요 수
     @GET("/curations/like/{curation_id}")
-    fun getCurationLike(
-        @Path("curation_id") curation_id: Long
+    fun getCurationLikeNum(
+        @Path("curation_id") curation_id: Int
     ):Call<CurationLikeResponse>
 
     //큐레이션 보관하기
     @POST("/curations/{curation_id}/storage")
     fun storeCuration(
-        @Path ("curation_id") curation_id: Long
+        @Path ("curation_id") curation_id: Int
     ): Call <CurationStoreResponse>
 
     //큐레이션 보관 취소
     @DELETE("/curations/{curation_id}/storage")
     fun storeCancelCuration(
-        @Path("curation_id") curation_id: Long
+        @Path("curation_id") curation_id: Int
     ): Call <CurationStoreResponse>
 
     // 내 프로필- 큐레이션 조회
@@ -66,7 +66,7 @@ interface CurationAPI {
     // 내 프로필 - 큐레이션 좋아요 여부 조회
     @GET("/curations/me/like/{curation_id}")
     fun getStateCurationLike(
-        @Path("curation_id") curation_id: Long
+        @Path("curation_id") curation_id: Int
     ): Call <GetCurationLikeStateResponse>
 
     //프로필 페이지 - 저장한 큐레이션 조회
@@ -76,26 +76,26 @@ interface CurationAPI {
     // 큐레이션 보관 여부 조회
     @GET("/curations/me/storage/{curation_id}")
     fun getCurationStoreState(
-        @Query ("curation_id") curation_id: Long
+        @Query ("curation_id") curation_id: Int
     ): Call <GetCurationLikeStateResponse>
 
     // 회원 - 큐레이션 조회
     @GET("/curations/users/{user_id}")
     fun getUserCuration(
-        @Path ("user_id") user_id: Long
+        @Path ("user_id") user_id: Int
     ): Call <GetCuration>
 
 
     // 게시물 상세보기 - 큐레이션 하나 조회
     @GET("/curations/{curation_id}")
     fun getCuraionContent(
-        @Query("curation_id") curation_id: Long
+        @Query("curation_id") curation_id: Int
     ): Call <GetCurationResponse>
 
     //게시물 상세보기 - 큐레이션 삭제
     @DELETE ("/curations/{curation_id}")
-    fun deleteCurationContent (
-        @Body curation_id: Long
+    fun deleteCuration (
+        @Body curation_id: Int
     ): Call <DeleteCurationResponse>
 
 }
