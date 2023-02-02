@@ -49,6 +49,7 @@ import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.RetrofitBuilder.curationAPI
 import com.example.modugarden.api.RetrofitBuilder.postAPI
 import com.example.modugarden.api.dto.CurationLikeResponse
+import com.example.modugarden.api.dto.CurationStoreResponse
 import com.example.modugarden.api.dto.FollowDtoRes
 import com.example.modugarden.api.dto.GetCurationLikeStateResponse
 import com.example.modugarden.api.dto.PostDTO.*
@@ -609,8 +610,8 @@ fun PostHeartCard(
         }
     )
 
-    Icon(modifier = Modifier
-        .padding(end = 18.dp)
+    Icon(
+        modifier = modifier
         .bounceClick {
             if(heartState.value) {
                 postAPI.unlikePost(boardId).enqueue(
@@ -692,21 +693,103 @@ fun CurationHeartCard(
         }
     )
 
-    Icon(modifier = Modifier
-        .padding(end = 18.dp)
-        .bounceClick {
-            if(heartState.value) {
-                curationAPI.unlikeCuration(curationId).enqueue(
-                    object : Callback<CurationLikeResponse> {
-                        override fun onResponse(
-                            call: Call<CurationLikeResponse>,
-                            response: Response<CurationLikeResponse>
-                        ) {
-                            heartState.value = false
-                        }
+    Icon(
+        modifier = modifier
+            .bounceClick {
+                if(heartState.value) {
+                    curationAPI.unlikeCuration(curationId).enqueue(
+                        object : Callback<CurationLikeResponse> {
+                            override fun onResponse(
+                                call: Call<CurationLikeResponse>,
+                                response: Response<CurationLikeResponse>
+                            ) {
+                                heartState.value = false
+                            }
 
+                            override fun onFailure(
+                                call: Call<CurationLikeResponse>,
+                                t: Throwable
+                            ) {
+
+                            }
+
+                        }
+                    )
+                }
+                else {
+                    curationAPI.likeCuration(curationId).enqueue(
+                        object : Callback<CurationLikeResponse> {
+                            override fun onResponse(
+                                call: Call<CurationLikeResponse>,
+                                response: Response<CurationLikeResponse>
+                            ) {
+                                heartState.value = true
+                            }
+
+                            override fun onFailure(
+                                call: Call<CurationLikeResponse>,
+                                t: Throwable
+                            ) {
+
+                            }
+
+                        }
+                    )
+
+                }
+
+            }
+        ,painter = painterResource(
+            id = if (heartState.value) R.drawable.ic_heart_solid
+            else R.drawable.ic_heart_line
+        ),
+        contentDescription = "좋아요",
+        tint =
+        if (heartState.value) Color(0xFFFF6767)
+        else moduBlack
+
+    )
+}
+
+
+@Composable
+fun CurationSaveCard(
+    curationId: Int,
+    modifier: Modifier,
+    saveState: MutableState<Boolean>
+) {
+    curationAPI.getCurationStoreState(curationId).enqueue(
+        object : Callback<GetCurationLikeStateResponse> {
+            override fun onResponse(
+                call: Call<GetCurationLikeStateResponse>,
+                response: Response<GetCurationLikeStateResponse>
+            ) {
+                saveState.value = response.body()?.result?.check ?: false
+            }
+
+            override fun onFailure(
+                call: Call<GetCurationLikeStateResponse>,
+                t: Throwable
+            ) {
+
+            }
+
+        }
+    )
+
+    Icon(modifier = modifier
+        .bounceClick {
+            if(saveState.value) {
+                curationAPI.storeCancelCuration(curationId).enqueue(
+                    object : Callback<CurationStoreResponse> {
+                        override fun onResponse(
+                            call: Call<CurationStoreResponse>,
+                            response: Response<CurationStoreResponse>
+                        ) {
+                            saveState.value = false
+                        }
                         override fun onFailure(
-                            call: Call<CurationLikeResponse>,
+                            call: Call<CurationStoreResponse>,
                             t: Throwable
                         ) {
 
@@ -716,17 +799,17 @@ fun CurationHeartCard(
                 )
             }
             else {
-                curationAPI.likeCuration(curationId).enqueue(
-                    object : Callback<CurationLikeResponse> {
+                curationAPI.storeCuration(curationId).enqueue(
+                    object : Callback<CurationStoreResponse> {
                         override fun onResponse(
-                            call: Call<CurationLikeResponse>,
-                            response: Response<CurationLikeResponse>
+                            call: Call<CurationStoreResponse>,
+                            response: Response<CurationStoreResponse>
                         ) {
-                            heartState.value = true
+                            saveState.value = true
                         }
 
                         override fun onFailure(
-                            call: Call<CurationLikeResponse>,
+                            call: Call<CurationStoreResponse>,
                             t: Throwable
                         ) {
 
@@ -739,16 +822,15 @@ fun CurationHeartCard(
 
         }
         ,painter = painterResource(
-            id = if (heartState.value) R.drawable.ic_heart_solid
-            else R.drawable.ic_heart_line
+            id =
+            if (saveState.value) R.drawable.ic_star_solid
+            else R.drawable.ic_star_line
         ),
-        contentDescription = "좋아요",
-        tint =
-        if (heartState.value) Color(0xFFFF6767)
-        else moduBlack
-
+        contentDescription = "스크랩",
+        tint = moduBlack
     )
 }
+
 
 @Composable
 fun FollowCard(

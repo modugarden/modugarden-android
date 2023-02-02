@@ -22,9 +22,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
 import com.example.modugarden.api.dto.GetCurationContent
 import com.example.modugarden.api.dto.GetSearchCurationContent
-import com.example.modugarden.ui.theme.ShowProgressBar
-import com.example.modugarden.ui.theme.bounceClick
-import com.example.modugarden.ui.theme.moduBlack
+import com.example.modugarden.ui.theme.*
 import com.skydoves.landscapist.glide.GlideImage
 
 
@@ -112,9 +110,18 @@ fun DiscoverSearchCurationCard(curationData: GetSearchCurationContent) {
                     style = TextStyle(color = Color(0xFF252525).copy(alpha = 0.8f),
                         fontWeight = FontWeight(400),fontSize = 13.sp)
                 )
+                Spacer(modifier = Modifier.weight(1f))
 
-
+                Text(
+                    modifier = Modifier
+                        .padding(bottom = 2.dp, end = 10.dp),
+                    text = "♡ ${curationData.likeNum}",
+                    style = TextStyle(color = moduGray_strong.copy(alpha = 0.8f),
+                        fontWeight = FontWeight(400),fontSize = 14.sp)
+                )
             }
+
+
         }
 
     }
