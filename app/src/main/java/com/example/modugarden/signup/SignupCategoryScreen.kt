@@ -234,7 +234,7 @@ fun SignupCategoryScreen(navController: NavHostController, data: Signup, signupV
                     .padding(18.dp)
                     .fillMaxWidth()
                     .alpha(if (categoryCheck[0] || categoryCheck[1] || categoryCheck[2]) 1f else 0.4f),
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(15.dp),
                 backgroundColor = moduPoint,
                 elevation = 0.dp
             ) {
