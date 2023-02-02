@@ -609,8 +609,8 @@ fun PostHeartCard(
         }
     )
 
-    Icon(modifier = Modifier
-        .padding(end = 18.dp)
+    Icon(
+        modifier = modifier
         .bounceClick {
             if(heartState.value) {
                 postAPI.unlikePost(boardId).enqueue(
@@ -692,19 +692,101 @@ fun CurationHeartCard(
         }
     )
 
+    Icon(
+        modifier = modifier
+            .bounceClick {
+                if(heartState.value) {
+                    curationAPI.unlikeCuration(curationId).enqueue(
+                        object : Callback<CurationLikeResponse> {
+                            override fun onResponse(
+                                call: Call<CurationLikeResponse>,
+                                response: Response<CurationLikeResponse>
+                            ) {
+                                heartState.value = false
+                            }
+
+                            override fun onFailure(
+                                call: Call<CurationLikeResponse>,
+                                t: Throwable
+                            ) {
+
+                            }
+
+                        }
+                    )
+                }
+                else {
+                    curationAPI.likeCuration(curationId).enqueue(
+                        object : Callback<CurationLikeResponse> {
+                            override fun onResponse(
+                                call: Call<CurationLikeResponse>,
+                                response: Response<CurationLikeResponse>
+                            ) {
+                                heartState.value = true
+                            }
+
+                            override fun onFailure(
+                                call: Call<CurationLikeResponse>,
+                                t: Throwable
+                            ) {
+
+                            }
+
+                        }
+                    )
+
+                }
+
+            }
+        ,painter = painterResource(
+            id = if (heartState.value) R.drawable.ic_heart_solid
+            else R.drawable.ic_heart_line
+        ),
+        contentDescription = "좋아요",
+        tint =
+        if (heartState.value) Color(0xFFFF6767)
+        else moduBlack
+
+    )
+}
+
+
+@Composable
+fun CurationSaveCard(
+    curationId: Int,
+    modifier: Modifier,
+    saveState: MutableState<Boolean>
+) {
+    curationAPI.getCurationStoreState(curationId).enqueue(
+        object : Callback<GetCurationLikeStateResponse> {
+            override fun onResponse(
+                call: Call<GetCurationLikeStateResponse>,
+                response: Response<GetCurationLikeStateResponse>
+            ) {
+                saveState.value = response.body()?.result?.check ?: false
+            }
+
+            override fun onFailure(
+                call: Call<GetCurationLikeStateResponse>,
+                t: Throwable
+            ) {
+
+            }
+
+        }
+    )
+
     Icon(modifier = Modifier
-        .padding(end = 18.dp)
         .bounceClick {
-            if(heartState.value) {
+            if(saveState.value) {
                 curationAPI.unlikeCuration(curationId).enqueue(
                     object : Callback<CurationLikeResponse> {
                         override fun onResponse(
                             call: Call<CurationLikeResponse>,
                             response: Response<CurationLikeResponse>
                         ) {
-                            heartState.value = false
+                            saveState.value = false
                         }
-
                         override fun onFailure(
                             call: Call<CurationLikeResponse>,
                             t: Throwable
@@ -722,7 +804,7 @@ fun CurationHeartCard(
                             call: Call<CurationLikeResponse>,
                             response: Response<CurationLikeResponse>
                         ) {
-                            heartState.value = true
+                            saveState.value = true
                         }
 
                         override fun onFailure(
@@ -739,16 +821,15 @@ fun CurationHeartCard(
 
         }
         ,painter = painterResource(
-            id = if (heartState.value) R.drawable.ic_heart_solid
-            else R.drawable.ic_heart_line
+            id =
+            if (saveState.value) R.drawable.ic_star_solid
+            else R.drawable.ic_star_line
         ),
-        contentDescription = "좋아요",
-        tint =
-        if (heartState.value) Color(0xFFFF6767)
-        else moduBlack
-
+        contentDescription = "스크랩",
+        tint = moduBlack
     )
 }
+
 
 @Composable
 fun FollowCard(

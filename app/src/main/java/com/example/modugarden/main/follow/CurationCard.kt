@@ -141,7 +141,14 @@ fun CurationCard(
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .aspectRatio(1f)
+                            .aspectRatio(1f),
+                        requestOptions = {
+                            RequestOptions()
+                                .override(700,700)
+                        },
+                        loading = {
+                            ShowProgressBar()
+                        },
                     )
 
                     // 외부 페이지 이동
@@ -239,7 +246,7 @@ fun CurationCard(
                 // 좋아요
                 CurationHeartCard(
                     curationId = data.id,
-                    modifier = Modifier,
+                    modifier = Modifier.padding(end = 18.dp),
                     heartState = isButtonClickedLike
                 )
 //                Icon(modifier = Modifier
