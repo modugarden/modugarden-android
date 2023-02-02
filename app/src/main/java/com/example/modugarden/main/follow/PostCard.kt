@@ -39,17 +39,14 @@ import androidx.compose.ui.unit.*
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
 import com.example.modugarden.data.FollowPost
 import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.main.content.modalReportPost
-import com.example.modugarden.route.NAV_ROUTE_BNB
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
-import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
-import com.example.modugarden.ui.theme.bounceClick
-import com.example.modugarden.ui.theme.moduBlack
-import com.example.modugarden.ui.theme.moduGray_strong
+import com.example.modugarden.ui.theme.*
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -98,7 +95,14 @@ fun PostCard(navController:NavHostController,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
                                                         .size(26.dp)
-                                                        .clip(CircleShape)
+                                                        .clip(CircleShape),
+                                                requestOptions = {
+                                                        RequestOptions()
+                                                                .override(256,256)
+                                                },
+                                                loading = {
+                                                        ShowProgressBar()
+                                                },
                                         )
                                         Spacer(modifier = Modifier.width(18.dp))
                                         Text(
@@ -133,6 +137,13 @@ fun PostCard(navController:NavHostController,
                                                                 modifier = Modifier
                                                                         .fillMaxWidth()
                                                                         .aspectRatio(1f),
+                                                                requestOptions = {
+                                                                        RequestOptions()
+                                                                                .override(256,256)
+                                                                },
+                                                                loading = {
+                                                                        ShowProgressBar()
+                                                                },
                                                         )
 
                                                 }
@@ -213,34 +224,40 @@ fun PostCard(navController:NavHostController,
                                Row(
                                        Modifier.padding(18.dp)) {
                                        // 좋아요
-                                       Icon(modifier = Modifier
-                                               .padding(end = 18.dp)
-                                               .bounceClick {
-                                                       if (isButtonClickedLike.value) {
-                                                               isButtonClickedLike.value = false
-                                                               data.liKeNum = data.liKeNum + 1
-                                                       }
-                                                       else {
-                                                               isButtonClickedLike.value = true
-                                                               data.liKeNum = data.liKeNum - 1
-                                                       }
-
-                                               }
-                                               ,painter = painterResource
-                                                       (id =
-                                               if (isButtonClickedLike.value)
-                                                       R.drawable.ic_heart_solid
-                                               else
-                                                       R.drawable.ic_heart_line
-                                               ),
-                                               contentDescription = "좋아요",
-                                               tint =
-                                                       if (isButtonClickedLike.value)
-                                                               Color(0xFFFF6767)
-                                                       else
-                                                               moduBlack
-
+                                       PostHeartCard(
+                                               boardId = data.boardId,
+                                               heartState = isButtonClickedLike,
+                                               modifier = Modifier
                                        )
+//
+//                                       Icon(modifier = Modifier
+//                                               .padding(end = 18.dp)
+//                                               .bounceClick {
+//                                                       if (isButtonClickedLike.value) {
+//                                                               isButtonClickedLike.value = false
+//                                                               data.liKeNum = data.liKeNum + 1
+//                                                       }
+//                                                       else {
+//                                                               isButtonClickedLike.value = true
+//                                                               data.liKeNum = data.liKeNum - 1
+//                                                       }
+//
+//                                               }
+//                                               ,painter = painterResource
+//                                                       (id =
+//                                               if (isButtonClickedLike.value)
+//                                                       R.drawable.ic_heart_solid
+//                                               else
+//                                                       R.drawable.ic_heart_line
+//                                               ),
+//                                               contentDescription = "좋아요",
+//                                               tint =
+//                                                       if (isButtonClickedLike.value)
+//                                                               Color(0xFFFF6767)
+//                                                       else
+//                                                               moduBlack
+//
+//                                       )
                                        // 댓글
                                        Icon(modifier = Modifier
                                                .padding(end = 18.dp)

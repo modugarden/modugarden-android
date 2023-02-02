@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.CurationLikeResponse
@@ -61,9 +62,7 @@ import com.example.modugarden.main.content.CurationContentActivity
 import com.example.modugarden.main.content.modalReportCuration
 import com.example.modugarden.main.content.timeFomatter
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
-import com.example.modugarden.ui.theme.bounceClick
-import com.example.modugarden.ui.theme.moduBlack
-import com.example.modugarden.ui.theme.moduGray_light
+import com.example.modugarden.ui.theme.*
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -106,7 +105,14 @@ fun CurationCard(
                     modifier = Modifier
                         .size(26.dp)
                         .clip(CircleShape),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+                    requestOptions = {
+                        RequestOptions()
+                            .override(256,256)
+                    },
+                    loading = {
+                        ShowProgressBar()
+                    },
                 )
                 Spacer(modifier = Modifier.width(18.dp))
                 Text(
@@ -155,7 +161,14 @@ fun CurationCard(
                                 }
                             }
                             .blur(10.dp)
-                            .fillMaxWidth()
+                            .fillMaxWidth(),
+                        requestOptions = {
+                            RequestOptions()
+                                .override(256,256)
+                        },
+                        loading = {
+                            ShowProgressBar()
+                        },
 
                     )
                     // 안내 문구 및 아이콘
@@ -224,50 +237,55 @@ fun CurationCard(
             Row(
                 Modifier.padding(18.dp)) {
                 // 좋아요
-                Icon(modifier = Modifier
-                    .padding(end = 18.dp)
-                    .bounceClick {
-                        isButtonClickedLike.value = !isButtonClickedLike.value
-                        RetrofitBuilder.curationAPI
-                            .likeCuration(data.id)
-                            .enqueue(object :retrofit2.Callback<CurationLikeResponse>{
-                                override fun onResponse(
-                                    call: Call<CurationLikeResponse>,
-                                    response: Response<CurationLikeResponse>
-                                ) {
-                                    if(response.isSuccessful) {
-                                        val res = response.body()
-                                        if(res != null) {
-                                            Log.d("like-result", res.toString())
-                                        }
-                                    }
-                                    else {
-                                        Toast.makeText(mContext, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
-                                        Log.d("like-result", response.toString())
-                                    }
-
-                                }
-                                override fun onFailure(
-                                    call: Call<CurationLikeResponse>,
-                                    t: Throwable
-                                ) {
-                                    Toast.makeText(mContext, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
-                                }
-                            })
-                    }
-                    ,painter = painterResource
-                        (id =
-                            if (isButtonClickedLike.value)
-                                R.drawable.ic_heart_solid
-                            else
-                                R.drawable.ic_heart_line
-                        ),
-                    contentDescription = "좋아요",
-                tint = if (isButtonClickedLike.value)
-                            Color(0xFFFF6767)
-                        else
-                            moduBlack
+                CurationHeartCard(
+                    curationId = data.id,
+                    modifier = Modifier,
+                    heartState = isButtonClickedLike
                 )
+//                Icon(modifier = Modifier
+//                    .padding(end = 18.dp)
+//                    .bounceClick {
+//                        isButtonClickedLike.value = !isButtonClickedLike.value
+//                        RetrofitBuilder.curationAPI
+//                            .likeCuration(data.id)
+//                            .enqueue(object :retrofit2.Callback<CurationLikeResponse>{
+//                                override fun onResponse(
+//                                    call: Call<CurationLikeResponse>,
+//                                    response: Response<CurationLikeResponse>
+//                                ) {
+//                                    if(response.isSuccessful) {
+//                                        val res = response.body()
+//                                        if(res != null) {
+//                                            Log.d("like-result", res.toString())
+//                                        }
+//                                    }
+//                                    else {
+//                                        Toast.makeText(mContext, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
+//                                        Log.d("like-result", response.toString())
+//                                    }
+//
+//                                }
+//                                override fun onFailure(
+//                                    call: Call<CurationLikeResponse>,
+//                                    t: Throwable
+//                                ) {
+//                                    Toast.makeText(mContext, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
+//                                }
+//                            })
+//                    }
+//                    ,painter = painterResource
+//                        (id =
+//                            if (isButtonClickedLike.value)
+//                                R.drawable.ic_heart_solid
+//                            else
+//                                R.drawable.ic_heart_line
+//                        ),
+//                    contentDescription = "좋아요",
+//                tint = if (isButtonClickedLike.value)
+//                            Color(0xFFFF6767)
+//                        else
+//                            moduBlack
+//                )
                 // 스크랩
                 Icon(modifier = Modifier
                     .bounceClick {

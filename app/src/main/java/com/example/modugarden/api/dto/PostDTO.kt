@@ -85,7 +85,7 @@ class PostDTO {
     )
     data class PostLikeState(
         val check : Boolean,
-        val curation_id : Int,
+        val board_id : Int,
         val user_id: Int
     )
     data class GetPost(
