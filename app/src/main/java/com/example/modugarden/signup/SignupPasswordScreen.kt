@@ -40,7 +40,7 @@ fun SignupPasswordScreen(navController: NavHostController, data: Signup, signupV
     val focusManager = LocalFocusManager.current
     val keyboard by keyboardAsState()
     val dpScale = animateDpAsState(if(keyboard.toString() == "Closed") 18.dp else 0.dp)
-    val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 10.dp else 0.dp)
+    val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 15.dp else 0.dp)
     val mContext = LocalContext.current
     Log.d("certnumber", data.email)
     Box(

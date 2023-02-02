@@ -167,7 +167,7 @@ fun SignupEndScreen(navController: NavHostController, data: Signup, signupViewMo
                     .padding(18.dp)
                     .fillMaxWidth()
                     .alpha(1f),
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(15.dp),
                 backgroundColor = moduPoint,
                 elevation = 0.dp
             ) {

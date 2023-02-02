@@ -44,7 +44,7 @@ fun SignupEmailScreen(navController: NavHostController, data: Signup, signupView
     val focusManager = LocalFocusManager.current
     val keyboard by keyboardAsState()
     val dpScale = animateDpAsState(if(keyboard.toString() == "Closed") 18.dp else 0.dp) //버튼 애니메이션 처리.
-    val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 10.dp else 0.dp) //버튼 애니메이션 처리.
+    val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 15.dp else 0.dp) //버튼 애니메이션 처리.
     var certNumber = "" //API에서 받아온 이메일 인증번호를 저장
     val mContext = LocalContext.current
     Box(
@@ -97,44 +97,14 @@ fun SignupEmailScreen(navController: NavHostController, data: Signup, signupView
                                             if(res != null) {
                                                 if(!(res.result.duplicate)) {
                                                     signupViewModel.saveEmail(textFieldMail.value)
-                                                    val authJson = JsonObject().apply {
-                                                        addProperty("email", textFieldMail.value)
+                                                    navController.navigate(NAV_ROUTE_SIGNUP.EMAIL_SEND.routeName) {
+                                                        popUpTo(NAV_ROUTE_SIGNUP.EMAIL_SEND.routeName) {
+                                                            inclusive = true
+                                                        }
                                                     }
-                                                    signupAPI.signupEmailAuthentication(authJson)
-                                                        .enqueue(object: Callback<SignupEmailAuthenticationDTO> {
-                                                            override fun onResponse(
-                                                                call: Call<SignupEmailAuthenticationDTO>,
-                                                                response: Response<SignupEmailAuthenticationDTO>
-                                                            ) {
-                                                                Log.d("apires", response.body().toString())
-                                                                if(response.isSuccessful) {
-                                                                    val res = response.body()
-                                                                    if(res != null) {
-                                                                        if(res.isSuccess) {
-                                                                            signupViewModel.saveCert(res.result.authCode)
-                                                                            navController.navigate(NAV_ROUTE_SIGNUP.EMAIL_CERT.routeName)
-                                                                        }
-                                                                    }
-                                                                    else {
-                                                                        Toast.makeText(mContext, "인증번호를 보내지 못했어요", Toast.LENGTH_SHORT).show()
-                                                                    }
-                                                                }
-                                                                else {
-                                                                    Toast.makeText(mContext, "인증번호를 받지 못했어요", Toast.LENGTH_SHORT).show()
-                                                                }
-                                                            }
-
-                                                            override fun onFailure(
-                                                                call: Call<SignupEmailAuthenticationDTO>,
-                                                                t: Throwable
-                                                            ) {
-                                                                Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
-                                                            }
-
-                                                        })
                                                 }
                                                 else {
-                                                    Toast.makeText(mContext, "중복된 이메일이에요", Toast.LENGTH_SHORT).show()
+                                                    Toast.makeText(mContext, "사용 중인 이메일이에요", Toast.LENGTH_SHORT).show()
                                                 }
                                             }
                                         }
