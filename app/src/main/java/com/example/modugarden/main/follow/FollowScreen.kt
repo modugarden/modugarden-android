@@ -51,6 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
@@ -64,6 +65,7 @@ import com.example.modugarden.route.NavigationGraphFollow
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
+import com.example.modugarden.viewmodel.UserViewModel
 import com.skydoves.landscapist.glide.GlideImage
 import retrofit2.Call
 import retrofit2.Callback
@@ -82,10 +84,14 @@ fun FollowScreen(navController: NavHostController){
 }
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun FollowMainScreen(navController: NavHostController,navFollowController: NavHostController, followPosts: List<FollowPost>){
+fun FollowMainScreen(navController: NavHostController,
+                     navFollowController: NavHostController,
+                     followPosts: List<FollowPost>,
+                    userViewModel: UserViewModel = viewModel()){
     val following = 1
     val context = LocalContext.current.applicationContext
     var responseBody  by remember { mutableStateOf(GetCuration(null)) }
+
     RetrofitBuilder.curationAPI
         .getUserCuration(4)
         .enqueue(object: Callback<GetCuration> {
@@ -252,7 +258,7 @@ fun FollowingScreen(navController: NavHostController,navFollowController: NavHos
                     items(followPosts.reversed()){
                         PostCard(navFollowController, data = it , scope, snackbarHostState, bottomSheetState, modalType)}
 
-                      items(followCurations.reversed()) {
+                      items(followCurations.reversed().subList(4,7)) {
                             CurationCard(
                                 navFollowController,
                                 data = it,
