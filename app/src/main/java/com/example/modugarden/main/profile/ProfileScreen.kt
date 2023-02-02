@@ -163,6 +163,7 @@ fun MyProfileScreen (
             override fun onResponse(call: Call<UserInfoRes>, response: Response<UserInfoRes>) {
                 super.onResponse(call, response)
                 data.value = response.body()?.result!!
+                Log.d("penguin", data.value.toString())
             }
         })
 

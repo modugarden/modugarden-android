@@ -25,10 +25,15 @@ import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.ui.theme.addFocusCleaner
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.searchTextField
+import com.example.modugarden.viewmodel.UserViewModel
 
 
 @Composable
-fun DiscoverSearchResultScreen(navController: NavHostController, searchedText: String) {
+fun DiscoverSearchResultScreen(
+    navController: NavHostController,
+    searchedText: String,
+    userViewModel: UserViewModel
+) {
     val focusManager = LocalFocusManager.current
     val searchText = remember { mutableStateOf(searchedText) } //textField 데이터 값.
     val isTextFieldSearchFocused = remember { mutableStateOf(false) } //textField가 포커싱 되어 있는지 여부.
@@ -108,7 +113,13 @@ fun DiscoverSearchResultScreen(navController: NavHostController, searchedText: S
 
                 )
             }
-            DiscoverSearchResult(searchedText, coroutineScope ,snackbarHostState)
+            DiscoverSearchResult(
+                searchedText,
+                coroutineScope ,
+                snackbarHostState,
+                navController,
+                userViewModel
+            )
 
 
         }

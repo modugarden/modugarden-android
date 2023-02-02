@@ -54,7 +54,7 @@ fun NavigationGraphBNB(
     AnimatedNavHost(navController, startDestination = NAV_ROUTE_BNB.FOLLOW.routeName,
         modifier = Modifier.fillMaxSize()) {
         composable(NAV_ROUTE_FOLLOW.USERPROFILE.routeName){
-            MyProfileScreen(userViewModel.userId)
+            MyProfileScreen(userViewModel.getUserId())
         }
         composable(
             NAV_ROUTE_BNB.FOLLOW.routeName,

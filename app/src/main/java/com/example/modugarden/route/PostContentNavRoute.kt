@@ -14,6 +14,7 @@ import com.example.modugarden.main.content.PostContentMapScreen
 import com.example.modugarden.main.content.PostContentScreen
 import com.example.modugarden.main.profile.MyProfileScreen
 import com.example.modugarden.viewmodel.CommentViewModel
+import com.example.modugarden.viewmodel.UserViewModel
 
 //PostContentScreen, PostContentCommentScreen, PostContentMapScreen
 enum class NAV_ROUTE_POSTCONTENT(val routeName: String, val description: String) {
@@ -26,15 +27,16 @@ enum class NAV_ROUTE_POSTCONTENT(val routeName: String, val description: String)
 @Composable
 fun NavigationGraphPostContent(navController: NavHostController,
                                commentViewModel: CommentViewModel= viewModel(),
+                               userViewModel: UserViewModel = viewModel(),
                                data:FollowPost) {
     NavHost(navController = navController, startDestination = NAV_ROUTE_POSTCONTENT.MAIN.routeName) {
-        composable(NAV_ROUTE_POSTCONTENT.MAIN.routeName) { PostContentScreen(navController,data) }
+        composable(NAV_ROUTE_POSTCONTENT.MAIN.routeName) { PostContentScreen(navController,data, userViewModel) }
         composable("${ NAV_ROUTE_POSTCONTENT.COMMENT.routeName }/{comment_data}"
             , arguments = listOf(navArgument(name="comment_data"){type= NavType.IntType})) {
                 backStackEntry ->
             PostContentCommentScreen(navController,commentViewModel,
                 backStackEntry.arguments!!.getInt("comment_data"),true) }
-        composable(NAV_ROUTE_POSTCONTENT.WRITER.routeName){ MyProfileScreen(1)}
+        composable(NAV_ROUTE_POSTCONTENT.WRITER.routeName){ MyProfileScreen(userViewModel.getUserId())}
        composable("${NAV_ROUTE_POSTCONTENT.LOCATION.routeName}/{location_data}",
            arguments = listOf(navArgument(name="location_data"){type=NavType.StringType}))
        {backStackEntry ->

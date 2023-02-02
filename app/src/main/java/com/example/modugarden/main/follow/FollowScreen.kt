@@ -122,7 +122,13 @@ fun FollowMainScreen(navController: NavHostController,
     val curations = responseBody.content
     if (following==1){
         if (curations != null) {
-            FollowingScreen(navController = navController, navFollowController = navFollowController, followPosts = followPosts, followCurations = curations)
+            FollowingScreen(
+                navController = navController,
+                navFollowController = navFollowController,
+                followPosts = followPosts,
+                followCurations = curations,
+                userViewModel = userViewModel
+            )
         }
     }
     else NoFollowingScreen(navController = navController)
@@ -131,7 +137,13 @@ fun FollowMainScreen(navController: NavHostController,
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable //팔로우 피드.
-fun FollowingScreen(navController: NavHostController,navFollowController: NavHostController, followPosts:List<FollowPost>,followCurations: List<GetCurationContent>) {
+fun FollowingScreen(
+    navController: NavHostController,
+    navFollowController: NavHostController,
+    followPosts:List<FollowPost>,
+    followCurations: List<GetCurationContent>,
+    userViewModel: UserViewModel
+) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
@@ -256,18 +268,27 @@ fun FollowingScreen(navController: NavHostController,navFollowController: NavHos
                     }
                     //포스트 카드
                     items(followPosts.reversed()){
-                        PostCard(navFollowController, data = it , scope, snackbarHostState, bottomSheetState, modalType)}
-
-                      items(followCurations.reversed().subList(4,7)) {
-                            CurationCard(
-                                navFollowController,
-                                data = it,
-                             scope = scope,
-                                snackbarHostState= snackbarHostState,
-                                bottomSheetState = bottomSheetState,
-                                modalType = modalType
-                            )
-                        }
+                        PostCard(
+                            navFollowController,
+                            data = it ,
+                            scope,
+                            snackbarHostState,
+                            bottomSheetState,
+                            modalType,
+                            userViewModel
+                        )
+                    }
+                    items(followCurations.reversed().subList(4,7)) {
+                        CurationCard(
+                            navFollowController,
+                            data = it,
+                            scope = scope,
+                            snackbarHostState= snackbarHostState,
+                            bottomSheetState = bottomSheetState,
+                            modalType = modalType,
+                            userViewModel
+                        )
+                    }
 
                     // 팔로우 피드 맨 끝
                     item { FollowEndCard(navController) }
