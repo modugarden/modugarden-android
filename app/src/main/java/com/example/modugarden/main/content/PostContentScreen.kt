@@ -582,12 +582,6 @@ fun PostContentScreen(
                             .bounceClick {
                                 isButtonClickedSave.value = !isButtonClickedSave.value
                             }
-                            .padding(
-                                if (isButtonClickedSave.value)
-                                    1.75.dp
-                                else
-                                    0.dp
-                            )
                             ,
                             painter = painterResource
                                 (id =
