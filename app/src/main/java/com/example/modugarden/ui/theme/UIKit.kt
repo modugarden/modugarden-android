@@ -1,6 +1,7 @@
 package com.example.modugarden.ui.theme
 
 import android.graphics.Rect
+import android.util.Log
 import android.view.ViewTreeObserver
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
@@ -765,12 +766,15 @@ fun CurationSaveCard(
                 response: Response<GetCurationLikeStateResponse>
             ) {
                 saveState.value = response.body()?.result?.check ?: false
+                Log.d("upload-result123", response.body().toString())
+
             }
 
             override fun onFailure(
                 call: Call<GetCurationLikeStateResponse>,
                 t: Throwable
             ) {
+                Log.d("upload-result", "왜안됍")
 
             }
 

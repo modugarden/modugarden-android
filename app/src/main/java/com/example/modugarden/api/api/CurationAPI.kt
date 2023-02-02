@@ -76,7 +76,7 @@ interface CurationAPI {
     // 큐레이션 보관 여부 조회
     @GET("/curations/me/storage/{curation_id}")
     fun getCurationStoreState(
-        @Query ("curation_id") curation_id: Int
+        @Path ("curation_id") curation_id: Int
     ): Call <GetCurationLikeStateResponse>
 
     // 회원 - 큐레이션 조회
