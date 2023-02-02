@@ -95,5 +95,24 @@ class PostDTO {
         val last: Boolean? = null
     )
 
+    data class GetFollowFeedPost(
+        val content: List<GetFollowFeedPostContent> ?= null,
+        val first: Boolean ?= null,
+        val hasNext: Boolean? = null,
+        val last: Boolean? = null
+    )
+    data class GetFollowFeedPostContent(
+        val board_id: Int,
+        val title: String,
+        val image : String,
+        val liked : Boolean,
+        val saved : Boolean,
+        val created_Date: String,
+        val user_id: Int,
+        val user_nickname: String,
+        val user_profile_image: String,
+        val category_category: String
+    )
+
 
 }

@@ -84,4 +84,8 @@ interface PostAPI {
         @Path ("user_id") user_id :Int
     ): Call<GetPost>
 
+    //팔로우 피드 포스트 불러오기
+    @GET ("/boards/followfeed")
+    fun getFollowFeedPost() :Call <GetFollowFeedPost>
+
 }

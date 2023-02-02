@@ -98,4 +98,6 @@ interface CurationAPI {
         @Body curation_id: Int
     ): Call <DeleteCurationResponse>
 
+    @GET ("/curations/followfeed")
+    fun getFollowFeedCuration() : Call<GetFollowFeedCuration>
 }
