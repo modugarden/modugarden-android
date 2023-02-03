@@ -1,6 +1,7 @@
 package com.example.modugarden.ui.theme
 
 import android.graphics.Rect
+import android.util.Log
 import android.view.ViewTreeObserver
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
@@ -52,6 +53,7 @@ import com.example.modugarden.api.dto.CurationLikeResponse
 import com.example.modugarden.api.dto.CurationStoreResponse
 import com.example.modugarden.api.dto.FollowDtoRes
 import com.example.modugarden.api.dto.GetCurationLikeStateResponse
+import com.example.modugarden.api.dto.GetFollowFeedCurationContent
 import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.main.follow.moduBold
 import kotlinx.coroutines.launch
@@ -724,6 +726,7 @@ fun CurationHeartCard(
                                 response: Response<CurationLikeResponse>
                             ) {
                                 heartState.value = true
+
                             }
 
                             override fun onFailure(
@@ -737,6 +740,7 @@ fun CurationHeartCard(
                     )
 
                 }
+
 
             }
         ,painter = painterResource(

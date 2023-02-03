@@ -23,6 +23,7 @@ class ApplicationClass : Application() {
         val accessToken = "Access Token"
         val refreshToken = "Refresh Token"
         val clientId = "Client ID"
+        val refresh = "refresh"
 
         lateinit var retrofit: Retrofit
         lateinit var retrofitWithNoInterceptor: Retrofit

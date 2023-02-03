@@ -3,7 +3,6 @@ package com.example.modugarden.main.follow
 import android.content.Intent
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,7 +24,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
@@ -55,9 +53,8 @@ import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
-import com.example.modugarden.api.RetrofitBuilder
-import com.example.modugarden.api.dto.CurationLikeResponse
-import com.example.modugarden.api.dto.GetCurationContent
+import com.example.modugarden.api.dto.GetFollowFeedCurationContent
+import com.example.modugarden.data.ReportInfo
 import com.example.modugarden.main.content.CurationContentActivity
 import com.example.modugarden.main.content.modalReportCuration
 import com.example.modugarden.main.content.timeFomatter
@@ -67,20 +64,17 @@ import com.example.modugarden.viewmodel.UserViewModel
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Response
-import javax.security.auth.callback.Callback
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable //팔로우 피드에 표시되는 큐레이션 카드 item.
 fun CurationCard(
     navController: NavHostController,
-    data: GetCurationContent,
+    data: GetFollowFeedCurationContent,
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
     bottomSheetState: ModalBottomSheetState,
-    modalType: MutableState<Int>,
+    report: MutableState<ReportInfo>,
     userViewModel: UserViewModel
 ) {
     val mContext = LocalContext.current
@@ -99,12 +93,13 @@ fun CurationCard(
                     .padding(18.dp)
                     .bounceClick {
                         userViewModel.setUserId(data.user_id)
-                        navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName){
-                    } },
+                        navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName) {
+                        }
+                    },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 GlideImage(
-                    imageModel = data.preview_image,
+                    imageModel = data.image,
                     contentDescription = null,
                     modifier = Modifier
                         .size(26.dp)
@@ -128,7 +123,8 @@ fun CurationCard(
             Column(modifier = Modifier
                 .clickable {
                     val intent = Intent(mContext, CurationContentActivity::class.java)
-                    intent.putExtra("url",data.link)
+                    intent.putExtra("curation_id",data.curation_id)
+
                     mContext.startActivity(intent)
                 }
             )
@@ -140,7 +136,7 @@ fun CurationCard(
                 ) {
 
                     GlideImage(
-                        imageModel = data.preview_image,
+                        imageModel = data.image,
                         contentDescription = "썸네일",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -158,7 +154,7 @@ fun CurationCard(
                     // 외부 페이지 이동
                     // 이미지 하단 블러처리
                     GlideImage(
-                        imageModel = data.preview_image,
+                        imageModel = data.image,
                         contentDescription = "썸네일",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -235,7 +231,7 @@ fun CurationCard(
                                 color = Color("#75807A".toColorInt())
                             )
                             Spacer(modifier = Modifier.weight(1f))
-                            Text( timeFomatter(data.created_date), fontSize = 12.sp, color = Color("#75807A".toColorInt()))
+                            Text( timeFomatter(data.created_Date), fontSize = 12.sp, color = Color("#75807A".toColorInt()))
                         }
 
                     }
@@ -249,10 +245,11 @@ fun CurationCard(
                 Modifier.padding(18.dp)) {
                 // 좋아요
                 CurationHeartCard(
-                    curationId = data.id,
+                    curationId = data.curation_id,
                     modifier = Modifier.padding(end = 18.dp),
-                    heartState = isButtonClickedLike
+                    heartState = remember { mutableStateOf(data.liked) }
                 )
+                Log.i("liked", data.liked.toString())
 //                Icon(modifier = Modifier
 //                    .padding(end = 18.dp)
 //                    .bounceClick {
@@ -299,9 +296,9 @@ fun CurationCard(
 //                )
                 // 스크랩
                 CurationSaveCard(
-                    curationId = data.id,
+                    curationId = data.curation_id,
                     modifier = Modifier,
-                    saveState = isButtonClickedSave
+                    saveState =  remember { mutableStateOf(data.saved) }
                 )
 //                Icon(modifier = Modifier
 //                    .bounceClick {
@@ -329,7 +326,8 @@ fun CurationCard(
                 Spacer(modifier = Modifier.weight(1f))
                 // 신고
                     Icon(modifier = Modifier.bounceClick {
-                        modalType.value = modalReportCuration
+                        report.value.modalType = modalReportCuration
+                        report.value.modalTitle = data.title
                         scope.launch {
                         bottomSheetState.animateTo(
                             ModalBottomSheetValue.Expanded)

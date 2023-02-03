@@ -1,5 +1,8 @@
 package com.example.modugarden.api.dto
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
 class PostDTO {
 
     data class GetSearchPost(
@@ -22,10 +25,10 @@ class PostDTO {
         val category_category: String
     )
     data class GetPostResponse(
-        val code: Int,
-        val isSuccess: Boolean,
-        val message :String,
-        val result : GetPostContent
+        val code: Int ?= null,
+        val isSuccess: Boolean ?= null,
+        val message :String ?= null,
+        val result : GetPostContent  ?= null
     )
     data class GetPostContent(
         val id: Int,
@@ -96,15 +99,16 @@ class PostDTO {
     )
 
     data class GetFollowFeedPost(
-        val content: List<GetFollowFeedPostContent> ?= null,
+        val content: List<GetFollowFeedPostContent> ?,
         val first: Boolean ?= null,
         val hasNext: Boolean? = null,
         val last: Boolean? = null
     )
+
     data class GetFollowFeedPostContent(
         val board_id: Int,
         val title: String,
-        val image : String,
+        val image : ArrayList<PostFollowFeedImageContent>,
         val liked : Boolean,
         val saved : Boolean,
         val created_Date: String,
@@ -112,6 +116,14 @@ class PostDTO {
         val user_nickname: String,
         val user_profile_image: String,
         val category_category: String
+    )
+
+    data class PostFollowFeedImageContent(
+        val content:String,
+        val id: Int,
+        val image : String,
+        val location : String,
+        val userid:Int
     )
 
 

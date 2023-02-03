@@ -2,6 +2,7 @@ package com.example.modugarden.main.follow
 
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,10 +42,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
-import com.example.modugarden.data.FollowPost
+import com.example.modugarden.api.dto.PostDTO
+import com.example.modugarden.data.ReportInfo
 import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.main.content.modalReportPost
+import com.example.modugarden.main.content.timeFomatter
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.UserViewModel
@@ -56,16 +59,18 @@ import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable //팔로우 피드에 표시되는 포스트 카드 item.
 
-fun PostCard(navController:NavHostController,
-             data: FollowPost,
-             scope: CoroutineScope,
-             snackbarHostState: SnackbarHostState,
-             bottomSheetState: ModalBottomSheetState,
-             modalType: MutableState<Int>,
-             userViewModel: UserViewModel
+fun PostCard(
+        navController:NavHostController,
+        data: PostDTO.GetFollowFeedPostContent,
+        scope: CoroutineScope,
+        snackbarHostState: SnackbarHostState,
+        bottomSheetState: ModalBottomSheetState,
+        report: MutableState<ReportInfo>,
+        userViewModel: UserViewModel
 ) {
 
         val isButtonClickedLike = remember { mutableStateOf(false) } // 버튼 바
@@ -88,12 +93,13 @@ fun PostCard(navController:NavHostController,
                                                 .padding(18.dp)
                                                 .bounceClick {
                                                         userViewModel.setUserId(1)
-                                                        navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName){
-                                                        }},//프로필
+                                                        navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName) {
+                                                        }
+                                                },//프로필
                                         verticalAlignment = Alignment.CenterVertically
                                 ) {
                                         GlideImage(
-                                                imageModel = data.user.image,
+                                                imageModel = R.drawable.test_image1,
                                                 contentDescription = null,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
@@ -109,7 +115,7 @@ fun PostCard(navController:NavHostController,
                                         )
                                         Spacer(modifier = Modifier.width(18.dp))
                                         Text(
-                                                text = data.user.name,
+                                                text = data.user_nickname,
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 14.sp,
                                         )
@@ -118,15 +124,15 @@ fun PostCard(navController:NavHostController,
                                 Column(modifier = Modifier.clickable {
                                         //인텐트로 정보 스크린에 넘겨주기
                                         val intent = Intent(mContext, PostContentActivity::class.java)
-                                        intent.putExtra("post_data",data)
                                         intent.putExtra("run",true)
+                                        intent.putExtra("board_id",data.board_id)
                                         mContext.startActivity(intent)
                                 })
                                 {       // 포스트 카드 이미지 슬라이드
                                         Box() {
                                                 // 포스트 카드 이미지 슬라이드
                                                 HorizontalPager(
-                                                        count = data.image.size,
+                                                        count =data.image.size,
                                                         state = order,
                                                         modifier = Modifier
                                                                 .fillMaxWidth()
@@ -134,7 +140,7 @@ fun PostCard(navController:NavHostController,
                                                                 .align(Alignment.TopCenter),
                                                 ) { page ->
                                                         GlideImage(
-                                                                imageModel = data.image[page],
+                                                                imageModel =data.image[page].image,
                                                                 contentDescription = null,
                                                                 contentScale = ContentScale.Crop,
                                                                 modifier = Modifier
@@ -168,7 +174,8 @@ fun PostCard(navController:NavHostController,
                                                                         )
                                                                 )
                                                                 .align(Alignment.BottomCenter)
-                                                                .padding(25.dp),
+                                                                .padding(25.dp)
+                                                        ,
                                                         dotSize = 8,
                                                         dotPadding = 5,
                                                         totalDots = data.image.size,
@@ -208,11 +215,11 @@ fun PostCard(navController:NavHostController,
                                                         ) {
 
                                                                 Text(
-                                                                        text =  data.category.component1(),
+                                                                        text =  data.category_category,
                                                                         color = moduGray_strong
                                                                 )
                                                                 Text(
-                                                                        data.time,
+                                                                        timeFomatter( data.created_Date),
                                                                         fontSize = 12.sp,
                                                                         color = moduGray_strong
                                                                 )
@@ -228,7 +235,7 @@ fun PostCard(navController:NavHostController,
                                        Modifier.padding(18.dp)) {
                                        // 좋아요
                                        PostHeartCard(
-                                               boardId = data.boardId,
+                                               boardId = data.board_id,
                                                heartState = isButtonClickedLike,
                                                modifier = Modifier.padding(end = 18.dp)
                                        )
@@ -270,9 +277,12 @@ fun PostCard(navController:NavHostController,
                                                                        inclusive= true
                                                                }
                                                        }*/
-                                                       val intent = Intent(mContext, PostContentActivity::class.java)
-                                                       intent.putExtra("post_data",data)
-                                                       intent.putExtra("run",false)
+                                                       val intent = Intent(
+                                                               mContext,
+                                                               PostContentActivity::class.java
+                                                       )
+                                                       /*intent.putExtra("post_data",data)*/
+                                                       intent.putExtra("run", false)
                                                        mContext.startActivity(intent)
 
                                                },
@@ -305,7 +315,9 @@ fun PostCard(navController:NavHostController,
                                        )
                                        Spacer(modifier = Modifier.weight(1f))
                                                Icon(modifier = Modifier.bounceClick {
-                                                       modalType.value = modalReportPost
+                                                      report.value.modalType = modalReportPost
+                                                       report.value.modalTitle = data.title
+                                                       Log.i("reprot",report.value.toString())
                                                        scope.launch {
                                                                bottomSheetState.animateTo(
                                                                        ModalBottomSheetValue.Expanded)
