@@ -53,6 +53,7 @@ import com.example.modugarden.api.dto.CurationLikeResponse
 import com.example.modugarden.api.dto.CurationStoreResponse
 import com.example.modugarden.api.dto.FollowDtoRes
 import com.example.modugarden.api.dto.GetCurationLikeStateResponse
+import com.example.modugarden.api.dto.GetFollowFeedCurationContent
 import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.main.follow.moduBold
 import kotlinx.coroutines.launch
@@ -725,6 +726,7 @@ fun CurationHeartCard(
                                 response: Response<CurationLikeResponse>
                             ) {
                                 heartState.value = true
+
                             }
 
                             override fun onFailure(
@@ -738,6 +740,7 @@ fun CurationHeartCard(
                     )
 
                 }
+
 
             }
         ,painter = painterResource(

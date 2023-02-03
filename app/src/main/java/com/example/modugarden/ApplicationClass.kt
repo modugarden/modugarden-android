@@ -23,6 +23,12 @@ class ApplicationClass : Application() {
         val accessToken = "Access Token"
         val refreshToken = "Refresh Token"
         val clientId = "Client ID"
+        val commentNotification = "Comment Notification Setting"
+        val followNotification = "Follow Notification Setting"
+        val serviceNotification = "Service Notification Setting"
+        val marketingNotification = "Marketing Notification Setting"
+        val autoLoginSetting = "Auto Login Setting"
+        val refresh = "refresh"
 
         lateinit var retrofit: Retrofit
         lateinit var retrofitWithNoInterceptor: Retrofit

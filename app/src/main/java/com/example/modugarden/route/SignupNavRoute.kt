@@ -18,6 +18,7 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 
 enum class NAV_ROUTE_SIGNUP(val routeName: String, val description: String) { //signup 패키지 루트.
     EMAIL("SIGNUP_EMAIL", "이메일"),
+    EMAIL_SEND("SIGNUP_EMAIL_SEND", "이메일 전송"),
     EMAIL_CERT("SIGNUP_EMAIL_CERT", "이메일 인증"),
     PASSWORD("SIGNUP_PASSWORD", "비밀번호"),
     TERMS("SIGNUP_TERMS", "이용 약관"),
@@ -57,6 +58,25 @@ fun NavigationGraphSignup(
                         fadeOut(tween(500))
             },
         ) { SignupEmailScreen(navController, data, signupViewModel) }
+        composable(
+            NAV_ROUTE_SIGNUP.EMAIL_SEND.routeName,
+            enterTransition = {
+                slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeIn(tween(500))
+            },
+            exitTransition =  {
+                slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeOut(tween(500))
+            },
+            popEnterTransition = {
+                slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeIn(tween(500))
+            },
+            popExitTransition = {
+                slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeOut(tween(500))
+            },
+        ) { SignupEmailSendScreen(navController, data, signupViewModel) }
         composable(
             NAV_ROUTE_SIGNUP.EMAIL_CERT.routeName,
             enterTransition = {

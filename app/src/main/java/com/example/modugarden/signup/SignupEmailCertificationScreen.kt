@@ -47,7 +47,7 @@ fun SignupEmailCertificationScreen(navController: NavHostController, data: Signu
     val focusManager = LocalFocusManager.current
     val keyboard by keyboardAsState()
     val dpScale = animateDpAsState(if(keyboard.toString() == "Closed") 18.dp else 0.dp)
-    val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 10.dp else 0.dp)
+    val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 15.dp else 0.dp)
     Box(
         modifier = Modifier
             .background(Color.White)

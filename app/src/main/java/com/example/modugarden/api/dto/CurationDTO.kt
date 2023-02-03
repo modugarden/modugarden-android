@@ -52,16 +52,18 @@ data class GetSearchCurationContent(
 
 data class GetCurationContent(
     val id: Int,
+    val isliked :Boolean,
+    val isSaved : Boolean,
     val title: String,
     val link: String,
     val preview_image: String,
-    val likeNum: Int,
-    val created_date: String,
+    val like_num: Int,
+    val created_Date: String,
     val user_id: Int,
     val user_nickname: String,
     val user_profile_image: String,
     val category_category: String
-)
+) // 게시물 상세보기 - 큐레이션 조회
 //createCuration request바디
 data class CreateCurationRequest(
     val link: String,
@@ -81,10 +83,10 @@ data class CurationId(
     val id: Int
 )
 data class GetCurationResponse(
-    val code: Int,
-    val isSuccess: Boolean,
-    val message :String,
-    val result : List<GetCurationContent>
+    val code: Int? = null,
+    val isSuccess: Boolean? = null,
+    val message :String? = null,
+    val result : GetCurationContent?=null
 )
 
 data class  DeleteCurationResponse(
@@ -139,3 +141,22 @@ data class GetFollowFeedCurationContent(
     val category_category: String
 )
 
+data class GetStoredCurationsResponse(
+    val content: List<GetStoredCurationsResponseContent>,
+    val first: Boolean,
+    val hasNext: Boolean,
+    val last: Boolean
+)
+
+data class GetStoredCurationsResponseContent(
+    val category_category: String,
+    val id: Int,
+    val likeNum: Int,
+    val link: String,
+    val localDateTime: String,
+    val preview_image: String,
+    val title: String,
+    val user_id: Int,
+    val user_nickname: String,
+    val user_profile_image: String
+)

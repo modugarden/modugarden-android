@@ -2,8 +2,9 @@ package com.example.modugarden.main.content
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.os.Build
-import androidx.annotation.RequiresApi
+import android.location.Geocoder
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -41,10 +42,12 @@ import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -56,18 +59,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
-import androidx.core.net.toUri
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
-import com.example.modugarden.data.FollowPost
-import com.example.modugarden.data.User
-import com.example.modugarden.data.followPosts
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.PostDTO
+import com.example.modugarden.data.MapInfo
 import com.example.modugarden.main.follow.DotsIndicator
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
@@ -85,13 +84,17 @@ import com.google.accompanist.pager.rememberPagerState
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.util.Locale
 
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun PostContentScreen(
     navController: NavHostController,
-    data:FollowPost,
+    board_id:Int,
     userViewModel: UserViewModel
 ) {
     val pagerState= rememberPagerState()//뷰페이저, 인디케이터 페이지 상태 변수
@@ -99,10 +102,40 @@ fun PostContentScreen(
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val modalType = rememberSaveable{ mutableStateOf(0) } // 신고 or 위치 모달 타입 정하는 변수
-
+    var responseBody by remember { mutableStateOf(PostDTO.GetPostResponse()) }
     val activity = (LocalContext.current as? Activity)//액티비티 종료할 때 필요한 변수
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }// 팔로우 스낵바 메세지 상태 변수
+    val context = LocalContext.current.applicationContext
+
+
+    RetrofitBuilder.postAPI
+        .getPostContent(board_id)
+        .enqueue(object : Callback<PostDTO.GetPostResponse> {
+            override fun onResponse(
+                call: Call<PostDTO.GetPostResponse>,
+                response: Response<PostDTO.GetPostResponse>
+            ) {
+                val res = response.body()
+                if (res != null) {
+                    responseBody = res
+                    Log.d("post-activity-result", responseBody.toString())
+                }
+                 else {
+                    Toast.makeText(context, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
+                    Log.d("follow-post-result", response.toString())
+                }
+            }
+
+            override fun onFailure(call: Call<PostDTO.GetPostResponse>, t: Throwable) {
+                Toast.makeText(context, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
+
+                Log.d("follow-curation", "실패")
+            }
+
+        })
+    if (responseBody.result != null) {
+        val post = responseBody.result
 
         ModalBottomSheetLayout(
             sheetElevation = 0.dp,
@@ -155,7 +188,7 @@ fun PostContentScreen(
                                         contentScale = ContentScale.Crop
                                     )
                                     Spacer(modifier = Modifier.size(18.dp))
-                                    Text(text = data.title, style = moduBold, fontSize = 14.sp)
+                                    Text(text = post!!.title, style = moduBold, fontSize = 14.sp)
                                 }
                             }
 
@@ -186,6 +219,35 @@ fun PostContentScreen(
                     }
                 }
                 else {
+                    val locinfo = post!!.image[pagerState.currentPage].location
+                    val loclength =
+                        post!!.image[pagerState.currentPage].location.length
+                    if (loclength == 0 || locinfo.contains(",").not()) // 위치 정보 없거나, 주소가 없을 때
+                        {
+                        }
+                    else {
+                        val location = remember{ mutableStateOf("") }
+                        val address = remember{ mutableStateOf("") }
+
+                        location.value = locinfo.split(",")[0]
+                        val lat = locinfo.split(",")[1].toDouble()
+                        val lng=locinfo.split(",")[2].toDouble()
+
+                        val geocoder = Geocoder(LocalContext.current.applicationContext,
+                            Locale.KOREA)
+                        val latlng = geocoder.getFromLocation(lat,lng,30)
+                        if(latlng != null) {
+                            if(latlng.size== 0){
+                                Log.e("reverseGeocoding", "해당 주소 없음");
+                            }
+                            else {
+                                val city= latlng.get(0).adminArea
+                                val sublocality = latlng.get(0).subLocality
+                                val throughfare = latlng.get(0).subThoroughfare
+                                address.value =  "$city $sublocality $throughfare"
+                            }
+                        }
+
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -220,11 +282,13 @@ fun PostContentScreen(
                                         .padding(vertical = 18.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Box(modifier = Modifier
-                                        .clip(CircleShape)
-                                        .background(moduGray_light)
-                                        .size(40.dp),
-                                            contentAlignment = Alignment.Center)
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(CircleShape)
+                                            .background(moduGray_light)
+                                            .size(40.dp),
+                                        contentAlignment = Alignment.Center
+                                    )
                                     {
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_map_pin),
@@ -237,8 +301,17 @@ fun PostContentScreen(
                                         modifier = Modifier
                                             .align(Alignment.CenterVertically)
                                     ) {
-                                        Text(text = data.location!![pagerState.currentPage], style = moduBold, fontSize = 14.sp,)
-                                        Text(text = "adress", fontSize = 12.sp, color = Color.Gray)
+                                                Text(
+                                                    text = location.value,
+                                                    style = moduBold,
+                                                    fontSize = 14.sp,
+                                                )
+                                                Text(
+                                                    text = address.value,
+                                                    fontSize = 12.sp,
+                                                    color = Color.Gray
+                                                )
+
                                     }
 
                                 }
@@ -248,7 +321,8 @@ fun PostContentScreen(
                                     Modifier
                                         .fillMaxWidth()
                                         .height(200.dp)
-                                        .border(1.dp, moduGray_light, RoundedCornerShape(10.dp))) {
+                                        .border(1.dp, moduGray_light, RoundedCornerShape(10.dp))
+                                ) {
 
                                 }
                                 Spacer(modifier = Modifier.size(18.dp))
@@ -282,7 +356,12 @@ fun PostContentScreen(
                                         modifier = Modifier
                                             .weight(1f)
                                             .bounceClick {
-                                                navController.navigate("${NAV_ROUTE_POSTCONTENT.MAP.routeName}/${data.location?.get(pagerState.currentPage)}")
+                                                val map_data=MapInfo(location.value,address.value,lat,lng)
+                                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                    "map_data",
+                                                    map_data
+                                                )
+                                                navController.navigate(NAV_ROUTE_POSTCONTENT.MAP.routeName)
                                             },
                                         shape = RoundedCornerShape(10.dp),
                                         backgroundColor = moduPoint,
@@ -306,6 +385,7 @@ fun PostContentScreen(
 
                     }
                 }
+                }
             }
         ) {
             Box(modifier = Modifier
@@ -316,11 +396,11 @@ fun PostContentScreen(
                     Box{
                             HorizontalPager(
                                 modifier = Modifier.wrapContentSize(),
-                                count = data.image.size,
+                                count = post!!.image.size,
                                 state = pagerState,
                             ) { page ->
                                     GlideImage(
-                                        imageModel = data.image[page],
+                                        imageModel = post!!.image[pagerState.currentPage].image,
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -344,7 +424,7 @@ fun PostContentScreen(
                                 .padding(bottom = 30.dp),
                             dotSize = 8,
                             dotPadding = 5,
-                            totalDots = data.image.size,
+                            totalDots = post.image.size,
                             selectedIndex = pagerState.currentPage,
                             selectedColor = Color.White,
                             unSelectedColor = Color("#75FFFFFF".toColorInt())
@@ -359,7 +439,7 @@ fun PostContentScreen(
                         Row(modifier = Modifier
                             .padding(25.dp, 18.dp)
                             .bounceClick {
-                                userViewModel.setUserId(1)
+                                userViewModel.setUserId(responseBody.result!!.user_id)
                                 navController.navigate(NAV_ROUTE_POSTCONTENT.WRITER.routeName)
                                 //  포스트 작성자 프로필로
 
@@ -368,7 +448,7 @@ fun PostContentScreen(
                         {
                             // 작성자 프로필 사진
                             GlideImage(
-                                imageModel = data.user.image,
+                                imageModel = post!!.user_profile_image,
                                 contentDescription = "",
                                 modifier = Modifier
                                     .size(45.dp)
@@ -382,13 +462,13 @@ fun PostContentScreen(
                             ) {
                                 // 작성자 아이디
                                 Text(
-                                    text = data.user.name,
+                                    text = post.user_nickname,
                                     style = moduBold,
                                     fontSize = 14.sp,
                                 )
                                 // 작성자 카테고리
                                 Text(
-                                    text = data.user.category.toString(),
+                                    text = post.category_category,
                                     fontSize = 12.sp,
                                     color = moduGray_strong
                                 )
@@ -408,7 +488,7 @@ fun PostContentScreen(
                                             // 누르면 스낵바 메세지 띄워짐
                                             scope.launch {
                                                 snackbarHostState.showSnackbar(
-                                                    "${data.user.name} 님을 팔로우 하였습니다.",
+                                                    "${post.user_nickname} 님을 팔로우 하였습니다.",
                                                     duration = SnackbarDuration.Short
                                                 )
                                             }
@@ -443,7 +523,7 @@ fun PostContentScreen(
                         ) {
                             if(pagerState.currentPage==0) {
                                 Text(
-                                    text = data.title,
+                                    text = post!!.image[pagerState.currentPage].content,
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = moduBlack
@@ -452,13 +532,13 @@ fun PostContentScreen(
                                 Row(modifier = Modifier.fillMaxWidth()) {
                                     Text(
                                         modifier = Modifier.height(20.dp),
-                                        text = data.category.component1() + " ∙ ",
+                                        text = post!!.category_category,
                                         fontSize = 14.sp,
                                         color = moduGray_strong
                                     )
                                     Text(
                                         modifier = Modifier.height(20.dp),
-                                        text = "",
+                                        text = post.image[pagerState.currentPage].content,
                                         fontSize = 14.sp,
                                         color = moduGray_strong
                                     )
@@ -466,7 +546,7 @@ fun PostContentScreen(
                             }
                             Column(modifier = Modifier.padding(vertical = 25.dp))
                             {
-                                Text(text = data.description[pagerState.currentPage], fontSize = 16.sp)
+                                Text(text = post!!.image[pagerState.currentPage].content, fontSize = 16.sp)
                             }
                         }
 
@@ -552,7 +632,7 @@ fun PostContentScreen(
                                 moduBlack
 
                         )
-                        Text(text = "${data.liKeNum}"+"명", style = moduBold, fontSize = 14.sp)
+                        Text(text = "${post!!.like_num}"+"명", style = moduBold, fontSize = 14.sp)
                         Text(text = "이 좋아해요", color = moduBlack, fontSize = 14.sp)
                         Spacer(modifier = Modifier.weight(1f))
                         Icon(
@@ -571,7 +651,8 @@ fun PostContentScreen(
                             modifier = Modifier
                                 .padding(horizontal = 18.dp)
                                 .bounceClick {
-                                    navController.navigate("${NAV_ROUTE_POSTCONTENT.COMMENT.routeName}/${data.boardId}") },
+                                    navController.navigate("${NAV_ROUTE_POSTCONTENT.COMMENT.routeName}/${post.id}")
+                                },
                             painter = painterResource(id = R.drawable.ic_chat_line),
                             contentDescription = "댓글",
                             tint = moduBlack
@@ -711,10 +792,11 @@ fun Tagitem(modalType:MutableState<Int>,
 
         }
 
-}
+}}
 
+/*
 @RequiresApi(Build.VERSION_CODES.O)
-@Preview
+
 @Composable
 fun PostContentPreview(){
     val dana = User(
@@ -728,6 +810,6 @@ fun PostContentPreview(){
         curation = null
     )
 
-    PostContentScreen(navController = rememberNavController(), data = followPosts[0], userViewModel = viewModel())
+    PostContentScreen(navController = rememberNavController(), post = followPosts[0], userViewModel = viewModel())
 
-}
+}*/

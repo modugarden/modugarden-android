@@ -71,7 +71,7 @@ interface CurationAPI {
 
     //프로필 페이지 - 저장한 큐레이션 조회
     @GET("/curations/me/storage")
-    fun getMyCurationStorage():Call<GetCuration>
+    fun getMyCurationStorage():Call<GetStoredCurationsResponse>
 
     // 큐레이션 보관 여부 조회
     @GET("/curations/me/storage/{curation_id}")
@@ -89,7 +89,7 @@ interface CurationAPI {
     // 게시물 상세보기 - 큐레이션 하나 조회
     @GET("/curations/{curation_id}")
     fun getCuraionContent(
-        @Query("curation_id") curation_id: Int
+        @Path("curation_id") curation_id: Int
     ): Call <GetCurationResponse>
 
     //게시물 상세보기 - 큐레이션 삭제
