@@ -507,9 +507,8 @@ fun ProfileScreen (
                             remember {
                                 mutableStateOf(
                                     listOf(
-                                    GetCurationContent(
-                                        0, "", "", "", 0, "",
-                                        R.drawable.ic_plus_big, "", "", ""
+                                        GetUserCurationsResponseContent(
+                                            "", "",0, "", ""
                                     ))
                                 )
                             }
@@ -518,10 +517,10 @@ fun ProfileScreen (
                         }
 
                         RetrofitBuilder.curationAPI.getUserCuration(userId)
-                            .enqueue(object : AuthCallBack<GetCuration>(context, "성공!") {
+                            .enqueue(object : AuthCallBack<GetUserCurationsResponse>(context, "성공!") {
                                 override fun onResponse(
-                                    call: Call<GetCuration>,
-                                    response: Response<GetCuration>
+                                    call: Call<GetUserCurationsResponse>,
+                                    response: Response<GetUserCurationsResponse>
                                 ) {
                                     super.onResponse(call, response)
                                     if(response.body()?.content != null)

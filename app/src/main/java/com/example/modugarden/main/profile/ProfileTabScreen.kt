@@ -115,7 +115,7 @@ fun ProfileTab (
 @Composable
 fun CuratorProfileTab(
     postList: List<GetUserPostResponseContent>,
-    curationList: List<GetCurationContent>
+    curationList: List<GetUserCurationsResponseContent>
 ) {
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
@@ -214,10 +214,10 @@ fun CuratorProfileTab(
                         ) {
                             GlideImage(
                                 imageModel = if(curationCard.id == 0) {
-                                    curationCard.user_id
+                                    R.drawable.plus
                                 }
                                 else {
-                                    curationCard.preview_image
+                                    curationCard.image
                                 },
                                 contentDescription = null,
                                 modifier = Modifier
@@ -260,7 +260,7 @@ fun CuratorProfileTab(
                                     )
                                     Spacer(modifier = Modifier.weight(1f))
                                     Text(
-                                        text = "${curationCard.category_category}, ${curationCard.created_date}",
+                                        text = "${curationCard.category}, ${curationCard.created_date}",
                                         fontSize = 12.sp,
                                         color = moduGray_strong
                                     )

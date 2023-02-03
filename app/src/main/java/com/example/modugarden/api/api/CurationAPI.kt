@@ -83,7 +83,7 @@ interface CurationAPI {
     @GET("/curations/users/{user_id}")
     fun getUserCuration(
         @Path ("user_id") user_id: Int
-    ): Call <GetCuration>
+    ): Call <GetUserCurationsResponse>
 
 
     // 게시물 상세보기 - 큐레이션 하나 조회
