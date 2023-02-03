@@ -89,7 +89,7 @@ interface CurationAPI {
     // 게시물 상세보기 - 큐레이션 하나 조회
     @GET("/curations/{curation_id}")
     fun getCuraionContent(
-        @Query("curation_id") curation_id: Int
+        @Path("curation_id") curation_id: Int
     ): Call <GetCurationResponse>
 
     //게시물 상세보기 - 큐레이션 삭제

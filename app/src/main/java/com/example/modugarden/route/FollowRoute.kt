@@ -35,7 +35,7 @@ fun NavigationGraphFollow(
         composable(
             NAV_ROUTE_FOLLOW.FOLLOW.routeName
         ) {
-            FollowMainScreen(navController,navFollowController, followPosts, userViewModel)
+            FollowMainScreen(navController,navFollowController, userViewModel)
         }
         composable(
             NAV_ROUTE_FOLLOW.USERPROFILE.routeName

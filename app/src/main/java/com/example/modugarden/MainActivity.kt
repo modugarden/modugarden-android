@@ -32,6 +32,10 @@ class MainActivity : ComponentActivity() {
             MainNavScreen()
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+    }
 }
 
 @Composable

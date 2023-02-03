@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
+import com.example.modugarden.data.MapInfo
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.ui.theme.addFocusCleaner
 import com.example.modugarden.ui.theme.bounceClick
@@ -48,8 +49,9 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
-fun PostContentMapScreen(navController: NavHostController,data:String) {
+fun PostContentMapScreen(navController: NavHostController,data:MapInfo) {
     val focusManager = LocalFocusManager.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -61,15 +63,15 @@ fun PostContentMapScreen(navController: NavHostController,data:String) {
         Box {
             val singapore = LatLng(1.35, 103.87)
             val cameraPositionState = rememberCameraPositionState {
-                position = CameraPosition.fromLatLngZoom(singapore, 10f)
+                position = CameraPosition.fromLatLngZoom(LatLng(data.lat,data.lng), 20f)
             }
             GoogleMap(
                 Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState
             ){
                 Marker(
-                    state = MarkerState(position = singapore),
-                    title = "Singapore",
+                    state = MarkerState(position = LatLng(data.lat,data.lng)),
+                    title = data.location,
                     snippet = "Marker in Singapore"
                 )
             }
@@ -95,11 +97,8 @@ fun PostContentMapScreen(navController: NavHostController,data:String) {
                     contentDescription = "뒤로 가기", tint = moduBlack
                 )
                 Spacer(modifier = Modifier.size(18.dp))
-                Text(text = "위치 태그", style = moduBold, fontSize = 16.sp)
+                Text(text = "지도 보기", style = moduBold, fontSize = 16.sp)
                 Spacer(modifier = Modifier.size(5.dp))
-                // 위치 태그 갯수
-                Text(text = "1", color = moduGray_strong, fontSize = 16.sp)
-                Spacer(modifier = Modifier.weight(1f))
 
             }
             // 구분선
@@ -130,9 +129,9 @@ fun PostContentMapScreen(navController: NavHostController,data:String) {
                     .align(Alignment.CenterVertically)
             ) {
                 // 위치
-                Text(text = data, style = moduBold, fontSize = 12.sp,)
+                Text(text = data.location, style = moduBold, fontSize = 12.sp,)
                 // 상세 주소
-                Text(text = "adress", fontSize = 14.sp, color = Color.Gray)
+                Text(text = data.address, fontSize = 14.sp, color = Color.Gray)
             }
 
         }
