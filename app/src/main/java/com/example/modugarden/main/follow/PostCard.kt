@@ -1,8 +1,8 @@
 package com.example.modugarden.main.follow
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,6 +41,7 @@ import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.request.RequestOptions
+import com.example.modugarden.ApplicationClass
 import com.example.modugarden.R
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.data.ReportInfo
@@ -59,17 +60,18 @@ import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@SuppressLint("CommitPrefEdits")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable //팔로우 피드에 표시되는 포스트 카드 item.
 
 fun PostCard(
-        navController:NavHostController,
+        navController: NavHostController,
         data: PostDTO.GetFollowFeedPostContent,
         scope: CoroutineScope,
         snackbarHostState: SnackbarHostState,
         bottomSheetState: ModalBottomSheetState,
-        report: MutableState<ReportInfo>,
+        modalType: MutableState<Int>,
         userViewModel: UserViewModel
 ) {
 
@@ -315,9 +317,7 @@ fun PostCard(
                                        )
                                        Spacer(modifier = Modifier.weight(1f))
                                                Icon(modifier = Modifier.bounceClick {
-                                                      report.value.modalType = modalReportPost
-                                                       report.value.modalTitle = data.title
-                                                       Log.i("reprot",report.value.toString())
+                                                       modalType.value = modalReportPost
                                                        scope.launch {
                                                                bottomSheetState.animateTo(
                                                                        ModalBottomSheetValue.Expanded)

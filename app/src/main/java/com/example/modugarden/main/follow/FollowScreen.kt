@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,8 +54,6 @@ import androidx.core.graphics.toColorInt
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.modugarden.ApplicationClass
-import com.example.modugarden.ApplicationClass.Companion.refresh
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.GetFollowFeedCuration
@@ -89,8 +88,6 @@ fun FollowMainScreen(navController: NavHostController,
                      navFollowController: NavHostController,
                     userViewModel: UserViewModel = viewModel()){
     val following = 1
-
-
     if (following==1){
             FollowingScreen(
                 navController = navController,
@@ -120,10 +117,7 @@ fun FollowingScreen(
     var postres by remember { mutableStateOf(PostDTO.GetFollowFeedPost(null)) }
     var curationres by remember { mutableStateOf(GetFollowFeedCuration(null)) }
     val context = LocalContext.current.applicationContext
-    val state = ApplicationClass.sharedPreferences.getInt(refresh, 0)
-    val editor = ApplicationClass.sharedPreferences.edit()
-
-    if (state == 2) {
+    val modalType = rememberSaveable{ mutableStateOf(0) }
 
         RetrofitBuilder.curationAPI
             .getFollowFeedCuration()
@@ -175,12 +169,11 @@ fun FollowingScreen(
                     Log.d("follow-post", t.message + t.cause)
                 }
             })
-    }
+
     val posts = postres.content
     val curations = curationres.content
 
-    var report =remember {
-        mutableStateOf(ReportInfo(0,"")) }
+
 
     ModalBottomSheetLayout(sheetElevation = 0.dp,
         sheetBackgroundColor = Color.Transparent,
@@ -214,7 +207,7 @@ fun FollowingScreen(
                         modifier = Modifier
                             .padding(horizontal = 18.dp)
                     ) {
-                        if (report.value.modalType == modalReportPost) {
+                        if (modalType.value== modalReportPost) {
                             Text(text = "포스트 신고", style = moduBold, fontSize = 20.sp)
                         } else Text(text = "큐레이션 신고", style = moduBold, fontSize = 20.sp)
 
@@ -234,7 +227,7 @@ fun FollowingScreen(
                                 contentScale = ContentScale.Crop
                             )
                             Spacer(modifier = Modifier.size(18.dp))
-                            Text(text = report.value.modalTitle, style = moduBold, fontSize = 14.sp)
+                            Text(text ="title", style = moduBold, fontSize = 14.sp)
                         }
                     }
 
@@ -308,7 +301,7 @@ fun FollowingScreen(
                                 scope,
                                 snackbarHostState,
                                 bottomSheetState,
-                                report,
+                                modalType,
                                 userViewModel
                             )
                         }
@@ -319,7 +312,7 @@ fun FollowingScreen(
                                 scope = scope,
                                 snackbarHostState = snackbarHostState,
                                 bottomSheetState = bottomSheetState,
-                                report = report,
+                                modalType = modalType,
                                 userViewModel
                             )
                         }

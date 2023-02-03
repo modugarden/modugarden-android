@@ -54,7 +54,6 @@ import androidx.navigation.NavHostController
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
 import com.example.modugarden.api.dto.GetFollowFeedCurationContent
-import com.example.modugarden.data.ReportInfo
 import com.example.modugarden.main.content.CurationContentActivity
 import com.example.modugarden.main.content.modalReportCuration
 import com.example.modugarden.main.content.timeFomatter
@@ -74,8 +73,8 @@ fun CurationCard(
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
     bottomSheetState: ModalBottomSheetState,
-    report: MutableState<ReportInfo>,
-    userViewModel: UserViewModel
+    modalType: MutableState<Int>,
+    userViewModel: UserViewModel,
 ) {
     val mContext = LocalContext.current
     Card(
@@ -326,8 +325,7 @@ fun CurationCard(
                 Spacer(modifier = Modifier.weight(1f))
                 // 신고
                     Icon(modifier = Modifier.bounceClick {
-                        report.value.modalType = modalReportCuration
-                        report.value.modalTitle = data.title
+                        modalType.value = modalReportCuration
                         scope.launch {
                         bottomSheetState.animateTo(
                             ModalBottomSheetValue.Expanded)
