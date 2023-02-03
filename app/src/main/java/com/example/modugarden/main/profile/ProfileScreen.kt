@@ -11,10 +11,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.*
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.draw.clip
@@ -148,7 +146,7 @@ val myId = sharedPreferences.getInt(clientId, 3)
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable //프로필, 인수로 유저의 정보를 받아옴
-fun MyProfileScreen (
+fun ProfileScreen (
     userId: Int
 ) {
     val focusManager = LocalFocusManager.current
@@ -157,13 +155,14 @@ fun MyProfileScreen (
     val scaffoldState = rememberScaffoldState()
     val context = LocalContext.current
     val data = remember { mutableStateOf( UserInfoResResult() ) }
+    val followState = remember { mutableStateOf(false) }
 
     RetrofitBuilder.userAPI.readUserInfo(userId)
         .enqueue(object : AuthCallBack<UserInfoRes>(context, "성공!") {
             override fun onResponse(call: Call<UserInfoRes>, response: Response<UserInfoRes>) {
                 super.onResponse(call, response)
                 data.value = response.body()?.result!!
-                Log.d("penguin", data.value.toString())
+                followState.value = response.body()!!.result.follow
             }
         })
 
@@ -194,7 +193,7 @@ fun MyProfileScreen (
                         snackbarHostState = it
                     )
                 }
-            ) {
+            ) { it ->
                 Column(
                     Modifier
                         .fillMaxSize()
@@ -269,7 +268,8 @@ fun MyProfileScreen (
                                         Intent(
                                             context,
                                             ProfileFollowActivity::class.java
-                                        ).putExtra("userId", data.value.id)
+                                        )
+                                            .putExtra("userId", data.value.id)
                                     )
                                 }
                         ) {
@@ -370,7 +370,6 @@ fun MyProfileScreen (
                             }
                         }
                         Spacer(modifier = Modifier.weight(1f))
-                        val followState = remember { mutableStateOf(data.value.follow) }
                         // 카테고리 추가(내 프로필) 또는 팔로우 버튼 역할을 할 카드
                         if (data.value.id == myId) {
                             Card(
@@ -472,24 +471,69 @@ fun MyProfileScreen (
                     // 탭 구현
                     // 탭으로 넘길 때 만약 내 프로필이라면 포스트, 큐레이션 추가 버튼까지 넘겨야됨
                     // 그럼 포스트리스트랑 큐레이션리스트의 맨 앞에 추가해서 넣으면 됨
-                    if (data.value.userAuthority == UserAuthority.ROLE_CURATOR.name)
-                    {
-                        if(data.value.id == myId)
-                            CuratorProfileTab(
-                                listOf(PostCard()).plus(user.post!!),
-                                listOf(CurationCard()).plus(user.curation!!)
+                    val postList = if (myId == data.value.id) {
+                        remember {
+                            mutableStateOf(
+                                listOf(PostDTO.GetUserPostResponseContent(
+                                    0, "No Image"
+                                ))
                             )
-                        else
-                            CuratorProfileTab(user.post!!, user.curation!!)
+                        }
                     }
-                    else if(data.value.userAuthority == UserAuthority.ROLE_GENERAL.name)
-                    {
-                        if(data.value.id == myId)
-                            ProfileTab(listOf(PostCard()).plus(user.post!!))
-                        else
-                            ProfileTab(user.post!!)
+                    else {
+                        remember { mutableStateOf(listOf()) }
                     }
 
+                    RetrofitBuilder.postAPI.getUserPost(userId)
+                        .enqueue(object : AuthCallBack<PostDTO.GetUserPostResponse>(context, "성공!") {
+                            override fun onResponse(
+                                call: Call<PostDTO.GetUserPostResponse>,
+                                response: Response<PostDTO.GetUserPostResponse>
+                            ) {
+                                super.onResponse(call, response)
+                                if(response.body()?.content != null)
+                                    postList.value = response.body()?.content!!
+                                Log.d("onResponse", response.body()?.content.toString())
+                            }
+
+                            override fun onFailure(call: Call<PostDTO.GetUserPostResponse>, t: Throwable) {
+                                super.onFailure(call, t)
+                                Log.d("onResponse", t.toString())
+                            }
+                        })
+
+                    if (data.value.userAuthority == UserAuthority.ROLE_CURATOR.name) {
+                        val curationList = if (myId == data.value.id) {
+                            remember {
+                                mutableStateOf(
+                                    listOf(
+                                    GetCurationContent(
+                                        0, "", "", "", 0, "",
+                                        R.drawable.ic_plus_big, "", "", ""
+                                    ))
+                                )
+                            }
+                        } else {
+                            remember { mutableStateOf(listOf()) }
+                        }
+
+                        RetrofitBuilder.curationAPI.getUserCuration(userId)
+                            .enqueue(object : AuthCallBack<GetCuration>(context, "성공!") {
+                                override fun onResponse(
+                                    call: Call<GetCuration>,
+                                    response: Response<GetCuration>
+                                ) {
+                                    super.onResponse(call, response)
+                                    if(response.body()?.content != null)
+                                    curationList.value = response.body()?.content!!
+                                }
+                            })
+
+                        CuratorProfileTab(postList.value, curationList.value)
+                    } else {
+                        ProfileTab(postList.value)
+                        Log.d("onResponse", "userId : ${data.value.id}")
+                    }
                 }
             }
         }

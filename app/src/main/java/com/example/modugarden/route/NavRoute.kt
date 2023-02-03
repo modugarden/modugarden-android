@@ -12,21 +12,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
-import com.example.modugarden.ApplicationClass
 import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.google.accompanist.navigation.animation.composable
 import com.example.modugarden.R
-import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.discover.DiscoverScreen
-import com.example.modugarden.main.follow.FollowMainScreen
 import com.example.modugarden.main.follow.FollowScreen
 import com.example.modugarden.main.notification.NotificationScreen
-import com.example.modugarden.main.profile.MyProfileScreen
+import com.example.modugarden.main.profile.ProfileScreen
 import com.example.modugarden.main.upload.UploadScreen
-import com.example.modugarden.viewmodel.CommentViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 
@@ -54,7 +48,7 @@ fun NavigationGraphBNB(
     AnimatedNavHost(navController, startDestination = NAV_ROUTE_BNB.FOLLOW.routeName,
         modifier = Modifier.fillMaxSize()) {
         composable(NAV_ROUTE_FOLLOW.USERPROFILE.routeName){
-            MyProfileScreen(userViewModel.getUserId())
+            ProfileScreen(userViewModel.getUserId())
         }
         composable(
             NAV_ROUTE_BNB.FOLLOW.routeName,
@@ -167,7 +161,7 @@ fun NavigationGraphBNB(
                 fadeOut(animationSpec = tween(fadeOutDuration)) +
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideOutDuration))
             }
-        ) { MyProfileScreen(sharedPreferences.getInt(clientId, 0)) }
+        ) { ProfileScreen(sharedPreferences.getInt(clientId, 0)) }
     }
 }
 

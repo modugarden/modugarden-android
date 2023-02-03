@@ -76,13 +76,13 @@ interface PostAPI {
 
     //프로필 페이지- 저장한 포스트 조회
     @GET("/boards/me/storage")
-    fun getMyPostStorage() :Call<GetPost>
+    fun getMyPostStorage() :Call<GetStoredPostResponse>
 
     //게시물 상세보기 - 회원 포스트 조회
     @GET ("/boards/users/{user_id}")
     fun getUserPost(
         @Path ("user_id") user_id :Int
-    ): Call<GetPost>
+    ): Call<GetUserPostResponse>
 
     //팔로우 피드 포스트 불러오기
     @GET ("/boards/followfeed")

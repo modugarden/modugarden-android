@@ -141,3 +141,22 @@ data class GetFollowFeedCurationContent(
     val category_category: String
 )
 
+data class GetStoredCurationsResponse(
+    val content: List<GetStoredCurationsResponseContent>,
+    val first: Boolean,
+    val hasNext: Boolean,
+    val last: Boolean
+)
+
+data class GetStoredCurationsResponseContent(
+    val category_category: String,
+    val id: Int,
+    val likeNum: Int,
+    val link: String,
+    val localDateTime: String,
+    val preview_image: String,
+    val title: String,
+    val user_id: Int,
+    val user_nickname: String,
+    val user_profile_image: String
+)

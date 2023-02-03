@@ -11,7 +11,8 @@ import retrofit2.Response
 open class AuthCallBack<T>(val context: Context, val log: String) : Callback<T> {
 
     override fun onResponse(call: Call<T>, response: Response<T>) {
-        Log.d("onResponse", log)
+        Log.d("onResponse", log +
+                "\nstatus code : ${response.code()}")
         if(response.code() == 401)
         {
             context.startActivity(Intent(context, LoginActivity::class.java)
@@ -21,6 +22,8 @@ open class AuthCallBack<T>(val context: Context, val log: String) : Callback<T> 
     }
 
     override fun onFailure(call: Call<T>, t: Throwable) {
+        Log.d("onResponse",
+            "\nstatus code : ${t.localizedMessage}")
 
     }
 }

@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -28,6 +29,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.example.modugarden.R
+import com.example.modugarden.api.AuthCallBack
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.GetBlockedListResponse
+import com.example.modugarden.api.dto.GetBlockedListResponseContent
+import com.example.modugarden.api.dto.UnBlockUserResponse
 import com.example.modugarden.data.User
 import com.example.modugarden.main.profile.categoryResponse
 import com.example.modugarden.main.profile.curationResponse
@@ -35,6 +41,9 @@ import com.example.modugarden.main.profile.postResponse
 import com.example.modugarden.ui.theme.*
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 val userList = listOf<User>(
     User("https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri()
@@ -52,10 +61,26 @@ val userList = listOf<User>(
 )
 
 @Composable
-fun SettingsBlockScreen (
-    // 차단한 유저 리스트
-) {
-    if(userList.isEmpty())
+fun SettingsBlockScreen () {
+    val context = LocalContext.current
+    val userList = remember { mutableStateOf(
+        listOf(GetBlockedListResponseContent(listOf(), 0, "", "")
+    ))}
+
+    RetrofitBuilder.blockAPI.getBlockedList()
+        .enqueue(object : AuthCallBack<GetBlockedListResponse>(context, "차단 목록 불러오기 성공!"){
+            override fun onResponse(
+                call: Call<GetBlockedListResponse>,
+                response: Response<GetBlockedListResponse>
+            ) {
+                super.onResponse(call, response)
+                if(response.body()?.content != null) {
+                    userList.value = response.body()?.content!!
+                }
+            }
+        })
+
+    if(userList.value.isEmpty())
     {
         Box(modifier = Modifier.fillMaxSize())
         {
@@ -87,11 +112,14 @@ fun SettingsBlockScreen (
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
-                items(userList) { blockedProfile ->
+                items(userList.value) { blockedProfile ->
                     BlockedProfileCard(blockedProfile) {
                         scope.launch {
-                            scaffoldState.snackbarHostState.showSnackbar("${blockedProfile.name} 님의 차단을 해제했습니다.")
+                            scaffoldState.snackbarHostState.showSnackbar("${blockedProfile.nickname} 님의 차단을 해제했습니다.")
                         }
+                        RetrofitBuilder.blockAPI.unBlockUser(blockedProfile.id)
+                            .enqueue(AuthCallBack<UnBlockUserResponse>(context, "${blockedProfile.id} 차단 해제 성공!"))
+                        userList.value = userList.value.minus(blockedProfile)
                     }
                 }
             }
@@ -101,7 +129,7 @@ fun SettingsBlockScreen (
 
 @Composable
 fun BlockedProfileCard (
-    user: User,
+    user: GetBlockedListResponseContent,
     onClick: () -> Unit
 ) {
     Row(
@@ -112,7 +140,7 @@ fun BlockedProfileCard (
             }
     ) {
         GlideImage(
-            imageModel = user.image,
+            imageModel = user.profileImage,
             contentDescription = null,
             modifier = Modifier
                 .size(50.dp)
@@ -125,7 +153,7 @@ fun BlockedProfileCard (
                 .padding(vertical = 5.dp)
         )  {
             Text(
-                text = user.name,
+                text = user.nickname,
                 style = TextStyle(
                     color = moduBlack,
                     fontSize = 14.sp,
@@ -134,7 +162,7 @@ fun BlockedProfileCard (
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = user.category.toString(),
+                text = user.categories.toString(),
                 style = TextStyle(
                     color = moduGray_normal,
                     fontSize = 11.sp

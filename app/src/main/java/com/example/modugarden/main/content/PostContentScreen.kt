@@ -439,7 +439,7 @@ fun PostContentScreen(
                         Row(modifier = Modifier
                             .padding(25.dp, 18.dp)
                             .bounceClick {
-                                userViewModel.setUserId(1)
+                                userViewModel.setUserId(responseBody.result!!.user_id)
                                 navController.navigate(NAV_ROUTE_POSTCONTENT.WRITER.routeName)
                                 //  포스트 작성자 프로필로
 
