@@ -160,3 +160,18 @@ data class GetStoredCurationsResponseContent(
     val user_nickname: String,
     val user_profile_image: String
 )
+
+data class GetUserCurationsResponse(
+    val content: List<GetUserCurationsResponseContent>,
+    val first: Boolean,
+    val hasNext: Boolean,
+    val last: Boolean
+)
+
+data class GetUserCurationsResponseContent(
+    val category: String,
+    val created_date: String,
+    val id: Int,
+    val image: String,
+    val title: String
+)
