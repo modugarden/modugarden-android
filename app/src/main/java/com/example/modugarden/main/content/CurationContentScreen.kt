@@ -41,7 +41,6 @@ import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.GetCurationResponse
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.ui.theme.*
-import com.example.modugarden.viewmodel.FeedViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -49,7 +48,7 @@ import retrofit2.Response
 
 @SuppressLint("CommitPrefEdits")
 @Composable
-fun CurationContentScreen(curation_id :Int, feedViewModel: FeedViewModel= viewModel()) {
+fun CurationContentScreen(curation_id :Int) {
     val focusManager = LocalFocusManager.current
     //액티비티 종료할 때 사용할 변수
     val activity = (LocalContext.current as? Activity)
@@ -144,9 +143,6 @@ fun CurationContentScreen(curation_id :Int, feedViewModel: FeedViewModel= viewMo
                 Icon(painter = painterResource(id = R.drawable.ic_xmark),
                     contentDescription = "창 닫기",
                     modifier = Modifier.bounceClick {
-                        editor.putInt(refresh,2)
-                        if(sharedPreferences.getInt(refresh,0)==2)
-                        editor.apply()
                         activity?.finish()
                     })
             }

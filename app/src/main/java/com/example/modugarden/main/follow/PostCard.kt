@@ -94,7 +94,7 @@ fun PostCard(
                                         modifier = Modifier
                                                 .padding(18.dp)
                                                 .bounceClick {
-                                                        userViewModel.setUserId(1)
+                                                        userViewModel.setUserId(data.user_id)
                                                         navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName) {
                                                         }
                                                 },//프로필

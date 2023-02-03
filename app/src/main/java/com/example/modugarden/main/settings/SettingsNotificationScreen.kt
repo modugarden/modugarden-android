@@ -26,6 +26,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.modugarden.ApplicationClass.Companion.autoLoginSetting
+import com.example.modugarden.ApplicationClass.Companion.commentNotification
+import com.example.modugarden.ApplicationClass.Companion.followNotification
+import com.example.modugarden.ApplicationClass.Companion.marketingNotification
+import com.example.modugarden.ApplicationClass.Companion.serviceNotification
+import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
 import com.example.modugarden.ui.theme.*
 
@@ -37,26 +43,32 @@ fun SettingsNotificationScreen () {
             .fillMaxSize()
             .background(moduBackground)
     ) {
-        val commentState = remember { mutableStateOf(true) }
-        val followState = remember { mutableStateOf(true) }
-        val serviceState = remember { mutableStateOf(true) }
-        val marketingState = remember { mutableStateOf(true) }
-        val autoLoginState = remember { mutableStateOf(false) }
-        Notifications(checkState = commentState, option = "댓글 알림")
-        Notifications(checkState = followState, option = "팔로우 알림")
+        val commentState = remember {
+            mutableStateOf(sharedPreferences.getBoolean(commentNotification, true)) }
+        val followState = remember {
+            mutableStateOf(sharedPreferences.getBoolean(followNotification, true)) }
+        val serviceState = remember {
+            mutableStateOf(sharedPreferences.getBoolean(serviceNotification,true)) }
+        val marketingState = remember {
+            mutableStateOf(sharedPreferences.getBoolean(marketingNotification, true)) }
+        val autoLoginState = remember {
+            mutableStateOf(sharedPreferences.getBoolean(autoLoginSetting, false)) }
+        Notifications(checkState = commentState, option = "댓글 알림", commentNotification)
+        Notifications(checkState = followState, option = "팔로우 알림", followNotification)
         Spacer(modifier = Modifier.height(18.dp))
-        Notifications(checkState = serviceState, option = "서비스 알림")
+        Notifications(checkState = serviceState, option = "서비스 알림", serviceNotification)
         Spacer(modifier = Modifier.height(18.dp))
-        Notifications(checkState = marketingState, option = "마케팅 알림")
+        Notifications(checkState = marketingState, option = "마케팅 알림", marketingNotification)
         Spacer(modifier = Modifier.height(18.dp))
-        Notifications(checkState = autoLoginState, option = "자동 로그인")
+        Notifications(checkState = autoLoginState, option = "자동 로그인", autoLoginSetting)
     }
 }
 
 @Composable
 fun Notifications (
     checkState: MutableState<Boolean>,
-    option: String
+    option: String,
+    settingKey: String
 ) {
     Row(
         modifier = Modifier
@@ -97,6 +109,7 @@ fun Notifications (
                         onTap = {
                             // This is called when the user taps on the canvas
                             checkState.value = !checkState.value
+                            sharedPreferences.edit().putBoolean(settingKey, checkState.value).apply()
                         }
                     )
                 }

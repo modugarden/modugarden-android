@@ -126,5 +126,33 @@ class PostDTO {
         val userid:Int
     )
 
+    data class GetUserPostResponse(
+        val content: List<GetUserPostResponseContent>,
+        val first: Boolean,
+        val hasNext: Boolean,
+        val last: Boolean
+    )
 
+    data class GetUserPostResponseContent(
+        val id: Int,
+        val image: String
+    )
+
+    data class GetStoredPostResponse(
+        val content: List<GetStoredPostResponseContent>,
+        val first: Boolean,
+        val hasNext: Boolean,
+        val last: Boolean
+    )
+
+    data class GetStoredPostResponseContent(
+        val board_id: Int,
+        val category_category: String,
+        val like_num: Int,
+        val preview_img: String,
+        val title: String,
+        val user_id: Int,
+        val user_nickname: String,
+        val user_profile_image: String
+    )
 }
