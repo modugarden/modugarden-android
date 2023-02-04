@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.core.graphics.toColorInt
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
@@ -160,6 +161,59 @@ fun EditText(
             textStyle = textStyle,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             singleLine = singleLine,
+        )
+        if(description != "") {
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(description, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = if (errorListener.value) moduErrorPoint else if (isTextFieldFocused.value) moduPoint else moduGray_strong)
+        }
+    }
+}
+
+@Composable
+fun DisabledEditText(
+    title: String?, //textField 위에 들어갈 제목.
+    data: MutableState<String>, //textField의 데이터 값을 저장.
+    isTextFieldFocused: MutableState<Boolean>, //textField가 포커싱 되어 있는지 여부.
+    modifier: Modifier = Modifier
+        .fillMaxWidth(),
+    keyboardType: KeyboardType = KeyboardType.Text, //키보드 형식 (비밀번호, 이메일 등.)
+    singleLine: Boolean = false, //textField를 한 줄 고정할 것인지 여부.
+    description: String = "", //textField 아래에 들어갈 설명.
+    errorListener: MutableState<Boolean> = mutableStateOf(false), //textField에 들어갈 값의 조건이 틀렸는지 여부.
+    textStyle: TextStyle = TextStyle(fontSize = 20.sp, color = moduGray_normal), //textField의 글자 스타일 설정.
+) {
+    val focusRequester = remember { FocusRequester() }
+    Column {
+        if (title!!.isNotEmpty()) {
+            Text(
+                title,
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                color = if(errorListener.value) moduErrorPoint else if (isTextFieldFocused.value) moduPoint else moduGray_strong
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+        }
+        TextField(
+            modifier = modifier
+                .focusRequester(focusRequester)
+                .onFocusChanged {
+                    isTextFieldFocused.value = it.isFocused
+                }
+                .animateContentSize(),
+            value = data.value,
+            onValueChange = { textValue ->
+                data.value = textValue
+            },
+            shape = RoundedCornerShape(10.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = if (errorListener.value) moduErrorBackgroundPoint else if (isTextFieldFocused.value) moduTextFieldPoint else moduBackground,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            ),
+            textStyle = textStyle,
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            singleLine = singleLine,
+            readOnly = true
         )
         if(description != "") {
             Spacer(modifier = Modifier.height(5.dp))
@@ -324,7 +378,9 @@ fun ModalBottomSheet(
                             text = title,
                             style = moduBold,
                             fontSize = 20.sp,
-                            modifier = Modifier.align(Alignment.Start).padding(start = 18.dp)
+                            modifier = Modifier
+                                .align(Alignment.Start)
+                                .padding(start = 18.dp)
                         )
                         Spacer(modifier = Modifier.height(30.dp))
                     }
@@ -398,7 +454,9 @@ fun SmallButton(
         elevation = 0.dp,
         shape = RoundedCornerShape(7.dp)
     ) {
-        Text(text, fontSize = fontSize.sp, color = textColor, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 18.dp).padding(vertical = 8.dp), textAlign = TextAlign.Center)
+        Text(text, fontSize = fontSize.sp, color = textColor, fontWeight = FontWeight.Bold, modifier = Modifier
+            .padding(horizontal = 18.dp)
+            .padding(vertical = 8.dp), textAlign = TextAlign.Center)
     }
 }
 //하단 버튼
@@ -897,5 +955,24 @@ fun FollowCard(
             ),
             modifier = contentModifier
         )
+    }
+}
+
+@Composable
+fun ModuDialog(
+    onDismissRequest: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface (
+            modifier = Modifier
+                .padding(18.dp)
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            shape = RoundedCornerShape(15.dp),
+            color = Color.White
+        ) {
+            content()
+        }
     }
 }
