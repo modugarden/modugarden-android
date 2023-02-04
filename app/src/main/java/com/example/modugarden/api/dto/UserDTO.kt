@@ -97,6 +97,20 @@ data class UpdateUserNicknameResResult(
 )
 // 닉네임 변경
 
+// 유저 정보 변경
+data class UpdateUserSettingInfoRes(
+    val code: Int,
+    val isSuccess: Boolean,
+    val message: String,
+    val result: UpdateUserSettingInfoResResult
+)
+
+data class UpdateUserSettingInfoResResult(
+    val nickname: String,
+    val profileImage: String
+)
+// 유저 정보 변경 끝
+
 // 유저 설정 불러오기
 data class UserSettingInfoRes(
     val code: Int,
@@ -132,4 +146,25 @@ data class NicknameDuplicatedCheckResResult(
     val isDuplicated: Boolean,
     val nickname: String
 )
-// 닉네임 중복 조회
+// 닉네임 중복 조회 끝
+
+// 토큰 재발급
+data class GetNewTokenRequest(
+    val accessToken: String,
+    val refreshToken: String
+)
+
+data class GetNewTokenResponse(
+    val code: Int,
+    val isSuccess: Boolean,
+    val message: String,
+    val result: GetNewTokenResponseResult
+)
+
+data class GetNewTokenResponseResult(
+    val accessToken: String,
+    val accessToken_expiredDate: String,
+    val refreshToken: String,
+    val userId: Int
+)
+// 토큰 재발급 끝

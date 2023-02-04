@@ -1,11 +1,15 @@
 package com.example.modugarden.api.api
 
 import com.example.modugarden.api.dto.*
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -35,11 +39,18 @@ interface UserAPI {
         @Body nickname: UpdateUserNicknameReq
     ): Call<UpdateUserNicknameRes>
 
-    @PATCH("/users/me/profileImg")
-    fun updateProfileImg(
-
-    )
-
     @GET("/users/me/setting-info")
     fun readUserSettingInfo(): Call<UserSettingInfoRes>
+
+    @Multipart
+    @PATCH("/users/me/setting-info")
+    fun updateUserProfile(
+        @Part("userNicknameRequestDto") info: RequestBody,
+        @Part file: MultipartBody.Part
+    ) : Call<UpdateUserSettingInfoRes>
+
+    @POST("/users/token-reissue")
+    fun getNewToken(
+        @Body request: GetNewTokenRequest
+    ) : Call<GetNewTokenResponse>
 }

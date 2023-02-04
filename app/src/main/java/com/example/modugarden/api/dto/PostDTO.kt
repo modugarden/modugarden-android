@@ -146,13 +146,13 @@ class PostDTO {
     )
 
     data class GetStoredPostResponseContent(
-        val board_id: Int,
-        val category_category: String,
-        val like_num: Int,
-        val preview_img: String,
-        val title: String,
-        val user_id: Int,
-        val user_nickname: String,
-        val user_profile_image: String
+        val board_id: Int = 0,
+        val category_category: String = "",
+        val like_num: Int = 0,
+        val preview_img: String = "",
+        val title: String = "",
+        val user_id: Int = 0,
+        val user_nickname: String = "",
+        val user_profile_image: String = ""
     )
 }

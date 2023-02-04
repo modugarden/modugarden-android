@@ -34,31 +34,12 @@ import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.GetBlockedListResponse
 import com.example.modugarden.api.dto.GetBlockedListResponseContent
 import com.example.modugarden.api.dto.UnBlockUserResponse
-import com.example.modugarden.data.User
-import com.example.modugarden.main.profile.categoryResponse
-import com.example.modugarden.main.profile.curationResponse
-import com.example.modugarden.main.profile.postResponse
 import com.example.modugarden.ui.theme.*
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
-val userList = listOf<User>(
-    User("https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri()
-        , "Mara", categoryResponse, 100, 50,
-        true, postResponse, curationResponse
-    ),
-    User("https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri()
-        ,"Logan", categoryResponse, 100, 50,
-        true, postResponse, curationResponse
-    ),
-    User("https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri()
-        , "Penguin", categoryResponse, 100, 50,
-        true, postResponse, curationResponse
-    )
-)
 
 @Composable
 fun SettingsBlockScreen () {
@@ -108,11 +89,15 @@ fun SettingsBlockScreen () {
         ) {
             LazyColumn(
                 modifier = Modifier
-                    .padding(it).padding(18.dp)
+                    .padding(it)
                     .fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
+                verticalArrangement = Arrangement.spacedBy(18.dp),
+                contentPadding = PaddingValues(18.dp)
             ) {
-                items(userList.value) { blockedProfile ->
+                items(
+                    items = userList.value,
+                    key = { user -> user.id }
+                ) { blockedProfile ->
                     BlockedProfileCard(blockedProfile) {
                         scope.launch {
                             scaffoldState.snackbarHostState.showSnackbar("${blockedProfile.nickname} 님의 차단을 해제했습니다.")
@@ -135,9 +120,6 @@ fun BlockedProfileCard (
     Row(
         modifier = Modifier
             .height(50.dp)
-            .bounceClick {
-
-            }
     ) {
         GlideImage(
             imageModel = user.profileImage,
