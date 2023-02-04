@@ -97,31 +97,7 @@ import retrofit2.Response
 @SuppressLint("UnrememberedMutableState")
 @OptIn( ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun PostContentCommentScreen(navController: NavHostController, boardId:Int, run: Boolean) {
-
-    var commentDB by remember{ mutableStateOf(GetCommentResponse()) }
-    RetrofitBuilder.commentAPI.getComments(boardId)
-        .enqueue(object : Callback<GetCommentResponse> {
-            override fun onResponse(
-                call: Call<GetCommentResponse>,
-                response: Response<GetCommentResponse>
-            ) {
-                val res = response.body()
-                if (res != null) {
-                    commentDB = res
-                    Log.d("댓글디비-result", commentDB.toString())
-                }
-            }
-
-            override fun onFailure(call: Call<GetCommentResponse>, t: Throwable) {
-                TODO("Not yet implemented")
-            }
-        })
-
-
-   /* val commentList= remember {
-        mutableStateOf(commentDB.content as MutableList? )
-    } // 댓글 리스트*/
+fun PostContentCommentScreen(navController: NavHostController, commentViewModel: CommentViewModel= viewModel(), boardId:Int, run: Boolean) {
 
     val data
             = remember{ mutableStateOf(GetCommentContent(nickname = "", comment = "", localDateTime = "", parentId = 0, profileImage = "", commentId = 0, userId = 0)) } // 클릭한 댓글 데이터*/
@@ -135,8 +111,28 @@ fun PostContentCommentScreen(navController: NavHostController, boardId:Int, run:
     val scope = rememberCoroutineScope()
     val activity = (LocalContext.current as? Activity)//액티비티 종료할 때 필요한 변수
     val context = LocalContext.current.applicationContext
-  val commentViewModel : CommentViewModel = viewModel()
-    val commentList = mutableStateListOf<GetCommentContent>()
+    var commentres by remember { mutableStateOf(GetCommentResponse()) }
+
+    RetrofitBuilder.commentAPI.getComments(boardId)
+        .enqueue(object : Callback<GetCommentResponse> {
+            override fun onResponse(
+                call: Call<GetCommentResponse>,
+                response: Response<GetCommentResponse>
+            ) {
+                val res = response.body()
+                if (res != null) {
+                    commentres = res
+                    Log.d("댓글디비-result", commentres.toString())
+                }
+            }
+
+            override fun onFailure(call: Call<GetCommentResponse>, t: Throwable) {
+                TODO("Not yet implemented")
+            }
+        })
+    val commentDB= commentres.content
+    val commentList = remember { mutableStateListOf<GetCommentContent>() }
+    if (commentDB != null) { commentList.addAll(commentDB) }
 
     Log.i("댓글리스트",commentList.toString())
     Log.i("replying",isReplying.value.toString())
@@ -279,10 +275,10 @@ fun PostContentCommentScreen(navController: NavHostController, boardId:Int, run:
                                     .background(Color.White)
                             ){
 
-                                var sortedComments  = mutableStateListOf<GetCommentContent>() //  정렬 리스트 초기화
+                              /*  var sortedComments  = mutableStateListOf<GetCommentContent>() //  정렬 리스트 초기화
                                 var parents = commentList.filter { it.parentId==null } // 댓글 리스트
                                 var childs = commentList.filter { it.parentId != null } // 답글 리스트
-                               sortedComments.addAll(childs)
+                               sortedComments.addAll(childs)*/
                                 /*for(i in 0 until parents.size){
                                     sortedComments.add(parents[i])
                                     for (j in 0 until childs.size) {
@@ -291,7 +287,7 @@ fun PostContentCommentScreen(navController: NavHostController, boardId:Int, run:
                                         }
                                     }
                                 }*/
-                                items(sortedComments){ comment->
+                                items(commentList){ comment->
                                     CommentItem(
                                         comment = comment,
                                         showModalSheet = showModalSheet,
@@ -414,6 +410,7 @@ fun PostContentCommentScreen(navController: NavHostController, boardId:Int, run:
                                                             content = textFieldComment.value,
                                                             parentId = null,
                                                             boardId,
+                                                            commentList,
                                                             context
                                                         )
                                                         isReplying.value = false
@@ -423,6 +420,7 @@ fun PostContentCommentScreen(navController: NavHostController, boardId:Int, run:
                                                             content = textFieldComment.value,
                                                             parentId = null,
                                                             boardId,
+                                                            commentList,
                                                             context
                                                         )
                                                     }
