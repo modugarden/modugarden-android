@@ -28,6 +28,15 @@ data class FollowListDtoResContent(
     val profileImg: String,
     val userId: Int
 )
+
+data class FollowRecommendationRes(
+    val code: Int?=null,
+    val isSuccess: Boolean?=null,
+    val message: String?=null,
+    var result: List<FollowListDtoResContent>?=null
+)
+
+
 //{
 //    "content": [
 //    {

@@ -1,5 +1,6 @@
 package com.example.modugarden.main.follow
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
@@ -56,9 +57,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.FollowListDtoRes
 import com.example.modugarden.api.dto.GetFollowFeedCuration
 import com.example.modugarden.api.dto.PostDTO
-import com.example.modugarden.data.ReportInfo
 import com.example.modugarden.main.content.CategoryItem
 import com.example.modugarden.main.content.modalReportPost
 import com.example.modugarden.route.NavigationGraphFollow
@@ -82,24 +83,47 @@ fun FollowScreen(navController: NavHostController){
         NavigationGraphFollow(navController=navController,navFollowController = navFollowController)
     }
 }
+@SuppressLint("UnrememberedMutableState")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun FollowMainScreen(navController: NavHostController,
                      navFollowController: NavHostController,
-                    userViewModel: UserViewModel = viewModel()){
-    val following = 1
-    if (following==1){
-            FollowingScreen(
-                navController = navController,
-                navFollowController = navFollowController,
-                userViewModel = userViewModel,
+                    userViewModel: UserViewModel = viewModel())
+{
+    var following = remember { mutableStateOf(1) }
 
-            )
+    RetrofitBuilder.followAPI.myFollowingList()
+        .enqueue(object : Callback<FollowListDtoRes>{
+            override fun onResponse(
+                call: Call<FollowListDtoRes>,
+                response: Response<FollowListDtoRes>
+            ) {
+                if (response.isSuccessful){
+                    val res = response.body()
+                    if (res != null) {
+                        following.value = res.content.size
 
+                    }
+                    Log.d("following", following.toString())
+                }
+            }
+
+            override fun onFailure(call: Call<FollowListDtoRes>, t: Throwable) {
+                Log.d("following 조회 실패", following.toString())
+            }
+        })
+
+    if (following.value > 0){
+        FollowingScreen(
+            navController = navController,
+            navFollowController = navFollowController,
+            userViewModel = userViewModel)
     }
     else NoFollowingScreen(navController = navController)
 
+
 }
+@SuppressLint("UnrememberedMutableState", "SuspiciousIndentation")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable //팔로우 피드.
@@ -118,6 +142,7 @@ fun FollowingScreen(
     var curationres by remember { mutableStateOf(GetFollowFeedCuration(null)) }
     val context = LocalContext.current.applicationContext
     val modalType = rememberSaveable{ mutableStateOf(0) }
+    var modalTitle = mutableStateOf("")
 
         RetrofitBuilder.curationAPI
             .getFollowFeedCuration()
@@ -154,9 +179,9 @@ fun FollowingScreen(
                     response: Response<PostDTO.GetFollowFeedPost>
                 ) {
                     if (response.isSuccessful) {
-                        val ress = response.body()
-                        if (ress != null) {
-                            postres = ress
+                        val res = response.body()
+                        if (res != null) {
+                            postres = res
                             Log.d("follow-post-result", postres.toString())
                         }
 
@@ -225,7 +250,7 @@ fun FollowingScreen(
                                 contentScale = ContentScale.Crop
                             )
                             Spacer(modifier = Modifier.size(18.dp))
-                            Text(text ="title", style = moduBold, fontSize = 14.sp)
+                            Text(text =modalTitle.value, style = moduBold, fontSize = 14.sp)
                         }
                     }
 
@@ -300,6 +325,7 @@ fun FollowingScreen(
                                 snackbarHostState,
                                 bottomSheetState,
                                 modalType,
+                                modalTitle,
                                 userViewModel
                             )
                         }
@@ -311,6 +337,7 @@ fun FollowingScreen(
                                 snackbarHostState = snackbarHostState,
                                 bottomSheetState = bottomSheetState,
                                 modalType = modalType,
+                                modalTitle,
                                 userViewModel
                             )
                         }

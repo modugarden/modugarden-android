@@ -2,15 +2,17 @@ package com.example.modugarden.main.content
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.location.Geocoder
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -81,6 +83,13 @@ import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -135,7 +144,11 @@ fun PostContentScreen(
 
         })
     if (responseBody.result != null) {
+
         val post = responseBody.result
+        val locinfo = post!!.image[pagerState.currentPage].location
+        val loclength = post!!.image[pagerState.currentPage].location.length
+        val locButtonState = remember {mutableStateOf(loclength == 0 || locinfo.contains(",").not()) }
 
         ModalBottomSheetLayout(
             sheetElevation = 0.dp,
@@ -219,34 +232,32 @@ fun PostContentScreen(
                     }
                 }
                 else {
-                    val locinfo = post!!.image[pagerState.currentPage].location
-                    val loclength =
-                        post!!.image[pagerState.currentPage].location.length
-                    if (loclength == 0 || locinfo.contains(",").not()) // 위치 정보 없거나, 주소가 없을 때
-                        {
-                        }
-                    else {
-                        val location = remember{ mutableStateOf("") }
-                        val address = remember{ mutableStateOf("") }
+                    if(loclength == 0 || locinfo.contains(",").not()){
+                        Spacer(modifier = Modifier.size(10.dp))
+                    }
 
+                    else{
+                    val location = remember { mutableStateOf("") }
                         location.value = locinfo.split(",")[0]
-                        val lat = locinfo.split(",")[1].toDouble()
-                        val lng=locinfo.split(",")[2].toDouble()
+                    val address = remember { mutableStateOf("") }
+                    val lat = locinfo.split(",")[1].toDouble()
+                    val lng = locinfo.split(",")[2].toDouble()
 
-                        val geocoder = Geocoder(LocalContext.current.applicationContext,
-                            Locale.KOREA)
-                        val latlng = geocoder.getFromLocation(lat,lng,30)
-                        if(latlng != null) {
-                            if(latlng.size== 0){
-                                Log.e("reverseGeocoding", "해당 주소 없음");
-                            }
-                            else {
-                                val city= latlng.get(0).adminArea
-                                val sublocality = latlng.get(0).subLocality
-                                val throughfare = latlng.get(0).subThoroughfare
-                                address.value =  "$city $sublocality $throughfare"
-                            }
+                    val geocoder = Geocoder(
+                        LocalContext.current.applicationContext,
+                        Locale.KOREA
+                    )
+                    val latlng = geocoder.getFromLocation(lat, lng, 30)
+                    if (latlng != null) {
+                        if (latlng.size == 0) {
+                            Log.e("reverseGeocoding", "해당 주소 없음");
+                        } else {
+                            val city = latlng.get(0).adminArea
+                            val sublocality = latlng.get(0).subLocality
+                            val throughfare = latlng.get(0).subThoroughfare
+                            address.value = "$city $sublocality $throughfare"
                         }
+                    }
 
                     Card(
                         modifier = Modifier
@@ -301,29 +312,42 @@ fun PostContentScreen(
                                         modifier = Modifier
                                             .align(Alignment.CenterVertically)
                                     ) {
-                                                Text(
-                                                    text = location.value,
-                                                    style = moduBold,
-                                                    fontSize = 14.sp,
-                                                )
-                                                Text(
-                                                    text = address.value,
-                                                    fontSize = 12.sp,
-                                                    color = Color.Gray
-                                                )
+                                        Text(
+                                            text = location.value,
+                                            style = moduBold,
+                                            fontSize = 14.sp,
+                                        )
+                                        Text(
+                                            text = address.value,
+                                            fontSize = 12.sp,
+                                            color = Color.Gray
+                                        )
 
                                     }
 
                                 }
 
+                                Log.i("latlng",lat.toString())
                                 //지도
-                                Box(
+                               Box(modifier=
                                     Modifier
                                         .fillMaxWidth()
                                         .height(200.dp)
-                                        .border(1.dp, moduGray_light, RoundedCornerShape(10.dp))
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .border(1.dp, moduGray_light)
                                 ) {
-
+                                    val cameraPositionState = rememberCameraPositionState {
+                                        position = CameraPosition.fromLatLngZoom(LatLng(lat,lng), 20f)
+                                    }
+                                    GoogleMap(
+                                        Modifier.fillMaxSize(),
+                                        cameraPositionState = cameraPositionState
+                                    ){
+                                        Marker(
+                                            state = MarkerState(position = LatLng(lat,lng)),
+                                            title = location.value,
+                                        )
+                                    }
                                 }
                                 Spacer(modifier = Modifier.size(18.dp))
 
@@ -356,7 +380,8 @@ fun PostContentScreen(
                                         modifier = Modifier
                                             .weight(1f)
                                             .bounceClick {
-                                                val map_data=MapInfo(location.value,address.value,lat,lng)
+                                                val map_data =
+                                                    MapInfo(location.value, address.value, lat, lng)
                                                 navController.currentBackStackEntry?.savedStateHandle?.set(
                                                     "map_data",
                                                     map_data
@@ -536,12 +561,6 @@ fun PostContentScreen(
                                         fontSize = 14.sp,
                                         color = moduGray_strong
                                     )
-                                    Text(
-                                        modifier = Modifier.height(20.dp),
-                                        text = post.image[pagerState.currentPage].content,
-                                        fontSize = 14.sp,
-                                        color = moduGray_strong
-                                    )
                                 }
                             }
                             Column(modifier = Modifier.padding(vertical = 25.dp))
@@ -635,17 +654,26 @@ fun PostContentScreen(
                         Text(text = "${post!!.like_num}"+"명", style = moduBold, fontSize = 14.sp)
                         Text(text = "이 좋아해요", color = moduBlack, fontSize = 14.sp)
                         Spacer(modifier = Modifier.weight(1f))
-                        Icon(
-                            modifier = Modifier.bounceClick {
-                                modalType.value = modalLocationType
-                                scope.launch {
-                                    bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                                }
-                            },
-                            painter = painterResource(id = R.drawable.ic_location_line),
-                            contentDescription = "위치",
-                            tint = moduBlack
-                        )
+                        if (locButtonState.value) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_location_line),
+                                contentDescription = "위치",
+                                tint = moduGray_normal
+                            )
+                        }
+                        else{
+                            Icon(
+                                modifier = Modifier.bounceClick {
+                                    modalType.value = modalLocationType
+                                    scope.launch {
+                                        bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                                    }
+                                },
+                                painter = painterResource(id = R.drawable.ic_location_line),
+                                contentDescription = "위치",
+                                tint = moduBlack
+                            )
+                        }
                         // 댓글
                         Icon(
                             modifier = Modifier
