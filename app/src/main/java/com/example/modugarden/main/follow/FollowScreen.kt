@@ -173,8 +173,6 @@ fun FollowingScreen(
     val posts = postres.content
     val curations = curationres.content
 
-
-
     ModalBottomSheetLayout(sheetElevation = 0.dp,
         sheetBackgroundColor = Color.Transparent,
         sheetState = bottomSheetState,
