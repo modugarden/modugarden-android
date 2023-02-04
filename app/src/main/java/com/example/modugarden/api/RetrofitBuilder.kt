@@ -13,6 +13,7 @@ object RetrofitBuilder {
     val blockAPI: BlockAPI = retrofit.create(BlockAPI::class.java)
     val postAPI: PostAPI = retrofit.create(PostAPI::class.java)
     val reportAPI: ReportAPI = retrofit.create(ReportAPI::class.java)
+    val commentAPI:CommentAPI = retrofit.create(CommentAPI::class.java)
 
     val loginAPI: LoginAPI = retrofitWithNoInterceptor.create(LoginAPI::class.java)
     val signupAPI: SignupAPI = retrofitWithNoInterceptor.create(SignupAPI::class.java)
