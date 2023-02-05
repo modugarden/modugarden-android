@@ -64,10 +64,11 @@ fun ProfileTab (
         items(postList) { postCard ->
             // 이미지가 들어간 버튼을 넣어야 함
             Box(modifier = Modifier.bounceClick {
-//                context.startActivity(
-//                    Intent(context, PostContentActivity::class.java)
-//                        .putExtra("board_id", postCard.id)
-//                )
+                context.startActivity(
+                    Intent(context, PostContentActivity::class.java)
+                        .putExtra("board_id", postCard.id)
+                        .putExtra("run",true)
+                )
             }) {
                 GlideImage(
                     imageModel =
@@ -157,10 +158,11 @@ fun CuratorProfileTab(
                     items(postList) { postCard ->
                         // 이미지가 들어간 버튼을 넣어야 함
                         Box(modifier = Modifier.bounceClick {
-//                            context.startActivity(
-//                                Intent(context, PostContentActivity::class.java)
-//                                    .putExtra("board_id", postCard.id)
-//                            )
+                            context.startActivity(
+                                Intent(context, PostContentActivity::class.java)
+                                    .putExtra("board_id", postCard.id)
+                                    .putExtra("run",true)
+                            )
                         }) {
                             GlideImage(
                                 imageModel =
@@ -199,10 +201,11 @@ fun CuratorProfileTab(
                             modifier = Modifier
                                 .height(90.dp)
                                 .bounceClick {
-//                                    context.startActivity(
-//                                        Intent(context, CurationContentActivity::class.java)
-//                                            .putExtra("curation_id", curationCard.id)
-//                                    )
+                                    context.startActivity(
+                                        Intent(context, CurationContentActivity::class.java)
+                                            .putExtra("curation_id", curationCard.id)
+                                            .putExtra("run",true)
+                                    )
                                 }
                         ) {
                             GlideImage(
@@ -330,10 +333,10 @@ fun StoredTab(
                     ) { postCard ->
                         // 이미지가 들어간 버튼을 넣어야 함
                         Box(modifier = Modifier.bounceClick {
-//                            val intent = Intent(context, PostContentActivity::class.java)
-//                            intent.putExtra("board_id", postCard.board_id)
-//                            intent.putExtra("run",true)
-//                            context.startActivity(intent)
+                            val intent = Intent(context, PostContentActivity::class.java)
+                            intent.putExtra("board_id", postCard.board_id)
+                            intent.putExtra("run",true)
+                            context.startActivity(intent)
                         }) {
                             GlideImage(
                                 imageModel =
@@ -372,10 +375,11 @@ fun StoredTab(
                             modifier = Modifier
                                 .height(90.dp)
                                 .bounceClick {
-//                                    context.startActivity(
-//                                        Intent(context, CurationContentActivity::class.java)
-//                                            .putExtra("curation_id", curationCard.id)
-//                                    )
+                                    context.startActivity(
+                                        Intent(context, CurationContentActivity::class.java)
+                                            .putExtra("curation_id", curationCard.id)
+                                            .putExtra("run",true)
+                                    )
                                 }
                         ) {
                             GlideImage(
