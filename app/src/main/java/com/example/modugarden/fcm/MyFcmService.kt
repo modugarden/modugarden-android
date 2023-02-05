@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
 import androidx.room.Room
+import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.MainActivity
 import com.example.modugarden.R
 import com.example.modugarden.api.dto.FcmSaveDTO
@@ -33,10 +34,9 @@ class MyFcmService: FirebaseMessagingService() {
         sendTokenToServer(token)
     }
     private fun sendTokenToServer(token: String) {
-        val prefs = getSharedPreferences("prefs", 0)
-        val editor = prefs.edit()
+        val editor = sharedPreferences.edit()
 
-        editor.putString("fcm token", token).apply()
+        editor.putString("fcmToken", token).apply()
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
@@ -56,7 +56,7 @@ class MyFcmService: FirebaseMessagingService() {
         }
     }
     private fun showNotification(notification: RemoteMessage.Notification) {
-        val prefs = getSharedPreferences("prefs", 0)
+        val prefs = sharedPreferences
         val intent = Intent(this, LoginActivity::class.java)
         val pIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         val channelId = prefs.getString("fcm token", "")

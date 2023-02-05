@@ -65,6 +65,8 @@ fun SignupEmailSendScreen(navController: NavHostController, data: Signup, viewMo
     }
 
     if(!oneExecutor.value) {
+        oneExecutor.value = true
+
         scope.launch {
             delay(500)
             notificationVisibility.value = true
@@ -88,16 +90,12 @@ fun SignupEmailSendScreen(navController: NavHostController, data: Signup, viewMo
                         if (res != null) {
                             if (res.isSuccess) {
                                 viewModel.saveCert(res.result.authCode)
-                                if (!(oneExecutor.value)) {
                                     scope.launch {
                                         navController.navigate(NAV_ROUTE_SIGNUP.EMAIL_CERT.routeName) {
                                             popUpTo(NAV_ROUTE_SIGNUP.EMAIL_SEND.routeName) {
                                                 inclusive = true
                                             }
                                         }
-                                        oneExecutor.value = true
-                                        delay(500)
-                                    }
                                 }
                             }
                         } else {
