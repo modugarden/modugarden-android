@@ -11,11 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import com.google.accompanist.navigation.animation.composable
 import androidx.navigation.navArgument
-import com.example.modugarden.main.upload.post.UploadPostImageDetail
-import com.example.modugarden.main.upload.post.UploadPostImageEditScreen
-import com.example.modugarden.main.upload.post.UploadPostImageListScreen
-import com.example.modugarden.main.upload.post.UploadPostInfoScreen
-import com.example.modugarden.main.upload.post.UploadPostTagLocationScreen
+import com.example.modugarden.main.upload.post.*
 /*import com.example.modugarden.main.upload.post.**/
 import com.example.modugarden.viewmodel.UploadPostViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -26,6 +22,8 @@ enum class NAV_ROUTE_UPLOAD_POST(val routeName: String, val description: String)
     INFO("UPLOAD_POST_INFO", "포스트 업로드 정보 입력창"),
     IMAGEDETAIL("UPLOAD_POST_IMAGEDETAIL", "포스트 업로드 사진 보기 창"),
     TAGLOCATION("UPLOAD_POST_TAGLOCATION", "포스트 업로드 위치 태그 추가 창"),
+    UPLOADING("UPLOAD_POST_UPLOADING", "포스트 업로드 중 화면"),
+    UPLOADSUCCESSFULLY("UPLOAD_POST_UPLOADSUCCESSFULLY", "포스트 업로드 성공")
 }
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -168,5 +166,43 @@ fun NavigationGraphUploadPost(
             val page = backStackEntry.arguments?.getInt("page") ?: 0
             UploadPostTagLocationScreen(navController = navController, uploadPostViewModel = uploadPostViewModel, data = data, page = page)
         }
+        composable(
+            NAV_ROUTE_UPLOAD_POST.UPLOADING.routeName,
+            enterTransition = {
+                slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeIn(tween(500))
+            },
+            exitTransition =  {
+                slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeOut(tween(500))
+            },
+            popEnterTransition = {
+                slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeIn(tween(500))
+            },
+            popExitTransition = {
+                slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeOut(tween(500))
+            },
+        ) { UploadPostUploadingScreen(navController = navController, data = data) }
+        composable(
+            NAV_ROUTE_UPLOAD_POST.UPLOADSUCCESSFULLY.routeName,
+            enterTransition = {
+                slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeIn(tween(500))
+            },
+            exitTransition =  {
+                slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeOut(tween(500))
+            },
+            popEnterTransition = {
+                slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeIn(tween(500))
+            },
+            popExitTransition = {
+                slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeOut(tween(500))
+            },
+        ) { UploadPostUploadSuccessfully(navController = navController, data = data) }
     }
 }

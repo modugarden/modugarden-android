@@ -42,7 +42,9 @@ import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.refreshToken
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.RetrofitBuilder.fcmCheckAPI
 import com.example.modugarden.api.RetrofitBuilder.fcmSaveAPI
+import com.example.modugarden.api.dto.FcmCheckDTO
 import com.example.modugarden.api.dto.FcmSaveDTO
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -70,6 +72,7 @@ fun MainLoginScreen(navController: NavController) {
     val editor = sharedPreferences.edit()
 
     var user by remember { mutableStateOf(Firebase.auth.currentUser) }
+
     val launcher = rememberFirebaseAuthLauncher(
         onAuthComplete = { result ->
             user = result.user
@@ -100,10 +103,11 @@ fun MainLoginScreen(navController: NavController) {
                                     val jsonData = JsonObject().apply {
                                         addProperty("email", user?.email)
                                     }
-                                    val fcmToken = sharedPreferences.getString("fcm token", "")
+                                    val fcmToken = sharedPreferences.getString("fcmToken", "")
+                                    Log.d("apires", "fcmToken :: $fcmToken")
                                     val jsonDataFcmToken = JsonObject()
                                     jsonDataFcmToken.apply {
-                                        addProperty("fcmToken", fcmToken ?: "")
+                                        addProperty("fcmToken", fcmToken)
                                     }
                                     loginAPI.loginSocialAPI(jsonData).enqueue(object: Callback<LoginDTO> {
                                         override fun onResponse(
@@ -125,29 +129,54 @@ fun MainLoginScreen(navController: NavController) {
                                                         editor.putString(refreshToken, res1.result.refreshToken)
                                                         editor.putInt(clientId, res1.result.userId)
                                                         editor.apply()
-                                                        fcmSaveAPI.fcmSaveAPI(jsonDataFcmToken).enqueue(object: Callback<FcmSaveDTO> {
-                                                            override fun onResponse(call: Call<FcmSaveDTO>, response: Response<FcmSaveDTO>) {
+                                                        fcmCheckAPI.fcmCheckAPI().enqueue(object: Callback<FcmCheckDTO> {
+                                                            override fun onResponse(
+                                                                call: Call<FcmCheckDTO>,
+                                                                response: Response<FcmCheckDTO>
+                                                            ) {
                                                                 if(response.isSuccessful) {
                                                                     val res = response.body()
                                                                     if(res != null) {
                                                                         if(res.isSuccess) {
-                                                                            Log.d("apires", "토큰을 정상적으로 서버에 저장했어요")
-                                                                        }
-                                                                        else {
-                                                                            Log.e("apires", res.message)
+                                                                            if(fcmToken !in res.result.fcmTokens) {
+                                                                                Log.d("apires", "새로운 토큰을 저장했어요")
+                                                                                fcmSaveAPI.fcmSaveAPI(jsonDataFcmToken).enqueue(object: Callback<FcmSaveDTO> {
+                                                                                    override fun onResponse(call: Call<FcmSaveDTO>, response: Response<FcmSaveDTO>) {
+                                                                                        if(response.isSuccessful) {
+                                                                                            val res = response.body()
+                                                                                            if(res != null) {
+                                                                                                if(res.isSuccess) {
+                                                                                                    Log.d("apires", "토큰을 정상적으로 서버에 저장했어요")
+                                                                                                }
+                                                                                                else {
+                                                                                                    Log.e("apires", res.message)
+                                                                                                }
+                                                                                            }
+                                                                                            else {
+                                                                                                Log.e("apires", "res == null")
+                                                                                            }
+                                                                                        }
+                                                                                        else {
+                                                                                            Log.e("apires", "response == not Successful")
+                                                                                        }
+                                                                                    }
+
+                                                                                    override fun onFailure(call: Call<FcmSaveDTO>, t: Throwable) {
+                                                                                        Log.e("apires", "토큰 전송 실패!")
+                                                                                    }
+                                                                                })
+                                                                            }
+                                                                            Log.d("apires", "토큰 저장 API 작업 완료.")
                                                                         }
                                                                     }
-                                                                    else {
-                                                                        Log.e("apires", "res == null")
-                                                                    }
-                                                                }
-                                                                else {
-                                                                    Log.e("apires", "response == not Successful")
                                                                 }
                                                             }
 
-                                                            override fun onFailure(call: Call<FcmSaveDTO>, t: Throwable) {
-                                                                Log.e("apires", "토큰 전송 실패!")
+                                                            override fun onFailure(
+                                                                call: Call<FcmCheckDTO>,
+                                                                t: Throwable
+                                                            ) {
+
                                                             }
 
                                                         })
@@ -220,6 +249,8 @@ fun MainLoginScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .bounceClick {
+                        textFieldId.value = textFieldId.value.trim()
+                        textFieldPw.value = textFieldPw.value.trim()
                         val jsonData = JsonObject()
                         jsonData.apply {
                             addProperty("email", textFieldId.value)
@@ -267,7 +298,7 @@ fun MainLoginScreen(navController: NavController) {
                         })
                     },
                 backgroundColor = moduPoint,
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(15.dp),
                 elevation = 0.dp,
             ) {
                 Text(
@@ -276,7 +307,7 @@ fun MainLoginScreen(navController: NavController) {
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
                     modifier = Modifier
-                        .padding(15.dp)
+                        .padding(18.dp)
                         .fillMaxWidth(),
                     textAlign = TextAlign.Center
                 )

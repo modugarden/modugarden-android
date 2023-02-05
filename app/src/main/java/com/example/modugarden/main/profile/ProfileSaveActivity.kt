@@ -5,13 +5,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import com.example.modugarden.R
 import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.RetrofitBuilder
@@ -26,6 +23,7 @@ class ProfileSaveActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val context = LocalContext.current
             // 인텐트로 포스트, 큐레이션 리스트 받아옴
             Column(
                 modifier = Modifier
@@ -86,7 +84,7 @@ class ProfileSaveActivity: ComponentActivity() {
                         }
                     })
 
-                StoredTab(postList.value, curationList.value)
+                StoredTab(postList.value, curationList.value, context)
             }
         }
     }

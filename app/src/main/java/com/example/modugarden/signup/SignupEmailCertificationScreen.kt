@@ -79,7 +79,7 @@ fun SignupEmailCertificationScreen(navController: NavHostController, data: Signu
                     title = "인증번호",
                     data = textFieldCert,
                     isTextFieldFocused = isTextFieldCertFocused,
-                    keyboardType = KeyboardType.Number,
+                    keyboardType = KeyboardType.Text,
                     description = textFieldDescription.value,
                     errorListener = isTextFieldError
                 )

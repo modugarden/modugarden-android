@@ -9,6 +9,7 @@ object RetrofitBuilder {
     val followAPI: FollowAPI = retrofit.create(FollowAPI::class.java)
     val curationAPI: CurationAPI = retrofit.create(CurationAPI::class.java)
     val fcmSaveAPI: FcmSaveAPI = retrofit.create(FcmSaveAPI::class.java)
+    val fcmCheckAPI: FcmCheckAPI = retrofit.create(FcmCheckAPI::class.java)
     val postCreateAPI: PostCreateAPI = retrofit.create(PostCreateAPI::class.java)
     val blockAPI: BlockAPI = retrofit.create(BlockAPI::class.java)
     val postAPI: PostAPI = retrofit.create(PostAPI::class.java)
