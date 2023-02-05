@@ -1,6 +1,8 @@
 package com.example.modugarden.main.follow
 
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,8 +18,11 @@ import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -36,6 +41,8 @@ import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.FollowRecommendationRes
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduBlack
@@ -44,14 +51,41 @@ import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.ui.theme.moduPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 // 볼드 텍스트 타입 설정
 val moduBold : TextStyle = TextStyle(color = moduBlack, fontWeight = FontWeight.Bold)
+@SuppressLint("UnrememberedMutableState")
 @Composable //팔로잉이 3명 미만일 때 표시되는 화면.
 fun NoFollowingScreen(navController: NavHostController) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+   var recommendres by remember { mutableStateOf(FollowRecommendationRes()) }
+
+    RetrofitBuilder.followAPI.getRecommendFollowList()
+        .enqueue(object : Callback<FollowRecommendationRes>{
+            override fun onResponse(
+                call: Call<FollowRecommendationRes>,
+                response: Response<FollowRecommendationRes>
+            ) {
+               if (response.isSuccessful){
+                   val res = response.body()
+                   if (res != null) {
+                       recommendres.result = res.result
+                   }
+               }
+            }
+
+            override fun onFailure(call: Call<FollowRecommendationRes>, t: Throwable) {
+
+            }
+        })
+
+    val recommendList = recommendres.result
+    Log.i("reclist",recommendList.toString())
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -105,6 +139,7 @@ fun NoFollowingScreen(navController: NavHostController) {
                 Card(
                     modifier = Modifier
                         .bounceClick {}
+
                         ,
                     backgroundColor = Color.White,
                     shape = RoundedCornerShape(10.dp),
@@ -211,6 +246,7 @@ fun FollowRecommendCard(userID:String,
                 Card(
                     modifier = Modifier
                         .bounceClick {
+
                             scope.launch {
                                 snackbarHostState.showSnackbar(
                                     "$userID 님을 팔로우 하였습니다.",

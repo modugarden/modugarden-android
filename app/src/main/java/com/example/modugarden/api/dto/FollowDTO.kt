@@ -28,3 +28,29 @@ data class FollowListDtoResContent(
     val profileImg: String = "",
     val userId: Int = 0
 )
+
+data class FollowRecommendationRes(
+    val code: Int?=null,
+    val isSuccess: Boolean?=null,
+    val message: String?=null,
+    var result: List<FollowListDtoResContent>?=null
+)
+
+
+//{
+//    "content": [
+//    {
+//        "categories": [
+//        "string"
+//        ],
+//        "follow": true,
+//        "nickname": "string",
+//        "profileImage": "string",
+//        "userId": 0
+//    }
+//    ],
+//    "first": true,
+//    "hasNext": true,
+//    "last": true
+//}
+// 유저 팔로잉/팔로워 목록 끝

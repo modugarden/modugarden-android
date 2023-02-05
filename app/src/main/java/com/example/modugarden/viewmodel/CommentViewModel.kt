@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.modugarden.api.RetrofitBuilder
@@ -18,7 +19,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class CommentViewModel(/*private val board_id: Int*/) : ViewModel() {
+class CommentViewModel() : ViewModel() {
     private val inComment = mutableStateOf("")
     private val inCommentId = mutableStateOf(0)
     private val inNickname = mutableStateOf("")
@@ -26,34 +27,12 @@ class CommentViewModel(/*private val board_id: Int*/) : ViewModel() {
     private val inProfileImage : MutableState<String?> = mutableStateOf("")
     private val inLocalDateTime = mutableStateOf("")
     private val inUserId = mutableStateOf(0)
-    private val commentList = mutableStateListOf<GetCommentContent>()
-    init {
-        RetrofitBuilder.commentAPI.getComments(1)
-            .enqueue(object : Callback<GetCommentResponse> {
-                override fun onResponse(
-                    call: Call<GetCommentResponse>,
-                    response: Response<GetCommentResponse>
-                ) {
-                    val res = response.body()
-                    if (res != null) {
-                        if(res.content != null){
-                            commentList.addAll(res.content)
-                        }
-                        else{
-                            Log.i("댓글 없음",res.content.toString())
-                        }
-                    }
-                }
 
-                override fun onFailure(call: Call<GetCommentResponse>, t: Throwable) {
-                    TODO("Not yet implemented")
-                }
-            })
-    }
     fun addComment(
         content: String,
         parentId: Int?,
         board_id:Int,
+        commentList : SnapshotStateList<GetCommentContent>,
         context: Context
     ){
         val jsonData = JsonObject()
@@ -79,7 +58,7 @@ class CommentViewModel(/*private val board_id: Int*/) : ViewModel() {
                             inLocalDateTime.value = res.result.localDateTime
                         }
                     }
-                    else Log.i("댓글","작성 실패")
+                    else Log.i("댓글","${response.body()}")
                 }
 
                 override fun onFailure(call: Call<CommentDTO>, t: Throwable) {
@@ -96,12 +75,10 @@ class CommentViewModel(/*private val board_id: Int*/) : ViewModel() {
 
     }
 
-    fun getCommentList(): List<GetCommentContent>{
-     return commentList
-    }
 }
 
-/*class CommentViewModelFactory(private val board_id: Int) : ViewModelProvider.Factory {
+/*
+class CommentViewModelFactory(private val board_id: Int) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(CommentViewModel::class.java)) {
@@ -110,5 +87,6 @@ class CommentViewModel(/*private val board_id: Int*/) : ViewModel() {
         throw IllegalArgumentException("unknown viewmodel")
     }
 
-}*/
+}
+*/
 

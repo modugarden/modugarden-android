@@ -30,7 +30,7 @@ class PostContentActivity: ComponentActivity() {
 @Composable
 fun PostContentNavScreen(board_id:Int, run :Boolean) {
     val navController = rememberNavController()
-
+    val commentViewModel :CommentViewModel = viewModel()
     if (run) NavigationGraphPostContent(navController, board_id = board_id)
-    else PostContentCommentScreen(navController = navController,boardId = board_id, run)
+    else PostContentCommentScreen(navController = navController,boardId = board_id, commentViewModel = commentViewModel, run =run)
 }

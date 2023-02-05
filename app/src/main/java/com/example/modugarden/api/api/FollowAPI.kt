@@ -2,6 +2,7 @@ package com.example.modugarden.api.api;
 
 import com.example.modugarden.api.dto.FollowDtoRes
 import com.example.modugarden.api.dto.FollowListDtoRes
+import com.example.modugarden.api.dto.FollowRecommendationRes
 import retrofit2.Call
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -47,4 +48,8 @@ interface FollowAPI {
     fun isFollowed(
         @Path("id") id: Int
     ): Call<FollowDtoRes>
+
+    //팔로우 리스트 추천
+    @GET("/follow/recommendation")
+    fun getRecommendFollowList() : Call<FollowRecommendationRes>
 }
