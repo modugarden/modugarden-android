@@ -1,5 +1,7 @@
 package com.example.modugarden.api.api
 
+import com.example.modugarden.api.dto.GetNewTokenRequest
+import com.example.modugarden.api.dto.GetNewTokenResponse
 import com.example.modugarden.api.dto.LoginDTO
 import com.google.gson.JsonObject
 import retrofit2.Call
@@ -17,4 +19,9 @@ interface LoginAPI {
     fun loginSocialAPI(
         @Body jsonData: JsonObject
     ): Call<LoginDTO>
+
+    @POST("/users/token-reissue")
+    fun getNewToken(
+        @Body request: GetNewTokenRequest
+    ) : Call<GetNewTokenResponse>
 }
