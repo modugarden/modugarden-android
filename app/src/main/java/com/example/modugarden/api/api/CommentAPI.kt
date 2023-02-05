@@ -1,8 +1,8 @@
 package com.example.modugarden.api.api
 
 import com.example.modugarden.api.dto.CommentDTO
+import com.example.modugarden.api.dto.DeleteCommentResponse
 import com.example.modugarden.api.dto.GetCommentResponse
-import com.example.modugarden.api.dto.SendCommentBody
 import com.google.gson.JsonObject
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -26,10 +26,9 @@ interface CommentAPI {
     ) : Call<GetCommentResponse>
 
     @PATCH("/boards/{board_id}/comments/{comment_id}")
-    fun editComment(
+    fun deleteComment(
         @Path ("board_id") board_id : Int,
-        @Part content : String,
-        @Part parentId : Int
-    ): Call <CommentDTO>
+        @Body commentId: Int
+    ): Call <DeleteCommentResponse>
 
 }

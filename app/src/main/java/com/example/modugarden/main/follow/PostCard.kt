@@ -103,7 +103,7 @@ fun PostCard(
                                         verticalAlignment = Alignment.CenterVertically
                                 ) {
                                         GlideImage(
-                                                imageModel = R.drawable.test_image1,
+                                                imageModel = data.user_profile_image,
                                                 contentDescription = null,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
