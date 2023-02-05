@@ -1,9 +1,7 @@
 package com.example.modugarden.main.profile
 
 import android.content.Context
-import android.util.Log
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,37 +15,23 @@ import androidx.compose.material.TabRow
 import androidx.compose.material.TabRowDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.StrokeCap.Companion.Square
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
-import com.example.modugarden.ApplicationClass.Companion.clientId
-import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
-import com.example.modugarden.api.AuthCallBack
-import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.*
 import com.example.modugarden.api.dto.PostDTO.*
-import com.example.modugarden.data.CurationCard
-import com.example.modugarden.data.PostCard
-import com.example.modugarden.data.User
+import com.example.modugarden.main.content.CurationContentActivity
+import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.ui.theme.*
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -55,12 +39,11 @@ import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Response
 
 @Composable
 fun ProfileTab (
-    postList: List<GetUserPostResponseContent>
+    postList: List<GetUserPostResponseContent>,
+    context: Context
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
@@ -81,7 +64,10 @@ fun ProfileTab (
         items(postList) { postCard ->
             // 이미지가 들어간 버튼을 넣어야 함
             Box(modifier = Modifier.bounceClick {
-
+//                context.startActivity(
+//                    Intent(context, PostContentActivity::class.java)
+//                        .putExtra("board_id", postCard.id)
+//                )
             }) {
                 GlideImage(
                     imageModel =
@@ -115,7 +101,8 @@ fun ProfileTab (
 @Composable
 fun CuratorProfileTab(
     postList: List<GetUserPostResponseContent>,
-    curationList: List<GetUserCurationsResponseContent>
+    curationList: List<GetUserCurationsResponseContent>,
+    context: Context
 ) {
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
@@ -170,7 +157,10 @@ fun CuratorProfileTab(
                     items(postList) { postCard ->
                         // 이미지가 들어간 버튼을 넣어야 함
                         Box(modifier = Modifier.bounceClick {
-
+//                            context.startActivity(
+//                                Intent(context, PostContentActivity::class.java)
+//                                    .putExtra("board_id", postCard.id)
+//                            )
                         }) {
                             GlideImage(
                                 imageModel =
@@ -209,7 +199,10 @@ fun CuratorProfileTab(
                             modifier = Modifier
                                 .height(90.dp)
                                 .bounceClick {
-
+//                                    context.startActivity(
+//                                        Intent(context, CurationContentActivity::class.java)
+//                                            .putExtra("curation_id", curationCard.id)
+//                                    )
                                 }
                         ) {
                             GlideImage(
@@ -278,7 +271,8 @@ fun CuratorProfileTab(
 @Composable
 fun StoredTab(
     postList: List<GetStoredPostResponseContent>,
-    curationList: List<GetStoredCurationsResponseContent>
+    curationList: List<GetStoredCurationsResponseContent>,
+    context: Context
 ) {
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
@@ -330,10 +324,16 @@ fun StoredTab(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(18.dp)
                 ) {
-                    items(postList) { postCard ->
+                    items(
+                        items = postList,
+                        key = { it.board_id }
+                    ) { postCard ->
                         // 이미지가 들어간 버튼을 넣어야 함
                         Box(modifier = Modifier.bounceClick {
-
+//                            val intent = Intent(context, PostContentActivity::class.java)
+//                            intent.putExtra("board_id", postCard.board_id)
+//                            intent.putExtra("run",true)
+//                            context.startActivity(intent)
                         }) {
                             GlideImage(
                                 imageModel =
@@ -372,7 +372,10 @@ fun StoredTab(
                             modifier = Modifier
                                 .height(90.dp)
                                 .bounceClick {
-
+//                                    context.startActivity(
+//                                        Intent(context, CurationContentActivity::class.java)
+//                                            .putExtra("curation_id", curationCard.id)
+//                                    )
                                 }
                         ) {
                             GlideImage(

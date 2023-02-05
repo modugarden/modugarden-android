@@ -49,8 +49,4 @@ interface UserAPI {
         @Part file: MultipartBody.Part
     ) : Call<UpdateUserSettingInfoRes>
 
-    @POST("/users/token-reissue")
-    fun getNewToken(
-        @Body request: GetNewTokenRequest
-    ) : Call<GetNewTokenResponse>
 }

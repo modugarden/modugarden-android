@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.*
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.draw.clip
@@ -23,17 +22,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
-import androidx.core.net.toUri
 import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
 import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.*
-import com.example.modugarden.data.CurationCard
-import com.example.modugarden.data.PostCard
-import com.example.modugarden.data.User
 import com.example.modugarden.main.profile.follow.ProfileFollowActivity
 import com.example.modugarden.main.settings.SettingsActivity
 import com.example.modugarden.ui.theme.*
@@ -49,105 +45,13 @@ import retrofit2.Response
 
 val pages = listOf("포스트", "큐레이션")
 
-val postResponse = listOf(
-    PostCard(
-        R.drawable.test_image1, "타이틀1", "카테고리1",
-        "2023년 1월 6일", "유저1"
-    ),
-    PostCard(
-        R.drawable.test_image2, "타이틀2", "카테고리2",
-        "2023년 1월 6일", "유저2"
-    ),
-    PostCard(
-        R.drawable.test_image3, "타이틀3", "카테고리3",
-        "2023년 1월 6일", "유저3"
-    ),
-    PostCard(
-        R.drawable.test_image4, "타이틀4", "카테고리4",
-        "2023년 1월 6일", "유저4"
-    ),
-    PostCard(
-        R.drawable.test_image5, "타이틀5", "카테고리5",
-        "2023년 1월 6일", "유저5"
-    ),
-    PostCard(
-        R.drawable.test_image1, "타이틀6", "카테고리6",
-        "2023년 1월 6일", "유저6"
-    ),
-    PostCard(
-        R.drawable.test_image2, "타이틀7", "카테고리7",
-        "2023년 1월 6일", "유저7"
-    ),
-    PostCard(
-        R.drawable.test_image3, "타이틀7", "카테고리7",
-        "2023년 1월 6일", "유저7"
-    ),
-    PostCard(
-        R.drawable.test_image4, "타이틀7", "카테고리7",
-        "2023년 1월 6일", "유저7"
-    ),
-    PostCard(
-        R.drawable.test_image5, "타이틀7", "카테고리7",
-        "2023년 1월 6일", "유저7"
-    ),
-    PostCard(
-        R.drawable.test_image1, "타이틀7", "카테고리7",
-        "2023년 1월 6일", "유저7"
-    ),
-    PostCard(
-        R.drawable.test_image2, "타이틀7", "카테고리7",
-        "2023년 1월 6일", "유저7"
-    ),
-    PostCard(
-        R.drawable.test_image3, "타이틀7", "카테고리7",
-        "2023년 1월 6일", "유저7"
-    )
-)
-
-val curationResponse = listOf(
-    CurationCard(
-        R.drawable.test_image1, "타이틀1", "카테고리1",
-        "2023년 1월 6일", "유저1"
-    ),
-    CurationCard(
-        R.drawable.test_image2, "타이틀2", "카테고리2",
-        "2023년 1월 6일", "유저2"
-    ),
-    CurationCard(
-        R.drawable.test_image3, "타이틀3", "카테고리3",
-        "2023년 1월 6일", "유저3"
-    ),
-    CurationCard(
-        R.drawable.test_image4, "타이틀4", "카테고리4",
-        "2023년 1월 6일", "유저4"
-    ),
-    CurationCard(
-        R.drawable.test_image5, "타이틀5", "카테고리5",
-        "2023년 1월 6일", "유저5"
-    ),
-    CurationCard(
-        R.drawable.test_image1, "타이틀6", "카테고리6",
-        "2023년 1월 6일", "유저6"
-    ),
-    CurationCard(
-        R.drawable.test_image2, "타이틀7", "카테고리7",
-        "2023년 1월 6일", "유저7"
-    )
-)
-
-val categoryResponse = listOf("식물 키우기", "식물 부수기", "식물 심기")
-
-val user = User(
-    "https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri(), "Mara", categoryResponse, 100, 50,
-    true, postResponse, curationResponse
-)
-
 val myId = sharedPreferences.getInt(clientId, 3)
 
 @OptIn(ExperimentalMaterialApi::class)
+@Preview(showBackground = true)
 @Composable //프로필, 인수로 유저의 정보를 받아옴
 fun ProfileScreen (
-    userId: Int
+    userId: Int = 0
 ) {
     val focusManager = LocalFocusManager.current
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
@@ -248,10 +152,10 @@ fun ProfileScreen (
                                 contentDescription = null,
                                 modifier = Modifier
                                     .bounceClick {
-                                        focusManager.clearFocus()
-                                        scope.launch {
-                                            bottomSheetState.show()
-                                        }
+                                            focusManager.clearFocus()
+                                            scope.launch {
+                                                bottomSheetState.show()
+                                            }
                                     }
                                     .align(Alignment.TopEnd),
                                 tint = moduGray_normal
@@ -268,8 +172,7 @@ fun ProfileScreen (
                                         Intent(
                                             context,
                                             ProfileFollowActivity::class.java
-                                        )
-                                            .putExtra("userId", data.value.id)
+                                        ).putExtra("userId", data.value.id)
                                     )
                                 }
                         ) {
@@ -524,13 +427,13 @@ fun ProfileScreen (
                                 ) {
                                     super.onResponse(call, response)
                                     if(response.body()?.content != null)
-                                    curationList.value = response.body()?.content!!
+                                        curationList.value = response.body()?.content!!
                                 }
                             })
 
-                        CuratorProfileTab(postList.value, curationList.value)
+                        CuratorProfileTab(postList.value, curationList.value, context)
                     } else {
-                        ProfileTab(postList.value)
+                        ProfileTab(postList.value, context)
                         Log.d("onResponse", "userId : ${data.value.id}")
                     }
                 }

@@ -23,45 +23,36 @@ object TokenInterceptor: Interceptor{
             .addHeader("authorization", "Bearer $ACCESS_TOKEN")
             .build()
 
-        var response = chain.proceed(finalRequest)
+        val response = chain.proceed(finalRequest)
 
         when (response.code) {
             400 -> {
                 //Show Bad Request Error Message
             }
             401 -> {
-//                Log.d("TokenIssue", "액세스 토큰 만료")
-//                RetrofitBuilder.userAPI
-//                    .getNewToken(GetNewTokenRequest(ACCESS_TOKEN, REFRESH_TOKEN))
-//                    .enqueue(object : Callback<GetNewTokenResponse>{
-//                        override fun onResponse(
-//                            call: Call<GetNewTokenResponse>,
-//                            res: retrofit2.Response<GetNewTokenResponse>
-//                        ) {
-//                            if(res.body() != null) {
-//                                val tokenEditor = sharedPreferences.edit()
-//
-//                                val newAccessToken = res.body()?.result?.accessToken
-//                                val newRefreshToken = res.body()?.result?.refreshToken
-//                                tokenEditor.putString(accessToken, newAccessToken)
-//                                tokenEditor.putString(refreshToken, newRefreshToken)
-//
-//                                tokenEditor.apply()
-//
-//                                val NEW_ACCESS_TOKEN = sharedPreferences.getString(accessToken, "")
-//
-//                                val newTokenRequest = request.newBuilder()
-//                                    .addHeader("authorization", "Bearer $NEW_ACCESS_TOKEN")
-//                                    .build()
-//
-//                                response = chain.proceed(newTokenRequest)
-//                            }
-//                        }
-//
-//                        override fun onFailure(call: Call<GetNewTokenResponse>, t: Throwable) {
-//                            Log.d("onFailure", t.stackTraceToString())
-//                        }
-//                    })
+                Log.d("TokenIssue", "액세스 토큰 만료")
+                val newTokenResponse = RetrofitBuilder.loginAPI
+                    .getNewToken(GetNewTokenRequest(ACCESS_TOKEN, REFRESH_TOKEN))
+                    .execute()
+
+                if(newTokenResponse.body() != null) {
+                    val tokenEditor = sharedPreferences.edit()
+                    val newAccessToken = newTokenResponse.body()?.result?.accessToken
+                    val newRefreshToken = newTokenResponse.body()?.result?.refreshToken
+                    tokenEditor.putString(accessToken, newAccessToken)
+                    tokenEditor.putString(refreshToken, newRefreshToken)
+                    tokenEditor.apply()
+                    Log.d("onResponse", "토큰 재발급 성공!")
+                    Log.d("onResponse", "${newTokenResponse.code()}\n" +
+                            "${newTokenResponse.body()!!.result}")
+
+                    val newTokenRequest = chain.request().newBuilder()
+                        .addHeader("authorization", "Bearer $newAccessToken")
+                        .build()
+
+                    response.close()
+                    return chain.proceed(newTokenRequest)
+                }
             }
 
             403 -> {

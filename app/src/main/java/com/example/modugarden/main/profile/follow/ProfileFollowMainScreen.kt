@@ -9,10 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -24,6 +21,8 @@ import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.FollowListDtoRes
 import com.example.modugarden.api.dto.FollowListDtoResContent
+import com.example.modugarden.api.dto.GetStoredCurationsResponseContent
+import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.ui.theme.ScaffoldSnackBar
 import com.example.modugarden.ui.theme.TopBar
 import com.example.modugarden.ui.theme.moduBlack
@@ -51,8 +50,14 @@ fun ProfileFollowMainScreen(
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
     Log.d("userId", id.toString())
-    val newFollowerList = remember { mutableStateListOf<FollowListDtoResContent>() }
-    val newFollowingList = remember { mutableStateListOf<FollowListDtoResContent>() }
+
+    val newFollowerList = remember { mutableStateOf(
+        listOf(FollowListDtoResContent())
+    ) }
+    val newFollowingList = remember { mutableStateOf(
+        listOf(FollowListDtoResContent())
+    ) }
+
     val context = LocalContext.current
 
     RetrofitBuilder.followAPI.otherFollowerList(id)
@@ -63,7 +68,7 @@ fun ProfileFollowMainScreen(
             ) {
                 Log.d("onResponse", response.code().toString() +
                         "\n" + (response.body()?.content))
-                response.body()?.let { newFollowerList.addAll(it.content) }
+                newFollowerList.value = response.body()?.content!!
             }
 
             override fun onFailure(call: Call<FollowListDtoRes>, t: Throwable) {
@@ -81,7 +86,7 @@ fun ProfileFollowMainScreen(
                     "onResponse", response.code().toString() +
                             "\n" + (response.body()?.content)
                 )
-                response.body()?.let { newFollowingList.addAll(it.content) }
+                newFollowingList.value = response.body()?.content!!
             }
 
             override fun onFailure(call: Call<FollowListDtoRes>, t: Throwable) {
@@ -160,7 +165,9 @@ fun ProfileFollowMainScreen(
                                 .fillMaxSize(),
                             verticalArrangement = Arrangement.spacedBy(18.dp)
                         ) {
-                            items(newFollowerList) { follower ->
+                            items(
+                                items = newFollowerList.value,
+                                key = { user -> user.userId }) { follower ->
                                 ProfileCard(follower, navController, viewModel) { isFollowing ->
                                     scope.launch {
                                         if (isFollowing)
@@ -183,7 +190,9 @@ fun ProfileFollowMainScreen(
                                 .fillMaxSize(),
                             verticalArrangement = Arrangement.spacedBy(18.dp)
                         ) {
-                            items(newFollowingList) { following ->
+                            items(
+                                items = newFollowingList.value,
+                                key = { user -> user.userId }) {following ->
                                 ProfileCard(following, navController, viewModel) { isFollowing ->
                                     scope.launch {
                                         if (isFollowing)
