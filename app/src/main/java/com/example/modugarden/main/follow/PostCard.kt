@@ -242,7 +242,8 @@ fun PostCard(
                                        PostHeartCard(
                                                boardId = data.board_id,
                                                heartState = isButtonClickedLike,
-                                               modifier = Modifier.padding(end = 18.dp)
+                                               modifier = Modifier.padding(end = 18.dp),
+                                               likeNum = null
                                        )
 //
 //                                       Icon(modifier = Modifier
@@ -281,7 +282,7 @@ fun PostCard(
                                                                mContext,
                                                                PostContentActivity::class.java
                                                        )
-                                                       intent.putExtra("board_id",data.board_id)
+                                                       intent.putExtra("board_id", data.board_id)
                                                        intent.putExtra("run", false)
                                                        mContext.startActivity(intent)
 
@@ -291,27 +292,13 @@ fun PostCard(
                                                tint = moduBlack
                                        )
                                        // 스크랩
-                                       Icon(modifier = Modifier.bounceClick {
-                                               isButtonClickedSave.value = !isButtonClickedSave.value
-
-                                               if (isButtonClickedSave.value){
-                                                       scope.launch {
-                                                               snackbarHostState.showSnackbar(
-                                                                       "게시물을 저장하였습니다.",
-                                                                       duration = SnackbarDuration.Short
-                                                               )
-                                                       }
-                                               }
-                                       }
-                                               ,painter = painterResource
-                                                       (id =
-                                               if (isButtonClickedSave.value)
-                                                       R.drawable.ic_star_solid
-                                               else
-                                                       R.drawable.ic_star_line
-                                               ),
-                                               contentDescription = "스크랩",
-                                               tint = moduBlack
+                                       PostSaveCard(
+                                               boardId = data.board_id,
+                                               modifier = Modifier
+                                                       .padding(end = 18.dp),
+                                               saveState =isButtonClickedSave ,
+                                               scope =scope,
+                                               snackbarHostState = snackbarHostState
                                        )
                                        Spacer(modifier = Modifier.weight(1f))
                                                Icon(modifier = Modifier.bounceClick {

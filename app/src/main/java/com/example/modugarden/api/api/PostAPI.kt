@@ -54,17 +54,17 @@ interface PostAPI {
 
     // 게시물 상세보기 페이지 - 포스트 보관
     @POST("/boards/{board_id}/storage")
-    fun storePost(
+    fun savePost(
         @Path ("board_id") board_id: Int
     ): Call<PostStoreResponse>
 
     // 게시물 상세보기 페이지 - 포스트 보관 취소
     @DELETE("/boards/{board_id}/storage")
-    fun storeCancelPost(
+    fun saveCancelPost(
         @Path ("board_id") board_id: Int
     ): Call<PostStoreResponse>
 
-    // 내 프로필- 큐레이션 조회
+    // 내 프로필- 포스트 조회
     @GET("/boards/me")
     fun getMyPost():Call<GetPost>
 
@@ -74,7 +74,13 @@ interface PostAPI {
         @Path  ("board_id") board_id: Int
     ): Call<GetPostLikeStateResponse>
 
-    //프로필 페이지- 저장한 포스트 조회
+    //내 프로필- 큐레이션 보관 여부 조회
+    @GET("/boards/me/storage/{board_id}")
+    fun getPostSaveState(
+        @Path  ("board_id") board_id: Int
+    ): Call<GetPostSaveStateResponse>
+
+    //프로필 페이지- 보관 포스트 조회
     @GET("/boards/me/storage")
     fun getMyPostStorage() :Call<GetStoredPostResponse>
 
