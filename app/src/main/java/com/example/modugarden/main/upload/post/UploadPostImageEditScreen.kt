@@ -129,7 +129,7 @@ fun UploadPostImageEditScreen(
                                             .aspectRatio(1f),
                                         requestOptions = {
                                             RequestOptions()
-                                                .override(1000,1000)
+                                                .override(700,700)
                                                 .downsample(DownsampleStrategy.FIT_CENTER)
                                         }
                                     )
@@ -264,66 +264,12 @@ fun UploadPostImageEditScreen(
             BottomButton(
                 title = if(pagerState.currentPage < data.image.size - 1) "다음" else "업로드",
                 onClick = {
-                    if(pagerState.currentPage == data.image.size - 1) {
-                        var imageList = listOf<MultipartBody.Part>()
-                        val jsonData = JsonObject()
-                        val jsonDataContent = JsonArray()
-                        val jsonDataLocation = JsonArray()
-                        //포스트 업로드 데이터 전달 API 연결.
-                        for(i in 0 until data.image.size) {
-                            val file = toFile(mContext, data.image[i])
-                            val requestFile = MultipartBody.Part.createFormData(
-                                name = "file",
-                                filename = file.name,
-                                body = file.asRequestBody("image/*".toMediaType())
-                            )
-                            imageList += requestFile
-                            jsonDataContent.add(data.description[i])
-                            jsonDataLocation.add(data.location[i])
+                    if (pagerState.currentPage == data.image.size - 1) {
+                        navController.navigate(NAV_ROUTE_UPLOAD_POST.UPLOADING.routeName) {
+                            popUpTo(0) {
+                                inclusive = true
+                            }
                         }
-
-                        jsonData.apply {
-                            addProperty("category", data.category.category)
-                            add("content", jsonDataContent)
-                            add("location", jsonDataLocation)
-                            addProperty("title", data.title)
-                        }
-
-                        val mediaType = "application/json; charset=utf-8".toMediaType()
-                        val jsonBody = jsonData.toString().toRequestBody(mediaType)
-
-                        postCreateAPI.postCreateAPI(jsonBody, imageList)
-                            .enqueue(object: Callback<CurationUploadResponse> {
-                                override fun onResponse(
-                                    call: Call<CurationUploadResponse>,
-                                    response: Response<CurationUploadResponse>
-                                ) {
-                                    if(response.isSuccessful) {
-                                        val res = response.body()
-                                        if(res != null) {
-                                            if(res.isSuccess) {
-                                                Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
-                                            }
-                                            Log.e("apires", res.toString())
-                                        }
-                                        else {
-                                            Log.e("apires", response.toString())
-                                        }
-                                    }
-                                    else {
-                                        Toast.makeText(mContext, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
-                                        Log.e("apires", response.toString())
-                                        Log.e("apires", jsonData.toString())
-                                    }
-                                }
-
-                                override fun onFailure(
-                                    call: Call<CurationUploadResponse>,
-                                    t: Throwable
-                                ) {
-                                    Toast.makeText(mContext, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
-                                }
-                            })
                     }
                     else {
                         scope.launch {
