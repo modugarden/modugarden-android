@@ -2,6 +2,7 @@ package com.example.modugarden.main.content
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -33,4 +34,5 @@ fun PostContentNavScreen(board_id:Int, run :Boolean) {
     val commentViewModel :CommentViewModel = viewModel()
     if (run) NavigationGraphPostContent(navController, board_id = board_id)
     else PostContentCommentScreen(navController = navController,boardId = board_id, commentViewModel = commentViewModel, run =run)
+    Log.i("run/board_id",run.toString()+board_id.toString())
 }

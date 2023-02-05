@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,7 +39,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,7 +60,8 @@ import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.FollowListDtoRes
 import com.example.modugarden.api.dto.GetFollowFeedCuration
 import com.example.modugarden.api.dto.PostDTO
-import com.example.modugarden.main.content.CategoryItem
+import com.example.modugarden.data.Report
+import com.example.modugarden.main.content.ReportCategoryItem
 import com.example.modugarden.main.content.modalReportPost
 import com.example.modugarden.route.NavigationGraphFollow
 import com.example.modugarden.ui.theme.moduBackground
@@ -141,9 +142,11 @@ fun FollowingScreen(
     var postres by remember { mutableStateOf(PostDTO.GetFollowFeedPost(null)) }
     var curationres by remember { mutableStateOf(GetFollowFeedCuration(null)) }
     val context = LocalContext.current.applicationContext
-    val modalType = rememberSaveable{ mutableStateOf(0) }
-    val modalTitle = mutableStateOf("")
-    val modalImage = mutableStateOf("")
+
+    val modalType =  mutableStateOf(0)
+    val modalContentId = remember { mutableStateOf(0) }
+    val modalContentImage = remember { mutableStateOf("") }
+    val modalContentTitle = remember { mutableStateOf("") }
 
         RetrofitBuilder.curationAPI
             .getFollowFeedCuration()
@@ -242,7 +245,7 @@ fun FollowingScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             GlideImage(
-                                imageModel = modalImage.value,
+                                imageModel = modalContentImage.value,
                                 contentDescription = "",
                                 modifier = Modifier
                                     .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
@@ -251,7 +254,7 @@ fun FollowingScreen(
                                 contentScale = ContentScale.Crop
                             )
                             Spacer(modifier = Modifier.size(18.dp))
-                            Text(text =modalTitle.value, style = moduBold, fontSize = 14.sp)
+                            Text(text =modalContentTitle.value, style = moduBold, fontSize = 14.sp)
                         }
                     }
 
@@ -267,13 +270,24 @@ fun FollowingScreen(
                         modifier = Modifier
                             .padding(horizontal = 18.dp)
                     ) {
-                        item {
-                            CategoryItem("욕설/비하")
-                            CategoryItem("낚시/놀람/도배")
-                            CategoryItem("음란물/불건전한 만남 및 대화")
-                            CategoryItem("유출/사칭/사기")
-                            CategoryItem("게시판 성격에 부적절함")
+                        itemsIndexed(
+                            listOf(
+                                Report.ABUSE,
+                                Report.TERROR,
+                                Report.SEXUAL,
+                                Report.FISHING,
+                                Report.INAPPROPRIATE
+                            )
+                        ) { index, item ->
+                            Log.i("신고 타입/아이디",modalType.value.toString()+"/"+modalContentId.value)
+                            ReportCategoryItem(
+                                report = item,
+                                id =modalContentId.value,
+                                modalType = modalType.value,
+                                scope,bottomSheetState)
                         }
+
+
                     }
                     Spacer(modifier = Modifier.size(18.dp))
                 }
@@ -325,10 +339,11 @@ fun FollowingScreen(
                                 scope,
                                 snackbarHostState,
                                 bottomSheetState,
-                                modalType,
-                                modalTitle,
-                                modalImage,
-                                userViewModel
+                                modalType = modalType,
+                                modalTitle = modalContentTitle,
+                                modalImage = modalContentImage,
+                                modalId = modalContentId,
+                                userViewModel = userViewModel
                             )
                         }
                         items(curations) {
@@ -339,9 +354,10 @@ fun FollowingScreen(
                                 snackbarHostState = snackbarHostState,
                                 bottomSheetState = bottomSheetState,
                                 modalType = modalType,
-                                modalTitle,
-                                modalImage,
-                                userViewModel
+                                modalTitle = modalContentTitle,
+                                modalImage = modalContentImage,
+                                modalContentId,
+                                userViewModel = userViewModel
                             )
                         }
 
