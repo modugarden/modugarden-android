@@ -142,7 +142,8 @@ fun FollowingScreen(
     var curationres by remember { mutableStateOf(GetFollowFeedCuration(null)) }
     val context = LocalContext.current.applicationContext
     val modalType = rememberSaveable{ mutableStateOf(0) }
-    var modalTitle = mutableStateOf("")
+    val modalTitle = mutableStateOf("")
+    val modalImage = mutableStateOf("")
 
         RetrofitBuilder.curationAPI
             .getFollowFeedCuration()
@@ -241,7 +242,7 @@ fun FollowingScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             GlideImage(
-                                imageModel = painterResource(id = R.drawable.ic_user),
+                                imageModel = modalImage.value,
                                 contentDescription = "",
                                 modifier = Modifier
                                     .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
@@ -326,6 +327,7 @@ fun FollowingScreen(
                                 bottomSheetState,
                                 modalType,
                                 modalTitle,
+                                modalImage,
                                 userViewModel
                             )
                         }
@@ -338,6 +340,7 @@ fun FollowingScreen(
                                 bottomSheetState = bottomSheetState,
                                 modalType = modalType,
                                 modalTitle,
+                                modalImage,
                                 userViewModel
                             )
                         }

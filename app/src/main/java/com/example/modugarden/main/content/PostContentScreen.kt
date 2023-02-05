@@ -86,6 +86,7 @@ import com.google.accompanist.pager.rememberPagerState
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
@@ -240,23 +241,18 @@ fun PostContentScreen(
                     val location = remember { mutableStateOf("") }
                         location.value = locinfo.split(",")[0]
                     val address = remember { mutableStateOf("") }
-                    val lat = locinfo.split(",")[1].toDouble()
-                    val lng = locinfo.split(",")[2].toDouble()
+                    val lat = remember { mutableStateOf(0.0) }
+                        lat.value=locinfo.split(",")[1].toDouble()
+                    val lng =  remember { mutableStateOf(0.0) }
+                        lng.value=locinfo.split(",")[2].toDouble()
 
                     val geocoder = Geocoder(
                         LocalContext.current.applicationContext,
                         Locale.KOREA
                     )
-                    val latlng = geocoder.getFromLocation(lat, lng, 30)
+                    val latlng = geocoder.getFromLocation(lat.value, lng.value, 1)?.get(0)?.getAddressLine(0)
                     if (latlng != null) {
-                        if (latlng.size == 0) {
-                            Log.e("reverseGeocoding", "해당 주소 없음");
-                        } else {
-                            val city = latlng.get(0).adminArea
-                            val sublocality = latlng.get(0).subLocality
-                            val throughfare = latlng.get(0).subThoroughfare
-                            address.value = "$city $sublocality $throughfare"
-                        }
+                            address.value = "$latlng"
                     }
 
                     Card(
@@ -336,15 +332,12 @@ fun PostContentScreen(
                                         .clip(RoundedCornerShape(10.dp))
                                         .border(1.dp, moduGray_light)
                                 ) {
-                                    val cameraPositionState = rememberCameraPositionState {
-                                        position = CameraPosition.fromLatLngZoom(LatLng(lat,lng), 20f)
-                                    }
                                     GoogleMap(
                                         Modifier.fillMaxSize(),
-                                        cameraPositionState = cameraPositionState
+                                        cameraPositionState = CameraPositionState( position = CameraPosition.fromLatLngZoom(LatLng(lat.value,lng.value), 20f))
                                     ){
                                         Marker(
-                                            state = MarkerState(position = LatLng(lat,lng)),
+                                            state = MarkerState(position = LatLng(lat.value,lng.value)),
                                             title = location.value,
                                         )
                                     }
@@ -381,7 +374,7 @@ fun PostContentScreen(
                                             .weight(1f)
                                             .bounceClick {
                                                 val map_data =
-                                                    MapInfo(location.value, address.value, lat, lng)
+                                                    MapInfo(location.value, address.value, lat.value, lng.value)
                                                 navController.currentBackStackEntry?.savedStateHandle?.set(
                                                     "map_data",
                                                     map_data
