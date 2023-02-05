@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -198,6 +199,7 @@ fun UploadCurationImageInfoScreen(
                         data = uriData,
                         title = "큐레이션 주소",
                         isTextFieldFocused = uriFocused,
+                        keyboardType = KeyboardType.Uri
                     )
                 }
                 Spacer(modifier = Modifier.height(50.dp))
