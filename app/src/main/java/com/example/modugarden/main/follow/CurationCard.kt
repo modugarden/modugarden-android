@@ -74,7 +74,8 @@ fun CurationCard(
     snackbarHostState: SnackbarHostState,
     bottomSheetState: ModalBottomSheetState,
     modalType: MutableState<Int>,
-    modalTitle : MutableState<String>,
+    modalTitle: MutableState<String>,
+    modalImage: MutableState<String>,
     userViewModel: UserViewModel,
 ) {
     val mContext = LocalContext.current
