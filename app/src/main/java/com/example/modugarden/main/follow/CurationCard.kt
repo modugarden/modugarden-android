@@ -76,6 +76,7 @@ fun CurationCard(
     modalType: MutableState<Int>,
     modalTitle: MutableState<String>,
     modalImage: MutableState<String>,
+    modalContentId: MutableState<Int>,
     userViewModel: UserViewModel,
 ) {
     val mContext = LocalContext.current
@@ -329,6 +330,8 @@ fun CurationCard(
                     Icon(modifier = Modifier.bounceClick {
                         modalType.value = modalReportCuration
                         modalTitle.value = data.title
+                        modalImage.value = data.user_profile_image
+                        modalContentId.value = data.curation_id
                         scope.launch {
                         bottomSheetState.animateTo(
                             ModalBottomSheetValue.Expanded)

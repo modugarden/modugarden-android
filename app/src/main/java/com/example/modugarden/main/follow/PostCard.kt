@@ -71,10 +71,11 @@ fun PostCard(
         scope: CoroutineScope,
         snackbarHostState: SnackbarHostState,
         bottomSheetState: ModalBottomSheetState,
-        modalType: MutableState<Int>,
-        modalTitle : MutableState<String>,
-        modalImage :MutableState<String>,
-        userViewModel: UserViewModel
+        userViewModel: UserViewModel,
+        modalType:MutableState<Int>,
+        modalTitle:MutableState<String>,
+        modalImage:MutableState<String>,
+        modalId:MutableState<Int>
 ) {
 
         val isButtonClickedLike = remember { mutableStateOf(false) } // 버튼 바
@@ -276,16 +277,11 @@ fun PostCard(
                                        Icon(modifier = Modifier
                                                .padding(end = 18.dp)
                                                .bounceClick {
-                                                       /*navController.navigate("${NAV_ROUTE_BNB.COMMENT.routeName}/${data.boardId}"){
-                                                               popUpTo(navController.graph.id){
-                                                                       inclusive= true
-                                                               }
-                                                       }*/
                                                        val intent = Intent(
                                                                mContext,
                                                                PostContentActivity::class.java
                                                        )
-                                                       /*intent.putExtra("post_data",data)*/
+                                                       intent.putExtra("board_id",data.board_id)
                                                        intent.putExtra("run", false)
                                                        mContext.startActivity(intent)
 
@@ -319,9 +315,10 @@ fun PostCard(
                                        )
                                        Spacer(modifier = Modifier.weight(1f))
                                                Icon(modifier = Modifier.bounceClick {
-                                                       modalType.value = modalReportPost
-                                                       modalTitle.value = data.title
+                                                       modalTitle.value  = data.title
                                                        modalImage.value = data.user_profile_image
+                                                       modalType.value = modalReportPost
+                                                       modalId.value = data.board_id
                                                        scope.launch {
                                                                bottomSheetState.animateTo(
                                                                        ModalBottomSheetValue.Expanded)

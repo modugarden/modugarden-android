@@ -49,10 +49,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -72,23 +70,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.ApplicationClass
 import com.example.modugarden.R
-import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.CommentDTO
 import com.example.modugarden.api.dto.DeleteCommentResponse
 import com.example.modugarden.api.dto.GetCommentContent
 import com.example.modugarden.api.dto.GetCommentResponse
-import com.example.modugarden.api.dto.UserInfoRes
-import com.example.modugarden.data.MapInfo
+import com.example.modugarden.data.Report
 import com.example.modugarden.main.follow.moduBold
-import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
-import com.example.modugarden.ui.theme.ModalBottomSheetItem
 import com.example.modugarden.ui.theme.addFocusCleaner
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBackground
@@ -98,8 +91,6 @@ import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.ui.theme.moduPoint
 import com.example.modugarden.viewmodel.CommentViewModel
-import com.example.modugarden.viewmodel.UserViewModel
-import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
@@ -112,7 +103,10 @@ import retrofit2.Response
 @SuppressLint("UnrememberedMutableState")
 @OptIn( ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun PostContentCommentScreen(navController: NavHostController, commentViewModel: CommentViewModel= viewModel(), boardId:Int, run: Boolean) {
+fun PostContentCommentScreen(navController: NavHostController,
+                             commentViewModel: CommentViewModel= viewModel(),
+                             boardId:Int,
+                             run: Boolean) {
 
     val data
             = remember{ mutableStateOf(GetCommentContent(nickname = "", comment = "", localDateTime = "", parentId = null, profileImage = "", commentId = 0, userId = 0)) } // 클릭한 댓글 데이터*/
@@ -130,7 +124,6 @@ fun PostContentCommentScreen(navController: NavHostController, commentViewModel:
     val context = LocalContext.current.applicationContext
 
     var commentres by remember { mutableStateOf(GetCommentResponse()) }
-
     RetrofitBuilder.commentAPI.getComments(boardId)
         .enqueue(object : Callback<GetCommentResponse> {
             override fun onResponse(
@@ -361,14 +354,18 @@ fun PostContentCommentScreen(navController: NavHostController, commentViewModel:
                         ) {
                             itemsIndexed(
                                 listOf(
-                                    "욕설/비하",
-                                    "낚시/놀람/도배",
-                                    "음란물/불건전한 만남 및 대화",
-                                    "유출/사칭/사기",
-                                    "게시판 성격에 부적절함"
+                                    Report.ABUSE,
+                                    Report.TERROR,
+                                    Report.SEXUAL,
+                                    Report.FISHING,
+                                    Report.INAPPROPRIATE
                                 )
                             ) { index, item ->
-                                CategoryItem(category = item)
+                                ReportCategoryItem(
+                                    report = item,
+                                    id = data.value.commentId,
+                                    modalType = modalReportComment,
+                                    scope,bottomSheetState)
                             }
 
                         }
@@ -477,7 +474,6 @@ fun PostContentCommentScreen(navController: NavHostController, commentViewModel:
                                         data = data,
                                         isReplying = isReplying,
                                         isButtonClicked = isButtonClicked,
-                                        isCommentFocused = isCommentFocused
                                     )
                                 }
 
@@ -560,6 +556,7 @@ fun PostContentCommentScreen(navController: NavHostController, commentViewModel:
                                             .focusRequester(focusRequester)
                                             .onFocusChanged {
                                                 isTextFieldCommentFocused.value = it.isFocused
+                                                Log.i("txt focused", isTextFieldCommentFocused.value.toString())
                                             },
                                         colors = TextFieldDefaults.textFieldColors(
                                             backgroundColor = Color.Transparent,
@@ -693,7 +690,6 @@ fun CommentItem(
     bottomSheetState:ModalBottomSheetState,
     isReplying: MutableState<Boolean>,
     isButtonClicked: MutableState<Boolean>,
-    isCommentFocused:MutableState<Boolean>,
     data: MutableState<GetCommentContent>
 ){
         Column(
@@ -703,12 +699,12 @@ fun CommentItem(
         ) {
             Box()
             {
-                val focusRequester by remember { mutableStateOf(FocusRequester()) }
+                val focusRequester = remember { FocusRequester() }
                 Row(
                     modifier = Modifier
                         .background(
                             if ((isReplying.value && comment.commentId == data.value.commentId)
-                                || (isButtonClicked.value && comment.commentId == data.value.commentId && isCommentFocused.value)
+                                || (isButtonClicked.value && comment.commentId == data.value.commentId && isButtonClicked.value)
                             ) moduBackground
                             else Color.White
                         )
@@ -769,7 +765,7 @@ fun CommentItem(
                         modifier = Modifier
                             .focusRequester(focusRequester = focusRequester)
                             .onFocusChanged {
-                                isCommentFocused.value = it.isFocused
+                                isButtonClicked.value = it.isFocused
                             }
                             .bounceClick {
                                 data.value = comment
@@ -779,10 +775,10 @@ fun CommentItem(
                                 scope.launch {
                                     bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
                                 }
-                                Log.i("focused", isCommentFocused.value.toString())
+                                Log.i("focused", isButtonClicked.value.toString())
                             },
                         painter = painterResource(id = R.drawable.ic_dot3_vertical_s),
-                        contentDescription = "더보기", tint = moduGray_strong
+                        contentDescription = "신고", tint = moduGray_strong
                     )
                 }
             }
@@ -792,19 +788,6 @@ fun CommentItem(
 
 }
 
-@Composable
-fun CategoryItem(category:String){
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(top = 18.dp)
-        .bounceClick { },
-        verticalAlignment = Alignment.CenterVertically) {
-        Text(text = category, color = moduBlack, fontSize = 16.sp)
-        Spacer(modifier = Modifier.weight(1f))
-        Icon(painter = painterResource(id = R.drawable.ic_chevron_right),
-            contentDescription = null, tint = moduGray_strong)
-    }
-}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Preview
