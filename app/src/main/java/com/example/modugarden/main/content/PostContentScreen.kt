@@ -2,15 +2,12 @@ package com.example.modugarden.main.content
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
 import android.location.Geocoder
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -48,7 +46,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,9 +66,11 @@ import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.data.MapInfo
+import com.example.modugarden.data.Report
 import com.example.modugarden.main.follow.DotsIndicator
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
+import com.example.modugarden.ui.theme.PostHeartCard
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduBlack
@@ -83,14 +82,12 @@ import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberCameraPositionState
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -111,13 +108,12 @@ fun PostContentScreen(
     val scrollState = rememberScrollState()//스크롤 상태 변수
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
-    val modalType = rememberSaveable{ mutableStateOf(0) } // 신고 or 위치 모달 타입 정하는 변수
+    val modalType = remember{ mutableStateOf(0) } // 신고 or 위치 모달 타입 정하는 변수
     var responseBody by remember { mutableStateOf(PostDTO.GetPostResponse()) }
     val activity = (LocalContext.current as? Activity)//액티비티 종료할 때 필요한 변수
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }// 팔로우 스낵바 메세지 상태 변수
     val context = LocalContext.current.applicationContext
-
 
     RetrofitBuilder.postAPI
         .getPostContent(board_id)
@@ -218,12 +214,16 @@ fun PostContentScreen(
                                 modifier = Modifier
                                     .padding(horizontal = 18.dp)
                             ) {
-                                item {
-                                    CategoryItem("욕설/비하")
-                                    CategoryItem("낚시/놀람/도배")
-                                    CategoryItem("음란물/불건전한 만남 및 대화")
-                                    CategoryItem("유출/사칭/사기")
-                                    CategoryItem("게시판 성격에 부적절함")
+                                itemsIndexed(
+                                    listOf(
+                                        Report.ABUSE,
+                                        Report.TERROR,
+                                        Report.SEXUAL,
+                                        Report.FISHING,
+                                        Report.INAPPROPRIATE
+                                    )
+                                ) { index, item ->
+                                    ReportCategoryItem(report = item, post.id,modalType.value,scope,bottomSheetState)
                                 }
                             }
                             Spacer(modifier = Modifier.size(18.dp))
@@ -326,11 +326,11 @@ fun PostContentScreen(
                                 Log.i("latlng",lat.toString())
                                 //지도
                                Box(modifier=
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .height(200.dp)
-                                        .clip(RoundedCornerShape(10.dp))
-                                        .border(1.dp, moduGray_light)
+                               Modifier
+                                   .fillMaxWidth()
+                                   .height(200.dp)
+                                   .clip(RoundedCornerShape(10.dp))
+                                   .border(1.dp, moduGray_light)
                                 ) {
                                     GoogleMap(
                                         Modifier.fillMaxSize(),
@@ -374,7 +374,12 @@ fun PostContentScreen(
                                             .weight(1f)
                                             .bounceClick {
                                                 val map_data =
-                                                    MapInfo(location.value, address.value, lat.value, lng.value)
+                                                    MapInfo(
+                                                        location.value,
+                                                        address.value,
+                                                        lat.value,
+                                                        lng.value
+                                                    )
                                                 navController.currentBackStackEntry?.savedStateHandle?.set(
                                                     "map_data",
                                                     map_data
@@ -624,7 +629,11 @@ fun PostContentScreen(
                         val isButtonClickedLike = remember { mutableStateOf(false) }
                         val isButtonClickedSave = remember { mutableStateOf(false) }
                         // 좋아요
-                        Icon(modifier = Modifier
+                        PostHeartCard(
+                            boardId = board_id,
+                            heartState = isButtonClickedLike,
+                            modifier = Modifier.padding(end = 18.dp))
+                        /*Icon(modifier = Modifier
                             .padding(end = 10.dp)
                             .bounceClick {
                                 isButtonClickedLike.value = !isButtonClickedLike.value
@@ -643,7 +652,7 @@ fun PostContentScreen(
                             else
                                 moduBlack
 
-                        )
+                        )*/
                         Text(text = "${post!!.like_num}"+"명", style = moduBold, fontSize = 14.sp)
                         Text(text = "이 좋아해요", color = moduBlack, fontSize = 14.sp)
                         Spacer(modifier = Modifier.weight(1f))
