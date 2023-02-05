@@ -28,23 +28,12 @@ class CommentViewModel() : ViewModel() {
         commentList.add(comment)
     }
 
-    fun removeComment(comment: Comment,commentList: MutableState<MutableList<Comment>>,board_id: Int){
-        commentList.value.remove(comment)
-
+    fun deleteComment(commentId:Int, commentList : SnapshotStateList<GetCommentContent>,
+    ){
+        val deleteComment= commentList.filter { it.commentId==commentId || it.parentId==commentId}
+        commentList.removeAll(deleteComment)
     }
 
 }
 
-/*
-class CommentViewModelFactory(private val board_id: Int) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if(modelClass.isAssignableFrom(CommentViewModel::class.java)) {
-            return CommentViewModel(board_id) as T
-        }
-        throw IllegalArgumentException("unknown viewmodel")
-    }
-
-}
-*/
 

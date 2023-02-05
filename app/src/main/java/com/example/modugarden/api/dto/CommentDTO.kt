@@ -26,7 +26,13 @@ data class GetCommentContent(
     val localDateTime: String
 )
 
-data class SendCommentBody(
-    @SerializedName("content") val content: String,
-    @SerializedName("parentId")val parentId: Int?
+data class DeleteCommentResponse(
+    val code: Int,
+    val isSuccess: Boolean,
+    val message :String,
+    val result : CommentId
+)
+
+data class CommentId(
+    val commentId:Int
 )

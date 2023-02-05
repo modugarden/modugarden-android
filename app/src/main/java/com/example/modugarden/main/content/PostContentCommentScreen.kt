@@ -68,6 +68,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -75,12 +76,19 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.modugarden.ApplicationClass
 import com.example.modugarden.R
+import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.CommentDTO
+import com.example.modugarden.api.dto.DeleteCommentResponse
 import com.example.modugarden.api.dto.GetCommentContent
 import com.example.modugarden.api.dto.GetCommentResponse
+import com.example.modugarden.api.dto.UserInfoRes
+import com.example.modugarden.data.MapInfo
 import com.example.modugarden.main.follow.moduBold
+import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
+import com.example.modugarden.ui.theme.ModalBottomSheetItem
 import com.example.modugarden.ui.theme.addFocusCleaner
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBackground
@@ -90,8 +98,10 @@ import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.ui.theme.moduPoint
 import com.example.modugarden.viewmodel.CommentViewModel
+import com.example.modugarden.viewmodel.UserViewModel
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
+import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -107,8 +117,10 @@ fun PostContentCommentScreen(navController: NavHostController, commentViewModel:
     val data
             = remember{ mutableStateOf(GetCommentContent(nickname = "", comment = "", localDateTime = "", parentId = null, profileImage = "", commentId = 0, userId = 0)) } // 클릭한 댓글 데이터*/
     val isReplying = remember{mutableStateOf(false)}
+    val isButtonClicked = remember{mutableStateOf(false)}
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
     val isTextFieldCommentFocused = remember { mutableStateOf(false) }
+    val isCommentFocused= remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
@@ -116,6 +128,7 @@ fun PostContentCommentScreen(navController: NavHostController, commentViewModel:
     val scope = rememberCoroutineScope()
     val activity = (LocalContext.current as? Activity)//액티비티 종료할 때 필요한 변수
     val context = LocalContext.current.applicationContext
+
     var commentres by remember { mutableStateOf(GetCommentResponse()) }
 
     RetrofitBuilder.commentAPI.getComments(boardId)
@@ -140,91 +153,253 @@ fun PostContentCommentScreen(navController: NavHostController, commentViewModel:
     if (commentDB != null) {
         commentList.clear()
         commentList.addAll(commentDB) }
+    var commentSize = remember { mutableStateOf(0) }
 
     Log.i("댓글 리스트",commentList.toString())
+
+    val userId =
+        ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0)
 
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
         sheetBackgroundColor = Color.Transparent,
         sheetState = bottomSheetState,
         sheetContent = {
-            Card(modifier = Modifier
-                .padding(10.dp),
-                shape = RoundedCornerShape(15.dp))
-            {
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 18.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally) {
-                    // 회색 선
-                    Box(modifier = Modifier
-                        .width(40.dp)
-                        .height(5.dp)
-                        .background(moduGray_normal, RoundedCornerShape(30.dp))
-                        .alpha(0.2f)
-                    )
-                    Spacer(modifier = Modifier.size(30.dp))
-
-                    Column(modifier = Modifier
-                        .padding(horizontal = 18.dp)) {
-                        Text(text = "댓글 신고", style = moduBold, fontSize = 20.sp)
-
-                        Row(modifier = Modifier
+            if(data.value.userId==userId){
+                Card(
+                    modifier = Modifier
+                        .padding(10.dp),
+                    shape = RoundedCornerShape(15.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 18.dp),
-                            verticalAlignment = Alignment.CenterVertically) {
-                            Image(painter = painterResource(id = R.drawable.ic_user),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                    Box(
+                        modifier = Modifier
+                            .width(40.dp)
+                            .height(5.dp)
+                            .background(moduGray_normal, RoundedCornerShape(30.dp))
+                            .alpha(0.2f)
+                    )
+
+                    Spacer(modifier = Modifier.size(30.dp))
+
+                    Column(
+                        modifier = Modifier
+                            .padding(horizontal = 18.dp)
+                    ) {
+                        Text(text = "댓글을 삭제할까요?", style = moduBold, fontSize = 20.sp)
+
+                        Row(
+                            modifier = Modifier
+                                .padding(vertical = 30.dp)
+                        ) {
+                            GlideImage(
+                                imageModel = data.value.profileImage,
                                 contentDescription = "",
                                 modifier = Modifier
                                     .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
                                     .size(25.dp)
                                     .clip(CircleShape),
-                                contentScale = ContentScale.Crop)
+                                contentScale = ContentScale.Crop
+                            )
+                            Spacer(modifier = Modifier.width(18.dp))
+                            Text(
+                                data.value.comment,
+                                fontSize = 16.sp,
+                                color = moduBlack,
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+
+
+                        }
+                        //버튼
+                        Row {
+                            Card(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .bounceClick {
+                                        scope.launch {
+                                            bottomSheetState.hide()
+                                        }
+                                    },
+                                shape = RoundedCornerShape(10.dp),
+                                backgroundColor = moduGray_light,
+                                elevation = 0.dp
+                            ) {
+                                Text(
+                                    text = "취소",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp,
+                                    color = moduGray_strong,
+                                    modifier = Modifier
+                                        .padding(14.dp),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                             Spacer(modifier = Modifier.size(18.dp))
-                            Text(text = data.value.comment!!,
-                                style = moduBold, fontSize = 14.sp)
+                            Card(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .bounceClick {
+                                        RetrofitBuilder.commentAPI
+                                            .deleteComment(boardId, data.value.commentId)
+                                            .enqueue(object : Callback<DeleteCommentResponse> {
+                                                override fun onResponse(
+                                                    call: Call<DeleteCommentResponse>,
+                                                    response: Response<DeleteCommentResponse>
+                                                ) {
+                                                    if (response.isSuccessful) {
+                                                        Log.i("댓글 삭제", "성공")
+                                                    }
+                                                }
+
+                                                override fun onFailure(
+                                                    call: Call<DeleteCommentResponse>,
+                                                    t: Throwable
+                                                ) {
+                                                    Log.i("댓글 삭제", "연결 실패")
+                                                }
+                                            })
+                                        commentViewModel.deleteComment(
+                                            data.value.commentId,
+                                            commentList
+                                        )
+                                        scope.launch {
+                                            bottomSheetState.hide()
+                                        }
+
+                                    },
+                                shape = RoundedCornerShape(10.dp),
+                                backgroundColor = Color(0xFFFF7272),
+                                elevation = 0.dp
+                            ) {
+                                Text(
+                                    text = "삭제",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp,
+                                    color = Color.White,
+                                    modifier = Modifier
+                                        .padding(14.dp),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
                     }
+                }
+                    }
 
-                    // 구분선
-                    Divider(color = moduGray_light, modifier = Modifier
-                        .fillMaxWidth()
-                        .height(1.dp))
 
-                    // 신고 카테고리 리스트
-                    LazyColumn(modifier = Modifier
-                        .padding(horizontal = 18.dp) ){
-                        itemsIndexed(
-                            listOf("욕설/비하",
-                                "낚시/놀람/도배",
-                                "음란물/불건전한 만남 및 대화",
-                                "유출/사칭/사기",
-                                "게시판 성격에 부적절함")) { index, item ->
+            }
+            else {
+                Card(
+                    modifier = Modifier
+                        .padding(10.dp),
+                    shape = RoundedCornerShape(15.dp)
+                )
+                {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 18.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // 회색 선
+                        Box(
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(5.dp)
+                                .background(moduGray_normal, RoundedCornerShape(30.dp))
+                                .alpha(0.2f)
+                        )
+                        Spacer(modifier = Modifier.size(30.dp))
+
+                        Column(
+                            modifier = Modifier
+                                .padding(horizontal = 18.dp)
+                        ) {
+                            Text(text = "댓글 신고", style = moduBold, fontSize = 20.sp)
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 18.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                GlideImage(
+                                    imageModel = data.value.profileImage,
+                                    contentDescription = "",
+                                    modifier = Modifier
+                                        .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
+                                        .size(25.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                                Spacer(modifier = Modifier.size(18.dp))
+                                Text(
+                                    text = data.value.comment!!,
+                                    style = moduBold, fontSize = 14.sp
+                                )
+                            }
+                        }
+
+                        // 구분선
+                        Divider(
+                            color = moduGray_light, modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                        )
+
+                        // 신고 카테고리 리스트
+                        LazyColumn(
+                            modifier = Modifier
+                                .padding(horizontal = 18.dp)
+                        ) {
+                            itemsIndexed(
+                                listOf(
+                                    "욕설/비하",
+                                    "낚시/놀람/도배",
+                                    "음란물/불건전한 만남 및 대화",
+                                    "유출/사칭/사기",
+                                    "게시판 성격에 부적절함"
+                                )
+                            ) { index, item ->
                                 CategoryItem(category = item)
+                            }
+
+                        }
+                        Spacer(modifier = Modifier.size(18.dp))
+                        // 구분선
+                        Divider(
+                            color = moduGray_light, modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                        )
+                        //댓글 작성자 차단
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(18.dp)
+                                .bounceClick { },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = data.value.nickname!!, style = moduBold, fontSize = 16.sp)
+                            Text(text = "님 차단하기", color = moduBlack, fontSize = 16.sp)
+                            Spacer(modifier = Modifier.weight(1f))
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_chevron_right),
+                                contentDescription = null, tint = moduGray_strong
+                            )
                         }
 
                     }
-                    Spacer(modifier = Modifier.size(18.dp))
-                    // 구분선
-                    Divider(color = moduGray_light, modifier = Modifier
-                        .fillMaxWidth()
-                        .height(1.dp))
-                    //댓글 작성자 차단
-                    Row(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(18.dp)
-                        .bounceClick { },
-                        verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = data.value.nickname!!, style = moduBold, fontSize = 16.sp)
-                        Text(text = "님 차단하기", color = moduBlack, fontSize = 16.sp)
-                        Spacer(modifier = Modifier.weight(1f))
-                        Icon(painter = painterResource(id = R.drawable.ic_chevron_right),
-                            contentDescription = null, tint = moduGray_strong)
-                    }
+
 
                 }
-
-
             }
 
         }) {
@@ -265,7 +440,7 @@ fun PostContentCommentScreen(navController: NavHostController, commentViewModel:
                                 Spacer(modifier = Modifier.size(18.dp))
                                 Text(text = "댓글", style = moduBold, fontSize = 16.sp)
                                 Spacer(modifier = Modifier.size(5.dp))
-                                Text(text = "${commentList.size}", color = moduGray_strong, fontSize = 16.sp)
+                                Text(text = "${commentSize.value}", color = moduGray_strong, fontSize = 16.sp)
                                 Spacer(modifier = Modifier.weight(1f))
 
                             }
@@ -292,6 +467,7 @@ fun PostContentCommentScreen(navController: NavHostController, commentViewModel:
                                         }
                                     }
                                 }
+                                commentSize.value = sortedComments.size
                                 items(sortedComments){ comment->
                                     CommentItem(
                                         comment = comment,
@@ -299,7 +475,9 @@ fun PostContentCommentScreen(navController: NavHostController, commentViewModel:
                                         scope = scope,
                                         bottomSheetState = bottomSheetState,
                                         data = data,
-                                        isReplying = isReplying
+                                        isReplying = isReplying,
+                                        isButtonClicked = isButtonClicked,
+                                        isCommentFocused = isCommentFocused
                                     )
                                 }
 
@@ -336,6 +514,7 @@ fun PostContentCommentScreen(navController: NavHostController, commentViewModel:
                                                 .align(Alignment.CenterEnd)
                                                 .bounceClick {
                                                     isReplying.value = false
+                                                    isButtonClicked.value = false
                                                 },
                                             painter = painterResource(id = R.drawable.ic_xmark),
                                             contentDescription = "",
@@ -409,21 +588,32 @@ fun PostContentCommentScreen(navController: NavHostController, commentViewModel:
                                         modifier = Modifier
                                             .bounceClick {
                                                 if (textFieldComment.value.isNotEmpty()) {
-                                                    var comment
-                                                    =GetCommentContent("",0,"",0,"",0,"")
+                                                    var comment =
+                                                        GetCommentContent("", 0, "", 0, "", 0, "")
                                                     val jsonData = JsonObject()
                                                     jsonData.apply {
-                                                        addProperty("content", textFieldComment.value)
-                                                        if(isReplying.value) {addProperty("parentId", data.value.commentId)}
+                                                        addProperty(
+                                                            "content",
+                                                            textFieldComment.value
+                                                        )
+                                                        if (isReplying.value) {
+                                                            addProperty(
+                                                                "parentId",
+                                                                data.value.commentId
+                                                            )
+                                                        }
 
                                                     }
-                                                    RetrofitBuilder.commentAPI.sendComment(boardId, jsonData )
-                                                        .enqueue(object :Callback<CommentDTO>{
+                                                    RetrofitBuilder.commentAPI
+                                                        .sendComment(boardId, jsonData)
+                                                        .enqueue(object : Callback<CommentDTO> {
                                                             @SuppressLint("SuspiciousIndentation")
-                                                            override fun onResponse(call: Call<CommentDTO>,
-                                                                                    response: Response<CommentDTO>) {
-                                                                if(response.isSuccessful){
-                                                                    val res =  response.body()
+                                                            override fun onResponse(
+                                                                call: Call<CommentDTO>,
+                                                                response: Response<CommentDTO>
+                                                            ) {
+                                                                if (response.isSuccessful) {
+                                                                    val res = response.body()
                                                                     if (res != null) {
                                                                         comment = res.result
                                                                         // 답글 입력중이라면
@@ -442,13 +632,27 @@ fun PostContentCommentScreen(navController: NavHostController, commentViewModel:
                                                                         }
 
                                                                     }
-                                                                }
-                                                                else Log.i("댓글","${response.body()}")
+                                                                } else Log.i(
+                                                                    "댓글",
+                                                                    "${response.body()}"
+                                                                )
                                                             }
 
-                                                            override fun onFailure(call: Call<CommentDTO>, t: Throwable) {
-                                                                Toast.makeText(context, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
-                                                                Log.d("comment-result", t.message.toString())
+                                                            override fun onFailure(
+                                                                call: Call<CommentDTO>,
+                                                                t: Throwable
+                                                            ) {
+                                                                Toast
+                                                                    .makeText(
+                                                                        context,
+                                                                        "데이터를 받지 못했어요",
+                                                                        Toast.LENGTH_SHORT
+                                                                    )
+                                                                    .show()
+                                                                Log.d(
+                                                                    "comment-result",
+                                                                    t.message.toString()
+                                                                )
                                                             }
                                                         })
                                                 }
@@ -488,6 +692,8 @@ fun CommentItem(
     scope:CoroutineScope,
     bottomSheetState:ModalBottomSheetState,
     isReplying: MutableState<Boolean>,
+    isButtonClicked: MutableState<Boolean>,
+    isCommentFocused:MutableState<Boolean>,
     data: MutableState<GetCommentContent>
 ){
         Column(
@@ -497,10 +703,13 @@ fun CommentItem(
         ) {
             Box()
             {
+                val focusRequester by remember { mutableStateOf(FocusRequester()) }
                 Row(
                     modifier = Modifier
                         .background(
-                            if (isReplying.value && comment.commentId == data.value.commentId) moduBackground
+                            if ((isReplying.value && comment.commentId == data.value.commentId)
+                                || (isButtonClicked.value && comment.commentId == data.value.commentId && isCommentFocused.value)
+                            ) moduBackground
                             else Color.White
                         )
                         .padding(18.dp)
@@ -557,14 +766,21 @@ fun CommentItem(
                     }
                     Spacer(modifier = Modifier.size(18.dp))
                     Icon(
-                        modifier = Modifier.bounceClick {
-                            data.value = comment
-                            //버튼 클릭하면 바텀 모달 상태 변수 바뀜
-                            showModalSheet.value = !showModalSheet.value
-                            scope.launch {
-                                bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                        modifier = Modifier
+                            .focusRequester(focusRequester = focusRequester)
+                            .onFocusChanged {
+                                isCommentFocused.value = it.isFocused
                             }
-                        },
+                            .bounceClick {
+                                data.value = comment
+                                isButtonClicked.value = true
+                                //버튼 클릭하면 바텀 모달 상태 변수 바뀜
+                                showModalSheet.value = !showModalSheet.value
+                                scope.launch {
+                                    bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                                }
+                                Log.i("focused", isCommentFocused.value.toString())
+                            },
                         painter = painterResource(id = R.drawable.ic_dot3_vertical_s),
                         contentDescription = "더보기", tint = moduGray_strong
                     )
