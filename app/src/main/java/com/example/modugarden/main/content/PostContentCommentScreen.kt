@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -51,6 +52,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -75,6 +77,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.CommentDTO
 import com.example.modugarden.api.dto.GetCommentContent
 import com.example.modugarden.api.dto.GetCommentResponse
 import com.example.modugarden.main.follow.moduBold
@@ -87,6 +90,8 @@ import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.ui.theme.moduPoint
 import com.example.modugarden.viewmodel.CommentViewModel
+import com.google.gson.JsonNull
+import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -100,7 +105,7 @@ import retrofit2.Response
 fun PostContentCommentScreen(navController: NavHostController, commentViewModel: CommentViewModel= viewModel(), boardId:Int, run: Boolean) {
 
     val data
-            = remember{ mutableStateOf(GetCommentContent(nickname = "", comment = "", localDateTime = "", parentId = 0, profileImage = "", commentId = 0, userId = 0)) } // 클릭한 댓글 데이터*/
+            = remember{ mutableStateOf(GetCommentContent(nickname = "", comment = "", localDateTime = "", parentId = null, profileImage = "", commentId = 0, userId = 0)) } // 클릭한 댓글 데이터*/
     val isReplying = remember{mutableStateOf(false)}
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
     val isTextFieldCommentFocused = remember { mutableStateOf(false) }
@@ -132,10 +137,12 @@ fun PostContentCommentScreen(navController: NavHostController, commentViewModel:
         })
     val commentDB= commentres.content
     val commentList = remember { mutableStateListOf<GetCommentContent>() }
-    if (commentDB != null) { commentList.addAll(commentDB) }
+    if (commentDB != null) {
+        commentList.clear()
+        commentList.addAll(commentDB) }
 
-    Log.i("댓글리스트",commentList.toString())
-    Log.i("replying",isReplying.value.toString())
+    Log.i("댓글 리스트",commentList.toString())
+
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
         sheetBackgroundColor = Color.Transparent,
@@ -274,20 +281,18 @@ fun PostContentCommentScreen(navController: NavHostController, commentViewModel:
                                     .wrapContentSize()
                                     .background(Color.White)
                             ){
-
-                              /*  var sortedComments  = mutableStateListOf<GetCommentContent>() //  정렬 리스트 초기화
-                                var parents = commentList.filter { it.parentId==null } // 댓글 리스트
-                                var childs = commentList.filter { it.parentId != null } // 답글 리스트
-                               sortedComments.addAll(childs)*/
-                                /*for(i in 0 until parents.size){
+                                val sortedComments  = mutableStateListOf<GetCommentContent>() //  정렬 리스트 초기화
+                                val parents = commentList.filter { it.parentId==null } // 댓글 리스트
+                                val childs = commentList.filter { it.parentId != null } // 답글 리스트
+                                for(i in 0 until parents.size){
                                     sortedComments.add(parents[i])
                                     for (j in 0 until childs.size) {
                                         if (childs[j].parentId == parents[i].commentId) {
                                             sortedComments.add(childs[j])
                                         }
                                     }
-                                }*/
-                                items(commentList){ comment->
+                                }
+                                items(sortedComments){ comment->
                                     CommentItem(
                                         comment = comment,
                                         showModalSheet = showModalSheet,
@@ -404,29 +409,51 @@ fun PostContentCommentScreen(navController: NavHostController, commentViewModel:
                                         modifier = Modifier
                                             .bounceClick {
                                                 if (textFieldComment.value.isNotEmpty()) {
-                                                    // 답글 입력중이라면
-                                                    if (isReplying.value) {
-                                                        commentViewModel.addComment(
-                                                            content = textFieldComment.value,
-                                                            parentId = null,
-                                                            boardId,
-                                                            commentList,
-                                                            context
-                                                        )
-                                                        isReplying.value = false
-                                                    } else //댓글일 때
-                                                    {
-                                                        commentViewModel.addComment(
-                                                            content = textFieldComment.value,
-                                                            parentId = null,
-                                                            boardId,
-                                                            commentList,
-                                                            context
-                                                        )
-                                                    }
+                                                    var comment
+                                                    =GetCommentContent("",0,"",0,"",0,"")
+                                                    val jsonData = JsonObject()
+                                                    jsonData.apply {
+                                                        addProperty("content", textFieldComment.value)
+                                                        if(isReplying.value) {addProperty("parentId", data.value.commentId)}
 
+                                                    }
+                                                    RetrofitBuilder.commentAPI.sendComment(boardId, jsonData )
+                                                        .enqueue(object :Callback<CommentDTO>{
+                                                            @SuppressLint("SuspiciousIndentation")
+                                                            override fun onResponse(call: Call<CommentDTO>,
+                                                                                    response: Response<CommentDTO>) {
+                                                                if(response.isSuccessful){
+                                                                    val res =  response.body()
+                                                                    if (res != null) {
+                                                                        comment = res.result
+                                                                        // 답글 입력중이라면
+                                                                        if (isReplying.value) {
+                                                                            commentViewModel.addComment(
+                                                                                comment,
+                                                                                commentList
+                                                                            )
+                                                                            isReplying.value = false
+                                                                        } else //댓글일 때
+                                                                        {
+                                                                            commentViewModel.addComment(
+                                                                                comment,
+                                                                                commentList
+                                                                            )
+                                                                        }
+
+                                                                    }
+                                                                }
+                                                                else Log.i("댓글","${response.body()}")
+                                                            }
+
+                                                            override fun onFailure(call: Call<CommentDTO>, t: Throwable) {
+                                                                Toast.makeText(context, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
+                                                                Log.d("comment-result", t.message.toString())
+                                                            }
+                                                        })
                                                 }
                                                 textFieldComment.value = ""
+
 
                                             }
                                             .alpha(
@@ -503,7 +530,7 @@ fun CommentItem(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = timeFomatter(comment.localDateTime) ,
+                                text =timeFomatter(comment.localDateTime) ,
                                 color = moduGray_strong,
                                 fontSize = 14.sp
                             )
