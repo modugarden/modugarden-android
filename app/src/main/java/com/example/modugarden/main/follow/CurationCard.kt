@@ -74,6 +74,7 @@ fun CurationCard(
     snackbarHostState: SnackbarHostState,
     bottomSheetState: ModalBottomSheetState,
     modalType: MutableState<Int>,
+    modalTitle : MutableState<String>,
     userViewModel: UserViewModel,
 ) {
     val mContext = LocalContext.current
@@ -326,6 +327,7 @@ fun CurationCard(
                 // 신고
                     Icon(modifier = Modifier.bounceClick {
                         modalType.value = modalReportCuration
+                        modalTitle.value = data.title
                         scope.launch {
                         bottomSheetState.animateTo(
                             ModalBottomSheetValue.Expanded)

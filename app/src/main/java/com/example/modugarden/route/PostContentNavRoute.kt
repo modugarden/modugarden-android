@@ -1,5 +1,7 @@
 package com.example.modugarden.route
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -26,6 +28,7 @@ enum class NAV_ROUTE_POSTCONTENT(val routeName: String, val description: String)
     MAP("MAP", "지도 창"),
     WRITER("WRITER","작성자 프로필")
 }
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavigationGraphPostContent(navController: NavHostController,
                                commentViewModel: CommentViewModel= viewModel(),
@@ -44,8 +47,10 @@ fun NavigationGraphPostContent(navController: NavHostController,
             arguments = listOf(navArgument(name = "comment_data") { type = NavType.IntType })
         ) { backStackEntry ->
             PostContentCommentScreen(
-                navController, commentViewModel,
-                backStackEntry.arguments!!.getInt("comment_data"), true
+                navController,
+                commentViewModel,
+                backStackEntry.arguments!!.getInt("comment_data"),
+                true
             )
         }
 

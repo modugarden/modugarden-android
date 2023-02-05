@@ -72,6 +72,7 @@ fun PostCard(
         snackbarHostState: SnackbarHostState,
         bottomSheetState: ModalBottomSheetState,
         modalType: MutableState<Int>,
+        modalTitle : MutableState<String>,
         userViewModel: UserViewModel
 ) {
 
@@ -318,6 +319,7 @@ fun PostCard(
                                        Spacer(modifier = Modifier.weight(1f))
                                                Icon(modifier = Modifier.bounceClick {
                                                        modalType.value = modalReportPost
+                                                       modalTitle.value = data.title
                                                        scope.launch {
                                                                bottomSheetState.animateTo(
                                                                        ModalBottomSheetValue.Expanded)

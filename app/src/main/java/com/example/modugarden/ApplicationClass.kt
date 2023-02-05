@@ -45,7 +45,7 @@ class ApplicationClass : Application() {
     private fun initRetrofitInstance() {
         val client = OkHttpClient
             .Builder()
-            .addNetworkInterceptor(TokenInterceptor)
+            .addInterceptor(TokenInterceptor)
 
         retrofit = Retrofit.Builder()
             .baseUrl(baseUrl)

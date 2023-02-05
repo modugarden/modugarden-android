@@ -58,7 +58,7 @@ fun CurationContentScreen(curation_id :Int) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var responseBody by remember { mutableStateOf(GetCurationResponse()) }
-    val editor = ApplicationClass.sharedPreferences.edit()
+
     RetrofitBuilder.curationAPI.getCuraionContent(curation_id)
         .enqueue(object : Callback<GetCurationResponse> {
             override fun onResponse(

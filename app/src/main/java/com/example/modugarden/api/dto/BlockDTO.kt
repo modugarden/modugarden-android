@@ -18,7 +18,7 @@ data class BlockUserResponse(
     val code: Int,
     val isSuccess: Boolean,
     val message: String,
-    val result: List<BlockUserResponseResult>
+    val result: BlockUserResponseResult
 )
 
 data class BlockUserResponseResult(
@@ -30,7 +30,7 @@ data class UnBlockUserResponse(
     val code: Int,
     val isSuccess: Boolean,
     val message: String,
-    val result: List<UnBlockUserResponseResult>
+    val result: UnBlockUserResponseResult
 )
 
 data class UnBlockUserResponseResult(

@@ -22,12 +22,21 @@ data class FollowListDtoRes(
 )
 
 data class FollowListDtoResContent(
-    val categories: List<String>,
-    val follow: Boolean,
-    val nickname: String,
-    val profileImg: String,
-    val userId: Int
+    val categories: List<String> = listOf(),
+    val follow: Boolean = false,
+    val nickname: String = "",
+    val profileImg: String = "",
+    val userId: Int = 0
 )
+
+data class FollowRecommendationRes(
+    val code: Int?=null,
+    val isSuccess: Boolean?=null,
+    val message: String?=null,
+    var result: List<FollowListDtoResContent>?=null
+)
+
+
 //{
 //    "content": [
 //    {

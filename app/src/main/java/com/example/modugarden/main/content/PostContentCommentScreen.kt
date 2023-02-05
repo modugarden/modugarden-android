@@ -1,7 +1,10 @@
 package com.example.modugarden.main.content
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.slideInVertically
@@ -40,11 +43,14 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -63,12 +69,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
-import com.example.modugarden.data.Comment
-import com.example.modugarden.data.CommentDataBase
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.GetCommentContent
+import com.example.modugarden.api.dto.GetCommentResponse
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.ui.theme.addFocusCleaner
 import com.example.modugarden.ui.theme.bounceClick
@@ -81,19 +89,19 @@ import com.example.modugarden.ui.theme.moduPoint
 import com.example.modugarden.viewmodel.CommentViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
+@RequiresApi(Build.VERSION_CODES.O)
+@SuppressLint("UnrememberedMutableState")
 @OptIn( ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun PostContentCommentScreen(navController: NavHostController,
-                             commentViewModel: CommentViewModel, boardId:Int, run: Boolean) {
+fun PostContentCommentScreen(navController: NavHostController, commentViewModel: CommentViewModel= viewModel(), boardId:Int, run: Boolean) {
 
-    val commentDB = CommentDataBase.getInstance(LocalContext.current.applicationContext)!! // 댓글 데이터 베이스
-
-    val comments= remember{ mutableStateOf(commentDB.commentDao().getComments(boardId)) } // 댓글 리스트
-    val data  :MutableState<Comment>
-            = remember{ mutableStateOf(Comment(id = 0, boardId = 0, userID = "", description = "", time = 0,
-        isReplying = mutableStateOf(false), parentID = 0)) } // 클릭한 댓글 데이터
-
+    val data
+            = remember{ mutableStateOf(GetCommentContent(nickname = "", comment = "", localDateTime = "", parentId = 0, profileImage = "", commentId = 0, userId = 0)) } // 클릭한 댓글 데이터*/
+    val isReplying = remember{mutableStateOf(false)}
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
     val isTextFieldCommentFocused = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
@@ -102,7 +110,32 @@ fun PostContentCommentScreen(navController: NavHostController,
     val showModalSheet = rememberSaveable{ mutableStateOf(false) } // 신고 모달 상태 변수
     val scope = rememberCoroutineScope()
     val activity = (LocalContext.current as? Activity)//액티비티 종료할 때 필요한 변수
+    val context = LocalContext.current.applicationContext
+    var commentres by remember { mutableStateOf(GetCommentResponse()) }
 
+    RetrofitBuilder.commentAPI.getComments(boardId)
+        .enqueue(object : Callback<GetCommentResponse> {
+            override fun onResponse(
+                call: Call<GetCommentResponse>,
+                response: Response<GetCommentResponse>
+            ) {
+                val res = response.body()
+                if (res != null) {
+                    commentres = res
+                    Log.d("댓글디비-result", commentres.toString())
+                }
+            }
+
+            override fun onFailure(call: Call<GetCommentResponse>, t: Throwable) {
+                TODO("Not yet implemented")
+            }
+        })
+    val commentDB= commentres.content
+    val commentList = remember { mutableStateListOf<GetCommentContent>() }
+    if (commentDB != null) { commentList.addAll(commentDB) }
+
+    Log.i("댓글리스트",commentList.toString())
+    Log.i("replying",isReplying.value.toString())
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
         sheetBackgroundColor = Color.Transparent,
@@ -141,7 +174,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                                     .clip(CircleShape),
                                 contentScale = ContentScale.Crop)
                             Spacer(modifier = Modifier.size(18.dp))
-                            Text(text = data.value.description!!,
+                            Text(text = data.value.comment!!,
                                 style = moduBold, fontSize = 14.sp)
                         }
                     }
@@ -175,7 +208,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                         .padding(18.dp)
                         .bounceClick { },
                         verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = data.value.userID!!, style = moduBold, fontSize = 16.sp)
+                        Text(text = data.value.nickname!!, style = moduBold, fontSize = 16.sp)
                         Text(text = "님 차단하기", color = moduBlack, fontSize = 16.sp)
                         Spacer(modifier = Modifier.weight(1f))
                         Icon(painter = painterResource(id = R.drawable.ic_chevron_right),
@@ -225,7 +258,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                                 Spacer(modifier = Modifier.size(18.dp))
                                 Text(text = "댓글", style = moduBold, fontSize = 16.sp)
                                 Spacer(modifier = Modifier.size(5.dp))
-                                Text(text = "${comments.value.size}", color = moduGray_strong, fontSize = 16.sp)
+                                Text(text = "${commentList.size}", color = moduGray_strong, fontSize = 16.sp)
                                 Spacer(modifier = Modifier.weight(1f))
 
                             }
@@ -236,37 +269,39 @@ fun PostContentCommentScreen(navController: NavHostController,
                                     .fillMaxWidth()
                                     .height(1.dp)
                             )
+                            LazyColumn(
+                                Modifier
+                                    .wrapContentSize()
+                                    .background(Color.White)
+                            ){
 
-                            // 댓글 영역
-                                LazyColumn(
-                                    Modifier
-                                        .wrapContentSize()
-                                        .background(Color.White)
-                                ){
-                                    var sortedComments  = mutableStateListOf<Comment>() //  정렬 리스트 초기화
-                                    var parents = comments.value.filter { it.mode==false } // 댓글 리스트
-                                    var childs = comments.value.filter { it.mode==true } // 답글 리스트
-                                    for(i in 0 until parents.size){
-                                        sortedComments.add(parents[i])
-                                        for (j in 0 until childs.size) {
-                                            if (childs[j].parentID == parents[i].id) {
-                                                sortedComments.add(childs[j])
-                                            }
+                              /*  var sortedComments  = mutableStateListOf<GetCommentContent>() //  정렬 리스트 초기화
+                                var parents = commentList.filter { it.parentId==null } // 댓글 리스트
+                                var childs = commentList.filter { it.parentId != null } // 답글 리스트
+                               sortedComments.addAll(childs)*/
+                                /*for(i in 0 until parents.size){
+                                    sortedComments.add(parents[i])
+                                    for (j in 0 until childs.size) {
+                                        if (childs[j].parentId == parents[i].commentId) {
+                                            sortedComments.add(childs[j])
                                         }
                                     }
-                                    items(sortedComments){ comment->
-
-                                        CommentItem(
-                                            comment = comment,
-                                            showModalSheet = showModalSheet,
-                                            scope = scope,
-                                            bottomSheetState = bottomSheetState,
-                                            data = data
-                                        )
-                                    }
-
-
+                                }*/
+                                items(commentList){ comment->
+                                    CommentItem(
+                                        comment = comment,
+                                        showModalSheet = showModalSheet,
+                                        scope = scope,
+                                        bottomSheetState = bottomSheetState,
+                                        data = data,
+                                        isReplying = isReplying
+                                    )
                                 }
+
+
+                            }
+
+
 
                         }
 
@@ -275,7 +310,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                             //답글 입력중일 때
 
                                 AnimatedVisibility(
-                                    visible = data.value.isReplying.value,
+                                    visible = isReplying.value,
                                     enter = slideInVertically (initialOffsetY = {it}),
                                     exit = slideOutVertically (targetOffsetY = {it})
                                     ) {
@@ -288,14 +323,14 @@ fun PostContentCommentScreen(navController: NavHostController,
                                     ) {
                                         Text(
                                             modifier = Modifier.align(Alignment.CenterStart),
-                                            text = "@${data.value.userID} 님께 답글 남기는 중", color = moduGray_strong, fontSize = 12.sp
+                                            text = "@${data.value.nickname} 님께 답글 남기는 중", color = moduGray_strong, fontSize = 12.sp
                                         )
                                         // 답글 창 닫기
                                         Icon(
                                             modifier = Modifier
                                                 .align(Alignment.CenterEnd)
                                                 .bounceClick {
-                                                    data.value.isReplying.value = false
+                                                    isReplying.value = false
                                                 },
                                             painter = painterResource(id = R.drawable.ic_xmark),
                                             contentDescription = "",
@@ -370,31 +405,23 @@ fun PostContentCommentScreen(navController: NavHostController,
                                             .bounceClick {
                                                 if (textFieldComment.value.isNotEmpty()) {
                                                     // 답글 입력중이라면
-                                                    if (data.value.isReplying.value) {
+                                                    if (isReplying.value) {
                                                         commentViewModel.addComment(
-                                                            Comment(
-                                                                id = 0,
-                                                                boardId = boardId,
-                                                                userID = "reply",
-                                                                description = textFieldComment.value,
-                                                                time = 1,
-                                                                parentID = data.value.id,
-                                                                mode = true
-                                                            ), comments, commentDB
+                                                            content = textFieldComment.value,
+                                                            parentId = null,
+                                                            boardId,
+                                                            commentList,
+                                                            context
                                                         )
-                                                        data.value.isReplying.value = false
+                                                        isReplying.value = false
                                                     } else //댓글일 때
                                                     {
                                                         commentViewModel.addComment(
-                                                            Comment(
-                                                                id = 1,
-                                                                boardId = boardId,
-                                                                userID = "comment",
-                                                                description = textFieldComment.value,
-                                                                time = 0,
-                                                                parentID = 1,
-                                                                mode = false
-                                                            ), comments, commentDB
+                                                            content = textFieldComment.value,
+                                                            parentId = null,
+                                                            boardId,
+                                                            commentList,
+                                                            context
                                                         )
                                                     }
 
@@ -421,18 +448,21 @@ fun PostContentCommentScreen(navController: NavHostController,
                 }
 
     }
-    if (commentDB.commentDao().getAll().size>0) Log.d("db:",commentDB.commentDao().getAll().toString())
 
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun CommentItem(comment: Comment,
-                showModalSheet:MutableState<Boolean>,
-                scope:CoroutineScope,
-                bottomSheetState:ModalBottomSheetState,
-                data: MutableState<Comment>){
+fun CommentItem(
+    comment: GetCommentContent,
+    showModalSheet:MutableState<Boolean>,
+    scope:CoroutineScope,
+    bottomSheetState:ModalBottomSheetState,
+    isReplying: MutableState<Boolean>,
+    data: MutableState<GetCommentContent>
+){
         Column(
             modifier = Modifier
                 .wrapContentSize()
@@ -443,7 +473,7 @@ fun CommentItem(comment: Comment,
                 Row(
                     modifier = Modifier
                         .background(
-                            if (data.value.isReplying.value && comment.description == data.value.description) moduBackground
+                            if (isReplying.value && comment.commentId == data.value.commentId) moduBackground
                             else Color.White
                         )
                         .padding(18.dp)
@@ -451,7 +481,7 @@ fun CommentItem(comment: Comment,
                         .wrapContentHeight(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (comment.mode) Spacer(modifier = Modifier.size(18.dp))
+                    if (comment.parentId!=null) Spacer(modifier = Modifier.size(18.dp))
                     // 댓글 작성자 프로필 사진
                     Image(
                         painter = painterResource(id = R.drawable.ic_user),
@@ -467,19 +497,19 @@ fun CommentItem(comment: Comment,
                     Column() {
                         Row() {
                             Text(
-                                text = "${comment.userID} ∙ ",
+                                text = "${comment.nickname} ∙ ",
                                 color = moduGray_strong,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "${comment.time}",
+                                text = timeFomatter(comment.localDateTime) ,
                                 color = moduGray_strong,
                                 fontSize = 14.sp
                             )
                         }
                         Text(
-                            text = comment.description!!,
+                            text = comment.comment!!,
                             color = moduBlack,
                             fontSize = 14.sp
                         )
@@ -487,11 +517,11 @@ fun CommentItem(comment: Comment,
                     Spacer(modifier = Modifier.weight(1f))
 
                     // 댓글 버튼들
-                    if(comment.mode==false)
+                    if(comment.parentId==null)
                     {
                         Icon(
                             modifier = Modifier.bounceClick {
-                                comment.isReplying.value = true
+                                isReplying.value = true
                                 data.value = comment
                             },
                             painter = painterResource(id = R.drawable.ic_chat_line_s),
