@@ -65,12 +65,15 @@ import androidx.navigation.NavHostController
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.CurationLikeResponse
+import com.example.modugarden.api.dto.FollowDtoRes
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.data.MapInfo
 import com.example.modugarden.data.Report
 import com.example.modugarden.main.follow.DotsIndicator
 import com.example.modugarden.main.follow.moduBold
+import com.example.modugarden.main.profile.follow.ProfileCard
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
+import com.example.modugarden.ui.theme.FollowCard
 import com.example.modugarden.ui.theme.PostHeartCard
 import com.example.modugarden.ui.theme.PostSaveCard
 import com.example.modugarden.ui.theme.bounceClick
@@ -83,6 +86,7 @@ import com.example.modugarden.ui.theme.moduPoint
 import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.VerticalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -98,7 +102,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.Locale
 
-@SuppressLint("SuspiciousIndentation")
+@SuppressLint("SuspiciousIndentation", "CoroutineCreationDuringComposition")
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun PostContentScreen(
@@ -117,7 +121,7 @@ fun PostContentScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }// 팔로우 스낵바 메세지 상태 변수
     val context = LocalContext.current.applicationContext
-
+    val followState = remember { mutableStateOf(false) }
     RetrofitBuilder.postAPI
         .getPostContent(board_id)
         .enqueue(object : Callback<PostDTO.GetPostResponse> {
@@ -129,7 +133,8 @@ fun PostContentScreen(
                 if (res != null) {
                     responseBody = res
                     likeNum.value = res.result?.like_num!!
-                    Log.d("post-activity-result", responseBody.toString())
+                    followState.value = res.result.isFollowed
+                    Log.d("post-activity-result", responseBody.result?.image.toString())
                 }
                  else {
                     Toast.makeText(context, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
@@ -437,26 +442,28 @@ fun PostContentScreen(
                                     )
                             }
                         // 포스트 카드 이미지 슬라이드 인디케이터
-                        DotsIndicator(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.BottomCenter)
-                                .background(
-                                    brush = Brush.verticalGradient(
-                                        colors = listOf(
-                                            moduBlack.copy(alpha = 0f),
-                                            moduBlack.copy(alpha = 0.2f)
+                        if ( post!!.image.size!=1) {
+                            DotsIndicator(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.BottomCenter)
+                                    .background(
+                                        brush = Brush.verticalGradient(
+                                            colors = listOf(
+                                                moduBlack.copy(alpha = 0f),
+                                                moduBlack.copy(alpha = 0.2f)
+                                            )
                                         )
                                     )
-                                )
-                                .padding(bottom = 30.dp),
-                            dotSize = 8,
-                            dotPadding = 5,
-                            totalDots = post.image.size,
-                            selectedIndex = pagerState.currentPage,
-                            selectedColor = Color.White,
-                            unSelectedColor = Color("#75FFFFFF".toColorInt())
-                        )
+                                    .padding(bottom = 30.dp),
+                                dotSize = 8,
+                                dotPadding = 5,
+                                totalDots = post.image.size,
+                                selectedIndex = pagerState.currentPage,
+                                selectedColor = Color.White,
+                                unSelectedColor = Color("#75FFFFFF".toColorInt())
+                            )
+                        }
 
                     }
                     // 포스트 작성자 영역
@@ -487,6 +494,9 @@ fun PostContentScreen(
                             Column(
                                 modifier = Modifier
                                     .align(Alignment.CenterVertically)
+                                    .bounceClick {
+                                        //프로필 페이지로
+                                    }
                             ) {
                                 // 작성자 아이디
                                 Text(
@@ -508,20 +518,53 @@ fun PostContentScreen(
                                     .align(Alignment.CenterVertically),
                                 horizontalAlignment = Alignment.End
                             ) {
+
+                                FollowCard(
+                                    id = post.user_id,
+                                    modifier =Modifier ,
+                                    snackBarAction = {
+                                        scope.launch {
+                                        if (followState.value) snackbarHostState.showSnackbar("${post.user_nickname} 님을 팔로우 했어요.")
+                                        else snackbarHostState.showSnackbar("${post.user_nickname} 님을 언팔로우 했어요.")
+                                    }},
+                                    followState = followState,
+                                    contentModifier =Modifier
+                                        .padding(vertical = 6.dp, horizontal = 10.dp)
+                                )
+
                                 //팔로우 버튼
-                                Card(
+
+                                /*Card(
                                     modifier = Modifier
-                                        .clip(RoundedCornerShape(7.dp))
                                         .bounceClick {
-                                            // 누르면 스낵바 메세지 띄워짐
-                                            scope.launch {
-                                                snackbarHostState.showSnackbar(
-                                                    "${post.user_nickname} 님을 팔로우 하였습니다.",
-                                                    duration = SnackbarDuration.Short
-                                                )
-                                            }
+                                            RetrofitBuilder.followAPI.follow(post.user_id)
+                                                .enqueue(object :Callback<FollowDtoRes>{
+                                                    override fun onResponse(
+                                                        call: Call<FollowDtoRes>,
+                                                        response: Response<FollowDtoRes>
+                                                    ) {
+                                                       if(response.isSuccessful){
+                                                           // 누르면 스낵바 메세지 띄워짐
+                                                           scope.launch {
+                                                               snackbarHostState.showSnackbar(
+                                                                   "${post.user_nickname} 님을 팔로우 하였습니다.",
+                                                                   duration = SnackbarDuration.Short
+                                                               )
+                                                           }
+                                                       }
+                                                    }
+
+                                                    override fun onFailure(
+                                                        call: Call<FollowDtoRes>,
+                                                        t: Throwable
+                                                    ) {
+                                                        Log.i("팔로우","서버 연결 실패")
+                                                    }
+                                                })
+
                                         },
-                                    backgroundColor = moduPoint
+                                    backgroundColor = moduPoint,
+                                    shape = RoundedCornerShape(7.dp)
                                 ) {
                                     Text(
                                         modifier = Modifier.padding(15.dp, 8.dp),
@@ -530,7 +573,7 @@ fun PostContentScreen(
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 13.sp
                                     )
-                                }
+                                }*/
                             }
 
                         }
@@ -542,34 +585,45 @@ fun PostContentScreen(
                             .height(1.dp)
                     )
                     // 제목, 카테고리, 업로드 시간
-                        Column(
+                        Box(
                             modifier = Modifier
-                                .fillMaxSize()
+                                .wrapContentSize()
                                 .background(Color.White)
-                                .padding(25.dp, 18.dp)
-                                .verticalScroll(scrollState)
                         ) {
-                            if(pagerState.currentPage==0) {
-                                Text(
-                                    text = post!!.image[pagerState.currentPage].content,
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = moduBlack
-                                )
+                            VerticalPager(
+                                modifier = Modifier
+                                    .padding(horizontal = 18.dp)
+                                    .background(Color.Gray)
+                                    .align(Alignment.TopStart),
+                                itemSpacing = 0.dp,
+                                count = post.image.size,
+                                state = pagerState,
+                            content = {
+                                Column(modifier = Modifier.align(Alignment.TopStart)) {
+                                    if(pagerState.currentPage==0) {
+                                        Text(
+                                            text = post!!.title,
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = moduBlack
+                                        )
 
-                                Row(modifier = Modifier.fillMaxWidth()) {
-                                    Text(
-                                        modifier = Modifier.height(20.dp),
-                                        text = post!!.category_category,
-                                        fontSize = 14.sp,
-                                        color = moduGray_strong
-                                    )
+                                        Row(modifier = Modifier.fillMaxWidth()) {
+                                            Text(
+                                                modifier = Modifier.height(20.dp),
+                                                text = post!!.category_category,
+                                                fontSize = 14.sp,
+                                                color = moduGray_strong
+                                            )
+                                        }
+                                    }
+                                    Column(modifier = Modifier.padding(vertical = 25.dp))
+                                    {
+                                        Text(text = post!!.image[pagerState.currentPage].content, fontSize = 16.sp)
+                                    }
                                 }
-                            }
-                            Column(modifier = Modifier.padding(vertical = 25.dp))
-                            {
-                                Text(text = post!!.image[pagerState.currentPage].content, fontSize = 16.sp)
-                            }
+                            })
+
                         }
 
 
