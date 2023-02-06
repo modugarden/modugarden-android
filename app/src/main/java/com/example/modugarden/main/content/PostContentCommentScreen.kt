@@ -395,6 +395,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                      ) {
                                                          if(response.isSuccessful){
                                                              Log.i("작성자 차단 성공","${data.value.nickname} 차단 ")
+
                                                          }
                                                          else
                                                              Log.i("작성자 차단 실패","${data.value.nickname} 차단 ")
@@ -762,8 +763,9 @@ fun CommentItem(
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold
                             )
+                            val value = remember{ mutableStateOf("") }
                             Text(
-                                text =timeFomatter(comment.localDateTime) ,
+                                text =timeFomatter(comment.localDateTime,value) ,
                                 color = moduGray_strong,
                                 fontSize = 14.sp
                             )
