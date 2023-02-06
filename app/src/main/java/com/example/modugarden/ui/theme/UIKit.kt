@@ -147,6 +147,7 @@ fun EditText(
                 .onFocusChanged {
                     isTextFieldFocused.value = it.isFocused
                 }
+                .border(width = 1.dp, shape = RoundedCornerShape(10.dp), color = if(isTextFieldFocused.value) if(errorListener.value) moduErrorPoint else moduPoint else if(errorListener.value) moduErrorBackgroundPoint else moduBackground)
                 .animateContentSize(),
             value = data.value,
             onValueChange = { textValue ->
