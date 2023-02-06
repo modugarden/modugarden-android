@@ -13,7 +13,6 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,13 +43,13 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,7 +57,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -83,7 +81,6 @@ import com.example.modugarden.api.dto.CommentDTO
 import com.example.modugarden.api.dto.DeleteCommentResponse
 import com.example.modugarden.api.dto.GetCommentContent
 import com.example.modugarden.api.dto.GetCommentResponse
-import com.example.modugarden.api.dto.ReportUserResponse
 import com.example.modugarden.data.Report
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.ui.theme.addFocusCleaner
@@ -115,7 +112,6 @@ fun PostContentCommentScreen(navController: NavHostController,
     val data
             = remember{ mutableStateOf(GetCommentContent(nickname = "", comment = "", localDateTime = "", parentId = null, profileImage = "", commentId = 0, userId = 0)) } // 클릭한 댓글 데이터*/
     val isReplying = remember{mutableStateOf(false)}
-    val isButtonClicked = remember{mutableStateOf(false)}
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
 
     val isTextFieldFocused = remember { mutableStateOf(false) }
@@ -123,12 +119,16 @@ fun PostContentCommentScreen(navController: NavHostController,
     val focusManager = LocalFocusManager.current
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
-    val showModalSheet = rememberSaveable{ mutableStateOf(false) } // 신고 모달 상태 변수
+    val isButtonClicked = remember{mutableStateOf(false)}
     val scope = rememberCoroutineScope()
     val activity = (LocalContext.current as? Activity)//액티비티 종료할 때 필요한 변수
     val context = LocalContext.current.applicationContext
 
+    LaunchedEffect(bottomSheetState.targetValue) {
+        isButtonClicked.value = bottomSheetState.targetValue != ModalBottomSheetValue.Hidden
+    }
     var commentres by remember { mutableStateOf(GetCommentResponse()) }
+
     RetrofitBuilder.commentAPI.getComments(boardId)
         .enqueue(object : Callback<GetCommentResponse> {
             override fun onResponse(
@@ -429,6 +429,7 @@ fun PostContentCommentScreen(navController: NavHostController,
             }
 
         }) {
+
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -497,7 +498,6 @@ fun PostContentCommentScreen(navController: NavHostController,
                                 items(sortedComments){ comment->
                                     CommentItem(
                                         comment = comment,
-                                        showModalSheet = showModalSheet,
                                         scope = scope,
                                         bottomSheetState = bottomSheetState,
                                         data = data,
@@ -539,7 +539,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                 .align(Alignment.CenterEnd)
                                                 .bounceClick {
                                                     isReplying.value = false
-                                                    isButtonClicked.value = false
+
                                                 },
                                             painter = painterResource(id = R.drawable.ic_xmark),
                                             contentDescription = "",
@@ -713,13 +713,13 @@ fun PostContentCommentScreen(navController: NavHostController,
 @Composable
 fun CommentItem(
     comment: GetCommentContent,
-    showModalSheet:MutableState<Boolean>,
     scope:CoroutineScope,
     bottomSheetState:ModalBottomSheetState,
     isReplying: MutableState<Boolean>,
     isButtonClicked: MutableState<Boolean>,
     data: MutableState<GetCommentContent>
 ){
+
         Column(
             modifier = Modifier
                 .wrapContentSize()
@@ -733,7 +733,7 @@ fun CommentItem(
                     modifier = Modifier
                         .background(
                             if ((isReplying.value && comment.commentId == data.value.commentId)
-                                || (isButtonClicked.value && (comment.commentId == data.value.commentId) )
+                                || (isButtonClicked.value&& (comment.commentId == data.value.commentId) )
                             ) moduBackground
                             else Color.White
                         )
@@ -793,24 +793,17 @@ fun CommentItem(
                     Spacer(modifier = Modifier.size(18.dp))
                     Icon(
                         modifier = Modifier
-                            .focusable(true)
-                            .focusRequester(focusRequester)
-                            .onFocusChanged {
-                                isButtonClicked.value = it.isFocused
-                            }
-                            .focusTarget()
                             .bounceClick {
                                 data.value = comment
-                                //버튼 클릭하면 바텀 모달 상태 변수 바뀜
-                                showModalSheet.value = !showModalSheet.value
                                 scope.launch {
                                     bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
                                 }
                                 Log.i("focused", isButtonClicked.value.toString())
                             },
                         painter = painterResource(id = R.drawable.ic_dot3_vertical_s),
-                        contentDescription = "신고", tint = moduGray_strong
+                        contentDescription = "신고/ 삭제", tint = moduGray_strong
                     )
+
                 }
             }
 
