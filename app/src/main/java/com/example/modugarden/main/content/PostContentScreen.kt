@@ -133,7 +133,8 @@ fun PostContentScreen(
                 if (res != null) {
                     responseBody = res
                     likeNum.value = res.result?.like_num!!
-                    Log.d("post-activity-result", responseBody.toString())
+                    followState.value = res.result.isFollowed
+                    Log.d("post-activity-result", responseBody.result?.image.toString())
                 }
                  else {
                     Toast.makeText(context, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
@@ -601,8 +602,7 @@ fun PostContentScreen(
                                 Column(modifier = Modifier.align(Alignment.TopStart)) {
                                     if(pagerState.currentPage==0) {
                                         Text(
-
-                                            text = post!!.image[pagerState.currentPage].content,
+                                            text = post!!.title,
                                             fontSize = 20.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = moduBlack
