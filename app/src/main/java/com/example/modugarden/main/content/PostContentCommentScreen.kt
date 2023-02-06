@@ -13,6 +13,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -57,6 +58,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -76,10 +78,12 @@ import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.ApplicationClass
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.BlockUserResponse
 import com.example.modugarden.api.dto.CommentDTO
 import com.example.modugarden.api.dto.DeleteCommentResponse
 import com.example.modugarden.api.dto.GetCommentContent
 import com.example.modugarden.api.dto.GetCommentResponse
+import com.example.modugarden.api.dto.ReportUserResponse
 import com.example.modugarden.data.Report
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.ui.theme.addFocusCleaner
@@ -113,7 +117,8 @@ fun PostContentCommentScreen(navController: NavHostController,
     val isReplying = remember{mutableStateOf(false)}
     val isButtonClicked = remember{mutableStateOf(false)}
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
-    val isTextFieldCommentFocused = remember { mutableStateOf(false) }
+
+    val isTextFieldFocused = remember { mutableStateOf(false) }
     val isCommentFocused= remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val bottomSheetState = rememberModalBottomSheetState(
@@ -381,7 +386,30 @@ fun PostContentCommentScreen(navController: NavHostController,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(18.dp)
-                                .bounceClick { },
+                                .bounceClick {
+                                             RetrofitBuilder.blockAPI.blockUser(data.value.userId)
+                                                 .enqueue(object :Callback<BlockUserResponse>{
+                                                     override fun onResponse(
+                                                         call: Call<BlockUserResponse>,
+                                                         response: Response<BlockUserResponse>
+                                                     ) {
+                                                         if(response.isSuccessful){
+                                                             Log.i("작성자 차단 성공","${data.value.nickname} 차단 ")
+                                                         }
+                                                         else
+                                                             Log.i("작성자 차단 실패","${data.value.nickname} 차단 ")
+                                                     }
+                                                     override fun onFailure(
+                                                         call: Call<BlockUserResponse>,
+                                                         t: Throwable
+                                                     ) {
+                                                         Log.i("작성자 차단 ","서버 연결 실패ㄹ")
+                                                     }
+                                                 })
+                                    scope.launch {
+                                        bottomSheetState.hide()
+                                    }
+                                },
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(text = data.value.nickname!!, style = moduBold, fontSize = 16.sp)
@@ -555,8 +583,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                                             .weight(weight = 1f, true)
                                             .focusRequester(focusRequester)
                                             .onFocusChanged {
-                                                isTextFieldCommentFocused.value = it.isFocused
-                                                Log.i("txt focused", isTextFieldCommentFocused.value.toString())
+                                                isTextFieldFocused.value = it.isFocused
                                             },
                                         colors = TextFieldDefaults.textFieldColors(
                                             backgroundColor = Color.Transparent,
@@ -696,6 +723,7 @@ fun CommentItem(
             modifier = Modifier
                 .wrapContentSize()
                 .background(Color.White)
+
         ) {
             Box()
             {
@@ -704,7 +732,7 @@ fun CommentItem(
                     modifier = Modifier
                         .background(
                             if ((isReplying.value && comment.commentId == data.value.commentId)
-                                || (isButtonClicked.value && comment.commentId == data.value.commentId && isButtonClicked.value)
+                                || (isButtonClicked.value && (comment.commentId == data.value.commentId) )
                             ) moduBackground
                             else Color.White
                         )
@@ -763,13 +791,14 @@ fun CommentItem(
                     Spacer(modifier = Modifier.size(18.dp))
                     Icon(
                         modifier = Modifier
-                            .focusRequester(focusRequester = focusRequester)
+                            .focusable(true)
+                            .focusRequester(focusRequester)
                             .onFocusChanged {
                                 isButtonClicked.value = it.isFocused
                             }
+                            .focusTarget()
                             .bounceClick {
                                 data.value = comment
-                                isButtonClicked.value = true
                                 //버튼 클릭하면 바텀 모달 상태 변수 바뀜
                                 showModalSheet.value = !showModalSheet.value
                                 scope.launch {

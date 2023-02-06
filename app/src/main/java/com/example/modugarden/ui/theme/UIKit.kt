@@ -54,9 +54,9 @@ import com.example.modugarden.api.dto.CurationLikeResponse
 import com.example.modugarden.api.dto.CurationStoreResponse
 import com.example.modugarden.api.dto.FollowDtoRes
 import com.example.modugarden.api.dto.GetCurationLikeStateResponse
-import com.example.modugarden.api.dto.GetFollowFeedCurationContent
 import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.main.follow.moduBold
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -649,7 +649,8 @@ fun ShowProgressBar() {
 fun PostHeartCard(
     boardId: Int,
     modifier: Modifier,
-    heartState: MutableState<Boolean>
+    heartState: MutableState<Boolean>,
+    likeNum : MutableState<Int>?
 ) {
     postAPI.getPostLikeState(boardId).enqueue(
         object : Callback<GetPostLikeStateResponse> {
@@ -681,6 +682,8 @@ fun PostHeartCard(
                             response: Response<PostLikeResponse>
                         ) {
                             heartState.value = false
+                            if (response.body()!=null)
+                            likeNum?.value = response.body()!!.result.like_num
                         }
 
                         override fun onFailure(
@@ -700,6 +703,8 @@ fun PostHeartCard(
                             call: Call<PostLikeResponse>,
                             response: Response<PostLikeResponse>
                         ) {
+                            if (response.body()!=null)
+                                likeNum?.value = response.body()!!.result.like_num
                             heartState.value = true
                         }
 
@@ -724,6 +729,112 @@ fun PostHeartCard(
         tint =
         if (heartState.value) Color(0xFFFF6767)
         else moduBlack
+
+    )
+}
+
+@Composable
+fun PostSaveCard(
+    boardId: Int,
+    modifier: Modifier,
+    saveState: MutableState<Boolean>,
+    scope:CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+) {
+    postAPI.getPostSaveState(boardId).enqueue(
+        object : Callback<GetPostSaveStateResponse> {
+            override fun onResponse(
+                call: Call<GetPostSaveStateResponse>,
+                response: Response<GetPostSaveStateResponse>
+            ) {
+                saveState.value = response.body()?.result?.check ?: false
+            }
+
+            override fun onFailure(
+                call: Call<GetPostSaveStateResponse>,
+                t: Throwable
+            ) {
+
+            }
+
+        }
+    )
+
+    Icon(
+        modifier = modifier
+            .bounceClick {
+                if(saveState.value) {
+                    postAPI.saveCancelPost(boardId).enqueue(
+                        object : Callback<PostStoreResponse> {
+                            override fun onResponse(
+                                call: Call<PostStoreResponse>,
+                                response: Response<PostStoreResponse>
+                            ) {
+                                saveState.value = false
+                            }
+
+                            override fun onFailure(
+                                call: Call<PostStoreResponse>,
+                                t: Throwable
+                            ) {
+
+                            }
+
+                        }
+                    )
+                }
+                else
+                {
+                    postAPI.savePost(boardId).enqueue(
+                        object : Callback<PostStoreResponse> {
+                            override fun onResponse(
+                                call: Call<PostStoreResponse>,
+                                response: Response<PostStoreResponse>
+                            ) {
+                                saveState.value = true
+                            }
+
+                            override fun onFailure(
+                                call: Call<PostStoreResponse>,
+                                t: Throwable
+                            ) {
+
+                            }
+
+                        }
+                    )
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            "게시물을 저장하였습니다.",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                }
+                /*RetrofitBuilder.postAPI.getPostLikeNum(boardId)
+                    .enqueue(object :Callback<CurationLikeResponse>{
+                        override fun onResponse(
+                            call: Call<CurationLikeResponse>,
+                            response: Response<CurationLikeResponse>
+                        ) {
+                            if (response.isSuccessful){
+                                Log.i("좋아요 조회","성공 ${response.body()?.result?.like_num}")
+                                likeNumRes = response.body()?.result?.like_num!!
+                            }
+                            else
+                                Log.i("좋아요 조회","실패 ${response.body()?.message}")
+                        }
+
+                        override fun onFailure(call: Call<CurationLikeResponse>, t: Throwable) {
+                            Log.i("좋아요 조회","서버 연결 실패")
+                        }
+                    })*/
+            }
+        ,painter = painterResource(
+            id = if (saveState.value) R.drawable.ic_star_solid
+            else R.drawable.ic_star_line
+        ),
+        contentDescription = "보관",
+        tint = moduBlack
 
     )
 }
@@ -812,7 +923,6 @@ fun CurationHeartCard(
 
     )
 }
-
 
 @Composable
 fun CurationSaveCard(

@@ -64,6 +64,7 @@ import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.CurationLikeResponse
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.data.MapInfo
 import com.example.modugarden.data.Report
@@ -71,6 +72,7 @@ import com.example.modugarden.main.follow.DotsIndicator
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
 import com.example.modugarden.ui.theme.PostHeartCard
+import com.example.modugarden.ui.theme.PostSaveCard
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduBlack
@@ -110,6 +112,7 @@ fun PostContentScreen(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val modalType = remember{ mutableStateOf(0) } // 신고 or 위치 모달 타입 정하는 변수
     var responseBody by remember { mutableStateOf(PostDTO.GetPostResponse()) }
+    var likeNum =  remember{ mutableStateOf(0) }
     val activity = (LocalContext.current as? Activity)//액티비티 종료할 때 필요한 변수
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }// 팔로우 스낵바 메세지 상태 변수
@@ -125,6 +128,7 @@ fun PostContentScreen(
                 val res = response.body()
                 if (res != null) {
                     responseBody = res
+                    likeNum.value = res.result?.like_num!!
                     Log.d("post-activity-result", responseBody.toString())
                 }
                  else {
@@ -140,6 +144,7 @@ fun PostContentScreen(
             }
 
         })
+
     if (responseBody.result != null) {
 
         val post = responseBody.result
@@ -632,7 +637,8 @@ fun PostContentScreen(
                         PostHeartCard(
                             boardId = board_id,
                             heartState = isButtonClickedLike,
-                            modifier = Modifier.padding(end = 18.dp))
+                            modifier = Modifier.padding(end = 18.dp),
+                            likeNum = likeNum)
                         /*Icon(modifier = Modifier
                             .padding(end = 10.dp)
                             .bounceClick {
@@ -653,7 +659,7 @@ fun PostContentScreen(
                                 moduBlack
 
                         )*/
-                        Text(text = "${post!!.like_num}"+"명", style = moduBold, fontSize = 14.sp)
+                        Text(text = "${likeNum.value}"+"명", style = moduBold, fontSize = 14.sp)
                         Text(text = "이 좋아해요", color = moduBlack, fontSize = 14.sp)
                         Spacer(modifier = Modifier.weight(1f))
                         if (locButtonState.value) {
@@ -688,7 +694,12 @@ fun PostContentScreen(
                             tint = moduBlack
                         )
                         // 스크랩
-                        Icon(modifier =
+                        PostSaveCard(boardId = board_id,
+                            modifier=Modifier,
+                            saveState = isButtonClickedSave,
+                            scope = scope,
+                            snackbarHostState = snackbarHostState)
+                       /* Icon(modifier =
                         Modifier
                             .bounceClick {
                                 isButtonClickedSave.value = !isButtonClickedSave.value
@@ -709,7 +720,7 @@ fun PostContentScreen(
                             ),
                             contentDescription = "스크랩",
                             tint = moduBlack
-                        )
+                        )*/
 
                     }
                 }

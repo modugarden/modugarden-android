@@ -91,6 +91,19 @@ class PostDTO {
         val board_id : Int,
         val user_id: Int
     )
+    data class GetPostSaveStateResponse(
+        val code: Int,
+        val isSuccess: Boolean,
+        val message :String,
+        val result : PostSaveState
+    )
+    data class PostSaveState(
+        val check : Boolean,
+        val board_id : Int,
+        val user_id: Int
+    )
+
+
     data class GetPost(
         val content: List<GetPostContent> ?= null,
         val first: Boolean ?= null,
