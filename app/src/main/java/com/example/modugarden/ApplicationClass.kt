@@ -24,6 +24,7 @@ class ApplicationClass : Application() {
         val refreshToken = "Refresh Token"
         val clientId = "Client ID"
         val commentNotification = "Comment Notification Setting"
+        val commentChildNotification = "Comment Child Notification Setting"
         val followNotification = "Follow Notification Setting"
         val serviceNotification = "Service Notification Setting"
         val marketingNotification = "Marketing Notification Setting"

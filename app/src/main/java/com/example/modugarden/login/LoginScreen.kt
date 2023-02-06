@@ -236,10 +236,14 @@ fun MainLoginScreen(navController: NavController) {
         Column(
             modifier = Modifier.padding(top = 50.dp)
         ) {
-            Text(text = "로그인", fontWeight = FontWeight.Bold, fontSize = 24.sp, color = moduBlack)
+            Row() {
+                Text(text = "모두의 정원", fontWeight = FontWeight.Bold, fontSize = 24.sp, color = moduBlack)
+                Text(text = "에", fontSize = 24.sp, color = moduBlack)
+            }
+            Text(text = "오신 것을 환영해요", fontSize = 24.sp, color = moduBlack)
             Spacer(modifier = Modifier.height(40.dp))
             //아이디 입력 textField
-            EditText(title = "아이디", data = textFieldId, isTextFieldFocused = isTextFieldFocusedId)
+            EditText(title = "이메일", data = textFieldId, isTextFieldFocused = isTextFieldFocusedId)
             Spacer(modifier = Modifier.height(20.dp))
             //비밀번호 입력 textField
             EditText(title = "비밀번호", data = textFieldPw, isTextFieldFocused = isTextFieldFocusedPw)
@@ -272,12 +276,68 @@ fun MainLoginScreen(navController: NavController) {
                                                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                                                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                             )
-
+                                            val fcmToken = sharedPreferences.getString("fcmToken", "")
+                                            Log.d("apires", "fcmToken :: $fcmToken")
+                                            val jsonDataFcmToken = JsonObject()
+                                            jsonDataFcmToken.apply {
+                                                addProperty("fcmToken", fcmToken)
+                                            }
                                             Log.d("Login Info", res.result.toString())
                                             editor.putString(accessToken, res.result.accessToken)
                                             editor.putString(refreshToken, res.result.refreshToken)
                                             editor.putInt(clientId, res.result.userId)
                                             editor.apply()
+                                            fcmCheckAPI.fcmCheckAPI().enqueue(object: Callback<FcmCheckDTO> {
+                                                override fun onResponse(
+                                                    call: Call<FcmCheckDTO>,
+                                                    response: Response<FcmCheckDTO>
+                                                ) {
+                                                    if(response.isSuccessful) {
+                                                        val res = response.body()
+                                                        if(res != null) {
+                                                            if(res.isSuccess) {
+                                                                if(fcmToken !in res.result.fcmTokens) {
+                                                                    Log.d("apires", "새로운 토큰을 저장했어요")
+                                                                    fcmSaveAPI.fcmSaveAPI(jsonDataFcmToken).enqueue(object: Callback<FcmSaveDTO> {
+                                                                        override fun onResponse(call: Call<FcmSaveDTO>, response: Response<FcmSaveDTO>) {
+                                                                            if(response.isSuccessful) {
+                                                                                val res = response.body()
+                                                                                if(res != null) {
+                                                                                    if(res.isSuccess) {
+                                                                                        Log.d("apires", "토큰을 정상적으로 서버에 저장했어요")
+                                                                                    }
+                                                                                    else {
+                                                                                        Log.e("apires", res.message)
+                                                                                    }
+                                                                                }
+                                                                                else {
+                                                                                    Log.e("apires", "res == null")
+                                                                                }
+                                                                            }
+                                                                            else {
+                                                                                Log.e("apires", "response == not Successful")
+                                                                            }
+                                                                        }
+
+                                                                        override fun onFailure(call: Call<FcmSaveDTO>, t: Throwable) {
+                                                                            Log.e("apires", "토큰 전송 실패!")
+                                                                        }
+                                                                    })
+                                                                }
+                                                                Log.d("apires", "토큰 저장 API 작업 완료.")
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                override fun onFailure(
+                                                    call: Call<FcmCheckDTO>,
+                                                    t: Throwable
+                                                ) {
+
+                                                }
+
+                                            })
                                         }
                                         else {
                                             Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
@@ -376,10 +436,14 @@ fun MainLoginScreen(navController: NavController) {
                         )
                     }
                     .align(Alignment.CenterHorizontally),
-                backgroundColor = Color.White,
+                backgroundColor = moduBackground,
+                shape = RoundedCornerShape(15.dp),
                 elevation = 0.dp,
             ) {
-                Text("계정 새로 만들기", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduBlack, modifier = Modifier.padding(10.dp), textAlign = TextAlign.Center)
+                Row(Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
+                    Text("계정이 없으신가요?", fontSize = 16.sp, color = moduGray_strong, modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp), textAlign = TextAlign.Center)
+                    Text("가입하기", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduPoint, modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp), textAlign = TextAlign.Center)
+                }
             }
             Spacer(modifier = Modifier.height(50.dp))
         }
