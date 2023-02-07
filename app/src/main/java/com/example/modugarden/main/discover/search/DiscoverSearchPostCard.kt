@@ -51,6 +51,7 @@ fun DiscoverSearchPostCard(postData: GetSearchCurationPost) {
     val mContext = LocalContext.current
     val likeCnt = rememberSaveable{ mutableStateOf(postData.likeNum) }
 
+    //이걸로 intent불러서 activity 넘어가면 다시 돌아올때 안에 내용을 실행해줌 약간 onResume느낌으로 가라로 할 수 있을듯
     val launcher = rememberLauncherForActivityResult(contract =
     ActivityResultContracts.StartIntentSenderForResult()) {
         RetrofitBuilder.postAPI.getPostLikeNum(postData.id)
@@ -85,7 +86,6 @@ fun DiscoverSearchPostCard(postData: GetSearchCurationPost) {
 
                 intent.putExtras(bundle)
 
-                Log.d("result-like", "send : curation_id $postData")
                 val pendIntent: PendingIntent
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     pendIntent = PendingIntent

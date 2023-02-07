@@ -1,8 +1,13 @@
 package com.example.modugarden.main.follow
 
+import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,7 +58,10 @@ import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.GetCurationLikeStateResponse
 import com.example.modugarden.api.dto.GetFollowFeedCurationContent
+import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.main.content.CurationContentActivity
 import com.example.modugarden.main.content.modalReportCuration
 import com.example.modugarden.main.content.timeFomatter
@@ -63,6 +71,9 @@ import com.example.modugarden.viewmodel.UserViewModel
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
@@ -80,6 +91,51 @@ fun CurationCard(
     userViewModel: UserViewModel,
 ) {
     val mContext = LocalContext.current
+
+    val isButtonClickedLike = remember { mutableStateOf(false) }
+    val isButtonClickedSave = remember { mutableStateOf(false)}
+
+    val launcher = rememberLauncherForActivityResult(contract =
+    ActivityResultContracts.StartIntentSenderForResult()) {
+        RetrofitBuilder.curationAPI.getStateCurationLike(data.curation_id)
+            .enqueue(  object : Callback<GetCurationLikeStateResponse> {
+                override fun onResponse(
+                    call: Call<GetCurationLikeStateResponse>,
+                    response: Response<GetCurationLikeStateResponse>
+                ) {
+                    isButtonClickedLike.value = response.body()?.result?.check ?: true
+                }
+
+                override fun onFailure(
+                    call: Call<GetCurationLikeStateResponse>,
+                    t: Throwable
+                ) {
+
+                }
+
+            })
+
+        RetrofitBuilder.curationAPI.getCurationStoreState(data.curation_id)
+            .enqueue(  object : Callback<GetCurationLikeStateResponse> {
+                override fun onResponse(
+                    call: Call<GetCurationLikeStateResponse>,
+                    response: Response<GetCurationLikeStateResponse>
+                ) {
+                    isButtonClickedSave.value = response.body()?.result?.check ?: true
+                }
+
+                override fun onFailure(
+                    call: Call<GetCurationLikeStateResponse>,
+                    t: Throwable
+                ) {
+
+                }
+
+            })
+
+    }
+
+
     Card(
         modifier = Modifier
             .padding(start = 18.dp, end = 18.dp, top = 9.dp, bottom = 9.dp)
@@ -125,9 +181,32 @@ fun CurationCard(
             Column(modifier = Modifier
                 .clickable {
                     val intent = Intent(mContext, CurationContentActivity::class.java)
-                    intent.putExtra("curation_id",data.curation_id)
 
-                    mContext.startActivity(intent)
+                    val bundle = Bundle()
+                    bundle.putInt("curation_id", data.curation_id)
+                    intent.putExtras(bundle)
+
+                    val pendIntent: PendingIntent
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        pendIntent = PendingIntent
+                            .getActivity(
+                                mContext, 0,
+                                intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent . FLAG_MUTABLE
+                            )
+
+                    } else {
+                        pendIntent = PendingIntent
+                            .getActivity(
+                                mContext, 0,
+                                intent, PendingIntent.FLAG_UPDATE_CURRENT
+                            )
+                    }
+
+                    launcher.launch(
+                        IntentSenderRequest
+                            .Builder(pendIntent)
+                            .build()
+                    )
                 }
             )
             {// 큐레이션 썸네일
@@ -242,15 +321,14 @@ fun CurationCard(
                 }
             }
             // 버튼들 ( 좋아요, 스크랩, 신고 )
-            val isButtonClickedLike = remember { mutableStateOf(false) }
-            val isButtonClickedSave = remember { mutableStateOf(false)}
+
             Row(
                 Modifier.padding(18.dp)) {
                 // 좋아요
                 CurationHeartCard(
                     curationId = data.curation_id,
                     modifier = Modifier.padding(end = 18.dp),
-                    heartState = remember { mutableStateOf(data.liked) }
+                    heartState = isButtonClickedLike
                 )
                 Log.i("liked", data.liked.toString())
 //                Icon(modifier = Modifier
@@ -301,7 +379,7 @@ fun CurationCard(
                 CurationSaveCard(
                     curationId = data.curation_id,
                     modifier = Modifier,
-                    saveState =  remember { mutableStateOf(data.saved) }
+                    saveState =  isButtonClickedSave
                 )
 //                Icon(modifier = Modifier
 //                    .bounceClick {
