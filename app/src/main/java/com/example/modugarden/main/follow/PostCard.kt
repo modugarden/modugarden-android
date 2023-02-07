@@ -1,8 +1,14 @@
 package com.example.modugarden.main.follow
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,6 +50,8 @@ import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.ApplicationClass
 import com.example.modugarden.R
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.CurationLikeResponse
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.data.ReportInfo
 import com.example.modugarden.data.followPosts
@@ -60,6 +68,9 @@ import com.google.accompanist.pager.rememberPagerState
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @SuppressLint("CommitPrefEdits")
 @RequiresApi(Build.VERSION_CODES.O)
@@ -83,6 +94,46 @@ fun PostCard(
         val isButtonClickedSave = remember { mutableStateOf(false) }
         val order: PagerState = rememberPagerState() //뷰페이저, 인디케이터 페이지 상태 변수
         val mContext = LocalContext.current
+
+        val launcher = rememberLauncherForActivityResult(contract =
+        ActivityResultContracts.StartIntentSenderForResult()) {
+                RetrofitBuilder.postAPI.getPostLikeState(data.board_id)
+                        .enqueue(  object : Callback<PostDTO.GetPostLikeStateResponse> {
+                                override fun onResponse(
+                                        call: Call<PostDTO.GetPostLikeStateResponse>,
+                                        response: Response<PostDTO.GetPostLikeStateResponse>
+                                ) {
+                                        isButtonClickedLike.value = response.body()?.result?.check ?: true
+                                }
+
+                                override fun onFailure(
+                                        call: Call<PostDTO.GetPostLikeStateResponse>,
+                                        t: Throwable
+                                ) {
+
+                                }
+
+                        })
+
+                RetrofitBuilder.postAPI.getPostSaveState(data.board_id)
+                        .enqueue(  object : Callback<PostDTO.GetPostSaveStateResponse> {
+                                override fun onResponse(
+                                        call: Call<PostDTO.GetPostSaveStateResponse>,
+                                        response: Response<PostDTO.GetPostSaveStateResponse>
+                                ) {
+                                        isButtonClickedSave.value = response.body()?.result?.check ?: true
+                                }
+
+                                override fun onFailure(
+                                        call: Call<PostDTO.GetPostSaveStateResponse>,
+                                        t: Throwable
+                                ) {
+
+                                }
+
+                        })
+
+        }
 
         Card(
                 modifier = Modifier
@@ -135,9 +186,35 @@ fun PostCard(
                                 Column(modifier = Modifier.clickable {
                                         //인텐트로 정보 스크린에 넘겨주기
                                         val intent = Intent(mContext, PostContentActivity::class.java)
-                                        intent.putExtra("run",true)
-                                        intent.putExtra("board_id",data.board_id)
-                                        mContext.startActivity(intent)
+
+                                        val bundle = Bundle()
+
+                                        bundle.putInt("board_id", data.board_id)
+                                        bundle.putBoolean("run", true)
+
+                                        intent.putExtras(bundle)
+
+                                        val pendIntent: PendingIntent
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                                pendIntent = PendingIntent
+                                                        .getActivity(
+                                                                mContext, 0,
+                                                                intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent . FLAG_MUTABLE
+                                                        )
+
+                                        } else {
+                                                pendIntent = PendingIntent
+                                                        .getActivity(
+                                                                mContext, 0,
+                                                                intent, PendingIntent.FLAG_UPDATE_CURRENT
+                                                        )
+                                        }
+
+                                        launcher.launch(
+                                                IntentSenderRequest
+                                                        .Builder(pendIntent)
+                                                        .build()
+                                        )
                                 })
                                 {       // 포스트 카드 이미지 슬라이드
                                         Box() {
