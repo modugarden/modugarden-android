@@ -25,6 +25,7 @@ class PostContentActivity: ComponentActivity() {
             if(extras != null) {
                 val board_id = extras.getInt("board_id",0)
                 val run = extras.getBoolean("run",true)
+                Log.d("post-result", " = $board_id")
                 PostContentNavScreen(board_id,run)
             }
 
