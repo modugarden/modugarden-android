@@ -497,9 +497,7 @@ fun PostContentScreen(
                             Column(
                                 modifier = Modifier
                                     .align(Alignment.CenterVertically)
-                                    .bounceClick {
-                                        //프로필 페이지로
-                                    }
+
                             ) {
                                 // 작성자 아이디
                                 Text(

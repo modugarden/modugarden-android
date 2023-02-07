@@ -13,6 +13,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -83,6 +84,7 @@ import com.example.modugarden.api.dto.GetCommentContent
 import com.example.modugarden.api.dto.GetCommentResponse
 import com.example.modugarden.data.Report
 import com.example.modugarden.main.follow.moduBold
+import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
 import com.example.modugarden.ui.theme.addFocusCleaner
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBackground
@@ -92,6 +94,7 @@ import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.ui.theme.moduPoint
 import com.example.modugarden.viewmodel.CommentViewModel
+import com.example.modugarden.viewmodel.UserViewModel
 import com.google.gson.JsonObject
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
@@ -106,6 +109,7 @@ import retrofit2.Response
 @Composable
 fun PostContentCommentScreen(navController: NavHostController,
                              commentViewModel: CommentViewModel= viewModel(),
+                             userViewModel: UserViewModel,
                              boardId:Int,
                              run: Boolean) {
 
@@ -503,6 +507,8 @@ fun PostContentCommentScreen(navController: NavHostController,
                                         data = data,
                                         isReplying = isReplying,
                                         isButtonClicked = isButtonClicked,
+                                        userViewModel=userViewModel,
+                                        navController = navController
                                     )
                                 }
 
@@ -717,7 +723,9 @@ fun CommentItem(
     bottomSheetState:ModalBottomSheetState,
     isReplying: MutableState<Boolean>,
     isButtonClicked: MutableState<Boolean>,
-    data: MutableState<GetCommentContent>
+    data: MutableState<GetCommentContent>,
+    userViewModel: UserViewModel,
+    navController: NavHostController
 ){
 
         Column(
@@ -744,12 +752,17 @@ fun CommentItem(
                 ) {
                     if (comment.parentId!=null) Spacer(modifier = Modifier.size(18.dp))
                     // 댓글 작성자 프로필 사진
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_user),
+                    GlideImage(
+                        imageModel =comment.profileImage,
                         contentDescription = "",
                         modifier = Modifier
                             .size(30.dp)
-                            .clip(CircleShape),
+                            .clip(CircleShape)
+                            .clickable {
+                                userViewModel.setUserId(comment.userId)
+                                navController.navigate(NAV_ROUTE_POSTCONTENT.WRITER.routeName)
+                                //  포스트 작성자 프로필로
+                            },
                         contentScale = ContentScale.Crop
                     )
                     Spacer(modifier = Modifier.size(10.dp))
