@@ -3,6 +3,7 @@ package com.example.modugarden.signup
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.util.Log
+import android.util.Patterns
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.compose.animation.core.animateDpAsState
@@ -55,8 +56,9 @@ fun SignupInfoScreen(navController: NavHostController, data: Signup, signupViewM
     val dpScale = animateDpAsState(if(keyboard.toString() == "Closed") 18.dp else 0.dp)
     val shapeScale = animateDpAsState(if(keyboard.toString() == "Closed") 15.dp else 0.dp)
     val mContext = LocalContext.current
-    Log.d("certnumber", "${data.email}/${data.password}")
     val newData = signupViewModel.getAllData()
+
+    val nameLength = textFieldName.value.length
 
     val mCalendar = Calendar.getInstance()
     val mYear = mCalendar.get(Calendar.YEAR)
@@ -74,7 +76,6 @@ fun SignupInfoScreen(navController: NavHostController, data: Signup, signupViewM
     )
 
     textFieldBirthday.value = mDate.value
-    Log.d("apires", data.birthday)
 
     val focusRequester = remember { FocusRequester() }
 
@@ -105,7 +106,7 @@ fun SignupInfoScreen(navController: NavHostController, data: Signup, signupViewM
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(text = "닉네임과 생년월일을 알려주세요.", fontSize = 15.sp, color = moduGray_strong)
                 Spacer(modifier = Modifier.height(40.dp))
-                EditText(title = "닉네임", data = textFieldName, isTextFieldFocused = isTextFieldNameFocused, singleLine = true)
+                EditText(title = "닉네임", data = textFieldName, isTextFieldFocused = isTextFieldNameFocused, singleLine = true, description = if(nameLength in 0..25) "2~25자의 영문, 숫자, _만 가능해요." else "글자 수를 초과했어요")
                 Spacer(modifier = Modifier.height(20.dp))
                 Column {
                     Text("생년월일", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = if (isTextFieldBirthdayFocused.value) moduPoint else moduGray_strong)
@@ -136,7 +137,7 @@ fun SignupInfoScreen(navController: NavHostController, data: Signup, signupViewM
             Card(
                 modifier = Modifier
                     .bounceClick {
-                        if (textFieldName.value != "" && textFieldBirthday.value != "") {
+                        if (textFieldName.value != "" && textFieldBirthday.value != "" && Regex("^[a-zA-Z0-9_]{2,25}\$").containsMatchIn(textFieldName.value)) {
                             val jsonObject = JsonObject()
                             jsonObject.addProperty("nickname", textFieldName.value)
                             signupAPI
@@ -153,7 +154,13 @@ fun SignupInfoScreen(navController: NavHostController, data: Signup, signupViewM
                                                 if (res.isSuccess) {
                                                     if (!(res.result.isDuplicated)) {
                                                         signupViewModel.saveName(textFieldName.value)
-                                                        signupViewModel.saveBirthday(textFieldBirthday.value.split("/")[0]+"/"+ textFieldBirthday.value.split("/")[1]+"/"+ textFieldBirthday.value.split("/")[2])
+                                                        signupViewModel.saveBirthday(
+                                                            textFieldBirthday.value.split("/")[0] + "/" + textFieldBirthday.value.split(
+                                                                "/"
+                                                            )[1] + "/" + textFieldBirthday.value.split(
+                                                                "/"
+                                                            )[2]
+                                                        )
                                                         Toast
                                                             .makeText(
                                                                 mContext,
@@ -214,7 +221,7 @@ fun SignupInfoScreen(navController: NavHostController, data: Signup, signupViewM
                     }
                     .padding(dpScale.value)
                     .fillMaxWidth()
-                    .alpha(if (textFieldName.value != "" && textFieldBirthday.value != "") 1f else 0.4f),
+                    .alpha(if (textFieldName.value != "" && textFieldBirthday.value != "" && Regex("^[a-zA-Z0-9_]{2,25}\$").containsMatchIn(textFieldName.value)) 1f else 0.4f),
                 shape = RoundedCornerShape(shapeScale.value),
                 backgroundColor = moduPoint,
                 elevation = 0.dp
