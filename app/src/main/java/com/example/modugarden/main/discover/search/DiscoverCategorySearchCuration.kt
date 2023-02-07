@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -12,8 +13,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.GetSearchCuration
+import com.example.modugarden.api.dto.GetSearchCurationContent
 import com.example.modugarden.data.Category
+import com.example.modugarden.main.profile.follow.ProfileCard
 import com.example.modugarden.ui.theme.ShowProgressBar
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -24,9 +28,9 @@ fun DiscoverCategorySearchCuration(searchCategory: Category){
 
     val context = LocalContext.current
 
-    var responseBody  by remember { mutableStateOf(GetSearchCuration()) }
+    val responseBody  = remember { mutableStateOf(GetSearchCuration()) }
 
-    var isLoading by remember { mutableStateOf(true) }
+    val isLoading = remember { mutableStateOf(true) }
 
     RetrofitBuilder.curationAPI
         .getCategorySearchCuration(searchCategory.category)
@@ -38,9 +42,9 @@ fun DiscoverCategorySearchCuration(searchCategory: Category){
                 if(response.isSuccessful) {
                     val res = response.body()
                     if(res != null) {
-                        responseBody = res
+                        responseBody.value = res
                         Log.d("upload-result123", responseBody.toString())
-                        isLoading = false
+                        isLoading.value = false
                     }
                 }
                 else {
@@ -57,12 +61,11 @@ fun DiscoverCategorySearchCuration(searchCategory: Category){
 
         })
 
-    if(isLoading){
+    if(isLoading.value){
         ShowProgressBar()
     }
     else {
-        val curations = responseBody.content
-
+        val curations = responseBody.value.content
         if(curations == null){
             DiscoverSearchNoResultScreen(searchCategory.category)
         }
@@ -71,7 +74,10 @@ fun DiscoverCategorySearchCuration(searchCategory: Category){
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp)
             ) {
-                itemsIndexed(curations) { idx, item ->
+                items(
+                    items = curations,
+                    key = {curation -> curation.id }
+                ) { item ->
                     DiscoverSearchCurationCard(item)
                 }
             }

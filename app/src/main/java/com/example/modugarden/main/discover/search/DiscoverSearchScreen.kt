@@ -1,5 +1,7 @@
 package com.example.modugarden.main.discover.search
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,6 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.PostDTO
+import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.data.Category
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.ui.theme.*
@@ -27,6 +32,9 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 //viewPager쓰면 넣어줘야하는 어노테이션
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
@@ -39,7 +47,7 @@ fun DiscoverSearchScreen(navController: NavHostController) {
     val coroutineScope = rememberCoroutineScope()
 
     //어떤 카테고리 보여주는지 왼쪽 위에 아이콘이랑 카테고리 이름 바꿔줄 변수
-    var selectedCategory by remember { mutableStateOf(Category.GARDENING) }
+    var selectedCategory = remember { mutableStateOf(Category.GARDENING) }
 
     //viewPager에 사용할 포스트, 큐레이션 나타내주는 변수
     val mainPages = listOf("포스트", "큐레이션")
@@ -54,24 +62,30 @@ fun DiscoverSearchScreen(navController: NavHostController) {
 
     val scope = rememberCoroutineScope()
 
+    val responseBody  = remember { mutableStateOf(GetSearchPost()) }
+
     ModalBottomSheet(
         title = "카테고리",
         bottomSheetState = bottomSheetState,
         sheetScreen = {
             ModalBottomSheetItem(text = "식물 가꾸기", icon = R.drawable.ic_potted_plant, trailing = true, modifier = Modifier.bounceClick {
-                selectedCategory = Category.GARDENING
+                selectedCategory.value = Category.GARDENING
+
                 scope.launch {
                     bottomSheetState.hide()
                 }
             })
             ModalBottomSheetItem(text = "플랜테리어", icon = R.drawable.ic_house_with_garden, trailing = true, modifier = Modifier.bounceClick {
-                selectedCategory = Category.PLANTERIOR
+
+                selectedCategory.value = Category.PLANTERIOR
+
                 scope.launch {
                     bottomSheetState.hide()
                 }
             })
             ModalBottomSheetItem(text = "여행/나들이", icon = R.drawable.ic_tent, trailing = true, modifier = Modifier.bounceClick {
-                selectedCategory = Category.TRIP
+                selectedCategory.value = Category.TRIP
+
                 scope.launch {
                     bottomSheetState.hide()
                 }
@@ -132,7 +146,7 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                                             ) {
                                                 //카테고리 선택된 거에 맞는 이름 사진 넣어버려
                                                 Image(
-                                                    painter = painterResource(id = selectedCategory.image),
+                                                    painter = painterResource(id = selectedCategory.value.image),
                                                     contentDescription = null,
                                                     modifier = Modifier.size(22.dp, 22.dp)
                                                 )
@@ -141,7 +155,7 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                                             Text(
                                                 modifier = Modifier
                                                     .padding(horizontal = 6.25.dp),
-                                                text = selectedCategory.category,
+                                                text = selectedCategory.value.category,
                                                 style = TextStyle(
                                                     fontSize = 20.sp,
                                                     fontWeight = FontWeight.Bold,
@@ -223,8 +237,8 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                     ) { page ->
                         when (page) {
                             //나중에 API로 받은 값(List)도 넣어줘야할듯
-                            0 -> DiscoverCategorySearchPost(selectedCategory)
-                            1 -> DiscoverCategorySearchCuration(selectedCategory)
+                            0 -> DiscoverCategorySearchPost(selectedCategory.value)
+                            1 -> DiscoverCategorySearchCuration(selectedCategory.value)
                         }
 
                     }

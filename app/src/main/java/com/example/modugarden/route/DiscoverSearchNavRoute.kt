@@ -17,7 +17,7 @@ import com.example.modugarden.viewmodel.UserViewModel
 enum class NAV_ROUTE_DISCOVER_SEARCH(val routeName: String, val description: String) { //upload 패키지 루트.
     DISCOVERMAIN("DISCVOER_SEARCH_MAIN", "탐색창 메인 창"),
     DISCOVERSEARCHING("DISCOVER_SEARCHING", "탐색 검색 창"),
-    DISCOVERSEARCHRESULT("DISCOVER_SEARCH_REUSLT", "탐색 결과 창"),
+    DISCOVERSEARCHRESULT("DISCOVER_SEARCH_RESULT", "탐색 결과 창"),
     DISCOVERSEARCHUSERPROFILE("DISCOVER_SEARCH_USER_PROFILE", "탐색 유저 프로필")
 }
 

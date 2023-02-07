@@ -583,7 +583,7 @@ fun ScaffoldSnackBar(
 
 //탐색에 검색창
 @Composable
-fun searchTextField(
+fun SearchTextField(
     searchText : MutableState<String>,
     isTextFieldSearchFocused : MutableState<Boolean>,
     focusManager : FocusManager
@@ -938,12 +938,15 @@ fun CurationSaveCard(
                 response: Response<GetCurationLikeStateResponse>
             ) {
                 saveState.value = response.body()?.result?.check ?: false
+                Log.d("upload-result123", response.body().toString())
+
             }
 
             override fun onFailure(
                 call: Call<GetCurationLikeStateResponse>,
                 t: Throwable
             ) {
+                Log.d("upload-result", "왜안됍")
 
             }
 

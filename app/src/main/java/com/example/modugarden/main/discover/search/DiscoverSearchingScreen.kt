@@ -70,7 +70,7 @@ fun DiscoverSearchingScreen(navController: NavHostController) {
                 Spacer(modifier = Modifier.width(12.dp))
 
                 //검색창
-                searchTextField(
+                SearchTextField(
                     searchText =  searchText,
                     isTextFieldSearchFocused = isTextFieldSearchFocused,
                     focusManager = focusManager

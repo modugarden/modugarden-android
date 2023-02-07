@@ -21,9 +21,14 @@ class PostContentActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-                val board_id = intent.getIntExtra("board_id",0)
-                val run = intent.getBooleanExtra("run",true)
+            val extras = intent.extras
+            if(extras != null) {
+                val board_id = extras.getInt("board_id",0)
+                val run = extras.getBoolean("run",true)
+                Log.d("post-result", " = $board_id")
                 PostContentNavScreen(board_id,run)
+            }
+
         }
     }
 }
