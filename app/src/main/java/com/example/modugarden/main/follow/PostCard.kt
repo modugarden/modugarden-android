@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.ModalBottomSheetState
@@ -125,7 +126,12 @@ fun PostCard(
                                                 fontSize = 14.sp,
                                         )
                                 }
-
+                        // 구분선
+                        Divider(
+                                color = moduGray_light, modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(1.dp)
+                        )
                                 Column(modifier = Modifier.clickable {
                                         //인텐트로 정보 스크린에 넘겨주기
                                         val intent = Intent(mContext, PostContentActivity::class.java)
@@ -161,53 +167,52 @@ fun PostCard(
                                                         )
 
                                                 }
-
-                                                // 포스트 카드 이미지 슬라이드 인디케이터
-                                                DotsIndicator(
-                                                        modifier = Modifier
-                                                                .fillMaxWidth()
-                                                                .background(
-                                                                        brush = Brush.verticalGradient(
-                                                                                colors = listOf(
-                                                                                        moduBlack.copy(
-                                                                                                alpha = 0f
-                                                                                        ),
-                                                                                        moduBlack.copy(
-                                                                                                alpha = 0.2f
+                                                if(data.image.size!=1) {// 포스트 카드 이미지 슬라이드 인디케이터
+                                                        DotsIndicator(
+                                                                modifier = Modifier
+                                                                        .fillMaxWidth()
+                                                                        .background(
+                                                                                brush = Brush.verticalGradient(
+                                                                                        colors = listOf(
+                                                                                                moduBlack.copy(
+                                                                                                        alpha = 0f
+                                                                                                ),
+                                                                                                moduBlack.copy(
+                                                                                                        alpha = 0.2f
+                                                                                                )
                                                                                         )
                                                                                 )
                                                                         )
-                                                                )
-                                                                .align(Alignment.BottomCenter)
-                                                                .padding(25.dp)
-                                                        ,
-                                                        dotSize = 8,
-                                                        dotPadding = 5,
-                                                        totalDots = data.image.size,
-                                                        selectedIndex = order.currentPage,
-                                                        selectedColor = Color.White,
-                                                        unSelectedColor = Color("#75FFFFFF".toColorInt())
-                                                )
-                                        }
-                                        Box(modifier = Modifier
-                                                .background(Color.White)
-                                                // 구분선
-                                                .drawBehind {
-                                                        val strokeWidth = 1 * density
-                                                        val y = size.height - strokeWidth
-                                                        drawLine(
-                                                                Color("#EBEEED".toColorInt()),
-                                                                Offset(0f, y),
-                                                                Offset(size.width, y),
-                                                                strokeWidth
+                                                                        .align(Alignment.BottomCenter)
+                                                                        .padding(25.dp),
+                                                                dotSize = 8,
+                                                                dotPadding = 5,
+                                                                totalDots = data.image.size,
+                                                                selectedIndex = order.currentPage,
+                                                                selectedColor = Color.White,
+                                                                unSelectedColor = Color("#75FFFFFF".toColorInt())
                                                         )
                                                 }
+
+                                        }
+                                        Column(modifier = Modifier
+                                                .background(Color.White)
+                                                // 구분선
+
                                         ) {
+                                                // 구분선
+                                                Divider(
+                                                        color = moduGray_light,
+                                                        modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .height(1.dp)
+                                                )
                                                 // 포스트 정보 (제목, 카테고리, 업로드 시간 )
                                                 Column(
                                                         modifier = Modifier
                                                                 .padding(18.dp)
                                                 ) {
+
                                                         Text(
                                                                 data.title,
                                                                 fontSize = 16.sp,
@@ -223,14 +228,22 @@ fun PostCard(
                                                                         text =  data.category_category,
                                                                         color = moduGray_strong
                                                                 )
+                                                                val value = remember{ mutableStateOf("") }
                                                                 Text(
-                                                                        timeFomatter( data.created_Date),
+                                                                        text = timeFomatter( data.created_Date,value),
                                                                         fontSize = 12.sp,
                                                                         color = moduGray_strong
                                                                 )
                                                         }
 
                                                 }
+                                                // 구분선
+                                                Divider(
+                                                        color = moduGray_light,
+                                                        modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .height(1.dp)
+                                                )
 
                                         }
                                 }

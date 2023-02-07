@@ -115,30 +115,10 @@ fun CurationContentScreen(curation_id :Int) {
                 )
 
                 // 스크랩
-                Icon(modifier = Modifier
-                    .padding(end = 18.dp)
-                    .bounceClick {
-                        isButtonClickedSave.value = !isButtonClickedSave.value
-
-                        if (isButtonClickedSave.value) {
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    "게시물을 저장하였습니다.",
-                                    duration = SnackbarDuration.Short
-                                )
-                            }
-                        }
-                    }, painter = painterResource
-                    (
-                    id =
-                    if (isButtonClickedSave.value)
-                        R.drawable.ic_star_solid
-                    else
-                        R.drawable.ic_star_line
-                ),
-                    contentDescription = "스크랩",
-                    tint = moduBlack
-                )
+                CurationSaveCard(
+                    curationId = curation_id,
+                    modifier =  Modifier.padding(end = 18.dp),
+                    saveState = isButtonClickedSave)
 
                 Icon(painter = painterResource(id = R.drawable.ic_xmark),
                     contentDescription = "창 닫기",

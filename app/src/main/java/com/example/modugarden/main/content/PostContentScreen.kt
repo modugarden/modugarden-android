@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -65,12 +66,15 @@ import androidx.navigation.NavHostController
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.CurationLikeResponse
+import com.example.modugarden.api.dto.FollowDtoRes
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.data.MapInfo
 import com.example.modugarden.data.Report
 import com.example.modugarden.main.follow.DotsIndicator
 import com.example.modugarden.main.follow.moduBold
+import com.example.modugarden.main.profile.follow.ProfileCard
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
+import com.example.modugarden.ui.theme.FollowCard
 import com.example.modugarden.ui.theme.PostHeartCard
 import com.example.modugarden.ui.theme.PostSaveCard
 import com.example.modugarden.ui.theme.bounceClick
@@ -83,6 +87,7 @@ import com.example.modugarden.ui.theme.moduPoint
 import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.VerticalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -98,7 +103,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.Locale
 
-@SuppressLint("SuspiciousIndentation")
+@SuppressLint("SuspiciousIndentation", "CoroutineCreationDuringComposition")
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun PostContentScreen(
@@ -117,7 +122,7 @@ fun PostContentScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }// 팔로우 스낵바 메세지 상태 변수
     val context = LocalContext.current.applicationContext
-
+    val followState = remember { mutableStateOf(false) }
     RetrofitBuilder.postAPI
         .getPostContent(board_id)
         .enqueue(object : Callback<PostDTO.GetPostResponse> {
@@ -129,7 +134,8 @@ fun PostContentScreen(
                 if (res != null) {
                     responseBody = res
                     likeNum.value = res.result?.like_num!!
-                    Log.d("post-activity-result", responseBody.toString())
+                    followState.value = res.result.isFollowed
+                    Log.d("post-activity-result", responseBody.result?.image.toString())
                 }
                  else {
                     Toast.makeText(context, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
@@ -256,8 +262,10 @@ fun PostContentScreen(
                         Locale.KOREA
                     )
                     val latlng = geocoder.getFromLocation(lat.value, lng.value, 1)?.get(0)?.getAddressLine(0)
-                    if (latlng != null) {
-                            address.value = "$latlng"
+                        if (latlng != null) {
+                            val country = geocoder.getFromLocation(lat.value, lng.value, 1)?.get(0)?.countryName!!
+                            latlng.replace(country,"")
+                            address.value = latlng.replace(country,"")
                     }
 
                     Card(
@@ -418,9 +426,9 @@ fun PostContentScreen(
         ) {
             Box(modifier = Modifier
                 .fillMaxSize()
-                .background(moduBackground)) {
+                .background(Color.White)) {
                 Column {
-                            // 포스트 카드 이미지 슬라이드
+                    // 포스트 카드 이미지 슬라이드
                     Box{
                             HorizontalPager(
                                 modifier = Modifier.wrapContentSize(),
@@ -428,7 +436,7 @@ fun PostContentScreen(
                                 state = pagerState,
                             ) { page ->
                                     GlideImage(
-                                        imageModel = post!!.image[pagerState.currentPage].image,
+                                        imageModel = post!!.image[page].image,
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -437,26 +445,28 @@ fun PostContentScreen(
                                     )
                             }
                         // 포스트 카드 이미지 슬라이드 인디케이터
-                        DotsIndicator(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.BottomCenter)
-                                .background(
-                                    brush = Brush.verticalGradient(
-                                        colors = listOf(
-                                            moduBlack.copy(alpha = 0f),
-                                            moduBlack.copy(alpha = 0.2f)
+                        if ( post!!.image.size!=1) {
+                            DotsIndicator(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.BottomCenter)
+                                    .background(
+                                        brush = Brush.verticalGradient(
+                                            colors = listOf(
+                                                moduBlack.copy(alpha = 0f),
+                                                moduBlack.copy(alpha = 0.2f)
+                                            )
                                         )
                                     )
-                                )
-                                .padding(bottom = 30.dp),
-                            dotSize = 8,
-                            dotPadding = 5,
-                            totalDots = post.image.size,
-                            selectedIndex = pagerState.currentPage,
-                            selectedColor = Color.White,
-                            unSelectedColor = Color("#75FFFFFF".toColorInt())
-                        )
+                                    .padding(bottom = 30.dp),
+                                dotSize = 8,
+                                dotPadding = 5,
+                                totalDots = post.image.size,
+                                selectedIndex = pagerState.currentPage,
+                                selectedColor = Color.White,
+                                unSelectedColor = Color("#75FFFFFF".toColorInt())
+                            )
+                        }
 
                     }
                     // 포스트 작성자 영역
@@ -487,6 +497,7 @@ fun PostContentScreen(
                             Column(
                                 modifier = Modifier
                                     .align(Alignment.CenterVertically)
+
                             ) {
                                 // 작성자 아이디
                                 Text(
@@ -508,20 +519,53 @@ fun PostContentScreen(
                                     .align(Alignment.CenterVertically),
                                 horizontalAlignment = Alignment.End
                             ) {
+
+                                FollowCard(
+                                    id = post.user_id,
+                                    modifier =Modifier ,
+                                    snackBarAction = {
+                                        scope.launch {
+                                        if (followState.value) snackbarHostState.showSnackbar("${post.user_nickname} 님을 팔로우 했어요.")
+                                        else snackbarHostState.showSnackbar("${post.user_nickname} 님을 언팔로우 했어요.")
+                                    }},
+                                    followState = followState,
+                                    contentModifier =Modifier
+                                        .padding(vertical = 6.dp, horizontal = 10.dp)
+                                )
+
                                 //팔로우 버튼
-                                Card(
+
+                                /*Card(
                                     modifier = Modifier
-                                        .clip(RoundedCornerShape(7.dp))
                                         .bounceClick {
-                                            // 누르면 스낵바 메세지 띄워짐
-                                            scope.launch {
-                                                snackbarHostState.showSnackbar(
-                                                    "${post.user_nickname} 님을 팔로우 하였습니다.",
-                                                    duration = SnackbarDuration.Short
-                                                )
-                                            }
+                                            RetrofitBuilder.followAPI.follow(post.user_id)
+                                                .enqueue(object :Callback<FollowDtoRes>{
+                                                    override fun onResponse(
+                                                        call: Call<FollowDtoRes>,
+                                                        response: Response<FollowDtoRes>
+                                                    ) {
+                                                       if(response.isSuccessful){
+                                                           // 누르면 스낵바 메세지 띄워짐
+                                                           scope.launch {
+                                                               snackbarHostState.showSnackbar(
+                                                                   "${post.user_nickname} 님을 팔로우 하였습니다.",
+                                                                   duration = SnackbarDuration.Short
+                                                               )
+                                                           }
+                                                       }
+                                                    }
+
+                                                    override fun onFailure(
+                                                        call: Call<FollowDtoRes>,
+                                                        t: Throwable
+                                                    ) {
+                                                        Log.i("팔로우","서버 연결 실패")
+                                                    }
+                                                })
+
                                         },
-                                    backgroundColor = moduPoint
+                                    backgroundColor = moduPoint,
+                                    shape = RoundedCornerShape(7.dp)
                                 ) {
                                     Text(
                                         modifier = Modifier.padding(15.dp, 8.dp),
@@ -530,7 +574,7 @@ fun PostContentScreen(
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 13.sp
                                     )
-                                }
+                                }*/
                             }
 
                         }
@@ -541,37 +585,155 @@ fun PostContentScreen(
                             .fillMaxWidth()
                             .height(1.dp)
                     )
-                    // 제목, 카테고리, 업로드 시간
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.White)
-                                .padding(25.dp, 18.dp)
-                                .verticalScroll(scrollState)
-                        ) {
-                            if(pagerState.currentPage==0) {
-                                Text(
-                                    text = post!!.image[pagerState.currentPage].content,
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = moduBlack
-                                )
+                    // 제목, 카테고리, 업로드 시간, 내용
 
-                                Row(modifier = Modifier.fillMaxWidth()) {
-                                    Text(
-                                        modifier = Modifier.height(20.dp),
-                                        text = post!!.category_category,
-                                        fontSize = 14.sp,
-                                        color = moduGray_strong
-                                    )
+                            HorizontalPager(
+                                modifier = Modifier
+                                    .padding(18.dp)
+                                    .weight(1f,false)
+                                    .fillMaxHeight()
+                                    .background(Color.White)
+                                , itemSpacing = 18.dp,
+                                count = post.image.size,
+                                state = pagerState,
+                            verticalAlignment = Alignment.Top)
+                            {page ->
+                                Column(Modifier.verticalScroll(scrollState)) {
+                                    if(page==0) {
+                                        Text(
+                                            text = post!!.title,
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = moduBlack
+                                        )
+
+                                        Row(modifier = Modifier.fillMaxWidth()) {
+                                            Text(
+                                                modifier = Modifier,
+                                                text = post!!.category_category,
+                                                fontSize = 14.sp,
+                                                color = moduGray_strong
+                                            )
+                                        }
+                                    }
+                                    Column(modifier = Modifier.padding(vertical = 25.dp))
+                                    {
+                                        Text(text = post!!.image[page].content, fontSize = 16.sp)
+
+                                    }
                                 }
                             }
-                            Column(modifier = Modifier.padding(vertical = 25.dp))
-                            {
-                                Text(text = post!!.image[pagerState.currentPage].content, fontSize = 16.sp)
-                            }
-                        }
 
+// 좋아요, 댓글, 스크랩, 더보기
+                    Box(modifier = Modifier
+
+                    ) {
+                        // 구분선
+                        Divider(
+                            color = moduGray_light, modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                        )
+                        //버튼들
+                        Row(
+                            modifier = Modifier
+                                .padding(18.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // 좋아요, 스크랩 버튼 상태 변수
+                            val isButtonClickedLike = remember { mutableStateOf(false) }
+                            val isButtonClickedSave = remember { mutableStateOf(false) }
+                            // 좋아요
+                            PostHeartCard(
+                                boardId = board_id,
+                                heartState = isButtonClickedLike,
+                                modifier = Modifier.padding(end = 18.dp),
+                                likeNum = likeNum)
+                            /*Icon(modifier = Modifier
+                                .padding(end = 10.dp)
+                                .bounceClick {
+                                    isButtonClickedLike.value = !isButtonClickedLike.value
+                                }, painter = painterResource
+                                (
+                                id =
+                                if (isButtonClickedLike.value)
+                                    R.drawable.ic_heart_solid
+                                else
+                                    R.drawable.ic_heart_line
+                            ),
+                                contentDescription = "좋아요",
+                                tint =
+                                if (isButtonClickedLike.value)
+                                    Color(0xFFFF6767)
+                                else
+                                    moduBlack
+
+                            )*/
+                            Text(text = "${likeNum.value}"+"명", style = moduBold, fontSize = 14.sp)
+                            Text(text = "이 좋아해요", color = moduBlack, fontSize = 14.sp)
+                            Spacer(modifier = Modifier.weight(1f))
+                            if (locButtonState.value) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_location_line),
+                                    contentDescription = "위치",
+                                    tint = moduGray_normal
+                                )
+                            }
+                            else{
+                                Icon(
+                                    modifier = Modifier.bounceClick {
+                                        modalType.value = modalLocationType
+                                        scope.launch {
+                                            bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                                        }
+                                    },
+                                    painter = painterResource(id = R.drawable.ic_location_line),
+                                    contentDescription = "위치",
+                                    tint = moduBlack
+                                )
+                            }
+                            // 댓글
+                            Icon(
+                                modifier = Modifier
+                                    .padding(horizontal = 18.dp)
+                                    .bounceClick {
+                                        navController.navigate("${NAV_ROUTE_POSTCONTENT.COMMENT.routeName}/${post.id}")
+                                    },
+                                painter = painterResource(id = R.drawable.ic_chat_line),
+                                contentDescription = "댓글",
+                                tint = moduBlack
+                            )
+                            // 스크랩
+                            PostSaveCard(boardId = board_id,
+                                modifier=Modifier,
+                                saveState = isButtonClickedSave,
+                                scope = scope,
+                                snackbarHostState = snackbarHostState)
+                            /* Icon(modifier =
+                             Modifier
+                                 .bounceClick {
+                                     isButtonClickedSave.value = !isButtonClickedSave.value
+                                 }
+                                 .padding(
+                                     if (isButtonClickedSave.value)
+                                         1.75.dp
+                                     else
+                                         0.dp
+                                 )
+                                 ,
+                                 painter = painterResource
+                                     (id =
+                                 if (isButtonClickedSave.value)
+                                     R.drawable.ic_star_solid
+                                 else
+                                     R.drawable.ic_star_line
+                                 ),
+                                 contentDescription = "스크랩",
+                                 tint = moduBlack
+                             )*/
+
+                        }
+                    }
 
                 /*        // 구분선
                         Divider(
@@ -610,120 +772,10 @@ fun PostContentScreen(
                         }
 
 */
-
                 }
 
-// 좋아요, 댓글, 스크랩, 더보기
-                Card(
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                    elevation = 50.dp
-                ) {
-                    // 구분선
-                    Divider(
-                        color = moduGray_light, modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                    )
-                    //버튼들
-                    Row(
-                        modifier = Modifier
-                            .padding(18.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // 좋아요, 스크랩 버튼 상태 변수
-                        val isButtonClickedLike = remember { mutableStateOf(false) }
-                        val isButtonClickedSave = remember { mutableStateOf(false) }
-                        // 좋아요
-                        PostHeartCard(
-                            boardId = board_id,
-                            heartState = isButtonClickedLike,
-                            modifier = Modifier.padding(end = 18.dp),
-                            likeNum = likeNum)
-                        /*Icon(modifier = Modifier
-                            .padding(end = 10.dp)
-                            .bounceClick {
-                                isButtonClickedLike.value = !isButtonClickedLike.value
-                            }, painter = painterResource
-                            (
-                            id =
-                            if (isButtonClickedLike.value)
-                                R.drawable.ic_heart_solid
-                            else
-                                R.drawable.ic_heart_line
-                        ),
-                            contentDescription = "좋아요",
-                            tint =
-                            if (isButtonClickedLike.value)
-                                Color(0xFFFF6767)
-                            else
-                                moduBlack
 
-                        )*/
-                        Text(text = "${likeNum.value}"+"명", style = moduBold, fontSize = 14.sp)
-                        Text(text = "이 좋아해요", color = moduBlack, fontSize = 14.sp)
-                        Spacer(modifier = Modifier.weight(1f))
-                        if (locButtonState.value) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_location_line),
-                                contentDescription = "위치",
-                                tint = moduGray_normal
-                            )
-                        }
-                        else{
-                            Icon(
-                                modifier = Modifier.bounceClick {
-                                    modalType.value = modalLocationType
-                                    scope.launch {
-                                        bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                                    }
-                                },
-                                painter = painterResource(id = R.drawable.ic_location_line),
-                                contentDescription = "위치",
-                                tint = moduBlack
-                            )
-                        }
-                        // 댓글
-                        Icon(
-                            modifier = Modifier
-                                .padding(horizontal = 18.dp)
-                                .bounceClick {
-                                    navController.navigate("${NAV_ROUTE_POSTCONTENT.COMMENT.routeName}/${post.id}")
-                                },
-                            painter = painterResource(id = R.drawable.ic_chat_line),
-                            contentDescription = "댓글",
-                            tint = moduBlack
-                        )
-                        // 스크랩
-                        PostSaveCard(boardId = board_id,
-                            modifier=Modifier,
-                            saveState = isButtonClickedSave,
-                            scope = scope,
-                            snackbarHostState = snackbarHostState)
-                       /* Icon(modifier =
-                        Modifier
-                            .bounceClick {
-                                isButtonClickedSave.value = !isButtonClickedSave.value
-                            }
-                            .padding(
-                                if (isButtonClickedSave.value)
-                                    1.75.dp
-                                else
-                                    0.dp
-                            )
-                            ,
-                            painter = painterResource
-                                (id =
-                            if (isButtonClickedSave.value)
-                                R.drawable.ic_star_solid
-                            else
-                                R.drawable.ic_star_line
-                            ),
-                            contentDescription = "스크랩",
-                            tint = moduBlack
-                        )*/
 
-                    }
-                }
 
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,

@@ -233,7 +233,8 @@ fun CurationCard(
                                 color = Color("#75807A".toColorInt())
                             )
                             Spacer(modifier = Modifier.weight(1f))
-                            Text( timeFomatter(data.created_Date), fontSize = 12.sp, color = Color("#75807A".toColorInt()))
+                            val value = remember{ mutableStateOf("") }
+                            Text( timeFomatter(data.created_Date,value), fontSize = 12.sp, color = Color("#75807A".toColorInt()))
                         }
 
                     }

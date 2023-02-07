@@ -71,8 +71,7 @@ fun PostContentMapScreen(navController: NavHostController,data:MapInfo) {
             ){
                 Marker(
                     state = MarkerState(position = LatLng(data.lat,data.lng)),
-                    title = data.location,
-                    snippet = "Marker in Singapore"
+                    title = data.location
                 )
             }
         }
