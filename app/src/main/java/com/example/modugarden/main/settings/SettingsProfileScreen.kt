@@ -276,6 +276,33 @@ fun SettingsProfileScreen(
                     onClick = {
                         // 정보 수정 API
                         // 여기에 이미지 변환해서 올릴 수 있게 해주면 됩니다
+
+                        val file = imageState.value?.let { UriUtil.toFile(context, it) }
+
+                        //api에 사진 데이터는 이 requestFile 넣어주면 되고
+                        val requestFile = file?.let {
+                            MultipartBody.Part.createFormData(
+                                name = "file",
+                                filename = file.name,
+                                body = it.asRequestBody("image/*".toMediaType())
+                            )
+                        }
+                        //requestBody에 dto object 넣을때는 이놈처럼 jsonData에 한번 받고
+//                        val jsonData = JsonObject().apply {
+//                            addProperty("category", uploadCurationViewModel.getInCategory().category)
+//                            addProperty("link", uploadCurationViewModel.getInUri())
+//                            addProperty("title", uploadCurationViewModel.getInTitle())
+//                        }
+                        //이 medaiType써서
+//                        val mediaType = "application/json; charset=utf-8".toMediaType()
+                        //jsonData를 RequestBody타입의 jsonBody로 만들어서
+//                        val jsonBody = jsonData.toString().toRequestBody(mediaType)
+
+                        //결국 이렇게 넘겨주면 댐
+//                        RetrofitBuilder.curationAPI
+//                            .curationCreate(jsonBody, requestFile)
+
+
                     },
                     dpScale = 0.dp
                 )
