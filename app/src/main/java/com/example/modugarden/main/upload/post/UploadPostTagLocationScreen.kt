@@ -136,10 +136,8 @@ fun UploadPostTagLocationScreen(
                                            response: Response<MapsGeocoding>
                                        ) {
                                            val result = response.body()?.results
-                                           Log.d("response", result.toString())
 
                                            if (response.isSuccessful && result != null && result.isNotEmpty()) {
-                                               Log.d("response", result.toString())
                                                loc.value = LatLng(
                                                    result[0].geometry.location.lat.toDouble(),
                                                    result[0].geometry.location.lng.toDouble()
@@ -242,13 +240,8 @@ fun UploadPostTagLocationScreen(
                                                            response: Response<MapsGeocoding>
                                                        ) {
                                                            val result = response.body()?.results
-                                                           Log.d("response", result.toString())
 
                                                            if (response.isSuccessful && result != null && result.isNotEmpty()) {
-                                                               Log.d(
-                                                                   "response",
-                                                                   result.toString()
-                                                               )
                                                                loc.value = LatLng(
                                                                    result[0].geometry.location.lat.toDouble(),
                                                                    result[0].geometry.location.lng.toDouble()
@@ -276,10 +269,7 @@ fun UploadPostTagLocationScreen(
                                                            call: Call<MapsGeocoding>,
                                                            t: Throwable
                                                        ) {
-                                                           Log.e(
-                                                               "resoponse",
-                                                               t.message.toString()
-                                                           )
+                                                           
                                                        }
 
                                                    })
