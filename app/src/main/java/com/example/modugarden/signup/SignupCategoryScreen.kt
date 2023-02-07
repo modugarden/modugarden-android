@@ -62,7 +62,7 @@ fun SignupCategoryScreen(navController: NavHostController, data: Signup, signupV
             ) {
                 Text("무엇에 관심이 있나요? \uD83D\uDCAD", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = moduBlack)
                 Spacer(modifier = Modifier.height(5.dp))
-                Text(text = "김태윤 님이 필요한 콘텐츠를 제공해 드려요.", fontSize = 15.sp, color = moduGray_strong)
+                Text(text = "${data.name} 님이 필요한 콘텐츠를 제공해 드려요.", fontSize = 15.sp, color = moduGray_strong)
                 Spacer(modifier = Modifier.height(40.dp))
                 Card(
                     modifier = Modifier
