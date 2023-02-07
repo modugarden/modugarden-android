@@ -101,7 +101,7 @@ fun UploadCurationWebScreen(
                     addProperty("link", uploadCurationViewModel.getInUri())
                     addProperty("title", uploadCurationViewModel.getInTitle())
                 }
-                Log.d("upload-result-jsonData", jsonData.toString() + "\n" +file.name + ", 용량 :" + file.length())
+
                 val mediaType = "application/json; charset=utf-8".toMediaType()
                 val jsonBody = jsonData.toString().toRequestBody(mediaType)
 
