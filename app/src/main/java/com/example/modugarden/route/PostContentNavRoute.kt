@@ -49,6 +49,7 @@ fun NavigationGraphPostContent(navController: NavHostController,
             PostContentCommentScreen(
                 navController,
                 commentViewModel,
+                userViewModel,
                 backStackEntry.arguments!!.getInt("comment_data"),
                 true
             )
