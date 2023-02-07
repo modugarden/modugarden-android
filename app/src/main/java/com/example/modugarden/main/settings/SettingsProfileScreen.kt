@@ -53,18 +53,20 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Call
 import retrofit2.Response
 
-val defaultImage = "https://blog.kakaocdn.net/dn/dTQvL4/btrusOKyP2u/TZBNHQSAHpJU5k8vmYVSvK/img.png".toUri()
-
 @OptIn(ExperimentalMaterialApi::class)
 @Preview(showBackground = true)
 @Composable
 fun SettingsProfileScreen(
+    // 냅호스트에서 수정완료 버튼 온클릭 받아옴
     onButtonClicked: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
-    val imageState = remember { mutableStateOf(defaultImage) }
-    val takePhotoFromAlbumLauncher = // 갤러리에서 사진 가져오기
+    // 프로필 이미지
+    val imageState = remember { mutableStateOf<Uri?>(null) }
+
+    // 사진 가져오는 런쳐
+    val takePhotoFromAlbumLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 result.data?.data?.let {
@@ -74,7 +76,6 @@ fun SettingsProfileScreen(
                 Log.d("Image Upload", "fail")
             }
         }
-
     val takePhotoFromAlbumIntent =
         Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply {
             type = "image/*"
@@ -85,10 +86,14 @@ fun SettingsProfileScreen(
             )
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
         }
+
     val focusManager = LocalFocusManager.current
+
+    // 바텀모달시트
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
 
+    // 각 정보들 저장하는거임 생일이랑 이메일은 리멤버 안해도 되긴 하는데 귀찮아서 안바꿈
     val nicknameState = remember { mutableStateOf("") }
     val birthState = remember { mutableStateOf("") }
     val emailState = remember { mutableStateOf("") }
@@ -97,6 +102,7 @@ fun SettingsProfileScreen(
     val emailFocusState = remember { mutableStateOf(false) }
     val categories = remember { mutableStateOf(listOf("")) }
 
+    // 유저 설정 정보 불러오는 API
     RetrofitBuilder.userAPI.readUserSettingInfo()
         .enqueue(object : AuthCallBack<UserSettingInfoRes>(context, "유저 정보 불러오기 성공!"){
             override fun onResponse(
@@ -104,18 +110,22 @@ fun SettingsProfileScreen(
                 response: Response<UserSettingInfoRes>
             ) {
                 super.onResponse(call, response)
-                categories.value = response.body()?.result?.categories!!
 
+                // 생일 형식 변환
                 val myBirth = response.body()?.result?.birth!!
                 val yyyy = myBirth.substring(0,4)
                 val mm = myBirth.substring(4,6)
                 val dd = myBirth.substring(6,8)
                 birthState.value = "${yyyy}년 ${mm}월 ${dd}일"
+
+                // 이메일이랑 닉네임 받아오기
                 emailState.value = response.body()?.result?.email!!
                 nicknameState.value = response.body()?.result?.nickname!!
+                categories.value = response.body()?.result?.categories!!
 
-                if(response.body()?.result?.profileImage != null)
-                    imageState.value = response.body()?.result?.profileImage!!.toUri()
+                // 일단 기본이미지는 드로어블에 ic_dafault_profile 있어
+                // 그리고 이미지스테이트는 기본이미지면 널로 저장되는데 서버에서 널을 받을 수 있게 해야할듯..?
+                imageState.value = response.body()?.result?.profileImage!!.toUri()
             }
         })
 
@@ -131,7 +141,7 @@ fun SettingsProfileScreen(
             })
             ModalBottomSheetItem(text = "라이브러리에서 선택", icon=R.drawable.plus, trailing = true, modifier = Modifier.bounceClick {
                 scope.launch {
-                    imageState.value = defaultImage
+                    imageState.value = null
                     bottomSheetState.hide()
                 }
             })
@@ -154,8 +164,14 @@ fun SettingsProfileScreen(
                         }
                     }
                 ) {
+                    // 만약에 이미지값이 널이면 기본프로필을 드로어블에서 불러옴
+                    // 아니면 그냥 넣음
                     GlideImage(
-                        imageModel = imageState.value,
+                        imageModel =
+                            if(imageState.value == null)
+                                R.drawable.ic_default_profile
+                            else
+                                imageState.value,
                         modifier = Modifier
                             .align(Alignment.TopCenter)
                             .size(100.dp)
@@ -258,22 +274,8 @@ fun SettingsProfileScreen(
                 BottomButton(
                     title = "수정 완료",
                     onClick = {
-                        // 정보 수정
-
-                        val file = UriUtil.toFile(context, imageState.value)
-                        val requestFile = MultipartBody.Part.createFormData(
-                            name = "file",
-                            filename = file.name,
-                            body = file.asRequestBody("image/*".toMediaType())
-                        )
-
-                        val jsonData = JsonObject().addProperty("nickname", nicknameState.value)
-                        val mediaType = "application/json; charset=utf-8".toMediaType()
-                        val jsonBody = jsonData.toString().toRequestBody(mediaType)
-
-                        RetrofitBuilder.userAPI.updateUserProfile(jsonBody, requestFile)
-                            .enqueue(AuthCallBack<UpdateUserSettingInfoRes>(context, "유저 정보 변경"))
-                        onButtonClicked()
+                        // 정보 수정 API
+                        // 여기에 이미지 변환해서 올릴 수 있게 해주면 됩니다
                     },
                     dpScale = 0.dp
                 )

@@ -168,3 +168,16 @@ data class GetNewTokenResponseResult(
     val userId: Int
 )
 // 토큰 재발급 끝
+
+// 회원 탈퇴
+data class WithdrawResponse(
+    val code: Int,
+    val isSuccess: Boolean,
+    val message: String,
+    val result: WithdrawResponseResult
+)
+
+data class WithdrawResponseResult(
+    val userId: String
+)
+// 회원 탈퇴 끝

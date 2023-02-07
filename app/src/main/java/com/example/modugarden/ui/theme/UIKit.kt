@@ -684,7 +684,7 @@ fun PostHeartCard(
                         ) {
                             heartState.value = false
                             if (response.body()!=null)
-                            likeNum?.value = response.body()!!.result.like_num
+                                likeNum?.value = response.body()!!.result.like_num
                         }
 
                         override fun onFailure(
@@ -1074,13 +1074,12 @@ fun FollowCard(
 
 @Composable
 fun ModuDialog(
-    onDismissRequest: () -> Unit,
+    onDismissRequest: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
         Surface (
             modifier = Modifier
-                .padding(18.dp)
                 .fillMaxWidth()
                 .wrapContentHeight(),
             shape = RoundedCornerShape(15.dp),
