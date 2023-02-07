@@ -81,7 +81,8 @@ fun SignupEmailCertificationScreen(navController: NavHostController, data: Signu
                     isTextFieldFocused = isTextFieldCertFocused,
                     keyboardType = KeyboardType.Text,
                     description = textFieldDescription.value,
-                    errorListener = isTextFieldError
+                    errorListener = isTextFieldError,
+                    singleLine = true
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Card(
