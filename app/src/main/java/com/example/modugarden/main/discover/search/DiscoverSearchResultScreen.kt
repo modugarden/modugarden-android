@@ -24,7 +24,7 @@ import com.example.modugarden.data.RecentSearchDatabase
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.ui.theme.addFocusCleaner
 import com.example.modugarden.ui.theme.bounceClick
-import com.example.modugarden.ui.theme.searchTextField
+import com.example.modugarden.ui.theme.SearchTextField
 import com.example.modugarden.viewmodel.UserViewModel
 
 
@@ -83,7 +83,7 @@ fun DiscoverSearchResultScreen(
 
                 //검색어 입력하는 텍스트 필드
                 //검색창
-                searchTextField(
+                SearchTextField(
                     searchText =  searchText,
                     isTextFieldSearchFocused = isTextFieldSearchFocused,
                     focusManager = focusManager
@@ -91,23 +91,25 @@ fun DiscoverSearchResultScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                //검색버튼으로 스택관리 필요해보이는데 일단 그냥 한번 더 불러서 쌓는 식으로 해버림
                 Image(
                     painter = painterResource(id = R.drawable.ic_search),
                     contentDescription = null,
                     modifier = Modifier
                         .bounceClick {
-                            //이미 전에 검색했던 거면 한번 지우고 다시 insert해줘서 맨 위로 올려줌
-                            val checkData: RecentSearch? = db.recentSearchDao().findRecentSearchBySearchText(searchText.value)
-                            checkData?.let {
-                                db.recentSearchDao().delete(
-                                    it
-                                )
-                            }
+                            if(searchText.value != "") {
+                                //이미 전에 검색했던 거면 한번 지우고 다시 insert해줘서 맨 위로 올려줌
+                                val checkData: RecentSearch = db.recentSearchDao()
+                                    .findRecentSearchBySearchText(searchText.value)
+                                checkData.let {
+                                    db.recentSearchDao().delete(
+                                        it
+                                    )
+                                }
 
-                            db.recentSearchDao().insert(RecentSearch(searchText.value))
-                            navController.navigate(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHRESULT.routeName + "/" + searchText.value) {
-                                popUpTo(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHING.routeName)
+                                db.recentSearchDao().insert(RecentSearch(searchText.value))
+                                navController.navigate(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHRESULT.routeName + "/" + searchText.value) {
+                                    popUpTo(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHING.routeName)
+                                }
                             }
                         }
 

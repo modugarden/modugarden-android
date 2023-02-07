@@ -110,7 +110,7 @@ fun CurationContentScreen(curation_id :Int) {
 
                 CurationHeartCard(
                     curationId = curation_id,
-                    modifier = Modifier,
+                    modifier = Modifier.padding(end = 18.dp),
                     heartState = remember { mutableStateOf(curation.isliked) }
                 )
 

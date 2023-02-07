@@ -583,7 +583,7 @@ fun ScaffoldSnackBar(
 
 //탐색에 검색창
 @Composable
-fun searchTextField(
+fun SearchTextField(
     searchText : MutableState<String>,
     isTextFieldSearchFocused : MutableState<Boolean>,
     focusManager : FocusManager
