@@ -20,8 +20,6 @@ import com.example.modugarden.main.discover.DiscoverScreen
 import com.example.modugarden.main.follow.FollowScreen
 import com.example.modugarden.main.notification.NotificationScreen
 import com.example.modugarden.main.profile.follow.ProfileApp
-import com.example.modugarden.main.profile.follow.ProfileFollow
-import com.example.modugarden.main.profile.follow.ProfileFollowScreen
 import com.example.modugarden.main.upload.UploadScreen
 import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -63,7 +61,7 @@ fun NavigationGraphBNB(
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideOutDuration))
             }
         ) {
-            FollowScreen(navController) }
+            FollowScreen(navController, userViewModel) }
 
         composable(
             NAV_ROUTE_BNB.DISCOVER.routeName,

@@ -213,7 +213,7 @@ fun FollowingScreen(
                     items(posts,
                         key = { post -> post.board_id }) {
                         PostCard(
-                            navFollowController,
+                            navController,
                             data = it,
                             scope,
                             snackbarHostState,
@@ -230,7 +230,7 @@ fun FollowingScreen(
                        items(curations,
                            key = { curation -> curation.curation_id }) {
                            CurationCard(
-                               navFollowController,
+                               navController,
                                data = it,
                                scope = scope,
                                snackbarHostState = snackbarHostState,

@@ -9,6 +9,7 @@ data class LoginDTO(
 data class Result(
     val accessToken: String,
     val accessToken_expiredDate: String,
+    val nickname: String,
     val refreshToken: String,
     val userId: Int
 )

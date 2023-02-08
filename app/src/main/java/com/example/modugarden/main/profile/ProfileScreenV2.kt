@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.ApplicationClass
 import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
@@ -246,7 +248,19 @@ fun ProfileScreenV2(
                                 imageModel = data.value.profileImage,
                                 modifier = Modifier
                                     .fillMaxHeight()
-                                    .clip(CircleShape)
+                                    .aspectRatio(1f)
+                                    .clip(CircleShape),
+                                loading = {
+                                    ShowProgressBar()
+                                },
+                                // shows an error text if fail to load an image.
+                                failure = {
+                                    Text(text = "image request failed.")
+                                },
+                                requestOptions = {
+                                    RequestOptions()
+                                        .override(256,256)
+                                }
                             )
                         }
                         Card(
@@ -319,12 +333,11 @@ fun ProfileScreenV2(
                             }
                         })
 
-                    val curationList = remember { mutableStateOf(
-                        listOf( GetUserCurationsResponseContent(
-                            "", "",0, "", "")))
+                    val curationList = remember { mutableStateOf<List<GetUserCurationsResponseContent>?>(
+                        listOf())
                     }
 
-                    if(data.value.userAuthority == UserAuthority.ROLE_CURATOR.name) {
+                    if(data.value.postCount > 0) {
                         RetrofitBuilder.curationAPI.getUserCuration(userId)
                             .enqueue(object : AuthCallBack<GetUserCurationsResponse>(context, "성공!") {
                                 override fun onResponse(
@@ -333,7 +346,7 @@ fun ProfileScreenV2(
                                 ) {
                                     super.onResponse(call, response)
                                     if(response.body()?.content != null)
-                                        curationList.value = response.body()?.content!!
+                                        curationList.value = response.body()?.content
                                 }
                             })
                     }
@@ -428,6 +441,17 @@ fun ProfileScreenV2(
                                                         ContentScale.None
                                                     } else {
                                                         ContentScale.Crop
+                                                    },
+                                                    loading = {
+                                                        ShowProgressBar()
+                                                    },
+                                                    // shows an error text if fail to load an image.
+                                                    failure = {
+                                                        Text(text = "image request failed.")
+                                                    },
+                                                    requestOptions = {
+                                                        RequestOptions()
+                                                            .override(256,256)
                                                     }
                                                 )
                                             }
@@ -436,13 +460,13 @@ fun ProfileScreenV2(
                                 }
                             }
                             1 -> {
-                                if(data.value.userAuthority == UserAuthority.ROLE_CURATOR.name) {
+                                if(data.value.postCount > 0) {
                                     LazyColumn(
                                         modifier = Modifier.fillMaxSize(),
                                         verticalArrangement = Arrangement.spacedBy(15.dp),
                                         contentPadding = PaddingValues(18.dp)
                                     ) {
-                                        items(curationList.value) { curationCard ->
+                                        items(curationList.value!!) { curationCard ->
                                             Row(
                                                 modifier = Modifier
                                                     .height(90.dp)
@@ -476,6 +500,17 @@ fun ProfileScreenV2(
                                                         ContentScale.None
                                                     } else {
                                                         ContentScale.Crop
+                                                    },
+                                                    loading = {
+                                                        ShowProgressBar()
+                                                    },
+                                                    // shows an error text if fail to load an image.
+                                                    failure = {
+                                                        Text(text = "image request failed.")
+                                                    },
+                                                    requestOptions = {
+                                                        RequestOptions()
+                                                            .override(256,256)
                                                     }
                                                 )
                                                 Spacer(modifier = Modifier.width(18.dp))
