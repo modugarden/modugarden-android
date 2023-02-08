@@ -3,7 +3,6 @@ package com.example.modugarden.main.follow
 import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -35,6 +34,7 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,9 +56,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
-import com.example.modugarden.api.RetrofitBuilder
-import com.example.modugarden.api.dto.FollowListDtoRes
+import com.example.modugarden.api.dto.FollowRecommendationRes
 import com.example.modugarden.api.dto.GetFollowFeedCuration
+import com.example.modugarden.api.dto.GetFollowFeedCurationContent
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.data.Report
 import com.example.modugarden.main.content.ReportCategoryItem
@@ -67,11 +67,12 @@ import com.example.modugarden.route.NavigationGraphFollow
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
+import com.example.modugarden.viewmodel.RefreshViewModel
 import com.example.modugarden.viewmodel.UserViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.skydoves.landscapist.glide.GlideImage
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun FollowScreen(navController: NavHostController){
@@ -89,323 +90,63 @@ fun FollowScreen(navController: NavHostController){
 @Composable
 fun FollowMainScreen(navController: NavHostController,
                      navFollowController: NavHostController,
-                    userViewModel: UserViewModel = viewModel())
+                    userViewModel: UserViewModel = viewModel(),
+                     refreshViewModel :RefreshViewModel = viewModel()
+)
 {
-    var following = remember { mutableStateOf(1) }
-
-    RetrofitBuilder.followAPI.myFollowingList()
-        .enqueue(object : Callback<FollowListDtoRes>{
-            override fun onResponse(
-                call: Call<FollowListDtoRes>,
-                response: Response<FollowListDtoRes>
-            ) {
-                if (response.isSuccessful){
-                    val res = response.body()
-                    if (res != null) {
-                        following.value = res.content.size
-
-                    }
-                    Log.d("following", following.toString())
-                }
-            }
-
-            override fun onFailure(call: Call<FollowListDtoRes>, t: Throwable) {
-                Log.d("following 조회 실패", following.toString())
-            }
-        })
-
-    if (following.value > 0){
-        FollowingScreen(
-            navController = navController,
-            navFollowController = navFollowController,
-            userViewModel = userViewModel)
-    }
-    else NoFollowingScreen(navController = navController)
-
-
-}
-@SuppressLint("UnrememberedMutableState", "SuspiciousIndentation")
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterialApi::class)
-@Composable //팔로우 피드.
-fun FollowingScreen(
-    navController: NavHostController,
-    navFollowController: NavHostController,
-    userViewModel: UserViewModel,
-) {
-
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val bottomSheetState =
-        rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
-    val scrollState = rememberLazyListState()
-    var postres by remember { mutableStateOf(PostDTO.GetFollowFeedPost(null)) }
-    var curationres by remember { mutableStateOf(GetFollowFeedCuration(null)) }
     val context = LocalContext.current.applicationContext
+    val mode = remember { mutableStateOf(true) }
+    val isRefreshing by refreshViewModel.isRefreshing.collectAsState()
 
-    val modalType =  mutableStateOf(0)
-    val modalContentId = remember { mutableStateOf(0) }
-    val modalContentImage = remember { mutableStateOf("") }
-    val modalContentTitle = remember { mutableStateOf("") }
+    //팔로우 피드 게시물
+    val postres
+            = remember { mutableStateOf(PostDTO.GetFollowFeedPost()) }
+    refreshViewModel.getPosts(postres,context)
+    val posts = mutableStateOf(postres.value.content)
 
-        RetrofitBuilder.curationAPI
-            .getFollowFeedCuration()
-            .enqueue(object : Callback<GetFollowFeedCuration> {
-                override fun onResponse(
-                    call: Call<GetFollowFeedCuration>,
-                    response: Response<GetFollowFeedCuration>
-                ) {
-                    if (response.isSuccessful) {
-                        val res = response.body()
-                        if (res != null) {
-                            curationres = res
-                            Log.d("follow-curation-result", curationres.toString())
-                        }
-                    } else {
-                        Toast.makeText(context, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
-                        Log.d("follow-curation-result", response.toString())
-                    }
-                }
+    //팔로우 추천
+    val recommendRes
+        = remember { mutableStateOf(FollowRecommendationRes()) }
+    refreshViewModel.getRecommend(recommendRes)
+    val recommendList = mutableStateOf(recommendRes.value.content)
 
-                override fun onFailure(call: Call<GetFollowFeedCuration>, t: Throwable) {
-                    Toast.makeText(context, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
-
-                    Log.d("follow-curation", "실패")
-                }
-
+    //포스트, 큐레이션 수
+    mode.value = posts.value.isNotEmpty()
+    Log.i("모드",mode.toString())
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
+        onRefresh = {
+            refreshViewModel.refresh()
+            refreshViewModel.getPosts(postres,context)
+            posts.value = postres.value.content
             })
-
-        RetrofitBuilder.postAPI
-            .getFollowFeedPost()
-            .enqueue(object : Callback<PostDTO.GetFollowFeedPost> {
-                override fun onResponse(
-                    call: Call<PostDTO.GetFollowFeedPost>,
-                    response: Response<PostDTO.GetFollowFeedPost>
-                ) {
-                    if (response.isSuccessful) {
-                        val res = response.body()
-                        if (res != null) {
-                            postres = res
-                            Log.d("follow-post-result", postres.toString())
-                        }
-
-                    }
-                }
-
-                override fun onFailure(call: Call<PostDTO.GetFollowFeedPost>, t: Throwable) {
-                    Toast.makeText(context, t.message + t.cause, Toast.LENGTH_SHORT).show()
-
-                    Log.d("follow-post", t.message + t.cause)
-                }
-            })
-
-    val posts = postres.content
-    val curations = curationres.content
-
-    ModalBottomSheetLayout(sheetElevation = 0.dp,
-        sheetBackgroundColor = Color.Transparent,
-        sheetState = bottomSheetState,
-        sheetContent = {
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                shape = RoundedCornerShape(15.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 18.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // 회색 선
-                    Box(
-                        modifier = Modifier
-                            .width(40.dp)
-                            .height(5.dp)
-                            .alpha(0.4f)
-                            .background(moduGray_normal, RoundedCornerShape(30.dp))
-
-                    )
-                    Spacer(modifier = Modifier.size(30.dp))
-
-                    Column(
-                        modifier = Modifier
-                            .padding(horizontal = 18.dp)
-                    ) {
-                        if (modalType.value== modalReportPost) {
-                            Text(text = "포스트 신고", style = moduBold, fontSize = 20.sp)
-                        } else Text(text = "큐레이션 신고", style = moduBold, fontSize = 20.sp)
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 18.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            GlideImage(
-                                imageModel = modalContentImage.value,
-                                contentDescription = "",
-                                modifier = Modifier
-                                    .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
-                                    .size(25.dp)
-                                    .clip(CircleShape),
-                                contentScale = ContentScale.Crop
-                            )
-                            Spacer(modifier = Modifier.size(18.dp))
-                            Text(text =modalContentTitle.value, style = moduBold, fontSize = 14.sp)
-                        }
-                    }
-
-                    // 구분선
-                    Divider(
-                        color = moduGray_light, modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                    )
-
-                    // 신고 카테고리 리스트
-                    LazyColumn(
-                        modifier = Modifier
-                            .padding(horizontal = 18.dp)
-                    ) {
-                        itemsIndexed(
-                            listOf(
-                                Report.ABUSE,
-                                Report.TERROR,
-                                Report.SEXUAL,
-                                Report.FISHING,
-                                Report.INAPPROPRIATE
-                            )
-                        ) { index, item ->
-                            Log.i("신고 타입/아이디",modalType.value.toString()+"/"+modalContentId.value)
-                            ReportCategoryItem(
-                                report = item,
-                                id =modalContentId.value,
-                                modalType = modalType.value,
-                                scope,bottomSheetState)
-                        }
-
-
-                    }
-                    Spacer(modifier = Modifier.size(18.dp))
-                }
-
-
-            }
-        })
     {
+        // 포스트 수 + 큐레이션 수 1개 이상일 경우
+        Box(){
+            if (mode.value) {
+                FollowingScreen(
+                    posts.value,
+                    null,
+                    navController = navController,
+                    navFollowController = navFollowController,
+                    userViewModel = userViewModel
+                )
+            } else {
 
-        Box() {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(moduBackground)
-            )
-            {
-                if (!(posts.isNullOrEmpty() || curations.isNullOrEmpty()))
-                /*Icon(
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .bounceClick { },
-                        painter = painterResource(id = R.drawable.ic_notification),
-                        contentDescription = "알림",
-                        tint = moduBlack
-                    )*/
-
-                    LazyColumn(state = scrollState) {
-
-                        // 상단 로고
-                        item {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(30.dp, 30.dp, 30.dp, 20.dp),
-                            ) {
-                                Spacer(Modifier.weight(1f))
-                                Image(
-                                    painter = painterResource(id = R.drawable.ic_logo_modern),
-                                    contentDescription = null,
-                                )
-                                Spacer(Modifier.weight(1f))
-                            }
-                        }
-                        //포스트 카드
-                        items(posts) {
-                            PostCard(
-                                navFollowController,
-                                data = it,
-                                scope,
-                                snackbarHostState,
-                                bottomSheetState,
-                                modalType = modalType,
-                                modalTitle = modalContentTitle,
-                                modalImage = modalContentImage,
-                                modalId = modalContentId,
-                                userViewModel = userViewModel
-                            )
-                        }
-                        items(curations) {
-                            CurationCard(
-                                navFollowController,
-                                data = it,
-                                scope = scope,
-                                snackbarHostState = snackbarHostState,
-                                bottomSheetState = bottomSheetState,
-                                modalType = modalType,
-                                modalTitle = modalContentTitle,
-                                modalImage = modalContentImage,
-                                modalContentId,
-                                userViewModel = userViewModel
-                            )
-                        }
-
-                        // 팔로우 피드 맨 끝
-                        item { FollowEndCard(navController) }
-                    }
-
+                NoFollowingScreen(
+                    recommendList = recommendList.value,
+                    navController=navFollowController,
+                    userViewModel=userViewModel,
+                    refreshViewModel = refreshViewModel
+                )
             }
-            // 커스텀한 스낵바
-            SnackbarHost(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(30.dp),
-                hostState = snackbarHostState,
-                snackbar = { snackbarData: SnackbarData ->
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .background(
-                                Color("#62766B".toColorInt()),
-                                RoundedCornerShape(10.dp)
-                            )
-                    ) {
-                        Row(
-                            Modifier
-                                .padding(12.dp, 17.dp)
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_check_solid),
-                                contentDescription = "체크",
-                                Modifier.size(16.dp),
-                            )
-                            Spacer(modifier = Modifier.size(12.dp))
-                            Text(
-                                text = snackbarData.message,
-                                color = Color.White,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-
-                    }
-                })
         }
     }
 
-
 }
+
+
+
 
 
 
