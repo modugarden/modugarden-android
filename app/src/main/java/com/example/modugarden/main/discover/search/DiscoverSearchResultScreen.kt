@@ -92,15 +92,15 @@ fun DiscoverSearchResultScreen(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Image(
-                    painter = painterResource(id = R.drawable.ic_search),
+                    painter = painterResource(id = R.drawable.ic_search_small),
                     contentDescription = null,
                     modifier = Modifier
                         .bounceClick {
                             if(searchText.value != "") {
                                 //이미 전에 검색했던 거면 한번 지우고 다시 insert해줘서 맨 위로 올려줌
-                                val checkData: RecentSearch = db.recentSearchDao()
+                                val checkData: RecentSearch? = db.recentSearchDao()
                                     .findRecentSearchBySearchText(searchText.value)
-                                checkData.let {
+                                checkData?.let {
                                     db.recentSearchDao().delete(
                                         it
                                     )

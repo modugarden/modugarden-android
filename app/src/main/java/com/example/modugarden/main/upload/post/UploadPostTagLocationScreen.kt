@@ -221,7 +221,7 @@ fun UploadPostTagLocationScreen(
                                )
                                Spacer(Modifier.size(18.dp))
                                Image(
-                                   painter = painterResource(id = R.drawable.ic_search),
+                                   painter = painterResource(id = R.drawable.ic_search_small),
                                    contentDescription = null,
                                    colorFilter = ColorFilter.tint(moduGray_strong),
                                    modifier = Modifier

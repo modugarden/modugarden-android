@@ -149,7 +149,7 @@ fun NoFollowingScreen(navController: NavHostController) {
                     modifier = Modifier.padding(10.dp,8.dp)) {
                         Icon(
                             modifier = Modifier.padding(end = 12.dp),
-                            painter = painterResource(id = R.drawable.ic_search),
+                            painter = painterResource(id = R.drawable.ic_search_small),
                             contentDescription = "다시 탐색",
                             tint = moduBlack
                         )

@@ -1,16 +1,15 @@
 package com.example.modugarden.main.discover.search
 
-import android.util.Log
-import android.widget.Toast
-import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -21,9 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
-import com.example.modugarden.api.RetrofitBuilder
-import com.example.modugarden.api.dto.PostDTO
-import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.data.Category
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.ui.theme.*
@@ -32,9 +28,6 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 //viewPager쓰면 넣어줘야하는 어노테이션
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
@@ -47,22 +40,18 @@ fun DiscoverSearchScreen(navController: NavHostController) {
     val coroutineScope = rememberCoroutineScope()
 
     //어떤 카테고리 보여주는지 왼쪽 위에 아이콘이랑 카테고리 이름 바꿔줄 변수
-    var selectedCategory = remember { mutableStateOf(Category.GARDENING) }
+    val selectedCategory = remember { mutableStateOf(Category.GARDENING) }
 
     //viewPager에 사용할 포스트, 큐레이션 나타내주는 변수
     val mainPages = listOf("포스트", "큐레이션")
 
     val focusManager = LocalFocusManager.current
 
-    val isTextFieldVisible by remember { mutableStateOf(false) }
-
 
     val showModalSheet = rememberSaveable{ mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
     val scope = rememberCoroutineScope()
-
-    val responseBody  = remember { mutableStateOf(GetSearchPost()) }
 
     ModalBottomSheet(
         title = "카테고리",
@@ -108,75 +97,66 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .wrapContentHeight()
-                            .padding(start = 18.dp, top = 14.dp, end = 18.dp, bottom = 0.dp),
+                            .padding(start = 18.dp, top = 40.dp, end = 18.dp, bottom = 10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (isTextFieldVisible.not()) {
-                            Box(
-                                modifier = Modifier.height(52.dp)
-                            ) {
-                                this@Row.AnimatedVisibility(
-                                    visible = isTextFieldVisible.not(),
-                                    enter = slideInHorizontally(initialOffsetX = {
-                                        +it
-                                    }),
-                                    exit = slideOutHorizontally(targetOffsetX = {
-                                        -it
-                                    })
+                        Text(
+                            text = "탐색",
+                            color = moduBlack,
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight(700)
+                        )
+//                        Box(
+//                            modifier = Modifier.height(52.dp)
+//                        ) {
+//                            Box(
+//                                modifier = Modifier.align(Alignment.CenterStart)
+//                                    .bounceClick {
+//                                        focusManager.clearFocus()
+//                                        showModalSheet.value = !showModalSheet.value
+//                                        scope.launch {
+//                                            bottomSheetState.show()
+//                                        }
+//                                    },
+//                            ) {
+//                                Row(
+//                                    modifier = Modifier.fillMaxHeight(),
+//                                    verticalAlignment = Alignment.CenterVertically
+//                                ) {
+//                                    Box(
+//                                        modifier = Modifier
+//                                            .width(22.dp)
+//                                    ) {
+//                                        //카테고리 선택된 거에 맞는 이름 사진 넣어버려
+//                                        Image(
+//                                            painter = painterResource(id = selectedCategory.value.image),
+//                                            contentDescription = null,
+//                                            modifier = Modifier.size(22.dp, 22.dp)
+//                                        )
+//
+//                                    }
+//                                    Text(
+//                                        modifier = Modifier
+//                                            .padding(horizontal = 6.25.dp),
+//                                        text = selectedCategory.value.category,
+//                                        style = TextStyle(
+//                                            fontSize = 20.sp,
+//                                            fontWeight = FontWeight.Bold,
+//                                            color = moduBlack
+//                                        )
+//                                    )
+//                                    //카테고리 옆에 있는 ^ 이거 거꾸로 이미지
+//                                    Image(
+//                                        painter = painterResource(id = R.drawable.ic_chevron_down),
+//                                        contentDescription = null,
+//                                    )
+//
+//                                }
+//
+//                            }
+//
+//                        }
 
-
-                                ) {
-                                    Box(
-                                        modifier = Modifier.align(Alignment.CenterStart)
-                                            .bounceClick {
-                                            focusManager.clearFocus()
-                                            showModalSheet.value = !showModalSheet.value
-                                            scope.launch {
-                                                bottomSheetState.show()
-                                            }
-                                        },
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.fillMaxHeight(),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .width(22.dp)
-                                            ) {
-                                                //카테고리 선택된 거에 맞는 이름 사진 넣어버려
-                                                Image(
-                                                    painter = painterResource(id = selectedCategory.value.image),
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(22.dp, 22.dp)
-                                                )
-
-                                            }
-                                            Text(
-                                                modifier = Modifier
-                                                    .padding(horizontal = 6.25.dp),
-                                                text = selectedCategory.value.category,
-                                                style = TextStyle(
-                                                    fontSize = 20.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = moduBlack
-                                                )
-                                            )
-                                            //카테고리 옆에 있는 ^ 이거 거꾸로 이미지
-                                            Image(
-                                                painter = painterResource(id = R.drawable.ic_chevron_down),
-                                                contentDescription = null,
-                                            )
-
-                                        }
-
-                                    }
-
-                                }
-
-
-                            }
-                        }
 
                         Spacer(modifier = Modifier.weight(1f))
 
@@ -184,7 +164,7 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                         //검색버튼으로 이미 한번 눌러서 검색창이 떠있을 경우에는 내용을 입력하고 누르면 검색 결과창으로 navigate 될 수 있게 해줌
                         //처음 누를때는 tisTextFieldVisible을 바꿔서 현재 화면을 알맞게 변경시켜줌
                         Image(
-                            painter = painterResource(id = R.drawable.ic_search),
+                            painter = painterResource(id = R.drawable.ic_search_big),
                             contentDescription = null,
                             modifier = Modifier
                                 .bounceClick {
@@ -193,42 +173,102 @@ fun DiscoverSearchScreen(navController: NavHostController) {
 
                         )
                     }
-                    //포스트, 큐레이션 텝 레이아웃
-                    TabRow(
-                        selectedTabIndex = pagerState.currentPage,
-                        backgroundColor = Color.White,
-                        contentColor = moduGray_strong,
-                        indicator = { tabPositions ->
-                            TabRowDefaults.Indicator(
-                                Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
-                                color = moduBlack,
-                            )
-                        },
+                    Row(
+                        modifier = Modifier
+                            .height(36.dp)
+                            .fillMaxWidth()
+                            .padding(end = 18.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        TabRow(
+                            modifier = Modifier
+                                .fillMaxWidth(0.5f),
+                            selectedTabIndex = pagerState.currentPage,
+                            backgroundColor = Color.White,
+                            divider = {},
+                            indicator = {}
 
+//                            indicator = { tabPositions ->
+//                                TabRowDefaults.Indicator(
+//                                    Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
+//                                    color = moduBlack,
+//                                )
+//                            },
                         ) {
-                        mainPages.forEachIndexed { index, title ->
-                            Tab(
-                                text = {
-                                    Text(
-                                        text = title,
-                                        fontSize = 16.sp,
-                                        style = TextStyle(
-                                            color =
-                                            if(pagerState.currentPage == index) moduBlack
-                                            else moduGray_strong
-                                        ),
-                                        fontWeight = FontWeight(500)
-                                    )
-                                },
-                                selected = pagerState.currentPage == index,
-                                onClick = {
-                                    coroutineScope.launch {
-                                        pagerState.animateScrollToPage(index)
+                            mainPages.forEachIndexed { index, title ->
+                                Tab(
+                                    text = {
+                                        Text(
+                                            text = title,
+                                            fontSize = 20.sp,
+                                            style = TextStyle(
+                                                color =
+                                                if(pagerState.currentPage == index) moduBlack
+                                                else moduGray_normal
+                                            ),
+                                            fontWeight = FontWeight(700)
+                                        )
+                                    },
+                                    selected = pagerState.currentPage == index,
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(index)
+                                        }
+                                    }
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        Box(
+                            modifier = Modifier
+                                .bounceClick {
+                                    focusManager.clearFocus()
+                                    showModalSheet.value = !showModalSheet.value
+                                    scope.launch {
+                                        bottomSheetState.show()
                                     }
                                 }
-                            )
+                                .fillMaxHeight()
+                                .clip(RoundedCornerShape(10.dp)),
+                            ) {
+                            Row(
+                                modifier = Modifier.fillMaxHeight(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .width(22.dp)
+                                ) {
+                                    //카테고리 선택된 거에 맞는 이름 사진 넣어버려
+                                    Image(
+                                        painter = painterResource(id = selectedCategory.value.image),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(22.dp, 22.dp)
+                                    )
+
+                                }
+                                Text(
+                                    modifier = Modifier
+                                        .padding(horizontal = 6.25.dp),
+                                    text = selectedCategory.value.category,
+                                    style = TextStyle(
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = moduBlack
+                                    )
+                                )
+                                //카테고리 옆에 있는 ^ 이거 거꾸로 이미지
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_chevron_down),
+                                    contentDescription = null,
+                                )
+                            }
                         }
                     }
+                    //포스트, 큐레이션 텝 레이아웃
+
                     HorizontalPager(
                         modifier = Modifier
                             .fillMaxSize(),

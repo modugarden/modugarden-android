@@ -80,7 +80,7 @@ fun DiscoverSearchingScreen(navController: NavHostController) {
 
                 //검색버튼
                 Image(
-                    painter = painterResource(id = R.drawable.ic_search),
+                    painter = painterResource(id = R.drawable.ic_search_small),
                     contentDescription = null,
                     modifier = Modifier
                         .bounceClick {

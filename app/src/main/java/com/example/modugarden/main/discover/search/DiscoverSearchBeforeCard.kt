@@ -57,7 +57,7 @@ fun DiscoverSearchBeforeCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_search),
+                        painter = painterResource(id = R.drawable.ic_search_small),
                         contentDescription = null,
                         modifier = Modifier
                             .size(height = 18.dp, width = 18.dp),

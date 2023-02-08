@@ -35,10 +35,7 @@ import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.CurationLikeResponse
 import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.main.content.PostContentActivity
-import com.example.modugarden.ui.theme.ShowProgressBar
-import com.example.modugarden.ui.theme.bounceClick
-import com.example.modugarden.ui.theme.moduBlack
-import com.example.modugarden.ui.theme.moduGray_strong
+import com.example.modugarden.ui.theme.*
 import com.skydoves.landscapist.glide.GlideImage
 import retrofit2.Call
 import retrofit2.Callback
@@ -118,7 +115,7 @@ fun DiscoverSearchPostCard(postData: GetSearchCurationPost) {
             GlideImage( // CoilImage, FrescoImage
                 imageModel = postData.preview_img,
                 modifier = Modifier
-                    .size(width = 90.dp, height = 90.dp)
+                    .size(width = 110.dp, height = 110.dp)
                     .clip(RoundedCornerShape(15.dp)),
                 contentScale = ContentScale.Crop,
                 // shows an indicator while loading an image.
@@ -143,11 +140,11 @@ fun DiscoverSearchPostCard(postData: GetSearchCurationPost) {
                 modifier = Modifier.width(230.dp),
                 text = postData.title,
                 style = TextStyle(color = moduBlack,
-                    fontWeight = FontWeight(700),
+                    fontWeight = FontWeight(500),
                     fontSize = 14.sp),
                 //넘치면 ....으로 표시해주는놈
                 overflow = TextOverflow.Ellipsis,
-                maxLines = 1
+                maxLines = 2
             )
 
             Spacer(modifier = Modifier.height(7.dp))
@@ -155,11 +152,11 @@ fun DiscoverSearchPostCard(postData: GetSearchCurationPost) {
             //시간
             val timeLine = postData.created_Date.split("T")[0].split("-")
             Text(text = "${timeLine[0]}년 ${timeLine[1]}월 ${timeLine[2]}일",
-                style = TextStyle(color = Color(0xFF959DA7),
+                style = TextStyle(color = moduGray_strong,
                     fontWeight = FontWeight(400),fontSize = 11.sp)
             )
 
-            Spacer(modifier = Modifier.height(9.dp))
+            Spacer(modifier = Modifier.height(7.dp))
     
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -168,29 +165,42 @@ fun DiscoverSearchPostCard(postData: GetSearchCurationPost) {
                     painter = painterResource(id = R.drawable.ic_launcher_background),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(width = 23.dp, height = 23.dp)
+                        .size(width = 20.dp, height = 20.dp)
                         .clip(CircleShape)
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(10.dp))
                 //작성자
                 Text(
                     modifier = Modifier
                         .padding(bottom = 3.dp),
                     text = postData.user_nickname,
                     style = TextStyle(color = Color(0xFF252525).copy(alpha = 0.8f),
-                        fontWeight = FontWeight(400),fontSize = 13.sp)
+                        fontWeight = FontWeight(400),fontSize = 11.sp)
                 )
+
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Spacer(modifier = Modifier.weight(1f))
+
+                Image(
+                    painter = painterResource(id = R.drawable.ic_heart_mini),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(width = 15.dp, height = 15.dp)
+                )
 
                 Text(
                     modifier = Modifier
-                        .padding(bottom = 2.dp, end = 10.dp),
-                    text = "♡ ${likeCnt.value}",
-                    style = TextStyle(color = moduGray_strong.copy(alpha = 0.8f),
-                        fontWeight = FontWeight(400),fontSize = 14.sp)
+                        .padding(start = 5.dp),
+                    text = "${likeCnt.value}",
+                    style = TextStyle(color = moduGray_normal,
+                        fontWeight = FontWeight(400),fontSize = 12.sp)
                 )
-
 
             }
         }
