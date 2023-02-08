@@ -245,7 +245,11 @@ fun ProfileScreenV2(
                                 .align(Center)
                         ) {
                             GlideImage(
-                                imageModel = data.value.profileImage,
+                                imageModel =
+                                if(data.value.profileImage == null)
+                                    R.drawable.ic_default_profile
+                                else
+                                    data.value.profileImage,
                                 modifier = Modifier
                                     .fillMaxHeight()
                                     .aspectRatio(1f)
