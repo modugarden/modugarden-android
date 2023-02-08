@@ -30,10 +30,17 @@ data class FollowListDtoResContent(
 )
 
 data class FollowRecommendationRes(
-    val code: Int?=null,
-    val isSuccess: Boolean?=null,
-    val message: String?=null,
-    var result: List<FollowListDtoResContent>?=null
+    val content: List<FollowRecommendationResContent> = listOf(),
+    val first: Boolean = false,
+    val hasNext: Boolean =false,
+    val last: Boolean=false
+)
+data class FollowRecommendationResContent(
+    val categories: List<String> = listOf(),
+    val isFollow: Boolean = false,
+    val nickname: String = "",
+    val profileImg: String = "",
+    val userId: Int = 0
 )
 
 
