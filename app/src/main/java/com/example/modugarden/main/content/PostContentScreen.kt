@@ -62,6 +62,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
@@ -84,6 +85,7 @@ import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.ui.theme.moduPoint
+import com.example.modugarden.viewmodel.PagerViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -437,7 +439,7 @@ fun PostContentScreen(
                                 state = pagerState,
                             ) { page ->
                                     GlideImage(
-                                        imageModel = post!!.image[page].image,
+                                        imageModel = post!!.image[pagerState.currentPage].image,
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -587,19 +589,18 @@ fun PostContentScreen(
                             .height(1.dp)
                     )
                     // 제목, 카테고리, 업로드 시간, 내용
-
+                    val pagerViewModel:PagerViewModel= viewModel()
                             HorizontalPager(
                                 modifier = Modifier
                                     .padding(18.dp)
-                                    .weight(1f,false)
+                                    .weight(1f, false)
                                     .fillMaxHeight()
-                                    .background(Color.White)
-                                , itemSpacing = 18.dp,
+                                    .background(Color.White),
                                 count = post.image.size,
                                 state = pagerState,
                             verticalAlignment = Alignment.Top)
                             {page ->
-                                Column(Modifier.verticalScroll(scrollState)) {
+                                Column(Modifier.verticalScroll(scrollState),) {
                                     if(page==0) {
                                         Text(
                                             text = post!!.title,
@@ -617,7 +618,8 @@ fun PostContentScreen(
                                             )
                                         }
                                     }
-                                    Column(modifier = Modifier.padding(vertical = 25.dp))
+                                    Column(modifier = Modifier.fillMaxWidth()
+                                        .padding(vertical =(if(page==0) 25.dp else 0.dp)))
                                     {
                                         Text(text = post!!.image[page].content, fontSize = 16.sp)
 
@@ -774,8 +776,6 @@ fun PostContentScreen(
 
 */
                 }
-
-
 
 
                 Row(
