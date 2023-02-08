@@ -121,10 +121,10 @@ data class GetCurationStoreState(
 )
 
 data class GetFollowFeedCuration(
-    val content: List<GetFollowFeedCurationContent> ?= null,
-    val first: Boolean ?= null,
-    val hasNext: Boolean? = null,
-    val last: Boolean? = null
+    val content: List<GetFollowFeedCurationContent> = listOf(),
+    val first: Boolean =false,
+    val hasNext: Boolean =false,
+    val last: Boolean =false
 )
 
 data class GetFollowFeedCurationContent(

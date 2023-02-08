@@ -103,6 +103,10 @@ fun FollowMainScreen(navController: NavHostController,
             = remember { mutableStateOf(PostDTO.GetFollowFeedPost()) }
     refreshViewModel.getPosts(postres,context)
     val posts = mutableStateOf(postres.value.content)
+    val curationres
+            = remember { mutableStateOf(GetFollowFeedCuration()) }
+    refreshViewModel.getCurations(curationres,context)
+    val curations = mutableStateOf(curationres.value.content)
 
     //팔로우 추천
     val recommendRes
@@ -111,14 +115,16 @@ fun FollowMainScreen(navController: NavHostController,
     val recommendList = mutableStateOf(recommendRes.value.content)
 
     //포스트, 큐레이션 수
-    mode.value = posts.value.isNotEmpty()
+    mode.value = (posts.value.isNotEmpty() || curations.value.isNotEmpty())
     Log.i("모드",mode.toString())
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
         onRefresh = {
             refreshViewModel.refresh()
             refreshViewModel.getPosts(postres,context)
+            refreshViewModel.getCurations(curationres,context)
             posts.value = postres.value.content
+            curations.value=curationres.value.content
             })
     {
         // 포스트 수 + 큐레이션 수 1개 이상일 경우
@@ -126,7 +132,7 @@ fun FollowMainScreen(navController: NavHostController,
             if (mode.value) {
                 FollowingScreen(
                     posts.value,
-                    null,
+                    curations.value,
                     navController = navController,
                     navFollowController = navFollowController,
                     userViewModel = userViewModel

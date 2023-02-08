@@ -73,7 +73,6 @@ class RefreshViewModel: ViewModel() {
                             Log.d("follow-post-result", res.toString())
                     }
                 }
-
                 override fun onFailure(call: Call<PostDTO.GetFollowFeedPost>, t: Throwable) {
                     Toast.makeText(context, t.message + t.cause, Toast.LENGTH_SHORT).show()
 
@@ -83,9 +82,7 @@ class RefreshViewModel: ViewModel() {
 
     }
 
-    @SuppressLint("RememberReturnType")
-    fun getCurations(context: Context?):List<GetFollowFeedCurationContent>{
-        var curations = mutableStateOf(emptyList<GetFollowFeedCurationContent>())
+    fun getCurations(curationRes:MutableState<GetFollowFeedCuration>,context: Context?){
         RetrofitBuilder.curationAPI
             .getFollowFeedCuration()
             .enqueue(object : Callback<GetFollowFeedCuration> {
@@ -95,11 +92,13 @@ class RefreshViewModel: ViewModel() {
                 ) {
                     if (response.isSuccessful) {
                         val res = response.body()
-                        if (res?.content != null) {
-                            curations.value = res.content
-                            Log.d("follow-post-result", res.toString())
+                        Log.i("res",res.toString())
+                        if (res != null) {
+                            curationRes.value = res
                         }
-                    } else {
+                        Log.d("follow-curation-result", res.toString())
+                        }
+                     else {
                         Toast.makeText(context, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
                         Log.d("follow-curation-result", response.toString())
                     }
@@ -112,7 +111,6 @@ class RefreshViewModel: ViewModel() {
                 }
 
             })
-        return curations.value
     }
 
 }

@@ -71,7 +71,7 @@ import com.skydoves.landscapist.glide.GlideImage
 @Composable //팔로우 피드.
 fun FollowingScreen(
     posts: List<PostDTO.GetFollowFeedPostContent>,
-    curations: List<GetFollowFeedCurationContent>?,
+    curations: List<GetFollowFeedCurationContent>,
     navController: NavHostController,
     navFollowController: NavHostController,
     userViewModel: UserViewModel,
@@ -227,7 +227,7 @@ fun FollowingScreen(
                     }
 
                     //큐레이션
-                    /*   items(curations,
+                       items(curations,
                            key = { curation -> curation.curation_id }) {
                            CurationCard(
                                navFollowController,
@@ -241,7 +241,7 @@ fun FollowingScreen(
                                modalContentId,
                                userViewModel = userViewModel
                            )
-                       }*/
+                       }
 
 
                     // 팔로우 피드 맨 끝
