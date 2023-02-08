@@ -1,37 +1,38 @@
 package com.example.modugarden.data
 
 data class MapsGeocoding(
-    val results: List<Results>,
-    val status: String
+    val html_attributions: List<String>,
+    val results: List<Place>,
+    val status: String,
+    val error_message: String,
+    val info_messages: List<String>,
+    val next_page_token: String
 )
-data class Results(
-    val address_components: List<AddressComponents>,
+data class Place(
+    val address_components: List<AddressComponent>,
+    val adr_address: String,
     val formatted_address: String,
     val geometry: Geometry,
-    val partial_match: String,
+    val icon: String,
+    val icon_background_color: String,
+    val icon_mask_base_uri: String,
+    val name: String,
     val place_id: String,
-    val plus_code: PlusCode,
-    val types: List<String>
 )
-data class PlusCode(
-    val compound_code: String,
-    val global_code: String,
-)
-data class AddressComponents(
+data class AddressComponent(
     val long_name: String,
     val short_name: String,
     val types: List<String>
 )
 data class Geometry(
-    val location: Location,
-    val location_type: String,
+    val location: LatLngLiteral,
     val viewport: Viewport
 )
-data class Location(
+data class LatLngLiteral(
     val lat: String,
     val lng: String,
 )
 data class Viewport(
-    val northeast: Location,
-    val southwest: Location
+    val northeast: LatLngLiteral,
+    val southwest: LatLngLiteral
 )
