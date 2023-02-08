@@ -113,23 +113,23 @@ class PostDTO {
     )
 
     data class GetFollowFeedPost(
-        val content: List<GetFollowFeedPostContent> ?,
-        val first: Boolean ?= null,
-        val hasNext: Boolean? = null,
-        val last: Boolean? = null
+        var content: List<GetFollowFeedPostContent> = listOf(),
+        val first: Boolean = false,
+        val hasNext: Boolean = false,
+        val last: Boolean = false
     )
 
     data class GetFollowFeedPostContent(
-        val board_id: Int,
-        val title: String,
-        val image : ArrayList<PostFollowFeedImageContent>,
-        val liked : Boolean,
-        val saved : Boolean,
-        val created_Date: String,
-        val user_id: Int,
-        val user_nickname: String,
-        val user_profile_image: String,
-        val category_category: String
+        val board_id: Int=0,
+        val title: String="",
+        val image : ArrayList<PostFollowFeedImageContent> = arrayListOf(),
+        val liked : Boolean=false,
+        val saved : Boolean=false,
+        val created_Date: String="",
+        val user_id: Int=0,
+        val user_nickname: String="",
+        val user_profile_image: String="",
+        val category_category: String=""
     )
 
     data class PostFollowFeedImageContent(

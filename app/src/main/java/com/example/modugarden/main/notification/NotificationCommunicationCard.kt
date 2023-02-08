@@ -19,6 +19,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.request.RequestOptions
+import com.example.modugarden.ApplicationClass
+import com.example.modugarden.ApplicationClass.Companion.commentChildNotification
+import com.example.modugarden.ApplicationClass.Companion.commentNotification
+import com.example.modugarden.ApplicationClass.Companion.followNotification
+import com.example.modugarden.ApplicationClass.Companion.serviceNotification
 import com.example.modugarden.R
 import com.example.modugarden.data.Notification
 import com.example.modugarden.ui.theme.*
@@ -39,11 +44,11 @@ fun NotificationCommunicationCard(data: Notification, lastItem: Boolean) {
             modifier = Modifier
                 .wrapContentSize(),
             shape = CircleShape,
-            border = BorderStroke(1.dp, if(data.type == 3) Color.Transparent else moduGray_light),
+            border = BorderStroke(1.dp, if(data.type == serviceNotification) Color.Transparent else moduGray_light),
             elevation = 0.dp
         ) {
             GlideImage(
-                imageModel = if(data.type == 3) R.drawable.ic_notification_restrict else data.image,
+                imageModel = if(data.type == serviceNotification) R.drawable.ic_notification_restrict else data.image,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -61,7 +66,7 @@ fun NotificationCommunicationCard(data: Notification, lastItem: Boolean) {
         ) {
             Row() {
                 Text(
-                    text = if(data.type == 3) "서비스 이용 제한" else data.name,
+                    text = if(data.type == serviceNotification) "서비스 이용 제한" else data.name,
                     fontWeight = FontWeight.Bold,
                     color = moduBlack,
                     fontSize = 16.sp,
@@ -69,10 +74,10 @@ fun NotificationCommunicationCard(data: Notification, lastItem: Boolean) {
                 )
                 Text(
                     text = when(data.type) {
-                            0 -> "님이 회원님을 팔로우 했어요."
-                            1 -> "님이 댓글을 남겼어요."
-                            2 -> "님이 답글을 남겼어요."
-                            3 -> ""
+                            followNotification -> "님이 회원님을 팔로우 했어요."
+                            commentNotification -> "님이 댓글을 남겼어요."
+                            commentChildNotification -> "님이 답글을 남겼어요."
+                            serviceNotification -> ""
                             else -> "알림 오류"
                     },
                     overflow = TextOverflow.Ellipsis,
@@ -80,7 +85,7 @@ fun NotificationCommunicationCard(data: Notification, lastItem: Boolean) {
                     color = moduBlack
                 )
             }
-            if(data.type != 0) {
+            if(data.type != followNotification) {
                 Text(
                     text = data.description,
                     color = moduGray_strong,

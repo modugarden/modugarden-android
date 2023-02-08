@@ -10,6 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.room.Room
+import com.example.modugarden.ApplicationClass.Companion.commentChildNotification
+import com.example.modugarden.ApplicationClass.Companion.commentNotification
+import com.example.modugarden.ApplicationClass.Companion.followNotification
+import com.example.modugarden.ApplicationClass.Companion.serviceNotification
 
 import com.example.modugarden.R
 import com.example.modugarden.data.Notification
@@ -30,18 +34,18 @@ fun NotificationCommunicationScreen() {
     ).allowMainThreadQueries().build()
 
     var notificationData1 = listOf(
-        Notification(R.drawable.test_image1, 0, "follo_me", "", "2022-12-31", "101"),
-        Notification(R.drawable.test_image2, 1, "bbak__daegari", "야 생각좀 하고 살아라 요즘에는 왜이리 생각 없이 사는 애들이 많냐?", "2022-12-31", "102"),
-        Notification(R.drawable.test_image5, 2, "na_nim_god", "관악산에서 밥머거도 대나여", "2022-12-31", "103"),
-        Notification(R.drawable.test_image3, 3, "", "서비스 이용이 제한되었어요.", "2022-12-31", ""),
-        Notification(R.drawable.test_image1, 0, "follo_me", "", "2022-12-31", "101"),
-        Notification(R.drawable.test_image2, 1, "bbak__daegari", "야 생각좀 하고 살아라 요즘에는 왜이리 생각 없이 사는 애들이 많냐?", "2022-12-31", "102"),
-        Notification(R.drawable.test_image5, 2, "na_nim_god", "관악산에서 밥머거도 대나여", "2022-12-31", "103"),
-        Notification(R.drawable.ic_launcher_background, 3, "", "서비스 이용이 제한되었어요.", "2022-12-31", ""),
-        Notification(R.drawable.test_image1, 0, "follo_me", "", "2022-12-31", "101"),
-        Notification(R.drawable.test_image2, 1, "bbak__daegari", "야 생각좀 하고 살아라 요즘에는 왜이리 생각 없이 사는 애들이 많냐?", "2022-12-31", "102"),
-        Notification(R.drawable.test_image5, 2, "na_nim_god", "관악산에서 밥머거도 대나여", "2022-12-31", "103"),
-        Notification(R.drawable.ic_launcher_background, 3, "", "서비스 이용이 제한되었어요.", "2022-12-31", "")
+        Notification(R.drawable.test_image1, followNotification, "follo_me", "", "2022-12-31", "101"),
+        Notification(R.drawable.test_image2, commentNotification, "bbak__daegari", "야 생각좀 하고 살아라 요즘에는 왜이리 생각 없이 사는 애들이 많냐?", "2022-12-31", "102"),
+        Notification(R.drawable.test_image5, commentChildNotification, "na_nim_god", "관악산에서 밥머거도 대나여", "2022-12-31", "103"),
+        Notification(R.drawable.test_image3, serviceNotification, "", "서비스 이용이 제한되었어요.", "2022-12-31", ""),
+        Notification(R.drawable.test_image1, followNotification, "follo_me", "", "2022-12-31", "101"),
+        Notification(R.drawable.test_image2, commentNotification, "bbak__daegari", "야 생각좀 하고 살아라 요즘에는 왜이리 생각 없이 사는 애들이 많냐?", "2022-12-31", "102"),
+        Notification(R.drawable.test_image5, commentChildNotification, "na_nim_god", "관악산에서 밥머거도 대나여", "2022-12-31", "103"),
+        Notification(R.drawable.ic_launcher_background, serviceNotification, "", "서비스 이용이 제한되었어요.", "2022-12-31", ""),
+        Notification(R.drawable.test_image1, followNotification, "follo_me", "", "2022-12-31", "101"),
+        Notification(R.drawable.test_image2, commentNotification, "bbak__daegari", "야 생각좀 하고 살아라 요즘에는 왜이리 생각 없이 사는 애들이 많냐?", "2022-12-31", "102"),
+        Notification(R.drawable.test_image5, commentChildNotification, "na_nim_god", "관악산에서 밥머거도 대나여", "2022-12-31", "103"),
+        Notification(R.drawable.ic_launcher_background, serviceNotification, "", "서비스 이용이 제한되었어요.", "2022-12-31", "")
     )
 
     val mContext = LocalContext.current

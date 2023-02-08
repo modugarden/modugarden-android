@@ -58,7 +58,9 @@ android {
 }
 
 dependencies {
-
+    //swiperefresylayout
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
+    implementation 'com.google.accompanist:accompanist-swiperefresh:0.24.13-rc'
     //viewmodel
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1'
     //viewPager
