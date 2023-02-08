@@ -151,8 +151,7 @@ fun CurationCard(
                     .padding(18.dp)
                     .bounceClick {
                         userViewModel.setUserId(data.user_id)
-                        navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName) {
-                        }
+                        navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName)
                     },
                 verticalAlignment = Alignment.CenterVertically
             ) {

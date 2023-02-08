@@ -47,7 +47,6 @@ class ProfileFollowActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val userId = intent.getIntExtra("userId", 0)
-            ProfileFollow(userId, this@ProfileFollowActivity)
         }
     }
 }

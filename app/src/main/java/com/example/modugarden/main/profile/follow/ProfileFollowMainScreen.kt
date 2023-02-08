@@ -21,8 +21,6 @@ import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.FollowListDtoRes
 import com.example.modugarden.api.dto.FollowListDtoResContent
-import com.example.modugarden.api.dto.GetStoredCurationsResponseContent
-import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.ui.theme.ScaffoldSnackBar
 import com.example.modugarden.ui.theme.TopBar
 import com.example.modugarden.ui.theme.moduBlack
@@ -45,7 +43,7 @@ fun ProfileFollowMainScreen(
     id: Int,
     navController: NavController,
     viewModel: UserViewModel,
-    onBackClick: () -> Unit
+    onUserClick: (Int) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
@@ -116,7 +114,7 @@ fun ProfileFollowMainScreen(
             TopBar(
                 title = "팔로우",
                 titleIcon = R.drawable.ic_arrow_left_bold,
-                titleIconOnClick = { onBackClick() },
+                titleIconOnClick = { navController.navigateUp() },
                 bottomLine = false
             )
             TabRow(
@@ -168,7 +166,7 @@ fun ProfileFollowMainScreen(
                             items(
                                 items = newFollowerList.value,
                                 key = { user -> user.userId }) { follower ->
-                                ProfileCard(follower, navController, viewModel) { isFollowing ->
+                                ProfileCard(follower, onUserClick) { isFollowing ->
                                     scope.launch {
                                         if (isFollowing)
                                             scaffoldState.snackbarHostState.showSnackbar(
@@ -193,7 +191,7 @@ fun ProfileFollowMainScreen(
                             items(
                                 items = newFollowingList.value,
                                 key = { user -> user.userId }) {following ->
-                                ProfileCard(following, navController, viewModel) { isFollowing ->
+                                ProfileCard(following, onUserClick) { isFollowing ->
                                     scope.launch {
                                         if (isFollowing)
                                             scaffoldState.snackbarHostState.showSnackbar(

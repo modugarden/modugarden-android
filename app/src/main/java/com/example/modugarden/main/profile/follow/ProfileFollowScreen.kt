@@ -1,37 +1,71 @@
 package com.example.modugarden.main.profile.follow
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.modugarden.main.profile.ProfileScreen
+import com.example.modugarden.main.profile.ProfileScreenV2
 import com.example.modugarden.viewmodel.UserViewModel
 
 enum class ProfileFollowScreen (val title: String) {
-    Main(title = "팔로우"),
-    Profile(title = "프로필")
+    Follow(title = "팔로우"),
+    Profile(title = "프로필"),
+    New(title = "다른 프로필")
+}
+
+@Composable
+fun ProfileApp(
+    userId: Int,
+    onBNB: Boolean,
+    upperNavController: NavHostController
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        //탐색 메인화면 부름
+        ProfileFollow(userId, onBNB, upperNavController)
+    }
 }
 
 @Composable
 fun ProfileFollow (
     userId: Int,
-    activity: ProfileFollowActivity,
+    onBNB: Boolean,
+    upperNavController: NavHostController,
     viewModel: UserViewModel = viewModel(),
     navController: NavHostController = rememberNavController()
 ) {
+    viewModel.setUserId(userId)
+    viewModel.setOnBNB(onBNB)
     NavHost(
         navController = navController,
-        startDestination = ProfileFollowScreen.Main.name,
+        startDestination = ProfileFollowScreen.Profile.name,
     ) {
-        composable(route = ProfileFollowScreen.Main.name) {
-            ProfileFollowMainScreen(userId, navController, viewModel) {
-                activity.finish()
+        composable(route = ProfileFollowScreen.Follow.name) {
+            ProfileFollowMainScreen(viewModel.getUserId(), navController, viewModel) {
+                viewModel.setNextUserId(it)
+                navController.navigate(ProfileFollowScreen.New.name)
             }
         }
         composable(route = ProfileFollowScreen.Profile.name) {
-            ProfileScreen(viewModel.getUserId())
+            ProfileScreenV2(
+                userId = viewModel.getUserId(),
+                navController = navController,
+                upperNavHostController = upperNavController,
+                userViewModel = viewModel
+            )
+        }
+        composable(route = ProfileFollowScreen.New.name) {
+            ProfileApp(userId = viewModel.getNextUserId(), false, upperNavController =  navController)
         }
     }
 }

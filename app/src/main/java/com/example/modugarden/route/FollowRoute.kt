@@ -12,7 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.follow.FollowMainScreen
-import com.example.modugarden.main.profile.ProfileScreen
+import com.example.modugarden.main.profile.follow.ProfileApp
 import com.example.modugarden.viewmodel.UserViewModel
 
 enum class NAV_ROUTE_FOLLOW(val routeName: String, val description: String){
@@ -39,7 +39,7 @@ fun NavigationGraphFollow(
         composable(
             NAV_ROUTE_FOLLOW.USERPROFILE.routeName
         ) { backStackEntry ->
-            ProfileScreen(userViewModel.getUserId())
+            ProfileApp(userViewModel.getUserId(), false, navController)
         }
     }
 }

@@ -92,8 +92,7 @@ fun FollowMainScreen(navController: NavHostController,
                      navFollowController: NavHostController,
                     userViewModel: UserViewModel = viewModel(),
                      refreshViewModel :RefreshViewModel = viewModel()
-)
-{
+) {
     val context = LocalContext.current.applicationContext
     val mode = remember { mutableStateOf(true) }
     val isRefreshing by refreshViewModel.isRefreshing.collectAsState()

@@ -150,6 +150,7 @@ fun PostCard(
                                                 .padding(18.dp)
                                                 .bounceClick {
                                                         userViewModel.setUserId(data.user_id)
+                                                        Log.d("postCardUserId", data.user_id.toString())
                                                         navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName) {
                                                         }
                                                 },//프로필
