@@ -89,7 +89,7 @@ fun FollowScreen(navController: NavHostController){
 @Composable
 fun FollowMainScreen(navController: NavHostController,
                      navFollowController: NavHostController,
-                    userViewModel: UserViewModel = viewModel())
+                    userViewModel: UserViewModel)
 {
     var following = remember { mutableStateOf(1) }
 

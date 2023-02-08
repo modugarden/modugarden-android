@@ -16,7 +16,7 @@ import com.example.modugarden.main.content.PostContentCommentScreen
 import com.example.modugarden.main.content.PostContentLocationScreen
 import com.example.modugarden.main.content.PostContentMapScreen
 import com.example.modugarden.main.content.PostContentScreen
-import com.example.modugarden.main.profile.ProfileScreen
+import com.example.modugarden.main.profile.follow.ProfileApp
 import com.example.modugarden.viewmodel.CommentViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 
@@ -55,7 +55,7 @@ fun NavigationGraphPostContent(navController: NavHostController,
             )
         }
 
-        composable(NAV_ROUTE_POSTCONTENT.WRITER.routeName) { ProfileScreen(userViewModel.getUserId()) }
+        composable(NAV_ROUTE_POSTCONTENT.WRITER.routeName) { ProfileApp(userViewModel.getUserId(), false, navController) }
 
         composable(NAV_ROUTE_POSTCONTENT.LOCATION.routeName) {}
         composable(NAV_ROUTE_POSTCONTENT.MAP.routeName)

@@ -11,7 +11,7 @@ import androidx.navigation.compose.composable
 import com.example.modugarden.main.discover.search.DiscoverSearchResultScreen
 import com.example.modugarden.main.discover.search.DiscoverSearchScreen
 import com.example.modugarden.main.discover.search.DiscoverSearchingScreen
-import com.example.modugarden.main.profile.ProfileScreen
+import com.example.modugarden.main.profile.follow.ProfileApp
 import com.example.modugarden.viewmodel.UserViewModel
 
 enum class NAV_ROUTE_DISCOVER_SEARCH(val routeName: String, val description: String) { //upload 패키지 루트.
@@ -50,7 +50,7 @@ fun NavigationGraphDiscoverSearch(
         composable(
             NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHUSERPROFILE.routeName
         ) {
-            ProfileScreen(userId = userViewModel.getUserId())
+            ProfileApp(userId = userViewModel.getUserId(), false, navController)
         }
     }
 }

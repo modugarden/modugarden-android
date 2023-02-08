@@ -45,7 +45,7 @@ import retrofit2.Response
 
 val pages = listOf("포스트", "큐레이션")
 
-val myId = sharedPreferences.getInt(clientId, 3)
+private val myId = sharedPreferences.getInt(clientId, 3)
 
 @OptIn(ExperimentalMaterialApi::class)
 @Preview(showBackground = true)
