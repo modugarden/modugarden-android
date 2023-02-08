@@ -37,7 +37,7 @@ data class UserInfoResResult(
     val id: Int = 0,
     val nickname: String = "",
     val postCount: Int = 0,
-    val profileImage: String = "",
+    val profileImage: String? = "",
     val userAuthority: String = UserAuthority.ROLE_GENERAL.name
 )
 // 아이디로 유저 정보 가져오기 끝
