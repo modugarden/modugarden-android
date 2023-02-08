@@ -12,14 +12,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.modugarden.api.dto.FollowRecommendationRes
 import com.example.modugarden.api.dto.GetFollowFeedCuration
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.route.NavigationGraphFollow
@@ -30,14 +28,14 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun FollowScreen(navController: NavHostController){
+fun FollowScreen(navController: NavHostController, userViewModel: UserViewModel){
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
         val navFollowController = rememberNavController()
-        NavigationGraphFollow(navController=navController,navFollowController = navFollowController)
+        NavigationGraphFollow(navController, navFollowController, userViewModel)
     }
 }
 @SuppressLint("UnrememberedMutableState")

@@ -16,10 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,12 +27,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType.Companion.Uri
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.core.net.toUri
-import com.bumptech.glide.Glide
 import com.example.modugarden.R
 import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.RetrofitBuilder
@@ -43,6 +37,7 @@ import com.example.modugarden.api.dto.UpdateUserSettingInfoRes
 import com.example.modugarden.api.dto.UserSettingInfoRes
 import com.example.modugarden.main.upload.curation.UriUtil
 import com.example.modugarden.ui.theme.*
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
@@ -51,7 +46,13 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
+
+enum class ModalType() {
+    ProfileImage,
+    Categories
+}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Preview(showBackground = true)
@@ -101,6 +102,7 @@ fun SettingsProfileScreen(
     val birthFocusState = remember { mutableStateOf(false) }
     val emailFocusState = remember { mutableStateOf(false) }
     val categories = remember { mutableStateOf(listOf("")) }
+    val modalType = remember { mutableStateOf(ModalType.ProfileImage) }
 
     // 유저 설정 정보 불러오는 API
     RetrofitBuilder.userAPI.readUserSettingInfo()
@@ -125,26 +127,38 @@ fun SettingsProfileScreen(
 
                 // 일단 기본이미지는 드로어블에 ic_dafault_profile 있어
                 // 그리고 이미지스테이트는 기본이미지면 널로 저장되는데 서버에서 널을 받을 수 있게 해야할듯..?
-                imageState.value = response.body()?.result?.profileImage!!.toUri()
+                if(response.body()?.result?.profileImage != null)
+                    imageState.value = response.body()?.result?.profileImage!!.toUri()
             }
         })
 
     ModalBottomSheet(
-        title = "프로필 이미지 설정",
+        title =
+        if(modalType.value == ModalType.Categories)
+            "카테고리 설정(최대 2개)"
+        else
+            "프로필 이미지 설정",
         bottomSheetState = bottomSheetState,
-        sheetScreen = {
-            ModalBottomSheetItem(text = "현재 사진 삭제", icon = R.drawable.plus,trailing = true, modifier = Modifier.bounceClick {
-                scope.launch {
-                    takePhotoFromAlbumLauncher.launch(takePhotoFromAlbumIntent)
-                    bottomSheetState.hide()
-                }
-            })
-            ModalBottomSheetItem(text = "라이브러리에서 선택", icon=R.drawable.plus, trailing = true, modifier = Modifier.bounceClick {
-                scope.launch {
-                    imageState.value = null
-                    bottomSheetState.hide()
-                }
-            })
+        sheetScreen =
+        {
+            if(modalType.value == ModalType.Categories) {
+                ModalBottomSheetCategoryItem(R.drawable.ic_potted_plant,"식물 가꾸기", categories)
+                ModalBottomSheetCategoryItem(R.drawable.ic_house_with_garden,"플랜테리어", categories)
+                ModalBottomSheetCategoryItem(R.drawable.ic_tent,"여행/나들이", categories)
+            } else {
+                ModalBottomSheetItem(text = "라이브러리에서 선택", icon = R.drawable.ic_upload_image_mountain, trailing = true, modifier = Modifier.bounceClick {
+                    scope.launch {
+                        takePhotoFromAlbumLauncher.launch(takePhotoFromAlbumIntent)
+                        bottomSheetState.hide()
+                    }
+                })
+                ModalBottomSheetItem(text = "기본 이미지로 변경", icon= R.drawable.ic_default_profile, trailing = true, modifier = Modifier.bounceClick {
+                    scope.launch {
+                        imageState.value = null
+                        bottomSheetState.hide()
+                    }
+                })
+            }
         },
         uiScreen = {
             Column(
@@ -158,6 +172,7 @@ fun SettingsProfileScreen(
                     .align(Alignment.CenterHorizontally)
                     .size(100.dp)
                     .bounceClick {
+                        modalType.value = ModalType.ProfileImage
                         focusManager.clearFocus()
                         scope.launch {
                             bottomSheetState.show()
@@ -223,7 +238,10 @@ fun SettingsProfileScreen(
                         modifier = Modifier
                             .fillMaxHeight()
                     ) {
-                        items(categories.value) { category ->
+                        items(
+                            items = categories.value,
+                            key = { it }
+                        ) { category ->
                             Card(
                                 Modifier
                                     .wrapContentSize()
@@ -250,23 +268,24 @@ fun SettingsProfileScreen(
                     Card(
                         modifier = Modifier
                             .width(40.dp)
-                            .height(40.dp),
-                        shape = RoundedCornerShape(10.dp),
+                            .height(40.dp)
+                            .bounceClick {
+                                modalType.value = ModalType.Categories
+                                focusManager.clearFocus()
+                                scope.launch {
+                                    bottomSheetState.show()
+                                }
+                            },
                         backgroundColor = moduBackground,
-                        onClick = {},
                         elevation = 0.dp
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.plus),
                             contentDescription = null,
                             modifier = Modifier
-                                .clickable(
-                                    enabled = true
-                                ) {
-                                    // 카테고리 추가
-                                }
                                 .wrapContentSize()
                                 .background(color = Color.Transparent)
+                                .clip(RoundedCornerShape(15.dp))
                         )
                     }
                 }
@@ -287,26 +306,97 @@ fun SettingsProfileScreen(
                                 body = it.asRequestBody("image/*".toMediaType())
                             )
                         }
-                        //requestBody에 dto object 넣을때는 이놈처럼 jsonData에 한번 받고
-//                        val jsonData = JsonObject().apply {
-//                            addProperty("category", uploadCurationViewModel.getInCategory().category)
-//                            addProperty("link", uploadCurationViewModel.getInUri())
-//                            addProperty("title", uploadCurationViewModel.getInTitle())
-//                        }
-                        //이 medaiType써서
-//                        val mediaType = "application/json; charset=utf-8".toMediaType()
-                        //jsonData를 RequestBody타입의 jsonBody로 만들어서
-//                        val jsonBody = jsonData.toString().toRequestBody(mediaType)
+                        val jsonArray = JsonArray()
+                        for(category in categories.value) {
+                            jsonArray.add(category)
+                        }
 
-                        //결국 이렇게 넘겨주면 댐
-//                        RetrofitBuilder.curationAPI
-//                            .curationCreate(jsonBody, requestFile)
+                        val jsonData = JsonObject().apply {
+                            add("categories", jsonArray)
+                            addProperty("nickname", nicknameState.value)
+                        }
 
+                        val mediaType = "application/json; charset=utf-8".toMediaType()
+                        val jsonBody = jsonData.toString().toRequestBody(mediaType)
 
+                        Log.d("RequestFile", requestFile.toString())
+
+                        RetrofitBuilder.userAPI.updateUserProfile(requestFile, jsonBody)
+                            .enqueue(object : Callback<UpdateUserSettingInfoRes>{
+                                override fun onResponse(
+                                    call: Call<UpdateUserSettingInfoRes>,
+                                    response: Response<UpdateUserSettingInfoRes>
+                                ) {
+                                    Log.d("onResponse",
+                                        response.toString() + "\n" +
+                                    response.body().toString() + "\n" +
+                                    response.errorBody().toString())
+                                }
+
+                                override fun onFailure(
+                                    call: Call<UpdateUserSettingInfoRes>,
+                                    t: Throwable
+                                ) {
+                                    TODO("Not yet implemented")
+                                }
+
+                            })
+                        onButtonClicked()
                     },
                     dpScale = 0.dp
                 )
             }
         }
     )
+}
+
+@Composable
+fun ModalBottomSheetCategoryItem(
+    icon: Int,
+    text: String,
+    categories: MutableState<List<String>>,
+    modifier: Modifier = Modifier
+) {
+    val checkState = remember { mutableStateOf(categories.value.contains(text)) }
+    Card(
+        modifier = modifier,
+        elevation = 0.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(vertical = 10.dp)
+        ) {
+            if(icon != 0) {
+                Image(
+                    painter = painterResource(id = icon),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(30.dp)
+                )
+                Spacer(modifier = Modifier.width(18.dp))
+                Text(text, fontSize = 16.sp, color = moduBlack, modifier = Modifier.align(Alignment.CenterVertically))
+                Spacer(modifier = Modifier.weight(1f))
+                Image(
+                    painter = painterResource(id =
+                    if(checkState.value)
+                        R.drawable.ic_check_solid
+                    else
+                        R.drawable.ic_check_line),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .align(Alignment.CenterVertically)
+                        .bounceClick {
+                            if (categories.value.contains(text)) {
+                                categories.value = categories.value.minus(text)
+                                checkState.value = !checkState.value }
+                            else if (categories.value.size < 2) {
+                                categories.value = categories.value.plus(text)
+                                checkState.value = !checkState.value }
+                        }
+                )
+            }
+        }
+    }
 }

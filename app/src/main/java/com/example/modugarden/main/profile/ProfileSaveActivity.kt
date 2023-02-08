@@ -14,6 +14,7 @@ import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.GetStoredCurationsResponse
 import com.example.modugarden.api.dto.GetStoredCurationsResponseContent
+import com.example.modugarden.api.dto.GetUserCurationsResponseContent
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.ui.theme.TopBar
 import retrofit2.Call
@@ -38,24 +39,12 @@ class ProfileSaveActivity: ComponentActivity() {
                     bottomLine = false
                 )
 
-                val postList = remember {
-                    mutableStateOf(
-                        listOf(
-                            PostDTO.GetStoredPostResponseContent(
-                                0, "", 0, "", "", 0, "", ""
-                            )
-                        )
-                    )
+                val postList = remember { mutableStateOf<List<PostDTO.GetStoredPostResponseContent>?>(
+                    listOf())
                 }
 
-                val curationList = remember {
-                    mutableStateOf(
-                        listOf(
-                            GetStoredCurationsResponseContent(
-                                "", 0, 0, "", "", "", "", 0, "", ""
-                            )
-                        )
-                    )
+                val curationList = remember { mutableStateOf<List<GetStoredCurationsResponseContent>?>(
+                    listOf())
                 }
 
                 RetrofitBuilder.postAPI.getMyPostStorage()
@@ -66,8 +55,8 @@ class ProfileSaveActivity: ComponentActivity() {
                             response: Response<PostDTO.GetStoredPostResponse>
                         ) {
                             super.onResponse(call, response)
-                            if (response.body()?.content != null)
-                                postList.value = response.body()?.content!!
+                            if(response.body()?.content != null)
+                                postList.value = response.body()?.content
                         }
                     })
 
@@ -80,11 +69,11 @@ class ProfileSaveActivity: ComponentActivity() {
                         ) {
                             super.onResponse(call, response)
                             if (response.body()?.content != null)
-                                curationList.value = response.body()?.content!!
+                                curationList.value = response.body()?.content
                         }
                     })
 
-                StoredTab(postList.value, curationList.value, context)
+                StoredTab(postList.value!!, curationList.value!!, context)
             }
         }
     }

@@ -27,6 +27,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
 import com.example.modugarden.api.dto.*
 import com.example.modugarden.api.dto.PostDTO.*
@@ -91,6 +92,17 @@ fun ProfileTab (
                     }
                     else {
                         ContentScale.Crop
+                    },
+                    loading = {
+                        ShowProgressBar()
+                    },
+                    // shows an error text if fail to load an image.
+                    failure = {
+                        Text(text = "image request failed.")
+                    },
+                    requestOptions = {
+                        RequestOptions()
+                            .override(256,256)
                     }
                 )
             }
@@ -184,6 +196,17 @@ fun CuratorProfileTab(
                                 }
                                 else {
                                     ContentScale.Crop
+                                },
+                                loading = {
+                                    ShowProgressBar()
+                                },
+                                // shows an error text if fail to load an image.
+                                failure = {
+                                    Text(text = "image request failed.")
+                                },
+                                requestOptions = {
+                                    RequestOptions()
+                                        .override(256,256)
                                 }
                             )
                         }
@@ -226,6 +249,17 @@ fun CuratorProfileTab(
                                 }
                                 else {
                                     ContentScale.Crop
+                                },
+                                loading = {
+                                    ShowProgressBar()
+                                },
+                                // shows an error text if fail to load an image.
+                                failure = {
+                                    Text(text = "image request failed.")
+                                },
+                                requestOptions = {
+                                    RequestOptions()
+                                        .override(256,256)
                                 }
                             )
                             Spacer(modifier = Modifier.width(18.dp))
@@ -358,6 +392,17 @@ fun StoredTab(
                                 }
                                 else {
                                     ContentScale.Crop
+                                },
+                                loading = {
+                                    ShowProgressBar()
+                                },
+                                // shows an error text if fail to load an image.
+                                failure = {
+                                    Text(text = "image request failed.")
+                                },
+                                requestOptions = {
+                                    RequestOptions()
+                                        .override(256,256)
                                 }
                             )
                         }
@@ -400,6 +445,17 @@ fun StoredTab(
                                 }
                                 else {
                                     ContentScale.Crop
+                                },
+                                loading = {
+                                    ShowProgressBar()
+                                },
+                                // shows an error text if fail to load an image.
+                                failure = {
+                                    Text(text = "image request failed.")
+                                },
+                                requestOptions = {
+                                    RequestOptions()
+                                        .override(256,256)
                                 }
                             )
                             Spacer(modifier = Modifier.width(18.dp))

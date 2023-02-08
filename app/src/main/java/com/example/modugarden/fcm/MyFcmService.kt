@@ -52,7 +52,8 @@ class MyFcmService: FirebaseMessagingService() {
         val body = message.notification?.body ?: ""
         val data = message.data
         message.notification?.let {
-            showNotification(it)
+            if(sharedPreferences.getBoolean(it.tag, false))
+                showNotification(it)
             db.notificationDao().insert(Notification(R.drawable.test_image1, commentNotification, title, body, "", ""))
         }
     }
