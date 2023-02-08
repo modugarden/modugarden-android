@@ -6,8 +6,6 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -19,18 +17,18 @@ import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -39,11 +37,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
-import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.FollowRecommendationRes
 import com.example.modugarden.api.dto.FollowRecommendationResContent
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
@@ -55,37 +51,31 @@ import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.viewmodel.RefreshViewModel
 import com.example.modugarden.viewmodel.UserViewModel
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 // 볼드 텍스트 타입 설정
 val moduBold : TextStyle = TextStyle(color = moduBlack, fontWeight = FontWeight.Bold)
 @SuppressLint("UnrememberedMutableState")
 @Composable //팔로잉이 3명 미만일 때 표시되는 화면.
 fun NoFollowingScreen(
-    recommendList:List<FollowRecommendationResContent>,
+/*    recommendRes: MutableState<FollowRecommendationRes>,*/
     navController: NavHostController,
     userViewModel: UserViewModel,
     refreshViewModel: RefreshViewModel) {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()//스크롤 상태 변수
 
-   /* SwipeRefresh(
-        state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
-        onRefresh = {
-            refreshViewModel.refresh()
+    //팔로우 추천
+    val recommendRes
+            = remember { mutableStateOf(FollowRecommendationRes()) }
+    refreshViewModel.getRecommend(recommendRes)
+    val recommendList = remember { mutableStateOf(recommendRes.value.content) }
 
-        })
-    {*/
-        
+    Log.i("페이지1", recommendRes.value.toString())
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -126,39 +116,16 @@ fun NoFollowingScreen(
                         .background(Color.White),
                     contentAlignment = Alignment.CenterStart
                 ) {
-                    Column() {
-                        recommendList.forEach { data->
+                    Column(content = {
+                        recommendList.value.forEach { data ->
                             FollowRecommendCard(
                                 navController = navController,
                                 data = data,
-                                userViewModel = userViewModel)
-                        }
-                    }
-                    /*if (recommendList?.value?.isNotEmpty() == true) {
-                        LazyColumn(userScrollEnabled = false) {
-                            // 추천 목록 데이터 넘겨서 표시될 예정
-                            items(3,
-                                itemContent = {it->
-                                FollowRecommendCard(
-                                    navController = navController,
-                                    userViewModel = userViewModel,
-                                    data = recommendList.value!![it],
-                                    scope = scope,
-                                    snackbarHostState = snackbarHostState)
-                            }
+                                userViewModel = userViewModel
                             )
-                            *//*items(recommendList.value!!)
-                            { item ->
-                                FollowRecommendCard(
-                                    navController=navController,
-                                    userViewModel = userViewModel,
-                                    data = item,
-                                    scope = scope,
-                                    snackbarHostState = snackbarHostState
-                                )
-                            }*//*
                         }
-                    }*/
+                    })
+
                 }
 
                 Spacer(modifier = Modifier.size(50.dp))
@@ -166,8 +133,12 @@ fun NoFollowingScreen(
                 Card(
                     modifier = Modifier
                         .bounceClick {
-                           /* refreshViewModel.getRecommend(recommendRes)
-                            recommendList.value = recommendRes.value.result*/
+                            if (recommendRes.value.hasNext){
+                            }
+                            else{
+                                refreshViewModel.getRecommend(recommendRes, 0)
+                                recommendList.value = recommendRes.value.content
+                            }
                         },
                     backgroundColor = Color.White,
                     shape = RoundedCornerShape(10.dp),
@@ -224,7 +195,7 @@ fun NoFollowingScreen(
                     }
                 })
         }
-    /*}*/
+
     }
 
 @Composable
@@ -290,7 +261,7 @@ fun FollowRecommendCard(
                             else snackbarHostState.showSnackbar("${data.nickname} 님을 언팔로우 했어요.")
                         }
                     },
-                    followState = followState,
+                    followState = remember { mutableStateOf(data.isFollow) },
                     contentModifier =
                     Modifier
                         .padding(vertical = 6.dp, horizontal = 10.dp)
