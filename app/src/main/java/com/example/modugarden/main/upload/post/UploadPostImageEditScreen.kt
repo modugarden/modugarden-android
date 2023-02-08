@@ -163,7 +163,7 @@ fun UploadPostImageEditScreen(
                                                 .size(40.dp)
                                         )
                                         Spacer(Modifier.size(18.dp))
-                                        Text(if(locationData[page].isNotEmpty()) locationData[page].split(",")[0] else "위치 태그 추가", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = if(locationData[page].isNotEmpty()) moduBlack else moduBlack, modifier = Modifier
+                                        Text(if(locationData[page].isNotEmpty()) locationData[page].split("``")[0] else "위치 태그 추가", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = if(locationData[page].isNotEmpty()) moduBlack else moduBlack, modifier = Modifier
                                             .align(Alignment.CenterVertically)
                                             .weight(1f))
                                         Spacer(Modifier.size(18.dp))

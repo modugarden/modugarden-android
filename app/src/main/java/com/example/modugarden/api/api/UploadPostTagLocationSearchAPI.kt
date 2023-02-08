@@ -7,10 +7,12 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface UploadPostTagLocationSearchAPI {
-    @GET("geocode/json")
+    @GET("place/textsearch/json")
     fun getUploadPostTagLocationSearchAPI(
-        @Query("address") address: String,
+        @Query("location") location: String,
+        @Query("radius") radius: Int,
+        @Query("query") query: String,
         @Query("key") key: String = google_maps_key,
-        @Query("language") language: String = "korean"
+        @Query("language") language: String = "korea"
     ): Call<MapsGeocoding>
 }

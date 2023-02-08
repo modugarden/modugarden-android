@@ -22,6 +22,8 @@ enum class NAV_ROUTE_UPLOAD_POST(val routeName: String, val description: String)
     INFO("UPLOAD_POST_INFO", "포스트 업로드 정보 입력창"),
     IMAGEDETAIL("UPLOAD_POST_IMAGEDETAIL", "포스트 업로드 사진 보기 창"),
     TAGLOCATION("UPLOAD_POST_TAGLOCATION", "포스트 업로드 위치 태그 추가 창"),
+    TAGLOCATIONLOADING("UPLOAD_POST_TAGLOCATIONLOADING", "포스트 업로드 위치 태그 검색 로딩 창"),
+    TAGLOCATIONRESULT("UPLOAD_POST_TAGLOCATIONRESULT", "포스트 업로드 위치 태그 검색 결과 창"),
     UPLOADING("UPLOAD_POST_UPLOADING", "포스트 업로드 중 화면"),
     UPLOADSUCCESSFULLY("UPLOAD_POST_UPLOADSUCCESSFULLY", "포스트 업로드 성공")
 }
@@ -165,6 +167,33 @@ fun NavigationGraphUploadPost(
         ) { backStackEntry ->
             val page = backStackEntry.arguments?.getInt("page") ?: 0
             UploadPostTagLocationScreen(navController = navController, uploadPostViewModel = uploadPostViewModel, data = data, page = page)
+        }
+        composable(
+            NAV_ROUTE_UPLOAD_POST.TAGLOCATIONRESULT.routeName+"/{address}/{page}",
+            enterTransition = {
+                slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeIn(tween(500))
+            },
+            exitTransition =  {
+                slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeOut(tween(500))
+            },
+            popEnterTransition = {
+                slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeIn(tween(500))
+            },
+            popExitTransition = {
+                slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeOut(tween(500))
+            },
+            arguments = listOf(
+                navArgument("address") { type = NavType.StringType },
+                navArgument("page") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val address = backStackEntry.arguments?.getString("address") ?: ""
+            val page = backStackEntry.arguments?.getInt("page") ?: 0
+            UploadPostTagLocationResultScreen(navController = navController, data = data, address = address, uploadPostViewModel = uploadPostViewModel, page1 = page)
         }
         composable(
             NAV_ROUTE_UPLOAD_POST.UPLOADING.routeName,

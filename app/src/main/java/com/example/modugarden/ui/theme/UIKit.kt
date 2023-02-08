@@ -129,6 +129,9 @@ fun EditText(
     description: String = "", //textField 아래에 들어갈 설명.
     errorListener: MutableState<Boolean> = mutableStateOf(false), //textField에 들어갈 값의 조건이 틀렸는지 여부.
     textStyle: TextStyle = TextStyle(fontSize = 20.sp, color = moduBlack), //textField의 글자 스타일 설정.
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    placeholder: String = "",
+    placeholderSize: Int = 20
 ) {
     val focusRequester = remember { FocusRequester() }
     Column {
@@ -154,6 +157,7 @@ fun EditText(
                 )
                 .animateContentSize(),
             value = data.value,
+            keyboardActions = keyboardActions,
             onValueChange = { textValue ->
                 data.value = textValue
             },
@@ -166,6 +170,7 @@ fun EditText(
             textStyle = textStyle,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             singleLine = singleLine,
+            placeholder = { Text(placeholder, color = moduGray_normal, fontSize = placeholderSize.sp) }
         )
         if(description != "") {
             Spacer(modifier = Modifier.height(5.dp))
