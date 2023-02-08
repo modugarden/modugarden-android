@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
 import androidx.room.Room
+import com.example.modugarden.ApplicationClass.Companion.commentNotification
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.MainActivity
 import com.example.modugarden.R
@@ -52,7 +53,7 @@ class MyFcmService: FirebaseMessagingService() {
         val data = message.data
         message.notification?.let {
             showNotification(it)
-            db.notificationDao().insert(Notification(R.drawable.test_image1, 1, title, body, "", ""))
+            db.notificationDao().insert(Notification(R.drawable.test_image1, commentNotification, title, body, "", ""))
         }
     }
     private fun showNotification(notification: RemoteMessage.Notification) {
