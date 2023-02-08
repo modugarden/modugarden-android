@@ -123,6 +123,7 @@ fun PostContentScreen(
     val snackbarHostState = remember { SnackbarHostState() }// 팔로우 스낵바 메세지 상태 변수
     val context = LocalContext.current.applicationContext
     val followState = remember { mutableStateOf(false) }
+
     RetrofitBuilder.postAPI
         .getPostContent(board_id)
         .enqueue(object : Callback<PostDTO.GetPostResponse> {
