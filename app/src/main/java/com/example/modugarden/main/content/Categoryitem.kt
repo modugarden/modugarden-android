@@ -10,6 +10,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -34,8 +35,8 @@ import retrofit2.Response
 @Composable
 fun ReportCategoryItem(
     report: Report,
-    id:Int,
-    modalType: Int,
+    id: MutableState<Int>,
+    modalType: MutableState<Int>,
     scope: CoroutineScope,
     bottomSheetState: ModalBottomSheetState
 ){
@@ -43,18 +44,19 @@ fun ReportCategoryItem(
         .fillMaxWidth()
         .padding(top = 18.dp)
         .bounceClick {
-            Log.i("신고 타입",modalType.toString())
-            if (modalType == modalReportPost) {
+            Log.i("신고 타입",modalType.value.toString())
+            if (modalType.value == modalReportPost) {
+                Log.i("신고 정보",report.name+id.toString()+modalType.value)
                 RetrofitBuilder.reportAPI
-                    .reportPost(id, report.name)
+                    .reportPost(id.value, report.name)
                     .enqueue(object :Callback<ReportPostResponse>{
                         override fun onResponse(
                             call: Call<ReportPostResponse>,
                             response: Response<ReportPostResponse>
                         ) {
-                            if (response.isSuccessful) {
-                                Log.i("게시글 신고", "성공")
-                            } else Log.i("게시글 신고 실패", response.message())
+                            if (response.body()?.isSuccess == true) {
+                                Log.i("게시글 신고", "성공+${response.body()}}")
+                            } else Log.i("게시글 신고 실패", response.body().toString())
                         }
 
                         override fun onFailure(call: Call<ReportPostResponse>, t: Throwable) {
@@ -63,16 +65,17 @@ fun ReportCategoryItem(
                     }
                     )
             }
-            if (modalType == modalReportCuration) {
+            if (modalType.value == modalReportCuration) {
+                Log.i("신고 정보",report.name+id.toString()+modalType.value)
                 RetrofitBuilder.reportAPI
-                    .reportCuration(id,report.name)
+                    .reportCuration(id.value,report.name)
                     .enqueue(object :Callback<ReportCurationResponse>{
                         override fun onResponse(
                             call: Call<ReportCurationResponse>,
                             response: Response<ReportCurationResponse>
                         ) {
                             if (response.isSuccessful) {
-                                Log.i("큐레이션 신고", "성공")
+                                Log.i("큐레이션 신고", "성공+${response.body()}")
                             } else Log.i("큐레이션 신고", "실패")
                         }
 
@@ -82,16 +85,17 @@ fun ReportCategoryItem(
                     })
 
             }
-            if (modalType== modalReportComment) {
+            if (modalType.value== modalReportComment) {
+                Log.i("신고 정보",report.name+id.value.toString()+modalType.value)
                 RetrofitBuilder.reportAPI
-                    .reportComment(id, report.name)
+                    .reportComment(id.value, report.name)
                     .enqueue(object : Callback<ReportCommentResponse> {
                         override fun onResponse(
                             call: Call<ReportCommentResponse>,
                             response: Response<ReportCommentResponse>
                         ) {
                             if (response.isSuccessful) {
-                                Log.i("댓글 신고", "성공")
+                                Log.i("댓글 신고", "성공+${response.body()}")
                             } else Log.i("댓글 신고", "실패")
                         }
 

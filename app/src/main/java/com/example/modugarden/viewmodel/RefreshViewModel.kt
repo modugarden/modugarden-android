@@ -31,7 +31,7 @@ class RefreshViewModel: ViewModel() {
         }
     }
 
-    fun  getRecommend(recommendRes: MutableState<FollowRecommendationRes>,page:Int=0){
+    fun  getRecommend(recommendRes: MutableState<FollowRecommendationRes>,page:Int){
         RetrofitBuilder.followAPI.getRecommendFollowList(page)
             .enqueue(object : Callback<FollowRecommendationRes> {
                 override fun onResponse(
