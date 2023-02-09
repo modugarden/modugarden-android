@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -23,12 +24,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
@@ -43,12 +46,15 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -101,6 +107,7 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.math.BigDecimal
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -129,7 +136,6 @@ fun PostContentScreen(
     val followState = remember { mutableStateOf(false) }
     val userId =
         ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
-    val refreshViewModel: RefreshViewModel = viewModel()
 
     RetrofitBuilder.postAPI
         .getPostContent(board_id)
@@ -164,14 +170,14 @@ fun PostContentScreen(
         val post = responseBody.result
         val locinfo = post!!.image[pagerState.currentPage].location
         val loclength = post!!.image[pagerState.currentPage].location.length
-        val locButtonState = remember {mutableStateOf(loclength == 0 || locinfo.contains(",").not()) }
+        val locButtonState = remember {mutableStateOf(loclength == 0) }
 
         ModalBottomSheetLayout(
             sheetElevation = 0.dp,
             sheetBackgroundColor = Color.Transparent,
             sheetState = bottomSheetState,
             sheetContent = {
-                if(modalType.value== modalReportType) {
+                if (modalType.value == modalReportType) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -245,7 +251,8 @@ fun PostContentScreen(
                                     ReportCategoryItem(
                                         report = item,
                                         mutableStateOf(board_id),
-                                        modalType,scope,bottomSheetState)
+                                        modalType, scope, bottomSheetState
+                                    )
                                 }
                             }
                             Spacer(modifier = Modifier.size(18.dp))
@@ -254,30 +261,31 @@ fun PostContentScreen(
 
                     }
                 }
-                else if(modalType.value == modalLocationType) {
-                    if(loclength == 0 || locinfo.contains(",").not()){
-                        Spacer(modifier = Modifier.size(10.dp))
-                    }
-
-                    else{
+                else if (modalType.value == modalLocationType) {
                     val location = remember { mutableStateOf("") }
-                        location.value = locinfo.split(",")[0]
+                    location.value = locinfo.split("``")[0]
                     val address = remember { mutableStateOf("") }
                     val lat = remember { mutableStateOf(0.0) }
-                        lat.value=locinfo.split(",")[1].toDouble()
-                    val lng =  remember { mutableStateOf(0.0) }
-                        lng.value=locinfo.split(",")[2].toDouble()
+                    val lng = remember { mutableStateOf(0.0) }
+                    val place_id = remember { mutableStateOf("") }
 
-                    val geocoder = Geocoder(
-                        LocalContext.current.applicationContext,
-                        Locale.KOREA
-                    )
-                    val latlng = geocoder.getFromLocation(lat.value, lng.value, 1)?.get(0)?.getAddressLine(0)
+                    if (locinfo.contains("``")) {
+                        lat.value = locinfo.split("``")[1].toDouble()
+                        lng.value = locinfo.split("``")[2].toDouble()
+                        place_id.value = locinfo.split("``")[3]
+                        val geocoder = Geocoder(
+                            LocalContext.current.applicationContext,
+                            Locale.KOREA
+                        )
+                        val latlng = geocoder.getFromLocation(lat.value, lng.value, 1)?.get(0)
+                            ?.getAddressLine(0)
                         if (latlng != null) {
-                            val country = geocoder.getFromLocation(lat.value, lng.value, 1)?.get(0)?.countryName!!
-                            latlng.replace(country,"")
-                            address.value = latlng.replace(country,"")
+                            val country = geocoder.getFromLocation(lat.value, lng.value, 1)
+                                ?.get(0)?.countryName!!
+                            address.value = latlng.replace("$country ", "")
+                        }
                     }
+
 
                     Card(
                         modifier = Modifier
@@ -337,92 +345,107 @@ fun PostContentScreen(
                                             style = moduBold,
                                             fontSize = 14.sp,
                                         )
-                                        Text(
-                                            text = address.value,
-                                            fontSize = 12.sp,
-                                            color = Color.Gray
-                                        )
+                                        if (locinfo.contains("``")) {
+                                            Text(
+                                                text = address.value,
+                                                fontSize = 12.sp,
+                                                color = moduGray_normal
+                                            )
+                                        }
 
                                     }
 
                                 }
 
-                                Log.i("latlng",lat.toString())
-                                //지도
-                               Box(modifier=
-                               Modifier
-                                   .fillMaxWidth()
-                                   .height(200.dp)
-                                   .clip(RoundedCornerShape(10.dp))
-                                   .border(1.dp, moduGray_light)
-                                ) {
-                                    GoogleMap(
-                                        Modifier.fillMaxSize(),
-                                        cameraPositionState = CameraPositionState( position = CameraPosition.fromLatLngZoom(LatLng(lat.value,lng.value), 20f))
-                                    ){
-                                        Marker(
-                                            state = MarkerState(position = LatLng(lat.value,lng.value)),
-                                            title = location.value,
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.size(18.dp))
-
-                                //버튼
-                                Row {
-                                    Card(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .bounceClick {
-                                                scope.launch {
-                                                    bottomSheetState.hide()
-                                                }
-                                            },
-                                        shape = RoundedCornerShape(10.dp),
-                                        backgroundColor = moduGray_light,
-                                        elevation = 0.dp
+                                if (locinfo.contains("``")) {
+                                    //지도
+                                    Box(
+                                        modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .height(200.dp)
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .border(1.dp, moduGray_light)
                                     ) {
-                                        Text(
-                                            text = "닫기",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 16.sp,
-                                            color = moduGray_strong,
-                                            modifier = Modifier
-                                                .padding(14.dp),
-                                            textAlign = TextAlign.Center
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.size(18.dp))
-                                    Card(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .bounceClick {
-                                                val map_data =
-                                                    MapInfo(
-                                                        location.value,
-                                                        address.value,
+                                        GoogleMap(
+                                            Modifier.fillMaxSize(),
+                                            cameraPositionState = CameraPositionState(
+                                                position = CameraPosition.fromLatLngZoom(
+                                                    LatLng(lat.value, lng.value),
+                                                    20f
+                                                )
+                                            )
+                                        ) {
+                                            Marker(
+                                                state = MarkerState(
+                                                    position = LatLng(
                                                         lat.value,
                                                         lng.value
                                                     )
-                                                navController.currentBackStackEntry?.savedStateHandle?.set(
-                                                    "map_data",
-                                                    map_data
-                                                )
-                                                navController.navigate(NAV_ROUTE_POSTCONTENT.MAP.routeName)
-                                            },
-                                        shape = RoundedCornerShape(10.dp),
-                                        backgroundColor = moduPoint,
-                                        elevation = 0.dp
-                                    ) {
-                                        Text(
-                                            text = "자세히보기",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 16.sp,
-                                            color = Color.White,
+                                                ),
+                                                title = location.value,
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.size(18.dp))
+
+                                    //버튼
+                                    Row {
+                                        Card(
                                             modifier = Modifier
-                                                .padding(14.dp),
-                                            textAlign = TextAlign.Center
-                                        )
+                                                .weight(1f)
+                                                .bounceClick {
+                                                    scope.launch {
+                                                        bottomSheetState.hide()
+                                                    }
+                                                },
+                                            shape = RoundedCornerShape(10.dp),
+                                            backgroundColor = moduGray_light,
+                                            elevation = 0.dp
+                                        ) {
+                                            Text(
+                                                text = "닫기",
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 16.sp,
+                                                color = moduGray_strong,
+                                                modifier = Modifier
+                                                    .padding(14.dp),
+                                                textAlign = TextAlign.Center
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.size(18.dp))
+                                        Card(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .bounceClick {
+                                                    val map_data =
+                                                        MapInfo(
+                                                            location.value,
+                                                            address.value,
+                                                            lat.value,
+                                                            lng.value,
+                                                            place_id.value
+                                                        )
+                                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                                        "map_data",
+                                                        map_data
+                                                    )
+                                                    navController.navigate(NAV_ROUTE_POSTCONTENT.MAP.routeName)
+                                                },
+                                            shape = RoundedCornerShape(10.dp),
+                                            backgroundColor = moduPoint,
+                                            elevation = 0.dp
+                                        ) {
+                                            Text(
+                                                text = "자세히보기",
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 16.sp,
+                                                color = Color.White,
+                                                modifier = Modifier
+                                                    .padding(14.dp),
+                                                textAlign = TextAlign.Center
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -431,7 +454,6 @@ fun PostContentScreen(
 
 
                     }
-                }
                 }
                 else { //삭제 모달
                     Card(
@@ -466,7 +488,8 @@ fun PostContentScreen(
                                         .padding(vertical = 30.dp)
                                 ) {
                                     GlideImage(
-                                        imageModel = post.user_profile_image ?: R.drawable.ic_default_profile,
+                                        imageModel = post.user_profile_image
+                                            ?: R.drawable.ic_default_profile,
                                         contentDescription = "",
                                         modifier = Modifier
                                             .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
@@ -476,7 +499,7 @@ fun PostContentScreen(
                                     )
                                     Spacer(modifier = Modifier.width(18.dp))
                                     Text(
-                                       post.title,
+                                        post.title,
                                         fontSize = 16.sp,
                                         color = moduBlack,
                                         modifier = Modifier.align(Alignment.CenterVertically)
@@ -539,7 +562,6 @@ fun PostContentScreen(
                                                 scope.launch {
                                                     bottomSheetState.hide()
                                                 }
-                                                refreshViewModel.refresh()
                                                 activity?.finish()
                                             },
                                         shape = RoundedCornerShape(10.dp),
@@ -560,20 +582,47 @@ fun PostContentScreen(
                             }
                         }
                     }
+
                 }
-            }
-        ) {
+            } ) {
             Box(modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)) {
                 Column {
+                    val count = post!!.image.size
+                    val firstPagerState = rememberPagerState()
+                    val secondPagerState = rememberPagerState()
                     // 포스트 카드 이미지 슬라이드
                     Box{
 
+                        val scrollingFollowingPair by remember {
+                            derivedStateOf {
+                                if (firstPagerState.isScrollInProgress) {
+                                    firstPagerState to secondPagerState
+                                } else if (secondPagerState.isScrollInProgress) {
+                                    secondPagerState to firstPagerState
+                                } else null
+                            }
+                        }
+                        LaunchedEffect(scrollingFollowingPair) {
+                            val (scrollingState, followingState) = scrollingFollowingPair ?: return@LaunchedEffect
+                            snapshotFlow { scrollingState.currentPage + scrollingState.currentPageOffset }
+                                .collect { pagePart ->
+                                    val divideAndRemainder = BigDecimal.valueOf(pagePart.toDouble())
+                                        .divideAndRemainder(BigDecimal.ONE)
+
+                                    followingState.scrollToPage(
+                                        divideAndRemainder[0].toInt(),
+                                        divideAndRemainder[1].toFloat(),
+                                    )
+                                }
+                        }
+
+
                         HorizontalPager(
-                                modifier = Modifier.wrapContentSize(),
-                                count = post!!.image.size,
-                                state = pagerState,
+                                modifier = Modifier.fillMaxWidth(),
+                                count = count,
+                                state = firstPagerState,
                             ) { page ->
                                     GlideImage(
                                         imageModel = post!!.image[page].image,
@@ -603,7 +652,7 @@ fun PostContentScreen(
                                 dotSize = 8,
                                 dotPadding = 5,
                                 totalDots = post.image.size,
-                                selectedIndex = pagerState.currentPage,
+                                selectedIndex = firstPagerState.currentPage,
                                 selectedColor = Color.White,
                                 unSelectedColor = Color("#75FFFFFF".toColorInt())
                             )
@@ -616,7 +665,7 @@ fun PostContentScreen(
                             .background(Color.White)
                     ) {
                         Row(modifier = Modifier
-                            .padding(25.dp, 18.dp)
+                            .padding(25.dp, 15.dp)
                             .bounceClick {
                                 userViewModel.setUserId(responseBody.result!!.user_id)
                                 navController.navigate(NAV_ROUTE_POSTCONTENT.WRITER.routeName)
@@ -685,45 +734,60 @@ fun PostContentScreen(
                             .height(1.dp)
                     )
                     // 제목, 카테고리, 업로드 시간, 내용
-
-                            VerticalPager(
+                            HorizontalPager(
                                 modifier = Modifier
                                     .padding(18.dp)
-                                    .weight(1f, false)
-                                    .fillMaxHeight()
-                                    .background(Color.White),
-                                count = post.image.size,
-                            state = pagerState)
+                                    .weight(1f)
+                                    .background(Color.White)
+                                    .verticalScroll(scrollState),
+                                verticalAlignment = Alignment.Top,
+                                count = count,
+                                state = secondPagerState)
                             {page ->
-                                Column(Modifier.verticalScroll(scrollState)) {
-                                    //제목
-                                    Text(
+                                Column(
+                                    Modifier
+
+                                        ) {
+                                    //제목, 정보
+                                    if (page==0){//제목
+                                        Text(
                                             text = post!!.title,
                                             fontSize = 20.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = moduBlack,
                                         )
-                                    //게시글 정보
-                                    Row(modifier = Modifier.fillMaxWidth()) {
+                                        //게시글 정보
+                                        Row(modifier = Modifier.fillMaxWidth()) {
                                             Text(
-                                                text = post!!.category_category+" · ",
+                                                text = post!!.category_category + " · ",
                                                 fontSize = 14.sp,
                                                 color = moduGray_strong
                                             )
-                                            Text(text = timeToDate(post!!.created_Date) ,
+                                            Text(
+                                                text = timeToDate(post!!.created_Date),
                                                 fontSize = 14.sp,
-                                                color = moduGray_strong)
+                                                color = moduGray_strong
+                                            )
                                         }
-                                    //내용
-                                    Column(modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 25.dp))
-                                    {
-                                        Text(text = post!!.image[page].content, fontSize = 16.sp)
+                                        Text(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 18.dp),
+                                            text = post!!.image[page].content, fontSize = 16.sp
+                                        )
                                     }
-                                    Spacer(modifier = Modifier.weight(1f))
+
+                                    else{//내용
+                                        Text(
+                                            modifier = Modifier
+                                                .fillMaxWidth(),
+                                            text = post!!.image[page].content, fontSize = 16.sp
+                                        )
+                                    }
+
                                 }
                             }
+
 
 // 좋아요, 댓글, 스크랩, 더보기
                     Box(modifier = Modifier

@@ -63,14 +63,14 @@ fun PostContentMapScreen(navController: NavHostController,data:MapInfo) {
         Box {
             val singapore = LatLng(1.35, 103.87)
             val cameraPositionState = rememberCameraPositionState {
-                position = CameraPosition.fromLatLngZoom(LatLng(data.lat,data.lng), 20f)
+                position = CameraPosition.fromLatLngZoom(LatLng(data.lat!!, data.lng!!), 20f)
             }
             GoogleMap(
                 Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState
             ){
                 Marker(
-                    state = MarkerState(position = LatLng(data.lat,data.lng)),
+                    state = MarkerState(position = LatLng(data.lat!!, data.lng!!)),
                     title = data.location
                 )
             }
@@ -128,9 +128,9 @@ fun PostContentMapScreen(navController: NavHostController,data:MapInfo) {
                     .align(Alignment.CenterVertically)
             ) {
                 // 위치
-                Text(text = data.location, style = moduBold, fontSize = 12.sp,)
+                Text(text = data.location!!, style = moduBold, fontSize = 12.sp,)
                 // 상세 주소
-                Text(text = data.address, fontSize = 14.sp, color = Color.Gray)
+                Text(text = data.address!!, fontSize = 14.sp, color = Color.Gray)
             }
 
         }

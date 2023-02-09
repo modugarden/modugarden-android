@@ -5,18 +5,11 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 
-/*
-interface PostGoogleMapPhotoAPI {
-    @GET("/place/photo")
-
-}
-
-interface PostGoogleFAPI{
-    @GET("/place/findplacefromtext/json")
-    fun getPhotoRefernce(
+/*interface PlacePhotoAPI{
+    @GET("/photo")
+    fun getPhotos(
         @Query("geometry") address: String,
         @Query("key") key: String = BuildConfig.google_maps_key,
-    ):CAll<>
-}
+    ):Call<>
+}*/
 
-data class PhotoReference()*/

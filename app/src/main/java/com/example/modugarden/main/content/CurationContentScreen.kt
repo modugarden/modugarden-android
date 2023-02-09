@@ -245,7 +245,6 @@ fun CurationContentScreen(curation_id :Int) {
         }
     )
     {
-
         // 상단
         Column(
             modifier = Modifier
