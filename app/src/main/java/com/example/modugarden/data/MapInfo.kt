@@ -5,8 +5,9 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class MapInfo(
-    val location : String,
-    val address : String,
-    val lat : Double,
-    val lng : Double,
+    val location : String?,
+    val address : String?,
+    val lat : Double?,
+    val lng : Double?,
+    val place_id : String?
 ):Parcelable

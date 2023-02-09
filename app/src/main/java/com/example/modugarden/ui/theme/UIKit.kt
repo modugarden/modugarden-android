@@ -77,6 +77,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import kotlin.math.pow
+
 //바운스 버튼
 enum class ButtonState { Pressed, Idle }
 //바운스 버튼
