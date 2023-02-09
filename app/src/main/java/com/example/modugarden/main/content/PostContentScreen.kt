@@ -63,6 +63,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.modugarden.ApplicationClass
 import com.example.modugarden.R
@@ -82,6 +83,7 @@ import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.ui.theme.moduPoint
+import com.example.modugarden.viewmodel.RefreshViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -125,9 +127,9 @@ fun PostContentScreen(
     val snackbarHostState = remember { SnackbarHostState() }// 팔로우 스낵바 메세지 상태 변수
     val context = LocalContext.current.applicationContext
     val followState = remember { mutableStateOf(false) }
-
     val userId =
         ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
+    val refreshViewModel: RefreshViewModel = viewModel()
 
     RetrofitBuilder.postAPI
         .getPostContent(board_id)
@@ -431,7 +433,7 @@ fun PostContentScreen(
                     }
                 }
                 }
-                else {
+                else { //삭제 모달
                     Card(
                         modifier = Modifier
                             .padding(10.dp),
@@ -457,14 +459,14 @@ fun PostContentScreen(
                                 modifier = Modifier
                                     .padding(horizontal = 18.dp)
                             ) {
-                                Text(text = "댓글을 삭제할까요?", style = moduBold, fontSize = 20.sp)
+                                Text(text = "포스트를 삭제할까요?", style = moduBold, fontSize = 20.sp)
 
                                 Row(
                                     modifier = Modifier
                                         .padding(vertical = 30.dp)
                                 ) {
                                     GlideImage(
-                                        imageModel = post.user_profile_image,
+                                        imageModel = post.user_profile_image ?: R.drawable.ic_default_profile,
                                         contentDescription = "",
                                         modifier = Modifier
                                             .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
@@ -537,7 +539,8 @@ fun PostContentScreen(
                                                 scope.launch {
                                                     bottomSheetState.hide()
                                                 }
-
+                                                refreshViewModel.refresh()
+                                                activity?.finish()
                                             },
                                         shape = RoundedCornerShape(10.dp),
                                         backgroundColor = Color(0xFFFF7272),
@@ -557,8 +560,6 @@ fun PostContentScreen(
                             }
                         }
                     }
-
-
                 }
             }
         ) {
@@ -626,7 +627,7 @@ fun PostContentScreen(
                         {
                             // 작성자 프로필 사진
                             GlideImage(
-                                imageModel = post!!.user_profile_image,
+                                imageModel = post!!.user_profile_image?:R.drawable.ic_default_profile,
                                 contentDescription = "",
                                 modifier = Modifier
                                     .size(45.dp)
@@ -874,7 +875,7 @@ fun PostContentScreen(
                         modifier = Modifier
                             .bounceClick {
                                 //버튼 클릭하면 바텀 모달 상태 변수 바뀜
-                                if(post.user_id==userId) modalType.value = modalDeleteType
+                                if(post.user_id==userId) modalType.value = modalDeletePost
                                 else modalType.value = modalReportType
                                 scope.launch {
                                     bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)

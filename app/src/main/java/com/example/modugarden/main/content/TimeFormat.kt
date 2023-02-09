@@ -31,7 +31,7 @@ fun timeToDate(createdTime: String): String {
     val date = LocalDateTime.parse(createdTime)
     return date.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))
 }
-//이거 쓰면됨
+//댓글, 팔로우피드
 @RequiresApi(Build.VERSION_CODES.O)
 fun timeFomatter (createdTime:String,value: MutableState<String>) : String {
     val date = createdTime.split("T")[0]

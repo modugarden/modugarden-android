@@ -46,21 +46,34 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.DeleteCurationResponse
 import com.example.modugarden.api.dto.GetFollowFeedCurationContent
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.data.Report
 import com.example.modugarden.main.content.ReportCategoryItem
+import com.example.modugarden.main.content.modalDeleteCuration
+import com.example.modugarden.main.content.modalDeletePost
+import com.example.modugarden.main.content.modalReportCuration
 import com.example.modugarden.main.content.modalReportPost
+import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBackground
+import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
+import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.viewmodel.UserViewModel
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @SuppressLint("UnrememberedMutableState", "SuspiciousIndentation")
 @RequiresApi(Build.VERSION_CODES.O)
@@ -89,97 +102,266 @@ fun FollowingScreen(
         sheetBackgroundColor = Color.Transparent,
         sheetState = bottomSheetState,
         sheetContent = {
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                shape = RoundedCornerShape(15.dp)
-            ) {
-                Column(
+            if (modalType.value== modalDeletePost ||
+                modalType.value==modalDeleteCuration){
+                Card(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 18.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(10.dp),
+                    shape = RoundedCornerShape(15.dp)
                 ) {
-                    // 회색 선
-                    Box(
-                        modifier = Modifier
-                            .width(40.dp)
-                            .height(5.dp)
-                            .alpha(0.4f)
-                            .background(moduGray_normal, RoundedCornerShape(30.dp))
-
-                    )
-                    Spacer(modifier = Modifier.size(30.dp))
-
                     Column(
                         modifier = Modifier
-                            .padding(horizontal = 18.dp)
-                    ) {
-                        if (modalType.value== modalReportPost) {
-                            Text(text = "포스트 신고", style = moduBold, fontSize = 20.sp)
-                        } else Text(text = "큐레이션 신고", style = moduBold, fontSize = 20.sp)
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 18.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            GlideImage(
-                                imageModel =
-                                if(modalContentImage.value==null) R.drawable.ic_default_profile
-                                else modalContentImage.value
-                                    ,
-                                contentDescription = "",
-                                modifier = Modifier
-                                    .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
-                                    .size(25.dp)
-                                    .clip(CircleShape),
-                                contentScale = ContentScale.Crop
-                            )
-                            Spacer(modifier = Modifier.size(18.dp))
-                            Text(text =modalContentTitle.value, style = moduBold, fontSize = 14.sp)
-                        }
-                    }
-
-                    // 구분선
-                    Divider(
-                        color = moduGray_light, modifier = Modifier
                             .fillMaxWidth()
-                            .height(1.dp)
-                    )
-
-                    // 신고 카테고리 리스트
-                    LazyColumn(
-                        modifier = Modifier
-                            .padding(horizontal = 18.dp)
+                            .padding(vertical = 18.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        itemsIndexed(
-                            listOf(
-                                Report.ABUSE,
-                                Report.TERROR,
-                                Report.SEXUAL,
-                                Report.FISHING,
-                                Report.INAPPROPRIATE
+                        Box(
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(5.dp)
+                                .background(moduGray_normal, RoundedCornerShape(30.dp))
+                                .alpha(0.2f)
+                        )
+
+                        Spacer(modifier = Modifier.size(30.dp))
+
+                        Column(
+                            modifier = Modifier
+                                .padding(horizontal = 18.dp)
+                        ) {
+                            if (modalType.value== modalDeletePost) Text(text = "포스트를 삭제할까요?", style = moduBold, fontSize = 20.sp)
+                            else Text(text = "큐레이션을 삭제할까요?", style = moduBold, fontSize = 20.sp)
+                            Row(
+                                modifier = Modifier
+                                    .padding(vertical = 30.dp)
+                            ) {
+                                GlideImage(
+                                    imageModel =
+                                    if(modalContentImage.value==null) R.drawable.ic_default_profile
+                                    else modalContentImage.value,
+                                    contentDescription = "",
+                                    modifier = Modifier
+                                        .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
+                                        .size(25.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                                Spacer(modifier = Modifier.width(18.dp))
+                                Text(
+                                    modalContentTitle.value,
+                                    fontSize = 16.sp,
+                                    color = moduBlack,
+                                    modifier = Modifier.align(Alignment.CenterVertically)
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+
+
+                            }
+                            //버튼
+                            Row {
+                                Card(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .bounceClick {
+                                            scope.launch {
+                                                bottomSheetState.hide()
+                                            }
+                                        },
+                                    shape = RoundedCornerShape(10.dp),
+                                    backgroundColor = moduGray_light,
+                                    elevation = 0.dp
+                                ) {
+                                    Text(
+                                        text = "취소",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                        color = moduGray_strong,
+                                        modifier = Modifier
+                                            .padding(14.dp),
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                                Spacer(modifier = Modifier.size(18.dp))
+                                Card(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .bounceClick {
+                                            if (modalType.value == modalDeletePost) {
+                                                RetrofitBuilder.postAPI
+                                                    .deletePost(modalContentId.value)
+                                                    .enqueue(object :
+                                                        Callback<PostDTO.DeletePostResponse> {
+                                                        override fun onResponse(
+                                                            call: Call<PostDTO.DeletePostResponse>,
+                                                            response: Response<PostDTO.DeletePostResponse>
+                                                        ) {
+                                                            if (response.isSuccessful) Log.i(
+                                                                "포스트 삭제",
+                                                                "성공"
+                                                            )
+                                                            else Log.i("포스트 삭제", "실패")
+                                                        }
+
+                                                        override fun onFailure(
+                                                            call: Call<PostDTO.DeletePostResponse>,
+                                                            t: Throwable
+                                                        ) {
+                                                            Log.i("포스트 삭제", "서버 연결 실패")
+                                                        }
+                                                    })
+                                            }
+                                            else
+                                            {
+                                                RetrofitBuilder.curationAPI
+                                                    .deleteCuration(modalContentId.value)
+                                                    .enqueue(object :
+                                                        Callback<DeleteCurationResponse> {
+                                                        override fun onResponse(
+                                                            call: Call<DeleteCurationResponse>,
+                                                            response: Response<DeleteCurationResponse>
+                                                        ) {
+                                                            if (response.body()?.isSuccess == true) Log.i(
+                                                                "큐레이션 삭제",
+                                                                "성공"
+                                                            )
+                                                            else Log.i("큐레이션 삭제", "실패")
+                                                        }
+
+                                                        override fun onFailure(
+                                                            call: Call<DeleteCurationResponse>,
+                                                            t: Throwable
+                                                        ) {
+                                                            Log.i("큐레이션 삭제", "서버 연결 실패")
+                                                        }
+                                                    })
+                                            }
+                                            scope.launch {
+                                                bottomSheetState.hide()
+                                            }
+
+                                        },
+                                    shape = RoundedCornerShape(10.dp),
+                                    backgroundColor = Color(0xFFFF7272),
+                                    elevation = 0.dp
+                                ) {
+                                    Text(
+                                        text = "삭제",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                        color = Color.White,
+                                        modifier = Modifier
+                                            .padding(14.dp),
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    shape = RoundedCornerShape(15.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 18.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // 회색 선
+                        Box(
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(5.dp)
+                                .alpha(0.4f)
+                                .background(moduGray_normal, RoundedCornerShape(30.dp))
+
+                        )
+                        Spacer(modifier = Modifier.size(30.dp))
+
+                        Column(
+                            modifier = Modifier
+                                .padding(horizontal = 18.dp)
+                        ) {
+                            if (modalType.value == modalReportPost) {
+                                Text(text = "포스트 신고", style = moduBold, fontSize = 20.sp)
+                            }
+                            if (modalType.value == modalReportCuration) Text(
+                                text = "큐레이션 신고",
+                                style = moduBold,
+                                fontSize = 20.sp
                             )
-                        ) { index, item ->
-                            Log.i("신고 타입/아이디",modalType.value.toString()+"/"+modalContentId.value)
-                            ReportCategoryItem(
-                                report = item,
-                                id = modalContentId,
-                                modalType = modalType,
-                                scope,
-                                bottomSheetState)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 18.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                GlideImage(
+                                    imageModel =
+                                    if (modalContentImage.value == null) R.drawable.ic_default_profile
+                                    else modalContentImage.value,
+                                    contentDescription = "",
+                                    modifier = Modifier
+                                        .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
+                                        .size(25.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                                Spacer(modifier = Modifier.size(18.dp))
+                                Text(
+                                    text = modalContentTitle.value,
+                                    style = moduBold,
+                                    fontSize = 14.sp
+                                )
+                            }
                         }
 
+                        // 구분선
+                        Divider(
+                            color = moduGray_light, modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                        )
 
+                        // 신고 카테고리 리스트
+                        LazyColumn(
+                            modifier = Modifier
+                                .padding(horizontal = 18.dp)
+                        ) {
+                            itemsIndexed(
+                                listOf(
+                                    Report.ABUSE,
+                                    Report.TERROR,
+                                    Report.SEXUAL,
+                                    Report.FISHING,
+                                    Report.INAPPROPRIATE
+                                )
+                            ) { index, item ->
+                                Log.i(
+                                    "신고 타입/아이디",
+                                    modalType.value.toString() + "/" + modalContentId.value
+                                )
+                                ReportCategoryItem(
+                                    report = item,
+                                    id = modalContentId,
+                                    modalType = modalType,
+                                    scope,
+                                    bottomSheetState
+                                )
+                            }
+
+
+                        }
+                        Spacer(modifier = Modifier.size(18.dp))
                     }
-                    Spacer(modifier = Modifier.size(18.dp))
+
+
                 }
-
-
             }
         })
     {

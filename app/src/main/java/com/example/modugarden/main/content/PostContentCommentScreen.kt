@@ -761,9 +761,7 @@ fun CommentItem(
                     if (comment.parentId!=null) Spacer(modifier = Modifier.size(18.dp))
                     // 댓글 작성자 프로필 사진
                     GlideImage(
-                        imageModel = if(comment.profileImage == null)
-                            R.drawable.ic_default_profile
-                        else comment.profileImage,
+                        imageModel = comment.profileImage ?: R.drawable.ic_default_profile,
                         contentDescription = "",
                         modifier = Modifier
                             .size(30.dp)
