@@ -300,9 +300,9 @@ fun ProfileScreenV2(
 
                     Spacer(modifier = Modifier.size(30.dp))
 
-                    if(myId != data.value.id) {
+                    if(myId != userId) {
                         FollowCard(
-                            id = data.value.id,
+                            id = userId,
                             modifier = Modifier
                                 .width(120.dp)
                                 .width(36.dp)
