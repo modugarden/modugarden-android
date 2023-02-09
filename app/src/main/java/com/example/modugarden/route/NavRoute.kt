@@ -26,7 +26,7 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 
 enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val icon: Int) { //main 패키지 루트.
     FOLLOW("FOLLOW", "팔로우", R.drawable.ic_home),
-    DISCOVER("DISCOVER", "탐색", R.drawable.ic_search),
+    DISCOVER("DISCOVER", "탐색", R.drawable.ic_search_small),
     UPLOAD("UPLOAD", "업로드", R.drawable.ic_plus_solid),
     NOTIFICATION("NOTIFICATION", "알림", R.drawable.ic_notification),
     MYPROFILE("MYPROFILE", "내 프로필", R.drawable.ic_user),

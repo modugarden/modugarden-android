@@ -66,7 +66,6 @@ fun DiscoverSearchCurationCard(curationData: GetSearchCurationContent) {
                 }
 
             })
-        Log.d("result-like", "작동댐??")
     }
 
     Row(
@@ -87,8 +86,8 @@ fun DiscoverSearchCurationCard(curationData: GetSearchCurationContent) {
                     pendIntent = PendingIntent
                         .getActivity(
                             mContext, 0,
-                            intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent . FLAG_MUTABLE
-                    )
+                            intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                        )
 
                 } else {
                     pendIntent = PendingIntent
@@ -115,7 +114,7 @@ fun DiscoverSearchCurationCard(curationData: GetSearchCurationContent) {
             GlideImage( // CoilImage, FrescoImage
                 imageModel = curationData.preview_image,
                 modifier = Modifier
-                    .size(width = 90.dp, height = 90.dp)
+                    .size(width = 110.dp, height = 110.dp)
                     .clip(RoundedCornerShape(15.dp)),
                 contentScale = ContentScale.Crop,
                 // shows an indicator while loading an image.
@@ -141,11 +140,11 @@ fun DiscoverSearchCurationCard(curationData: GetSearchCurationContent) {
                 modifier = Modifier.width(230.dp),
                 text = curationData.title,
                 style = TextStyle(color = moduBlack,
-                    fontWeight = FontWeight(700),
-                    fontSize = 14.sp),
+                    fontWeight = FontWeight(500),
+                    fontSize = 15.sp),
                 //넘치면 ....으로 표시해주는놈
                 overflow = TextOverflow.Ellipsis,
-                maxLines = 1
+                maxLines = 2
             )
 
             Spacer(modifier = Modifier.height(7.dp))
@@ -154,43 +153,72 @@ fun DiscoverSearchCurationCard(curationData: GetSearchCurationContent) {
             val timeLine = curationData.created_Date.split("T")[0].split("-")
 
             Text(text = "${timeLine[0]}년 ${timeLine[1]}월 ${timeLine[2]}일",
-                style = TextStyle(color = Color(0xFF959DA7),
+                style = TextStyle(color = moduGray_strong,
                     fontWeight = FontWeight(400),fontSize = 11.sp)
             )
 
-            Spacer(modifier = Modifier.height(9.dp))
+            Spacer(modifier = Modifier.height(7.dp))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_background),
-                    contentDescription = null,
+                GlideImage(
+                    imageModel =
+                    if(curationData.user_profile_image == null)
+                        R.drawable.ic_default_profile
+                    else
+                        curationData.user_profile_image,
                     modifier = Modifier
-                        .size(width = 23.dp, height = 23.dp)
-                        .clip(CircleShape)
+                        .size(width = 20.dp, height = 20.dp)
+                        .aspectRatio(1f)
+                        .clip(CircleShape),
+                    loading = {
+                        ShowProgressBar()
+                    },
+                    // shows an error text if fail to load an image.
+                    failure = {
+                        Text(text = "image request failed.")
+                    },
+                    requestOptions = {
+                        RequestOptions()
+                            .override(128,128)
+                    }
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(10.dp))
                 //작성자
                 Text(
                     modifier = Modifier
                         .padding(bottom = 3.dp),
                     text = curationData.user_nickname,
                     style = TextStyle(color = Color(0xFF252525).copy(alpha = 0.8f),
-                        fontWeight = FontWeight(400),fontSize = 13.sp)
+                        fontWeight = FontWeight(400),fontSize = 11.sp)
                 )
+
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Spacer(modifier = Modifier.weight(1f))
+
+                Image(
+                    painter = painterResource(id = R.drawable.ic_heart_mini),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(width = 15.dp, height = 15.dp)
+                )
 
                 Text(
                     modifier = Modifier
-                        .padding(bottom = 2.dp, end = 10.dp),
-                    text = "♡ ${likeCnt.value}",
-                    style = TextStyle(color = moduGray_strong.copy(alpha = 0.8f),
-                        fontWeight = FontWeight(400),fontSize = 14.sp)
+                        .padding(start = 5.dp),
+                    text = "${likeCnt.value}",
+                    style = TextStyle(color = moduGray_normal,
+                        fontWeight = FontWeight(400),fontSize = 12.sp)
                 )
-            }
 
+            }
 
         }
 

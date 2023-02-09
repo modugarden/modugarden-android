@@ -423,6 +423,7 @@ fun ProfileScreen (
                             .enqueue(object : AuthCallBack<GetUserCurationsResponse>(context, "성공!") {
                                 override fun onResponse(
                                     call: Call<GetUserCurationsResponse>,
+
                                     response: Response<GetUserCurationsResponse>
                                 ) {
                                     super.onResponse(call, response)

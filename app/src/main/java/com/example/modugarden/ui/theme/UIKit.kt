@@ -2,6 +2,7 @@ package com.example.modugarden.ui.theme
 
 import android.graphics.Rect
 import android.util.Log
+import android.view.KeyEvent
 import android.view.ViewTreeObserver
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
@@ -14,6 +15,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -22,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusManager
@@ -32,6 +35,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -46,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.graphics.toColorInt
+import androidx.navigation.NavHostController
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.RetrofitBuilder.curationAPI
@@ -55,7 +60,10 @@ import com.example.modugarden.api.dto.CurationStoreResponse
 import com.example.modugarden.api.dto.FollowDtoRes
 import com.example.modugarden.api.dto.GetCurationLikeStateResponse
 import com.example.modugarden.api.dto.PostDTO.*
+import com.example.modugarden.data.RecentSearch
+import com.example.modugarden.data.RecentSearchDatabase
 import com.example.modugarden.main.follow.moduBold
+import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -595,22 +603,31 @@ fun ScaffoldSnackBar(
 fun SearchTextField(
     searchText : MutableState<String>,
     isTextFieldSearchFocused : MutableState<Boolean>,
-    focusManager : FocusManager
+    focusManager : FocusManager,
+    db: RecentSearchDatabase,
+    navController: NavHostController
 ) {
-    Box {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(1f)
+            .clip(RoundedCornerShape(10.dp))
+            .background(
+                if (isTextFieldSearchFocused.value) moduTextFieldPoint
+                else moduBackground
+            )
+    ) {
         //검색어 입력하는 텍스트 필드
         TextField(
             value = searchText.value,
-            onValueChange = { textValue -> searchText.value = textValue },
+            onValueChange = { searchText.value = it },
             modifier = Modifier
-                .padding(vertical = 0.dp, horizontal = 0.dp)
-                .fillMaxWidth(0.9f)
+                .padding(start = 30.dp)
+                .fillMaxWidth()
                 .height(52.dp)
                 .onFocusChanged {
                     isTextFieldSearchFocused.value = it.isFocused
                 }
                 .animateContentSize(),
-            shape = RoundedCornerShape(10.dp),
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor =
                 if (isTextFieldSearchFocused.value) moduTextFieldPoint
@@ -619,12 +636,39 @@ fun SearchTextField(
                 unfocusedIndicatorColor = Color.Transparent,
             ),
             textStyle = TextStyle(fontSize = 14.sp, color = moduBlack),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+            keyboardActions = KeyboardActions(onSearch = {
+                focusManager.clearFocus()
+                isTextFieldSearchFocused.value = false
+
+                Log.d("keyboard-test", searchText.value)
+                if(searchText.value != "") {
+                    //이미 전에 검색했던 거면 한번 지우고 다시 insert해줘서 맨 위로 올려줌
+                    val checkData: RecentSearch? = db.recentSearchDao().findRecentSearchBySearchText(searchText.value)
+                    checkData?.let {
+                        db.recentSearchDao().delete(
+                            it
+                        )
+                    }
+
+                    db.recentSearchDao().insert(RecentSearch(searchText.value))
+                    navController.navigate(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHRESULT.routeName + "/" + searchText.value) {
+                        popUpTo(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHING.routeName)
+                    }
+
+
+                }
+            }),
             keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Done,
+                imeAction = ImeAction.Search,
                 keyboardType = KeyboardType.Text
             ),
             singleLine = true,
+            placeholder = {
+                Text(
+                    text = "게시물이나 사용자를 검색해보세요",
+                    style = TextStyle(color = moduGray_normal)
+                )
+            }
         )
         if (searchText.value.isNotEmpty()) {
             Image(
@@ -632,12 +676,22 @@ fun SearchTextField(
                 contentDescription = "검색중 나오는 x 이미지",
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .padding(end = 10.dp, top = 1.dp)
+                    .padding(end = 10.dp, top = 5.dp)
                     .bounceClick {
                         searchText.value = ""
                     }
             )
         }
+
+        Image(
+            painter =
+            if(isTextFieldSearchFocused.value) painterResource(id = R.drawable.ic_search_in_text_green)
+            else painterResource(id = R.drawable.ic_search_in_text_gray),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = 14.dp)
+        )
     }
 }
 
