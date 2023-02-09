@@ -49,68 +49,115 @@ fun DiscoverSearchingScreen(navController: NavHostController) {
             modifier = Modifier.fillMaxSize()
         ) {
 
+            //상단 카테고리 선택 및 검색버튼 있는 레이아웃
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(start = 18.dp, top = 14.dp, end = 18.dp, bottom = 0.dp),
+                    .padding(start = 18.dp, top = 40.dp, end = 18.dp, bottom = 15.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Text(
+                    text = "탐색",
+                    color = moduBlack,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight(700)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
 
                 //뒤로가기 버튼으로 누르면 stack 다 날라가고 discover main 스크린으로 이동하
                 Image(
-                    painter = painterResource(id = R.drawable.ic_arrow_left_bold),
+                    painter = painterResource(id = R.drawable.ic_cross_line_bold_black),
                     contentDescription = null,
                     modifier = Modifier
                         .bounceClick {
                             navController.popBackStack(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERMAIN.routeName, inclusive = false)
                         }
                 )
+            }
 
-                Spacer(modifier = Modifier.width(12.dp))
-
+            Row(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .fillMaxWidth()
+                    .padding(start = 18.dp, end = 18.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ){
                 //검색창
                 SearchTextField(
                     searchText =  searchText,
                     isTextFieldSearchFocused = isTextFieldSearchFocused,
-                    focusManager = focusManager
+                    focusManager = focusManager,
+                    db = db,
+                    navController = navController
                 )
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                //검색버튼
-                Image(
-                    painter = painterResource(id = R.drawable.ic_search),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .bounceClick {
-                            if(searchText.value != "") {
-                                //이미 전에 검색했던 거면 한번 지우고 다시 insert해줘서 맨 위로 올려줌
-                                val checkData: RecentSearch? = db.recentSearchDao().findRecentSearchBySearchText(searchText.value)
-                                checkData?.let {
-                                    db.recentSearchDao().delete(
-                                        it
-                                    )
-                                }
-
-                                db.recentSearchDao().insert(RecentSearch(searchText.value))
-                                navController.navigate(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHRESULT.routeName + "/" + searchText.value) {
-                                    popUpTo(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHING.routeName)
-                                }
-
-                            }
-                        }
-
-                )
             }
+//
+//            Spacer(modifier = Modifier.height(16.dp))
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .wrapContentHeight()
+//                    .padding(start = 18.dp, top = 14.dp, end = 18.dp, bottom = 0.dp),
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//
+//                //뒤로가기 버튼으로 누르면 stack 다 날라가고 discover main 스크린으로 이동하
+//                Image(
+//                    painter = painterResource(id = R.drawable.ic_arrow_left_bold),
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .bounceClick {
+//                            navController.popBackStack(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERMAIN.routeName, inclusive = false)
+//                        }
+//                )
+//
+//                Spacer(modifier = Modifier.width(12.dp))
+//
+//                //검색창
+//                SearchTextField(
+//                    searchText =  searchText,
+//                    isTextFieldSearchFocused = isTextFieldSearchFocused,
+//                    focusManager = focusManager
+//                )
+//
+//                Spacer(modifier = Modifier.weight(1f))
+//
+//                //검색버튼
+//                Image(
+//                    painter = painterResource(id = R.drawable.ic_search_small),
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .bounceClick {
+//                            if(searchText.value != "") {
+//                                //이미 전에 검색했던 거면 한번 지우고 다시 insert해줘서 맨 위로 올려줌
+//                                val checkData: RecentSearch? = db.recentSearchDao().findRecentSearchBySearchText(searchText.value)
+//                                checkData?.let {
+//                                    db.recentSearchDao().delete(
+//                                        it
+//                                    )
+//                                }
+//
+//                                db.recentSearchDao().insert(RecentSearch(searchText.value))
+//                                navController.navigate(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHRESULT.routeName + "/" + searchText.value) {
+//                                    popUpTo(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHING.routeName)
+//                                }
+//
+//                            }
+//                        }
+//
+//                )
+//            }
             Text(
                 modifier = Modifier
-                    .padding(top = 26.dp, start = 18.dp, bottom = 8.dp),
+                    .padding(top = 20.dp, start = 18.dp, bottom = 8.dp),
                 text = "최근 검색어",
                 style = TextStyle(
                     color = moduBlack,
                     fontWeight = FontWeight(700),
-                    fontSize = 14.sp
+                    fontSize = 20.sp
                 )
             )
             DiscoverSearchBefore(navController, db, recentSearchItems.value)
