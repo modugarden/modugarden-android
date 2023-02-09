@@ -38,10 +38,17 @@ import com.example.modugarden.api.RetrofitBuilder.loginAPI
 import com.example.modugarden.api.RetrofitBuilder.signupAPI
 import com.example.modugarden.api.dto.SignupEmailIsDuplicatedDTO
 import com.example.modugarden.ApplicationClass.Companion.accessToken
+import com.example.modugarden.ApplicationClass.Companion.autoLoginId
+import com.example.modugarden.ApplicationClass.Companion.autoLoginOption
+import com.example.modugarden.ApplicationClass.Companion.autoLoginPw
+import com.example.modugarden.ApplicationClass.Companion.autoLoginSetting
 import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.clientNickname
+import com.example.modugarden.ApplicationClass.Companion.googleLogin
+import com.example.modugarden.ApplicationClass.Companion.normalLogin
 import com.example.modugarden.ApplicationClass.Companion.refreshToken
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
+import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.RetrofitBuilder.fcmCheckAPI
 import com.example.modugarden.api.RetrofitBuilder.fcmSaveAPI
@@ -71,6 +78,8 @@ fun MainLoginScreen(navController: NavController) {
     val focusManager = LocalFocusManager.current
     val mContext = LocalContext.current
     val editor = sharedPreferences.edit()
+    val context = LocalContext.current
+    val token = GOOGLE_WEB_KEY
 
     var user by remember { mutableStateOf(Firebase.auth.currentUser) }
 
@@ -226,7 +235,6 @@ fun MainLoginScreen(navController: NavController) {
             Toast.makeText(mContext, "로그인 실패", Toast.LENGTH_SHORT).show()
         }
     )
-    val token = GOOGLE_WEB_KEY
 
     Box(
         modifier = Modifier
@@ -289,6 +297,9 @@ fun MainLoginScreen(navController: NavController) {
                                             editor.putString(refreshToken, res.result.refreshToken)
                                             editor.putInt(clientId, res.result.userId)
                                             editor.putString(clientNickname, res.result.nickname)
+                                            editor.putString(autoLoginId, textFieldId.value)
+                                            editor.putString(autoLoginPw, textFieldPw.value)
+                                            editor.putString(autoLoginOption, normalLogin)
                                             editor.apply()
                                             fcmCheckAPI.fcmCheckAPI().enqueue(object: Callback<FcmCheckDTO> {
                                                 override fun onResponse(
@@ -395,6 +406,7 @@ fun MainLoginScreen(navController: NavController) {
                                 .build()
                         val googleSignInClient = GoogleSignIn.getClient(mContext, gso)
                         launcher.launch(googleSignInClient.signInIntent)
+                        editor.putString(autoLoginOption, googleLogin).apply()
                     }
             ) {
                 Row(
@@ -451,6 +463,162 @@ fun MainLoginScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(50.dp))
         }
     }
+
+    if(sharedPreferences.getBoolean(autoLoginSetting, false))
+        if(sharedPreferences.getString(autoLoginOption, "") == normalLogin) {
+            val jsonData = JsonObject()
+            jsonData.apply {
+                addProperty("email", sharedPreferences.getString(autoLoginId, ""))
+                addProperty("password", sharedPreferences.getString(autoLoginPw, ""))
+            }
+            loginAPI.login(jsonData).enqueue(object : Callback<LoginDTO> {
+                override fun onResponse(
+                    call: Call<LoginDTO>,
+                    response: Response<LoginDTO>
+                ) {
+                    if (response.isSuccessful) {
+                        val res = response.body()
+                        if (res != null) {
+                            if (res.isSuccess) {
+                                Log.e("apires", res.result.accessToken)
+                                mContext.startActivity(
+                                    Intent(mContext, MainActivity::class.java)
+                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                )
+                                val fcmToken = sharedPreferences.getString("fcmToken", "")
+                                Log.d("apires", "fcmToken :: $fcmToken")
+                                val jsonDataFcmToken = JsonObject()
+                                jsonDataFcmToken.apply {
+                                    addProperty("fcmToken", fcmToken)
+                                }
+                                Log.d("Login Info", res.result.toString())
+                                editor.putString(accessToken, res.result.accessToken)
+                                editor.putString(refreshToken, res.result.refreshToken)
+                                editor.putInt(clientId, res.result.userId)
+                                editor.putString(clientNickname, res.result.nickname)
+                                editor.apply()
+                                fcmCheckAPI.fcmCheckAPI()
+                                    .enqueue(AuthCallBack<FcmCheckDTO>(context, "자동 로그인"))
+                            } else {
+                                Toast.makeText(mContext, "자동 로그인 실패 : ${res.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            Toast.makeText(mContext, "res == null", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(mContext, "response != isSuccessful", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<LoginDTO>, t: Throwable) {
+                    Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+        else if(sharedPreferences.getString(autoLoginOption, "") == googleLogin) {
+            val jsonData = JsonObject().apply {
+                addProperty("email", user?.email)
+            }
+            val fcmToken = sharedPreferences.getString("fcmToken", "")
+            Log.d("apires", "fcmToken :: $fcmToken")
+            val jsonDataFcmToken = JsonObject()
+            jsonDataFcmToken.apply {
+                addProperty("fcmToken", fcmToken)
+            }
+            loginAPI.loginSocialAPI(jsonData).enqueue(object: Callback<LoginDTO> {
+                override fun onResponse(
+                    call: Call<LoginDTO>,
+                    response: Response<LoginDTO>
+                ) {
+                    if(response.isSuccessful) {
+                        val res1 = response.body()
+                        if(res1 != null) {
+                            if(res1.isSuccess) {
+                                mContext.startActivity(
+                                    Intent(mContext, MainActivity::class.java)
+                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                )
+                                Log.e("apires", res1.result.accessToken)
+                                editor.putString(accessToken, res1.result.accessToken)
+                                editor.putString(refreshToken, res1.result.refreshToken)
+                                editor.putInt(clientId, res1.result.userId)
+                                editor.putString(clientNickname, res1.result.nickname)
+                                editor.apply()
+                                fcmCheckAPI.fcmCheckAPI().enqueue(object: Callback<FcmCheckDTO> {
+                                    override fun onResponse(
+                                        call: Call<FcmCheckDTO>,
+                                        response: Response<FcmCheckDTO>
+                                    ) {
+                                        if(response.isSuccessful) {
+                                            val res = response.body()
+                                            if(res != null) {
+                                                if(res.isSuccess) {
+                                                    if(fcmToken !in res.result.fcmTokens) {
+                                                        Log.d("apires", "새로운 토큰을 저장했어요")
+                                                        fcmSaveAPI.fcmSaveAPI(jsonDataFcmToken).enqueue(object: Callback<FcmSaveDTO> {
+                                                            override fun onResponse(call: Call<FcmSaveDTO>, response: Response<FcmSaveDTO>) {
+                                                                if(response.isSuccessful) {
+                                                                    val res = response.body()
+                                                                    if(res != null) {
+                                                                        if(res.isSuccess) {
+                                                                            Log.d("apires", "토큰을 정상적으로 서버에 저장했어요")
+                                                                        }
+                                                                        else {
+                                                                            Log.e("apires", res.message)
+                                                                        }
+                                                                    }
+                                                                    else {
+                                                                        Log.e("apires", "res == null")
+                                                                    }
+                                                                }
+                                                                else {
+                                                                    Log.e("apires", "response == not Successful")
+                                                                }
+                                                            }
+
+                                                            override fun onFailure(call: Call<FcmSaveDTO>, t: Throwable) {
+                                                                Log.e("apires", "토큰 전송 실패!")
+                                                            }
+                                                        })
+                                                    }
+                                                    Log.d("apires", "토큰 저장 API 작업 완료.")
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    override fun onFailure(
+                                        call: Call<FcmCheckDTO>,
+                                        t: Throwable
+                                    ) {
+
+                                    }
+
+                                })
+                            }
+                            else {
+                                Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        else {
+                            Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    else {
+                        Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<LoginDTO>, t: Throwable) {
+                    Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                }
+
+            })
+        }
 }
 
 @Composable

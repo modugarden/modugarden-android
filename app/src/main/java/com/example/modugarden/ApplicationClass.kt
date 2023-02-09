@@ -31,6 +31,11 @@ class ApplicationClass : Application() {
         val serviceNotification = "Service Notification Setting"
         val marketingNotification = "Marketing Notification Setting"
         val autoLoginSetting = "Auto Login Setting"
+        val autoLoginId = "Auto Login ID"
+        val autoLoginPw = "Auto Login Password"
+        val autoLoginOption = "Auto Login Option"
+        val normalLogin = "Option : Normal"
+        val googleLogin = "Option : Google"
         val refresh = "refresh"
 
         lateinit var retrofit: Retrofit
