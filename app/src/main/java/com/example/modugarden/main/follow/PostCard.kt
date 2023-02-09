@@ -45,11 +45,13 @@ import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.request.RequestOptions
+import com.example.modugarden.ApplicationClass
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.PostContentActivity
+import com.example.modugarden.main.content.modalDeletePost
 import com.example.modugarden.main.content.modalReportPost
 import com.example.modugarden.main.content.timeFomatter
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
@@ -88,7 +90,8 @@ fun PostCard(
         val isButtonClickedSave = remember { mutableStateOf(false) }
         val order: PagerState = rememberPagerState() //뷰페이저, 인디케이터 페이지 상태 변수
         val mContext = LocalContext.current
-
+        val userId =
+                ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
         val launcher = rememberLauncherForActivityResult(contract =
         ActivityResultContracts.StartIntentSenderForResult()) {
                 RetrofitBuilder.postAPI.getPostLikeState(data.board_id)
@@ -392,7 +395,8 @@ fun PostCard(
                                                Icon(modifier = Modifier.bounceClick {
                                                        modalTitle.value  = data.title
                                                        modalImage.value = data.user_profile_image
-                                                       modalType.value = modalReportPost
+                                                       if (data.user_id==userId) modalType.value = modalDeletePost
+                                                       else modalType.value = modalReportPost
                                                        modalId.value = data.board_id
                                                        scope.launch {
                                                                bottomSheetState.animateTo(

@@ -53,6 +53,7 @@ import com.example.modugarden.api.dto.GetCurationResponse
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.ui.theme.*
+import com.example.modugarden.viewmodel.RefreshViewModel
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -72,7 +73,7 @@ fun CurationContentScreen(curation_id :Int) {
     val snackbarHostState = remember { SnackbarHostState() }
     var responseBody by remember { mutableStateOf(GetCurationResponse()) }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
-
+    val refreshViewModel:RefreshViewModel= viewModel()
     RetrofitBuilder.curationAPI.getCuraionContent(curation_id)
         .enqueue(object : Callback<GetCurationResponse> {
             override fun onResponse(
@@ -102,7 +103,7 @@ fun CurationContentScreen(curation_id :Int) {
     ModalBottomSheetLayout(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(Color.Transparent)
             .addFocusCleaner(focusManager),
         sheetState = bottomSheetState,
         sheetContent = {
@@ -214,6 +215,8 @@ fun CurationContentScreen(curation_id :Int) {
                                             scope.launch {
                                                 bottomSheetState.hide()
                                             }
+                                            refreshViewModel.refresh()
+                                            activity?.finish()
 
                                         },
                                     shape = RoundedCornerShape(10.dp),
@@ -274,7 +277,7 @@ fun CurationContentScreen(curation_id :Int) {
                             scope.launch {
                                 bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
                             }
-                    })
+                        })
 
                 Icon(painter = painterResource(id = R.drawable.ic_xmark),
                     contentDescription = "창 닫기",
