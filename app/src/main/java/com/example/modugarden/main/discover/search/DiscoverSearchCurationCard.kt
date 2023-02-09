@@ -162,12 +162,27 @@ fun DiscoverSearchCurationCard(curationData: GetSearchCurationContent) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_background),
-                    contentDescription = null,
+                GlideImage(
+                    imageModel =
+                    if(curationData.user_profile_image == null)
+                        R.drawable.ic_default_profile
+                    else
+                        curationData.user_profile_image,
                     modifier = Modifier
                         .size(width = 20.dp, height = 20.dp)
-                        .clip(CircleShape)
+                        .aspectRatio(1f)
+                        .clip(CircleShape),
+                    loading = {
+                        ShowProgressBar()
+                    },
+                    // shows an error text if fail to load an image.
+                    failure = {
+                        Text(text = "image request failed.")
+                    },
+                    requestOptions = {
+                        RequestOptions()
+                            .override(128,128)
+                    }
                 )
 
                 Spacer(modifier = Modifier.width(10.dp))

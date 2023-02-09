@@ -23,11 +23,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
 import com.example.modugarden.api.dto.FindByNicknameResContent
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.UserViewModel
+import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -58,15 +60,36 @@ fun DiscoverSearchUserCard(
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
-                contentDescription = null,
+//            Image(
+//                painter = painterResource(id = R.drawable.ic_launcher_background),
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .size(width = 50.dp, height = 50.dp)
+//                    .clip(CircleShape),
+//                contentScale = ContentScale.Crop
+//            )
+            GlideImage(
+                imageModel =
+                if(userData.profileImage == null)
+                    R.drawable.ic_default_profile
+                else
+                    userData.profileImage,
                 modifier = Modifier
                     .size(width = 50.dp, height = 50.dp)
+                    .aspectRatio(1f)
                     .clip(CircleShape),
-                contentScale = ContentScale.Crop
+                loading = {
+                    ShowProgressBar()
+                },
+                // shows an error text if fail to load an image.
+                failure = {
+                    Text(text = "image request failed.")
+                },
+                requestOptions = {
+                    RequestOptions()
+                        .override(256,256)
+                }
             )
-
             Spacer(modifier = Modifier.width(20.dp))
 
             Column {
