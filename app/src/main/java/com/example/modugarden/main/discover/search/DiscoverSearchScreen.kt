@@ -37,13 +37,10 @@ fun DiscoverSearchScreen(navController: NavHostController) {
 
     //ViewPager쓸때 어디 페이지의 state를 확인할 변수
     val pagerState = rememberPagerState()
-    val coroutineScope = rememberCoroutineScope()
 
     //어떤 카테고리 보여주는지 왼쪽 위에 아이콘이랑 카테고리 이름 바꿔줄 변수
     val selectedCategory = remember { mutableStateOf(Category.GARDENING) }
 
-    //viewPager에 사용할 포스트, 큐레이션 나타내주는 변수
-    val mainPages = listOf("포스트", "큐레이션")
 
     val focusManager = LocalFocusManager.current
 
@@ -200,7 +197,7 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
 
                     //포스트, 큐레이션 텝 레이아웃
                     HorizontalPager(
