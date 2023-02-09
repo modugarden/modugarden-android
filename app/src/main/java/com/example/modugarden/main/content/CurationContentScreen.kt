@@ -68,12 +68,16 @@ fun CurationContentScreen(curation_id :Int) {
     //액티비티 종료할 때 사용할 변수
     val activity = (LocalContext.current as? Activity)
     val isButtonClickedLike = remember { mutableStateOf(false) }
+    val isButtonClickedSave = remember { mutableStateOf(false) }
     val context = LocalContext.current.applicationContext
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var responseBody by remember { mutableStateOf(GetCurationResponse()) }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val refreshViewModel:RefreshViewModel= viewModel()
+    val userId =
+        ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
+
     RetrofitBuilder.curationAPI.getCuraionContent(curation_id)
         .enqueue(object : Callback<GetCurationResponse> {
             override fun onResponse(
@@ -101,10 +105,8 @@ fun CurationContentScreen(curation_id :Int) {
         val curation = responseBody.result
 
     ModalBottomSheetLayout(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Transparent)
-            .addFocusCleaner(focusManager),
+        sheetElevation = 0.dp,
+        sheetBackgroundColor = Color.Transparent,
         sheetState = bottomSheetState,
         sheetContent = {
                 Card(
@@ -267,17 +269,23 @@ fun CurationContentScreen(curation_id :Int) {
                 )
 
                 // 스크랩
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_delete_24) ,
-                    contentDescription = "삭제",
-                    tint= moduBlack,
-                    modifier = Modifier
-                        .padding(end = 18.dp)
-                        .bounceClick {
-                            scope.launch {
-                                bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                            }
-                        })
+                if(curation.user_id==userId) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_delete_24),
+                        contentDescription = "삭제",
+                        tint = moduBlack,
+                        modifier = Modifier
+                            .padding(end = 18.dp)
+                            .bounceClick {
+                                scope.launch {
+                                    bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                                }
+                            })
+                }
+                else CurationSaveCard(
+                    curationId = curation_id,
+                    modifier =  Modifier.padding(end = 18.dp),
+                    saveState = isButtonClickedSave)
 
                 Icon(painter = painterResource(id = R.drawable.ic_xmark),
                     contentDescription = "창 닫기",
