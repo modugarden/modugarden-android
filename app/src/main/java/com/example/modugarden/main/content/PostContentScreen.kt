@@ -457,14 +457,14 @@ fun PostContentScreen(
                                 modifier = Modifier
                                     .padding(horizontal = 18.dp)
                             ) {
-                                Text(text = "댓글을 삭제할까요?", style = moduBold, fontSize = 20.sp)
+                                Text(text = "포스트를 삭제할까요?", style = moduBold, fontSize = 20.sp)
 
                                 Row(
                                     modifier = Modifier
                                         .padding(vertical = 30.dp)
                                 ) {
                                     GlideImage(
-                                        imageModel = post.user_profile_image,
+                                        imageModel = post.user_profile_image ?: R.drawable.ic_default_profile,
                                         contentDescription = "",
                                         modifier = Modifier
                                             .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
