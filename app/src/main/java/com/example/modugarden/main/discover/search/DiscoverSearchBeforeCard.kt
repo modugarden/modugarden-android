@@ -72,7 +72,7 @@ fun DiscoverSearchBeforeCard(
                 style = TextStyle(
                     color = moduBlack,
                     fontWeight = FontWeight(400),
-                    fontSize = 14.sp
+                    fontSize = 16.sp
                 )
             )
 
@@ -88,7 +88,7 @@ fun DiscoverSearchBeforeCard(
                     }
                 }
             },
-            painter = painterResource(id = R.drawable.ic_cross_line),
+            painter = painterResource(id = R.drawable.ic_cross_line_bold_gray),
             contentDescription = null,
         )
     }

@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.graphics.toColorInt
+import androidx.navigation.NavHostController
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.RetrofitBuilder.curationAPI
@@ -59,7 +60,10 @@ import com.example.modugarden.api.dto.CurationStoreResponse
 import com.example.modugarden.api.dto.FollowDtoRes
 import com.example.modugarden.api.dto.GetCurationLikeStateResponse
 import com.example.modugarden.api.dto.PostDTO.*
+import com.example.modugarden.data.RecentSearch
+import com.example.modugarden.data.RecentSearchDatabase
 import com.example.modugarden.main.follow.moduBold
+import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -599,11 +603,13 @@ fun ScaffoldSnackBar(
 fun SearchTextField(
     searchText : MutableState<String>,
     isTextFieldSearchFocused : MutableState<Boolean>,
-    focusManager : FocusManager
+    focusManager : FocusManager,
+    db: RecentSearchDatabase,
+    navController: NavHostController
 ) {
     Box(
         modifier = Modifier
-            .fillMaxWidth(0.9f)
+            .fillMaxWidth(1f)
             .clip(RoundedCornerShape(10.dp))
             .background(
                 if (isTextFieldSearchFocused.value) moduTextFieldPoint
@@ -615,18 +621,11 @@ fun SearchTextField(
             value = searchText.value,
             onValueChange = { searchText.value = it },
             modifier = Modifier
-                .padding(start = 20.dp)
+                .padding(start = 30.dp)
                 .fillMaxWidth()
                 .height(52.dp)
                 .onFocusChanged {
                     isTextFieldSearchFocused.value = it.isFocused
-                }
-                .onKeyEvent {
-                    if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER){
-                        Log.d("keyboard??", searchText.value)
-                        true
-                    }
-                    false
                 }
                 .animateContentSize(),
             colors = TextFieldDefaults.textFieldColors(
@@ -637,12 +636,39 @@ fun SearchTextField(
                 unfocusedIndicatorColor = Color.Transparent,
             ),
             textStyle = TextStyle(fontSize = 14.sp, color = moduBlack),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+            keyboardActions = KeyboardActions(onSearch = {
+                focusManager.clearFocus()
+                isTextFieldSearchFocused.value = false
+
+                Log.d("keyboard-test", searchText.value)
+                if(searchText.value != "") {
+                    //이미 전에 검색했던 거면 한번 지우고 다시 insert해줘서 맨 위로 올려줌
+                    val checkData: RecentSearch? = db.recentSearchDao().findRecentSearchBySearchText(searchText.value)
+                    checkData?.let {
+                        db.recentSearchDao().delete(
+                            it
+                        )
+                    }
+
+                    db.recentSearchDao().insert(RecentSearch(searchText.value))
+                    navController.navigate(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHRESULT.routeName + "/" + searchText.value) {
+                        popUpTo(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHING.routeName)
+                    }
+
+
+                }
+            }),
             keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Done,
+                imeAction = ImeAction.Search,
                 keyboardType = KeyboardType.Text
             ),
             singleLine = true,
+            placeholder = {
+                Text(
+                    text = "게시물이나 사용자를 검색해보세요",
+                    style = TextStyle(color = moduGray_normal)
+                )
+            }
         )
         if (searchText.value.isNotEmpty()) {
             Image(
@@ -650,12 +676,22 @@ fun SearchTextField(
                 contentDescription = "검색중 나오는 x 이미지",
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .padding(end = 10.dp, top = 1.dp)
+                    .padding(end = 10.dp, top = 5.dp)
                     .bounceClick {
                         searchText.value = ""
                     }
             )
         }
+
+        Image(
+            painter =
+            if(isTextFieldSearchFocused.value) painterResource(id = R.drawable.ic_search_in_text_green)
+            else painterResource(id = R.drawable.ic_search_in_text_gray),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = 14.dp)
+        )
     }
 }
 

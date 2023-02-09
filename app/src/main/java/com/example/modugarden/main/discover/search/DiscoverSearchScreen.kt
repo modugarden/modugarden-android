@@ -106,57 +106,6 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                             fontSize = 22.sp,
                             fontWeight = FontWeight(700)
                         )
-//                        Box(
-//                            modifier = Modifier.height(52.dp)
-//                        ) {
-//                            Box(
-//                                modifier = Modifier.align(Alignment.CenterStart)
-//                                    .bounceClick {
-//                                        focusManager.clearFocus()
-//                                        showModalSheet.value = !showModalSheet.value
-//                                        scope.launch {
-//                                            bottomSheetState.show()
-//                                        }
-//                                    },
-//                            ) {
-//                                Row(
-//                                    modifier = Modifier.fillMaxHeight(),
-//                                    verticalAlignment = Alignment.CenterVertically
-//                                ) {
-//                                    Box(
-//                                        modifier = Modifier
-//                                            .width(22.dp)
-//                                    ) {
-//                                        //카테고리 선택된 거에 맞는 이름 사진 넣어버려
-//                                        Image(
-//                                            painter = painterResource(id = selectedCategory.value.image),
-//                                            contentDescription = null,
-//                                            modifier = Modifier.size(22.dp, 22.dp)
-//                                        )
-//
-//                                    }
-//                                    Text(
-//                                        modifier = Modifier
-//                                            .padding(horizontal = 6.25.dp),
-//                                        text = selectedCategory.value.category,
-//                                        style = TextStyle(
-//                                            fontSize = 20.sp,
-//                                            fontWeight = FontWeight.Bold,
-//                                            color = moduBlack
-//                                        )
-//                                    )
-//                                    //카테고리 옆에 있는 ^ 이거 거꾸로 이미지
-//                                    Image(
-//                                        painter = painterResource(id = R.drawable.ic_chevron_down),
-//                                        contentDescription = null,
-//                                    )
-//
-//                                }
-//
-//                            }
-//
-//                        }
-
 
                         Spacer(modifier = Modifier.weight(1f))
 
@@ -180,43 +129,36 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                             .padding(end = 18.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ){
-                        TabRow(
-                            modifier = Modifier
-                                .width(200.dp),
-                            selectedTabIndex = pagerState.currentPage,
-                            backgroundColor = Color.White,
-                            divider = {},
-                            indicator = {},
-
-//                            indicator = { tabPositions ->
-//                                TabRowDefaults.Indicator(
-//                                    Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
-//                                    color = moduBlack,
-//                                )
-//                            },
+                        Row(
+                            Modifier
+                                .padding(horizontal = 18.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            mainPages.forEachIndexed { index, title ->
-                                Tab(
-                                    text = {
-                                        Text(
-                                            text = title,
-                                            fontSize = 18.sp,
-                                            style = TextStyle(
-                                                color =
-                                                if(pagerState.currentPage == index) moduBlack
-                                                else moduGray_normal
-                                            ),
-                                            fontWeight = FontWeight(700)
-                                        )
-                                    },
-                                    selected = pagerState.currentPage == index,
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            pagerState.animateScrollToPage(index)
+                            Text(text = "포스트",
+                                fontSize = 20.sp,
+                                color =
+                                if(pagerState.currentPage == 0) moduBlack
+                                else moduGray_normal,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .bounceClick {
+                                        scope.launch {
+                                            pagerState.animateScrollToPage(0)
                                         }
-                                    },
-                                )
-                            }
+                                    })
+                            Spacer(Modifier.size(20.dp))
+                            Text(text = "큐레이션",
+                                fontSize = 20.sp,
+                                color =
+                                if(pagerState.currentPage == 1) moduBlack
+                                else moduGray_normal,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.bounceClick {
+                                    scope.launch {
+                                        pagerState.animateScrollToPage(1)
+                                    }
+                                }
+                            )
                         }
 
                         Spacer(modifier = Modifier.weight(1f))
@@ -239,18 +181,6 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                                 modifier = Modifier.fillMaxHeight(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-//                                Box(
-//                                    modifier = Modifier
-//                                        .width(22.dp)
-//                                ) {
-//                                    //카테고리 선택된 거에 맞는 이름 사진 넣어버려
-//                                    Image(
-//                                        painter = painterResource(id = selectedCategory.value.image),
-//                                        contentDescription = null,
-//                                        modifier = Modifier.size(22.dp, 22.dp)
-//                                    )
-//
-//                                }
                                 Text(
                                     modifier = Modifier
                                         .padding(horizontal = 13.dp),
@@ -270,8 +200,9 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                             }
                         }
                     }
-                    //포스트, 큐레이션 텝 레이아웃
+                    Spacer(modifier = Modifier.height(16.dp))
 
+                    //포스트, 큐레이션 텝 레이아웃
                     HorizontalPager(
                         modifier = Modifier
                             .fillMaxSize(),
