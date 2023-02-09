@@ -51,6 +51,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
+import com.example.modugarden.ApplicationClass.Companion.clientId
+import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.RetrofitBuilder.curationAPI
@@ -1079,61 +1081,82 @@ fun FollowCard(
     followState: MutableState<Boolean>,
     contentModifier: Modifier
 ) {
-    Card(
-        modifier = modifier
-            .bounceClick {
-                // 팔로우 api
-                if(!followState.value) {
-                    RetrofitBuilder.followAPI.follow(id).enqueue(
-                        object : Callback<FollowDtoRes> {
-                            override fun onResponse(
-                                call: Call<FollowDtoRes>,
-                                response: Response<FollowDtoRes>
-                            ) {
-                                snackBarAction()
-                                followState.value = !followState.value
-                            }
+    if(id == sharedPreferences.getInt(clientId,0)) {
+        Card(
+            modifier = Modifier,
+            elevation = 0.dp,
+            backgroundColor = Color.Transparent
+        ) {
 
-                            override fun onFailure(call: Call<FollowDtoRes>, t: Throwable) {
-
-                            }
-                        }
-                    )
-                }
-                else {
-                    RetrofitBuilder.followAPI.unFollow(id).enqueue(
-                        object : Callback<FollowDtoRes> {
-                            override fun onResponse(
-                                call: Call<FollowDtoRes>,
-                                response: Response<FollowDtoRes>
-                            ) {
-                                snackBarAction()
-                                if (response.isSuccessful) {
+        }
+    } else {
+        Card(
+            modifier = modifier
+                .bounceClick {
+                    // 팔로우 api
+                    if (!followState.value) {
+                        RetrofitBuilder.followAPI.follow(id).enqueue(
+                            object : Callback<FollowDtoRes> {
+                                override fun onResponse(
+                                    call: Call<FollowDtoRes>,
+                                    response: Response<FollowDtoRes>
+                                ) {
+                                    snackBarAction()
                                     followState.value = !followState.value
                                 }
-                            }
 
-                            override fun onFailure(call: Call<FollowDtoRes>, t: Throwable) {
+                                override fun onFailure(call: Call<FollowDtoRes>, t: Throwable) {
 
+                                }
                             }
-                        }
-                    )
-                }
+                        )
+                    } else {
+                        RetrofitBuilder.followAPI.unFollow(id).enqueue(
+                            object : Callback<FollowDtoRes> {
+                                override fun onResponse(
+                                    call: Call<FollowDtoRes>,
+                                    response: Response<FollowDtoRes>
+                                ) {
+                                    snackBarAction()
+                                    if (response.isSuccessful) {
+                                        followState.value = !followState.value
+                                    }
+                                }
+
+                                override fun onFailure(call: Call<FollowDtoRes>, t: Throwable) {
+
+                                }
+                            }
+                        )
+                    }
+                },
+            shape = RoundedCornerShape(10.dp),
+            backgroundColor = if (followState.value) {
+                moduBackground
+            } else {
+                moduPoint
             },
-        shape = RoundedCornerShape(10.dp),
-        backgroundColor = if(followState.value) { moduBackground } else { moduPoint },
-        elevation = 0.dp
-    ) {
-        Text(
-            text = if(followState.value) { "팔로잉" } else { "팔로우" },
-            style = TextStyle(
-                color = if(followState.value) { Color.Black } else { Color.White },
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            ),
-            modifier = contentModifier
-        )
+            elevation = 0.dp
+        ) {
+            Text(
+                text = if (followState.value) {
+                    "팔로잉"
+                } else {
+                    "팔로우"
+                },
+                style = TextStyle(
+                    color = if (followState.value) {
+                        Color.Black
+                    } else {
+                        Color.White
+                    },
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                ),
+                modifier = contentModifier
+            )
+        }
     }
 }
 
