@@ -85,7 +85,6 @@ fun FollowMainScreen(navController: NavHostController,
                     userViewModel = userViewModel
                 )
             } else {
-
                 NoFollowingScreen(
                     navController =navFollowController,
                     userViewModel =userViewModel,

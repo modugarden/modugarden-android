@@ -6,6 +6,8 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -42,6 +44,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
 import com.example.modugarden.api.dto.FollowRecommendationRes
 import com.example.modugarden.api.dto.FollowRecommendationResContent
+import com.example.modugarden.main.discover.search.DiscoverSearchPostCard
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
 import com.example.modugarden.ui.theme.FollowCard
 import com.example.modugarden.ui.theme.bounceClick
@@ -57,7 +60,7 @@ import kotlinx.coroutines.launch
 
 // 볼드 텍스트 타입 설정
 val moduBold : TextStyle = TextStyle(color = moduBlack, fontWeight = FontWeight.Bold)
-@SuppressLint("UnrememberedMutableState")
+//@SuppressLint("UnrememberedMutableState")
 @Composable //팔로잉이 3명 미만일 때 표시되는 화면.
 fun NoFollowingScreen(
 /*    recommendRes: MutableState<FollowRecommendationRes>,*/
@@ -69,12 +72,10 @@ fun NoFollowingScreen(
     val scrollState = rememberScrollState()//스크롤 상태 변수
 
     //팔로우 추천
-    val recommendRes
-            = remember { mutableStateOf(FollowRecommendationRes()) }
-    refreshViewModel.getRecommend(recommendRes)
-    val recommendList = remember { mutableStateOf(recommendRes.value.content) }
+    val recommendList = remember { mutableStateOf(FollowRecommendationRes().content) }
 
-    Log.i("페이지1", recommendRes.value.toString())
+    val recommendPage = remember { mutableStateOf(0)}
+
 
         Box(
             modifier = Modifier
@@ -88,6 +89,7 @@ fun NoFollowingScreen(
                 modifier=Modifier,
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
+
             ) {
                 // 안내 문구
                 Text(
@@ -117,13 +119,233 @@ fun NoFollowingScreen(
                     contentAlignment = Alignment.CenterStart
                 ) {
                     Column(content = {
-                        recommendList.value.forEach { data ->
-                            FollowRecommendCard(
-                                navController = navController,
-                                data = data,
-                                userViewModel = userViewModel
+                        if (recommendList.value.size > 0 ) {
+                            Column() {
+                                Row(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(18.dp, 20.dp)
+                                        .bounceClick {
+                                            Log.d("추천 유저", recommendList.value[0].nickname)
+                                            userViewModel.setUserId(recommendList.value[0].userId)
+                                            navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName)
+                                        },
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    // 프로필 사진
+                                    GlideImage(
+                                        imageModel = recommendList.value[0].profileImg,
+                                        contentDescription = "",
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .aspectRatio(1f)
+                                            .clip(RoundedCornerShape(50)),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Column(
+                                            modifier = Modifier
+                                                .padding(start = 18.dp)
+                                        ) {
+                                            // 아이디
+                                            Text(
+                                                text = recommendList.value[0].nickname,
+                                                fontSize = 14.sp,
+                                                style = moduBold
+                                            )
+                                            // 카테고리
+                                            Text(
+                                                text = recommendList.value[0].categories.toString()
+                                                    .replace("[", "").replace("]", ""),
+                                                fontSize = 11.sp,
+                                                color = moduGray_strong
+                                            )
+                                        }
+                                        // 팔로우 버튼
+                                        FollowCard(
+                                            id = recommendList.value[0].userId,
+                                            modifier = Modifier,
+                                            snackBarAction = {
+//                                            scope.launch {
+//                                                if (followState.value) snackbarHostState.showSnackbar("${data.nickname} 님을 팔로우 했어요.")
+//                                                else snackbarHostState.showSnackbar("${data.nickname} 님을 언팔로우 했어요.")
+//                                            }
+                                            },
+                                            followState = remember { mutableStateOf(recommendList.value[0].isFollow) },
+                                            contentModifier =
+                                            Modifier
+                                                .padding(vertical = 6.dp, horizontal = 10.dp)
+                                        )
+
+                                    }
+                                }
+                                Divider(
+                                    color = moduGray_light,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(1.dp)
+                                )
+                            }
+                        Column() {
+                            Row(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(18.dp, 20.dp)
+                                    .bounceClick {
+                                        Log.d("추천 유저", recommendList.value[1].nickname)
+                                        userViewModel.setUserId(recommendList.value[1].userId)
+                                        navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName)
+                                    },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // 프로필 사진
+                                GlideImage(
+                                    imageModel = recommendList.value[1].profileImg,
+                                    contentDescription = "",
+                                    modifier = Modifier
+                                        .size(50.dp)
+                                        .aspectRatio(1f)
+                                        .clip(RoundedCornerShape(50)),
+                                    contentScale = ContentScale.Crop
+                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .padding(start = 18.dp)
+                                    ) {
+                                        // 아이디
+                                        Text(
+                                            text = recommendList.value[1].nickname,
+                                            fontSize = 14.sp,
+                                            style = moduBold
+                                        )
+                                        // 카테고리
+                                        Text(
+                                            text = recommendList.value[1].categories.toString()
+                                                .replace("[", "").replace("]", ""),
+                                            fontSize = 11.sp,
+                                            color = moduGray_strong
+                                        )
+                                    }
+                                    // 팔로우 버튼
+                                    FollowCard(
+                                        id = recommendList.value[1].userId,
+                                        modifier = Modifier,
+                                        snackBarAction = {
+//                                            scope.launch {
+//                                                if (followState.value) snackbarHostState.showSnackbar("${data.nickname} 님을 팔로우 했어요.")
+//                                                else snackbarHostState.showSnackbar("${data.nickname} 님을 언팔로우 했어요.")
+//                                            }
+                                        },
+                                        followState = remember { mutableStateOf(recommendList.value[1].isFollow) },
+                                        contentModifier =
+                                        Modifier
+                                            .padding(vertical = 6.dp, horizontal = 10.dp)
+                                    )
+
+                                }
+                            }
+                            Divider(
+                                color = moduGray_light,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(1.dp)
                             )
                         }
+                            Column() {
+                                Row(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(18.dp, 20.dp)
+                                        .bounceClick {
+                                            Log.d("추천 유저", recommendList.value[2].nickname)
+                                            userViewModel.setUserId(recommendList.value[2].userId)
+                                            navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName)
+                                        },
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    // 프로필 사진
+                                    GlideImage(
+                                        imageModel = recommendList.value[2].profileImg,
+                                        contentDescription = "",
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .aspectRatio(1f)
+                                            .clip(RoundedCornerShape(50)),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Column(
+                                            modifier = Modifier
+                                                .padding(start = 18.dp)
+                                        ) {
+                                            // 아이디
+                                            Text(
+                                                text = recommendList.value[2].nickname,
+                                                fontSize = 14.sp,
+                                                style = moduBold
+                                            )
+                                            // 카테고리
+                                            Text(
+                                                text = recommendList.value[2].categories.toString()
+                                                    .replace("[", "").replace("]", ""),
+                                                fontSize = 11.sp,
+                                                color = moduGray_strong
+                                            )
+                                        }
+                                        // 팔로우 버튼
+                                        FollowCard(
+                                            id = recommendList.value[2].userId,
+                                            modifier = Modifier,
+                                            snackBarAction = {
+//                                            scope.launch {
+//                                                if (followState.value) snackbarHostState.showSnackbar("${data.nickname} 님을 팔로우 했어요.")
+//                                                else snackbarHostState.showSnackbar("${data.nickname} 님을 언팔로우 했어요.")
+//                                            }
+                                            },
+                                            followState = remember { mutableStateOf(recommendList.value[2].isFollow) },
+                                            contentModifier =
+                                            Modifier
+                                                .padding(vertical = 6.dp, horizontal = 10.dp)
+                                        )
+
+                                    }
+                                }
+                                Divider(
+                                    color = moduGray_light,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(1.dp)
+                                )
+                            }
+                    }
+
+//                        for (recommendData in recommendList.value) {
+//                            FollowRecommendCard(
+//                                navController = navController,
+//                                data = recommendData,
+//                                userViewModel = userViewModel
+//                            )
+//                        }
+//                        recommendList.value.forEach { data ->
+//                            FollowRecommendCard(
+//                                navController = navController,
+//                                data = data,
+//                                userViewModel = userViewModel
+//                            )
+//                        }
                     })
 
                 }
@@ -133,12 +355,9 @@ fun NoFollowingScreen(
                 Card(
                     modifier = Modifier
                         .bounceClick {
-                            if (recommendRes.value.hasNext){
-                            }
-                            else{
-                                refreshViewModel.getRecommend(recommendRes, 0)
-                                recommendList.value = recommendRes.value.content
-                            }
+                            refreshViewModel.getRecommend(recommendList, recommendPage.value)
+//                            recommendList.value = recommendRes.value.content
+                            recommendPage.value += 1
                         },
                     backgroundColor = Color.White,
                     shape = RoundedCornerShape(10.dp),
@@ -146,7 +365,8 @@ fun NoFollowingScreen(
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(10.dp, 8.dp)
+                        modifier = Modifier
+                            .padding(10.dp, 8.dp)
                     ) {
                         Icon(
                             modifier = Modifier.padding(end = 12.dp),
@@ -214,6 +434,7 @@ fun FollowRecommendCard(
                 .fillMaxWidth()
                 .padding(18.dp, 20.dp)
                 .bounceClick {
+                    Log.d("추천 유저", data.nickname)
                     userViewModel.setUserId(data.userId)
                     navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName)
                 },

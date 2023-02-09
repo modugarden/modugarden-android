@@ -4,10 +4,12 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.FollowRecommendationRes
+import com.example.modugarden.api.dto.FollowRecommendationResContent
 import com.example.modugarden.api.dto.GetFollowFeedCuration
 import com.example.modugarden.api.dto.PostDTO
 import kotlinx.coroutines.delay
@@ -22,7 +24,12 @@ import retrofit2.Response
 class RefreshViewModel: ViewModel() {
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> get() = _isRefreshing.asStateFlow()
+    private val refreshPage = mutableStateOf(-1)
 
+    fun getRefreshPage(): Int {
+        refreshPage.value += 1
+        return refreshPage.value
+    }
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.emit(true)
@@ -31,7 +38,10 @@ class RefreshViewModel: ViewModel() {
         }
     }
 
-    fun  getRecommend(recommendRes: MutableState<FollowRecommendationRes>,page:Int=0){
+    fun  getRecommend(
+        recommendList: MutableState<List<FollowRecommendationResContent>>,
+        page:Int=0
+    ){
         RetrofitBuilder.followAPI.getRecommendFollowList(page)
             .enqueue(object : Callback<FollowRecommendationRes> {
                 override fun onResponse(
@@ -41,8 +51,9 @@ class RefreshViewModel: ViewModel() {
                     if (response.isSuccessful) {
                         val res = response.body()
                         if (res != null) {
-                            recommendRes.value = res
-                            Log.i("추천", recommendRes.toString())
+                            recommendList.value = res.content
+//                            recommendRes.value = res
+                            Log.i("추천", "$page : ${recommendList.value}")
                         }
                     } else Log.i("추천", "실패")
                 }
