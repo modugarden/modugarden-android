@@ -2,14 +2,12 @@ package com.example.modugarden.main.settings
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -27,16 +25,14 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
-import androidx.core.net.toUri
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
-import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.UpdateUserSettingInfoRes
-import com.example.modugarden.api.dto.UserSettingInfoRes
 import com.example.modugarden.main.upload.curation.UriUtil
 import com.example.modugarden.ui.theme.*
+import com.example.modugarden.viewmodel.SettingViewModel
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.skydoves.landscapist.glide.GlideImage
@@ -55,16 +51,28 @@ enum class ModalType() {
 }
 
 @OptIn(ExperimentalMaterialApi::class)
-@Preview(showBackground = true)
 @Composable
 fun SettingsProfileScreen(
-    // 냅호스트에서 수정완료 버튼 온클릭 받아옴
+    settingViewModel: SettingViewModel,
     onButtonClicked: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
 
-    // 프로필 이미지
-    val imageState = remember { mutableStateOf<Uri?>(null) }
+    // 바텀모달시트
+    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val scope = rememberCoroutineScope()
+
+    // 각 정보들 저장하는거임 생일이랑 이메일은 리멤버 안해도 되긴 하는데 귀찮아서 안바꿈
+    val nicknameState = remember { mutableStateOf(settingViewModel.getNickname()) }
+    val birthState = remember { mutableStateOf(settingViewModel.getBirth()) }
+    val emailState = remember { mutableStateOf(settingViewModel.getEmail()) }
+    val nicknameFocusState = remember { mutableStateOf(false) }
+    val birthFocusState = remember { mutableStateOf(false) }
+    val emailFocusState = remember { mutableStateOf(false) }
+    val modalType = remember { mutableStateOf(ModalType.ProfileImage) }
+    val categoriesState = remember { mutableStateOf(settingViewModel.getCategories()) }
+    val imageState = remember { mutableStateOf(settingViewModel.getImage()) }
 
     // 사진 가져오는 런쳐
     val takePhotoFromAlbumLauncher =
@@ -88,50 +96,6 @@ fun SettingsProfileScreen(
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
         }
 
-    val focusManager = LocalFocusManager.current
-
-    // 바텀모달시트
-    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
-    val scope = rememberCoroutineScope()
-
-    // 각 정보들 저장하는거임 생일이랑 이메일은 리멤버 안해도 되긴 하는데 귀찮아서 안바꿈
-    val nicknameState = remember { mutableStateOf("") }
-    val birthState = remember { mutableStateOf("") }
-    val emailState = remember { mutableStateOf("") }
-    val nicknameFocusState = remember { mutableStateOf(false) }
-    val birthFocusState = remember { mutableStateOf(false) }
-    val emailFocusState = remember { mutableStateOf(false) }
-    val categories = remember { mutableStateOf(listOf("")) }
-    val modalType = remember { mutableStateOf(ModalType.ProfileImage) }
-
-    // 유저 설정 정보 불러오는 API
-    RetrofitBuilder.userAPI.readUserSettingInfo()
-        .enqueue(object : AuthCallBack<UserSettingInfoRes>(context, "유저 정보 불러오기 성공!"){
-            override fun onResponse(
-                call: Call<UserSettingInfoRes>,
-                response: Response<UserSettingInfoRes>
-            ) {
-                super.onResponse(call, response)
-
-                // 생일 형식 변환
-                val myBirth = response.body()?.result?.birth!!
-                val yyyy = myBirth.substring(0,4)
-                val mm = myBirth.substring(4,6)
-                val dd = myBirth.substring(6,8)
-                birthState.value = "${yyyy}년 ${mm}월 ${dd}일"
-
-                // 이메일이랑 닉네임 받아오기
-                emailState.value = response.body()?.result?.email!!
-                nicknameState.value = response.body()?.result?.nickname!!
-                categories.value = response.body()?.result?.categories!!
-
-                // 일단 기본이미지는 드로어블에 ic_dafault_profile 있어
-                // 그리고 이미지스테이트는 기본이미지면 널로 저장되는데 서버에서 널을 받을 수 있게 해야할듯..?
-                if(response.body()?.result?.profileImage != null)
-                    imageState.value = response.body()?.result?.profileImage!!.toUri()
-            }
-        })
-
     ModalBottomSheet(
         title =
         if(modalType.value == ModalType.Categories)
@@ -142,9 +106,9 @@ fun SettingsProfileScreen(
         sheetScreen =
         {
             if(modalType.value == ModalType.Categories) {
-                ModalBottomSheetCategoryItem(R.drawable.ic_potted_plant,"식물 가꾸기", categories)
-                ModalBottomSheetCategoryItem(R.drawable.ic_house_with_garden,"플랜테리어", categories)
-                ModalBottomSheetCategoryItem(R.drawable.ic_tent,"여행/나들이", categories)
+                ModalBottomSheetCategoryItem(R.drawable.ic_potted_plant,"식물 가꾸기", categoriesState)
+                ModalBottomSheetCategoryItem(R.drawable.ic_house_with_garden,"플랜테리어", categoriesState)
+                ModalBottomSheetCategoryItem(R.drawable.ic_tent,"여행/나들이", categoriesState)
             } else {
                 ModalBottomSheetItem(text = "라이브러리에서 선택", icon = R.drawable.ic_upload_image_mountain, trailing = true, modifier = Modifier.bounceClick {
                     scope.launch {
@@ -183,15 +147,26 @@ fun SettingsProfileScreen(
                     // 아니면 그냥 넣음
                     GlideImage(
                         imageModel =
-                            if(imageState.value == null)
-                                R.drawable.ic_default_profile
-                            else
-                                imageState.value,
+                        if(imageState.value == null)
+                            R.drawable.ic_default_profile
+                        else
+                            imageState.value,
                         modifier = Modifier
                             .align(Alignment.TopCenter)
                             .size(100.dp)
                             .clip(CircleShape),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
+                        loading = {
+                            ShowProgressBar()
+                        },
+                        // shows an error text if fail to load an image.
+                        failure = {
+                            Text(text = "image request failed.")
+                        },
+                        requestOptions = {
+                            RequestOptions()
+                                .override(256,256)
+                        }
                     )
                     Image(
                         painter = painterResource(id = R.drawable.ic_plus_profile),
@@ -239,7 +214,7 @@ fun SettingsProfileScreen(
                             .fillMaxHeight()
                     ) {
                         items(
-                            items = categories.value,
+                            items = categoriesState.value,
                             key = { it }
                         ) { category ->
                             Card(
@@ -307,7 +282,7 @@ fun SettingsProfileScreen(
                             )
                         }
                         val jsonArray = JsonArray()
-                        for(category in categories.value) {
+                        for(category in categoriesState.value) {
                             jsonArray.add(category)
                         }
 
@@ -331,6 +306,13 @@ fun SettingsProfileScreen(
                                         response.toString() + "\n" +
                                     response.body().toString() + "\n" +
                                     response.errorBody().toString())
+                                    settingViewModel.setSettingInfo(
+                                        nicknameState.value,
+                                        birthState.value,
+                                        emailState.value,
+                                        categoriesState.value,
+                                        imageState.value
+                                    )
                                 }
 
                                 override fun onFailure(
@@ -354,10 +336,10 @@ fun SettingsProfileScreen(
 fun ModalBottomSheetCategoryItem(
     icon: Int,
     text: String,
-    categories: MutableState<List<String>>,
+    categoriesState: MutableState<List<String>>,
     modifier: Modifier = Modifier
 ) {
-    val checkState = remember { mutableStateOf(categories.value.contains(text)) }
+    val checkState = remember { mutableStateOf(categoriesState.value.contains(text)) }
     Card(
         modifier = modifier,
         elevation = 0.dp
@@ -388,12 +370,13 @@ fun ModalBottomSheetCategoryItem(
                         .size(24.dp)
                         .align(Alignment.CenterVertically)
                         .bounceClick {
-                            if (categories.value.contains(text)) {
-                                categories.value = categories.value.minus(text)
-                                checkState.value = !checkState.value }
-                            else if (categories.value.size < 2) {
-                                categories.value = categories.value.plus(text)
-                                checkState.value = !checkState.value }
+                            if (categoriesState.value.contains(text) && categoriesState.value.size > 1) {
+                                categoriesState.value = categoriesState.value.minus(text)
+                                checkState.value = !checkState.value
+                            } else if (categoriesState.value.size < 2) {
+                                categoriesState.value = categoriesState.value.plus(text)
+                                checkState.value = !checkState.value
+                            }
                         }
                 )
             }

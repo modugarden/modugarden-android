@@ -1,5 +1,6 @@
 package com.example.modugarden.main.settings
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,23 +14,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
-import com.example.modugarden.ui.theme.bounceClick
-import com.example.modugarden.ui.theme.moduBackground
-import com.example.modugarden.ui.theme.moduBlack
-import com.example.modugarden.ui.theme.moduGray_strong
+import com.example.modugarden.ui.theme.*
+import com.example.modugarden.viewmodel.SettingViewModel
+import com.skydoves.landscapist.glide.GlideImage
 
-@Preview(showBackground = true)
 @Composable
 fun SettingsMainScreen (
-    onProfileClicked: () -> Unit = {},
-    onNotificationClicked: () -> Unit = {},
-    onBlockClicked: () -> Unit = {},
-    onTermsClicked: () -> Unit = {},
-    onWithdrawClicked: () -> Unit = {}
+    navController: NavController,
+    settingViewModel: SettingViewModel
 ) {
     Column (
         modifier = Modifier
@@ -40,18 +37,30 @@ fun SettingsMainScreen (
             modifier = Modifier
                 .height(78.dp)
                 .fillMaxWidth()
-                .bounceClick { onProfileClicked() }
+                .bounceClick { navController.navigate(SettingsScreen.Profile.name) }
                 .background(Color.White)
         ) {
             Spacer(modifier = Modifier.width(18.dp))
-            Image(
-                painter = painterResource(id = R.drawable.test_image1),
+            GlideImage(
+                imageModel =
+                settingViewModel.getImage() ?: R.drawable.ic_default_profile,
                 contentDescription = null,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .size(40.dp)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop,
+                loading = {
+                    ShowProgressBar()
+                },
+                // shows an error text if fail to load an image.
+                failure = {
+                    Text(text = "image request failed.")
+                },
+                requestOptions = {
+                    RequestOptions()
+                        .override(256,256)
+                }
             )
             Spacer(modifier = Modifier.width(18.dp))
             Column (
@@ -60,7 +69,7 @@ fun SettingsMainScreen (
                     .align(Alignment.CenterVertically)
             ) {
                 Text(
-                    text = "Mara",
+                    text = settingViewModel.getNickname(),
                     style = TextStyle(
                         color = moduBlack,
                         fontSize = 16.sp
@@ -87,11 +96,11 @@ fun SettingsMainScreen (
             Spacer(modifier = Modifier.width(18.dp))
         }
         Spacer(modifier = Modifier.height(18.dp))
-        Options("알림", onNotificationClicked)
-        Options("차단한 사용자", onBlockClicked)
+        Options("알림") { navController.navigate(SettingsScreen.Notification.name) }
+        Options("차단한 사용자") { navController.navigate(SettingsScreen.Block.name) }
         Spacer(modifier = Modifier.height(18.dp))
-        Options("약관 및 개인정보 처리 동의", onTermsClicked)
-        Options("탈퇴하기", onWithdrawClicked)
+        Options("약관 및 개인정보 처리 동의") { navController.navigate(SettingsScreen.Terms.name) }
+        Options("탈퇴하기") { navController.navigate(SettingsScreen.Withdraw.name) }
     }
 }
 
