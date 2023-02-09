@@ -1,7 +1,9 @@
 package com.example.modugarden.main.profile
 
 import android.content.Intent
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -49,6 +51,7 @@ import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.*
 import com.example.modugarden.main.content.CurationContentActivity
 import com.example.modugarden.main.content.PostContentActivity
+import com.example.modugarden.main.content.timeToDate
 import com.example.modugarden.main.profile.follow.ProfileFollowScreen
 import com.example.modugarden.main.settings.SettingsActivity
 import com.example.modugarden.ui.theme.*
@@ -63,6 +66,7 @@ import retrofit2.Response
 
 private val myId = sharedPreferences.getInt(clientId, 0)
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
 @Composable
 fun ProfileScreenV2(
@@ -544,7 +548,7 @@ fun ProfileScreenV2(
                                                         )
                                                         Spacer(modifier = Modifier.weight(1f))
                                                         Text(
-                                                            text = "${curationCard.category}, ${curationCard.created_date}",
+                                                            text = "${curationCard.category}, ${timeToDate(curationCard.created_date)}",
                                                             fontSize = 12.sp,
                                                             color = moduGray_strong
                                                         )

@@ -1,26 +1,27 @@
 package com.example.modugarden.main.settings
 
 import android.app.Activity
-import android.provider.Settings
-import androidx.annotation.StringRes
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.core.net.toUri
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
+import com.example.modugarden.api.AuthCallBack
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.UserSettingInfoRes
 import com.example.modugarden.ui.theme.TopBar
+import com.example.modugarden.viewmodel.SettingViewModel
+import retrofit2.Call
+import retrofit2.Response
 
 enum class SettingsScreen(val title: String) {
     Main(title = "설정"),
@@ -44,6 +45,35 @@ fun ProfileSettingsScreen(
         backStackEntry?.destination?.route ?: SettingsScreen.Main.name
     )
 
+    val settingViewModel: SettingViewModel = viewModel()
+
+    RetrofitBuilder.userAPI.readUserSettingInfo()
+        .enqueue(object : AuthCallBack<UserSettingInfoRes>(context, "유저 정보 불러오기 성공!"){
+            override fun onResponse(
+                call: Call<UserSettingInfoRes>,
+                response: Response<UserSettingInfoRes>
+            ) {
+                super.onResponse(call, response)
+
+                // 생일 형식 변환
+                val myBirth = response.body()?.result?.birth!!
+                val yyyy = myBirth.substring(0,4)
+                val mm = myBirth.substring(4,6)
+                val dd = myBirth.substring(6,8)
+
+                settingViewModel.setSettingInfo(
+                    response.body()?.result?.nickname!!,
+                    "${yyyy}년 ${mm}월 ${dd}일",
+                    response.body()?.result?.email!!,
+                    response.body()?.result?.categories!!,
+                    null
+                )
+
+                if(response.body()?.result?.profileImage != null)
+                    settingViewModel.setImage(response.body()?.result?.profileImage!!.toUri())
+            }
+        })
+
     Scaffold(
         topBar = {
             TopBar(
@@ -65,16 +95,10 @@ fun ProfileSettingsScreen(
             modifier = modifier.padding(innerPadding)
         ) {
             composable(route = SettingsScreen.Main.name) {
-                SettingsMainScreen(
-                    onProfileClicked = { navController.navigate(SettingsScreen.Profile.name) },
-                    onNotificationClicked = { navController.navigate(SettingsScreen.Notification.name) },
-                    onBlockClicked = { navController.navigate(SettingsScreen.Block.name) },
-                    onTermsClicked = { navController.navigate(SettingsScreen.Terms.name) },
-                    onWithdrawClicked = { navController.navigate(SettingsScreen.Withdraw.name) }
-                )
+                SettingsMainScreen(navController, settingViewModel)
             }
             composable(route = SettingsScreen.Profile.name) {
-                SettingsProfileScreen { navController.navigateUp() }
+                SettingsProfileScreen(settingViewModel) { navController.navigateUp() }
             }
             composable(route = SettingsScreen.Notification.name) {
                 SettingsNotificationScreen()
