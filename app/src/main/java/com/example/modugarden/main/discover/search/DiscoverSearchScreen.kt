@@ -97,7 +97,7 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .wrapContentHeight()
-                            .padding(start = 18.dp, top = 40.dp, end = 18.dp, bottom = 10.dp),
+                            .padding(start = 18.dp, top = 40.dp, end = 18.dp, bottom = 18.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
@@ -182,11 +182,11 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                     ){
                         TabRow(
                             modifier = Modifier
-                                .fillMaxWidth(0.5f),
+                                .width(200.dp),
                             selectedTabIndex = pagerState.currentPage,
                             backgroundColor = Color.White,
                             divider = {},
-                            indicator = {}
+                            indicator = {},
 
 //                            indicator = { tabPositions ->
 //                                TabRowDefaults.Indicator(
@@ -200,7 +200,7 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                                     text = {
                                         Text(
                                             text = title,
-                                            fontSize = 20.sp,
+                                            fontSize = 18.sp,
                                             style = TextStyle(
                                                 color =
                                                 if(pagerState.currentPage == index) moduBlack
@@ -214,7 +214,7 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                                         coroutineScope.launch {
                                             pagerState.animateScrollToPage(index)
                                         }
-                                    }
+                                    },
                                 )
                             }
                         }
@@ -231,37 +231,40 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                                     }
                                 }
                                 .fillMaxHeight()
-                                .clip(RoundedCornerShape(10.dp)),
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(color = moduBackground),
+
                             ) {
                             Row(
                                 modifier = Modifier.fillMaxHeight(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .width(22.dp)
-                                ) {
-                                    //카테고리 선택된 거에 맞는 이름 사진 넣어버려
-                                    Image(
-                                        painter = painterResource(id = selectedCategory.value.image),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(22.dp, 22.dp)
-                                    )
-
-                                }
+//                                Box(
+//                                    modifier = Modifier
+//                                        .width(22.dp)
+//                                ) {
+//                                    //카테고리 선택된 거에 맞는 이름 사진 넣어버려
+//                                    Image(
+//                                        painter = painterResource(id = selectedCategory.value.image),
+//                                        contentDescription = null,
+//                                        modifier = Modifier.size(22.dp, 22.dp)
+//                                    )
+//
+//                                }
                                 Text(
                                     modifier = Modifier
-                                        .padding(horizontal = 6.25.dp),
+                                        .padding(horizontal = 13.dp),
                                     text = selectedCategory.value.category,
                                     style = TextStyle(
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = moduBlack
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight(600),
+                                        color = moduGray_strong
                                     )
                                 )
                                 //카테고리 옆에 있는 ^ 이거 거꾸로 이미지
                                 Image(
-                                    painter = painterResource(id = R.drawable.ic_chevron_down),
+                                    modifier = Modifier.padding(start = 5.dp, end = 12.dp),
+                                    painter = painterResource(id = R.drawable.ic_chevron_down_new),
                                     contentDescription = null,
                                 )
                             }

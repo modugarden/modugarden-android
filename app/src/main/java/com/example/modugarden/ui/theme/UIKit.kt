@@ -2,6 +2,7 @@ package com.example.modugarden.ui.theme
 
 import android.graphics.Rect
 import android.util.Log
+import android.view.KeyEvent
 import android.view.ViewTreeObserver
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
@@ -14,6 +15,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -22,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusManager
@@ -32,6 +35,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -592,20 +596,34 @@ fun SearchTextField(
     isTextFieldSearchFocused : MutableState<Boolean>,
     focusManager : FocusManager
 ) {
-    Box {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(0.9f)
+            .clip(RoundedCornerShape(10.dp))
+            .background(
+                if (isTextFieldSearchFocused.value) moduTextFieldPoint
+                else moduBackground
+            )
+    ) {
         //검색어 입력하는 텍스트 필드
         TextField(
             value = searchText.value,
-            onValueChange = { textValue -> searchText.value = textValue },
+            onValueChange = { searchText.value = it },
             modifier = Modifier
-                .padding(vertical = 0.dp, horizontal = 0.dp)
-                .fillMaxWidth(0.9f)
+                .padding(start = 20.dp)
+                .fillMaxWidth()
                 .height(52.dp)
                 .onFocusChanged {
                     isTextFieldSearchFocused.value = it.isFocused
                 }
+                .onKeyEvent {
+                    if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER){
+                        Log.d("keyboard??", searchText.value)
+                        true
+                    }
+                    false
+                }
                 .animateContentSize(),
-            shape = RoundedCornerShape(10.dp),
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor =
                 if (isTextFieldSearchFocused.value) moduTextFieldPoint
