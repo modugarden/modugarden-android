@@ -19,7 +19,7 @@ import com.example.modugarden.R
 import com.example.modugarden.main.discover.DiscoverScreen
 import com.example.modugarden.main.follow.FollowScreen
 import com.example.modugarden.main.notification.NotificationScreen
-import com.example.modugarden.main.profile.ProfileScreen
+import com.example.modugarden.main.profile.follow.ProfileApp
 import com.example.modugarden.main.upload.UploadScreen
 import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -48,7 +48,7 @@ fun NavigationGraphBNB(
     AnimatedNavHost(navController, startDestination = NAV_ROUTE_BNB.FOLLOW.routeName,
         modifier = Modifier.fillMaxSize()) {
         composable(NAV_ROUTE_FOLLOW.USERPROFILE.routeName){
-            ProfileScreen(userViewModel.getUserId())
+            ProfileApp(userViewModel.getUserId(), false, navController)
         }
         composable(
             NAV_ROUTE_BNB.FOLLOW.routeName,
@@ -61,7 +61,7 @@ fun NavigationGraphBNB(
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideOutDuration))
             }
         ) {
-            FollowScreen(navController) }
+            FollowScreen(navController, userViewModel) }
 
         composable(
             NAV_ROUTE_BNB.DISCOVER.routeName,
@@ -161,7 +161,9 @@ fun NavigationGraphBNB(
                 fadeOut(animationSpec = tween(fadeOutDuration)) +
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideOutDuration))
             }
-        ) { ProfileScreen(sharedPreferences.getInt(clientId, 0)) }
+        ) {
+            ProfileApp(sharedPreferences.getInt(clientId,0), true, navController)
+        }
     }
 }
 

@@ -1,9 +1,9 @@
 package com.example.modugarden.api.dto
 
-enum class UserAuthority {
-    ROLE_BLOCKED,
-    ROLE_CURATOR,
-    ROLE_GENERAL
+enum class UserAuthority(title: String) {
+    ROLE_BLOCKED("ROLE_BLOCKED"),
+    ROLE_CURATOR("ROLE_CURATOR"),
+    ROLE_GENERAL("ROLE_GENERAL")
 }
 
 // 닉네임으로 찾기
@@ -37,7 +37,7 @@ data class UserInfoResResult(
     val id: Int = 0,
     val nickname: String = "",
     val postCount: Int = 0,
-    val profileImage: String = "",
+    val profileImage: String? = "",
     val userAuthority: String = UserAuthority.ROLE_GENERAL.name
 )
 // 아이디로 유저 정보 가져오기 끝
@@ -106,6 +106,8 @@ data class UpdateUserSettingInfoRes(
 )
 
 data class UpdateUserSettingInfoResResult(
+    val categories: List<String>,
+    val id: Int,
     val nickname: String,
     val profileImage: String
 )

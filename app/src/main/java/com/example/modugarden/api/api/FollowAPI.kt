@@ -53,6 +53,6 @@ interface FollowAPI {
     //팔로우 리스트 추천
     @GET("/follow/recommendation")
     fun getRecommendFollowList(
-        @Query ("page")page:Int
+        @Query("page") page:Int
     ) : Call<FollowRecommendationRes>
 }

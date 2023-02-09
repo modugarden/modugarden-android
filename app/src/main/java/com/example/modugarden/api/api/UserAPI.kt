@@ -27,18 +27,8 @@ interface UserAPI {
         @Path("userId") id: Int
     ): Call<UserInfoRes>
 
-    @PATCH("/users/me/category")
-    fun updateUserCategory(
-        @Body categories: UpdateUserCategoryReq
-    ): Call<UpdateUserCategoryRes>
-
     @GET("/users/me/info")
     fun currentUserInfo(): Call<MyUserInfoRes>
-
-    @PATCH("/users/me/nickname")
-    fun updateUserNickname(
-        @Body nickname: UpdateUserNicknameReq
-    ): Call<UpdateUserNicknameRes>
 
     @GET("/users/me/setting-info")
     fun readUserSettingInfo(): Call<UserSettingInfoRes>
@@ -46,8 +36,8 @@ interface UserAPI {
     @Multipart
     @PATCH("/users/me/setting-info")
     fun updateUserProfile(
-        @Part("userNicknameRequestDto") info: RequestBody,
-        @Part file: MultipartBody.Part
+        @Part file: MultipartBody.Part?,
+        @Part("updateProfileRequestDto") updateProfileRequestDto: RequestBody
     ) : Call<UpdateUserSettingInfoRes>
 
     @DELETE("/users/me")

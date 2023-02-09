@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.modugarden.api.dto.FollowListDtoResContent
-import com.example.modugarden.main.profile.ProfileScreen
 
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.UserViewModel
@@ -26,16 +25,14 @@ import com.skydoves.landscapist.glide.GlideImage
 @Composable
 fun ProfileCard(
     user: FollowListDtoResContent,
-    navController: NavController,
-    viewModel: UserViewModel,
-    onClick: (Boolean) -> Unit = {}
+    onUserClick: (Int) -> Unit = {},
+    onClick: (Boolean) -> Unit
 ) {
     Row(
         modifier = Modifier
             .height(50.dp)
             .bounceClick {
-                viewModel.setUserId(user.userId)
-                navController.navigate(ProfileFollowScreen.Profile.name)
+                onUserClick(user.userId)
             }
     ) {
         GlideImage(

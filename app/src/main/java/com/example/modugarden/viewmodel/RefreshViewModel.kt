@@ -1,17 +1,14 @@
 package com.example.modugarden.viewmodel
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.FollowRecommendationRes
 import com.example.modugarden.api.dto.GetFollowFeedCuration
-import com.example.modugarden.api.dto.GetFollowFeedCurationContent
 import com.example.modugarden.api.dto.PostDTO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,8 +31,8 @@ class RefreshViewModel: ViewModel() {
         }
     }
 
-    fun  getRecommend(recommendRes: MutableState<FollowRecommendationRes>){
-        RetrofitBuilder.followAPI.getRecommendFollowList(0)
+    fun  getRecommend(recommendRes: MutableState<FollowRecommendationRes>,page:Int=0){
+        RetrofitBuilder.followAPI.getRecommendFollowList(page)
             .enqueue(object : Callback<FollowRecommendationRes> {
                 override fun onResponse(
                     call: Call<FollowRecommendationRes>,

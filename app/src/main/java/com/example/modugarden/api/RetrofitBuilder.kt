@@ -1,6 +1,7 @@
 package com.example.modugarden.api
 
 import com.example.modugarden.ApplicationClass.Companion.retrofit
+import com.example.modugarden.ApplicationClass.Companion.retrofitGoogleMap
 import com.example.modugarden.ApplicationClass.Companion.retrofitWithNoInterceptor
 import com.example.modugarden.api.api.*
 
@@ -18,4 +19,6 @@ object RetrofitBuilder {
 
     val loginAPI: LoginAPI = retrofitWithNoInterceptor.create(LoginAPI::class.java)
     val signupAPI: SignupAPI = retrofitWithNoInterceptor.create(SignupAPI::class.java)
+
+    val searchLocationAPI: UploadPostTagLocationSearchAPI = retrofitGoogleMap.create(UploadPostTagLocationSearchAPI::class.java)
 }

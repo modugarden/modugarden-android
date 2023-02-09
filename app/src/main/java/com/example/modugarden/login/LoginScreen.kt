@@ -39,6 +39,7 @@ import com.example.modugarden.api.RetrofitBuilder.signupAPI
 import com.example.modugarden.api.dto.SignupEmailIsDuplicatedDTO
 import com.example.modugarden.ApplicationClass.Companion.accessToken
 import com.example.modugarden.ApplicationClass.Companion.clientId
+import com.example.modugarden.ApplicationClass.Companion.clientNickname
 import com.example.modugarden.ApplicationClass.Companion.refreshToken
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.api.RetrofitBuilder
@@ -128,6 +129,7 @@ fun MainLoginScreen(navController: NavController) {
                                                         editor.putString(accessToken, res1.result.accessToken)
                                                         editor.putString(refreshToken, res1.result.refreshToken)
                                                         editor.putInt(clientId, res1.result.userId)
+                                                        editor.putString(clientNickname, res1.result.nickname)
                                                         editor.apply()
                                                         fcmCheckAPI.fcmCheckAPI().enqueue(object: Callback<FcmCheckDTO> {
                                                             override fun onResponse(
@@ -286,6 +288,7 @@ fun MainLoginScreen(navController: NavController) {
                                             editor.putString(accessToken, res.result.accessToken)
                                             editor.putString(refreshToken, res.result.refreshToken)
                                             editor.putInt(clientId, res.result.userId)
+                                            editor.putString(clientNickname, res.result.nickname)
                                             editor.apply()
                                             fcmCheckAPI.fcmCheckAPI().enqueue(object: Callback<FcmCheckDTO> {
                                                 override fun onResponse(
