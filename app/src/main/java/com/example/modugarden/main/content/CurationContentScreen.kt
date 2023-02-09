@@ -38,6 +38,7 @@ import com.example.modugarden.ApplicationClass.Companion.refresh
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.DeleteCurationResponse
 import com.example.modugarden.api.dto.GetCurationResponse
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.ui.theme.*
@@ -111,14 +112,30 @@ fun CurationContentScreen(curation_id :Int) {
                 CurationHeartCard(
                     curationId = curation_id,
                     modifier = Modifier.padding(end = 18.dp),
-                    heartState = remember { mutableStateOf(curation.isliked) }
+                    heartState = isButtonClickedLike
                 )
 
                 // 스크랩
-                CurationSaveCard(
-                    curationId = curation_id,
-                    modifier =  Modifier.padding(end = 18.dp),
-                    saveState = isButtonClickedSave)
+                Icon(painter = painterResource(id = R.drawable.baseline_delete_24) ,
+                    contentDescription = "삭제",
+                    modifier = Modifier.bounceClick {
+                        RetrofitBuilder.curationAPI.deleteCuration(curation_id)
+                            .enqueue(object:Callback<DeleteCurationResponse>{
+                                override fun onResponse(
+                                    call: Call<DeleteCurationResponse>,
+                                    response: Response<DeleteCurationResponse>
+                                ) {
+
+                                }
+
+                                override fun onFailure(
+                                    call: Call<DeleteCurationResponse>,
+                                    t: Throwable
+                                ) {
+                                    TODO("Not yet implemented")
+                                }
+                            })
+                    })
 
                 Icon(painter = painterResource(id = R.drawable.ic_xmark),
                     contentDescription = "창 닫기",

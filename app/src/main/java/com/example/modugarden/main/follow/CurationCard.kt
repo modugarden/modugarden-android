@@ -61,7 +61,6 @@ import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.GetCurationLikeStateResponse
 import com.example.modugarden.api.dto.GetFollowFeedCurationContent
-import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.main.content.CurationContentActivity
 import com.example.modugarden.main.content.modalReportCuration
 import com.example.modugarden.main.content.timeFomatter
@@ -86,7 +85,7 @@ fun CurationCard(
     bottomSheetState: ModalBottomSheetState,
     modalType: MutableState<Int>,
     modalTitle: MutableState<String>,
-    modalImage: MutableState<String>,
+    modalImage: MutableState<String?>,
     modalContentId: MutableState<Int>,
     userViewModel: UserViewModel,
 ) {

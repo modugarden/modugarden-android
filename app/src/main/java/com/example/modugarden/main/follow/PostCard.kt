@@ -22,7 +22,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
@@ -34,8 +33,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -48,12 +45,9 @@ import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.request.RequestOptions
-import com.example.modugarden.ApplicationClass
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
-import com.example.modugarden.api.dto.CurationLikeResponse
 import com.example.modugarden.api.dto.PostDTO
-import com.example.modugarden.data.ReportInfo
 import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.main.content.modalReportPost
@@ -86,7 +80,7 @@ fun PostCard(
         userViewModel: UserViewModel,
         modalType:MutableState<Int>,
         modalTitle:MutableState<String>,
-        modalImage:MutableState<String>,
+        modalImage: MutableState<String?>,
         modalId:MutableState<Int>
 ) {
 
@@ -157,7 +151,10 @@ fun PostCard(
                                         verticalAlignment = Alignment.CenterVertically
                                 ) {
                                         GlideImage(
-                                                imageModel = data.user_profile_image,
+                                                imageModel =
+                                                if(data.user_profile_image == null)
+                                                        R.drawable.ic_default_profile
+                                                else data.user_profile_image,
                                                 contentDescription = null,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier

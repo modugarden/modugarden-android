@@ -34,6 +34,7 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,16 +44,13 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
-import com.example.modugarden.api.dto.GetFollowFeedCuration
 import com.example.modugarden.api.dto.GetFollowFeedCurationContent
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.data.Report
@@ -61,7 +59,6 @@ import com.example.modugarden.main.content.modalReportPost
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
-import com.example.modugarden.viewmodel.RefreshViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 import com.skydoves.landscapist.glide.GlideImage
 
@@ -82,12 +79,10 @@ fun FollowingScreen(
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val scrollState = rememberLazyListState()
 
-    val modalType =  mutableStateOf(0)
+    val modalType =  remember { mutableStateOf(0) }
     val modalContentId = remember { mutableStateOf(0) }
-    val modalContentImage = remember { mutableStateOf("") }
+    val modalContentImage :MutableState<String?> = remember { mutableStateOf("") }
     val modalContentTitle = remember { mutableStateOf("") }
-
-
 
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
@@ -133,7 +128,10 @@ fun FollowingScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             GlideImage(
-                                imageModel = modalContentImage.value,
+                                imageModel =
+                                if(modalContentImage.value==null) R.drawable.ic_default_profile
+                                else modalContentImage.value
+                                    ,
                                 contentDescription = "",
                                 modifier = Modifier
                                     .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
@@ -170,9 +168,10 @@ fun FollowingScreen(
                             Log.i("신고 타입/아이디",modalType.value.toString()+"/"+modalContentId.value)
                             ReportCategoryItem(
                                 report = item,
-                                id =modalContentId.value,
-                                modalType = modalType.value,
-                                scope,bottomSheetState)
+                                id = modalContentId,
+                                modalType = modalType,
+                                scope,
+                                bottomSheetState)
                         }
 
 

@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -66,13 +67,16 @@ import com.example.modugarden.data.RecentSearch
 import com.example.modugarden.data.RecentSearchDatabase
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
+import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import kotlin.math.pow
-
 //바운스 버튼
 enum class ButtonState { Pressed, Idle }
 //바운스 버튼

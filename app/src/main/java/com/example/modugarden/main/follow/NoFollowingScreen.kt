@@ -40,6 +40,7 @@ import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
+import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.FollowRecommendationRes
 import com.example.modugarden.api.dto.FollowRecommendationResContent
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
@@ -54,27 +55,46 @@ import com.example.modugarden.viewmodel.UserViewModel
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 // 볼드 텍스트 타입 설정
 val moduBold : TextStyle = TextStyle(color = moduBlack, fontWeight = FontWeight.Bold)
 @SuppressLint("UnrememberedMutableState")
 @Composable //팔로잉이 3명 미만일 때 표시되는 화면.
 fun NoFollowingScreen(
-/*    recommendRes: MutableState<FollowRecommendationRes>,*/
     navController: NavHostController,
     userViewModel: UserViewModel,
     refreshViewModel: RefreshViewModel) {
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()//스크롤 상태 변수
-
+    var page= 0
     //팔로우 추천
     val recommendRes
             = remember { mutableStateOf(FollowRecommendationRes()) }
-    refreshViewModel.getRecommend(recommendRes)
-    val recommendList = remember { mutableStateOf(recommendRes.value.content) }
+    RetrofitBuilder.followAPI.getRecommendFollowList(page)
+        .enqueue(object : Callback<FollowRecommendationRes> {
+            override fun onResponse(
+                call: Call<FollowRecommendationRes>,
+                response: Response<FollowRecommendationRes>
+            ) {
+                if (response.isSuccessful) {
+                    val res = response.body()
+                    if (res != null) {
+                        recommendRes.value = res
+                        Log.i("추천", recommendRes.toString())
+                    }
+                } else Log.i("추천", "실패")
+            }
 
-    Log.i("페이지1", recommendRes.value.toString())
+            override fun onFailure(call: Call<FollowRecommendationRes>, t: Throwable) {
+
+            }
+        })
+    val recommendList = mutableStateOf(recommendRes.value.content)
+    Log.i("시점",page.toString())
 
         Box(
             modifier = Modifier
@@ -133,12 +153,7 @@ fun NoFollowingScreen(
                 Card(
                     modifier = Modifier
                         .bounceClick {
-                            if (recommendRes.value.hasNext){
-                            }
-                            else{
-                                refreshViewModel.getRecommend(recommendRes, 0)
-                                recommendList.value = recommendRes.value.content
-                            }
+                            if (recommendRes.value.hasNext) page += 1
                         },
                     backgroundColor = Color.White,
                     shape = RoundedCornerShape(10.dp),
@@ -214,6 +229,7 @@ fun FollowRecommendCard(
                 .fillMaxWidth()
                 .padding(18.dp, 20.dp)
                 .bounceClick {
+                    Log.i("닉네임", data.nickname)
                     userViewModel.setUserId(data.userId)
                     navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName)
                 },

@@ -8,8 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.substring
 import androidx.compose.ui.tooling.preview.Preview
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -25,7 +23,13 @@ import java.util.concurrent.TimeUnit
 fun pre(){
     val time = "2023-02-06T09:23:00.016639"
     val value = remember{ mutableStateOf("") }
-   Text(text = timeFomatter(time,value))
+   Text(text = timeToDate(time))
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun timeToDate(createdTime: String): String {
+    val date = LocalDateTime.parse(createdTime)
+    return date.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))
 }
 //이거 쓰면됨
 @RequiresApi(Build.VERSION_CODES.O)
@@ -55,11 +59,8 @@ fun calculationTime(createDateTime: Long, value:MutableState<String>): String{
     val nowDateTime = Calendar.getInstance().timeInMillis //현재 시간 to millisecond
     val differenceValue = nowDateTime - createDateTime //현재 시간 - 비교가 될 시간
     when {
-        differenceValue < 1000 ->{ //1초보다 적다면
+        differenceValue < 60000 ->{ //59초보다 적다면
             value.value = "방금 전"
-        }
-        differenceValue < 60000 -> { //59초 보다 적다면
-            value.value = TimeUnit.MILLISECONDS.toSeconds(differenceValue).toString() + "초 전"
         }
         differenceValue < 3600000 -> { //59분 보다 적다면
             value.value =  TimeUnit.MILLISECONDS.toMinutes(differenceValue).toString() + "분 전"
