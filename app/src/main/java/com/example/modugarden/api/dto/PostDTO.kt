@@ -38,7 +38,7 @@ class PostDTO {
         val created_Date: String,
         val user_id: Int,
         val user_nickname: String,
-        val user_profile_image: String,
+        val user_profile_image: String?,
         val isFollowed:Boolean,
         val category_category: String
     )
@@ -128,7 +128,7 @@ class PostDTO {
         val created_Date: String="",
         val user_id: Int=0,
         val user_nickname: String="",
-        val user_profile_image: String="",
+        val user_profile_image: String?="",
         val category_category: String=""
     )
 

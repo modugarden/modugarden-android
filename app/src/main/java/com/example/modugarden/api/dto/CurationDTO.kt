@@ -56,12 +56,12 @@ data class GetCurationContent(
     val isSaved : Boolean,
     val title: String,
     val link: String,
-    val preview_image: String,
+    val preview_image: String?,
     val like_num: Int,
     val created_Date: String,
     val user_id: Int,
     val user_nickname: String,
-    val user_profile_image: String,
+    val user_profile_image: String?,
     val category_category: String
 ) // 게시물 상세보기 - 큐레이션 조회
 //createCuration request바디

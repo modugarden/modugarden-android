@@ -57,12 +57,13 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import com.bumptech.glide.request.RequestOptions
+import com.example.modugarden.ApplicationClass
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.GetCurationLikeStateResponse
 import com.example.modugarden.api.dto.GetFollowFeedCurationContent
-import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.main.content.CurationContentActivity
+import com.example.modugarden.main.content.modalDeleteCuration
 import com.example.modugarden.main.content.modalReportCuration
 import com.example.modugarden.main.content.timeFomatter
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
@@ -86,7 +87,7 @@ fun CurationCard(
     bottomSheetState: ModalBottomSheetState,
     modalType: MutableState<Int>,
     modalTitle: MutableState<String>,
-    modalImage: MutableState<String>,
+    modalImage: MutableState<String?>,
     modalContentId: MutableState<Int>,
     userViewModel: UserViewModel,
 ) {
@@ -94,7 +95,8 @@ fun CurationCard(
 
     val isButtonClickedLike = remember { mutableStateOf(false) }
     val isButtonClickedSave = remember { mutableStateOf(false)}
-
+    val userId =
+        ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
     val launcher = rememberLauncherForActivityResult(contract =
     ActivityResultContracts.StartIntentSenderForResult()) {
         RetrofitBuilder.curationAPI.getStateCurationLike(data.curation_id)
@@ -406,7 +408,8 @@ fun CurationCard(
                 Spacer(modifier = Modifier.weight(1f))
                 // 신고
                     Icon(modifier = Modifier.bounceClick {
-                        modalType.value = modalReportCuration
+                        if (data.user_id==userId) modalType.value = modalDeleteCuration
+                        else modalType.value = modalReportCuration
                         modalTitle.value = data.title
                         modalImage.value = data.user_profile_image
                         modalContentId.value = data.curation_id

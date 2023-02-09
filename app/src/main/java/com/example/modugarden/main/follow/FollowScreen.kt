@@ -58,6 +58,7 @@ fun FollowMainScreen(navController: NavHostController,
     val curationres
             = remember { mutableStateOf(GetFollowFeedCuration()) }
     refreshViewModel.getCurations(curationres,context)
+
     val curations = mutableStateOf(curationres.value.content)
 
 
@@ -85,6 +86,7 @@ fun FollowMainScreen(navController: NavHostController,
                     userViewModel = userViewModel
                 )
             } else {
+
                 NoFollowingScreen(
                     navController =navFollowController,
                     userViewModel =userViewModel,

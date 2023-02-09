@@ -95,7 +95,7 @@ interface CurationAPI {
     //게시물 상세보기 - 큐레이션 삭제
     @DELETE ("/curations/{curation_id}")
     fun deleteCuration (
-        @Body curation_id: Int
+        @Path("curation_id") curation_id: Int
     ): Call <DeleteCurationResponse>
 
     @GET ("/curations/followfeed")

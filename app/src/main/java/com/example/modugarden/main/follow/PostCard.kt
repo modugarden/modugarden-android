@@ -22,7 +22,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
@@ -34,8 +33,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -51,11 +48,10 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.ApplicationClass
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
-import com.example.modugarden.api.dto.CurationLikeResponse
 import com.example.modugarden.api.dto.PostDTO
-import com.example.modugarden.data.ReportInfo
 import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.PostContentActivity
+import com.example.modugarden.main.content.modalDeletePost
 import com.example.modugarden.main.content.modalReportPost
 import com.example.modugarden.main.content.timeFomatter
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
@@ -86,7 +82,7 @@ fun PostCard(
         userViewModel: UserViewModel,
         modalType:MutableState<Int>,
         modalTitle:MutableState<String>,
-        modalImage:MutableState<String>,
+        modalImage: MutableState<String?>,
         modalId:MutableState<Int>
 ) {
 
@@ -94,7 +90,8 @@ fun PostCard(
         val isButtonClickedSave = remember { mutableStateOf(false) }
         val order: PagerState = rememberPagerState() //뷰페이저, 인디케이터 페이지 상태 변수
         val mContext = LocalContext.current
-
+        val userId =
+                ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
         val launcher = rememberLauncherForActivityResult(contract =
         ActivityResultContracts.StartIntentSenderForResult()) {
                 RetrofitBuilder.postAPI.getPostLikeState(data.board_id)
@@ -157,7 +154,10 @@ fun PostCard(
                                         verticalAlignment = Alignment.CenterVertically
                                 ) {
                                         GlideImage(
-                                                imageModel = data.user_profile_image,
+                                                imageModel =
+                                                if(data.user_profile_image == null)
+                                                        R.drawable.ic_default_profile
+                                                else data.user_profile_image,
                                                 contentDescription = null,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
@@ -395,7 +395,8 @@ fun PostCard(
                                                Icon(modifier = Modifier.bounceClick {
                                                        modalTitle.value  = data.title
                                                        modalImage.value = data.user_profile_image
-                                                       modalType.value = modalReportPost
+                                                       if (data.user_id==userId) modalType.value = modalDeletePost
+                                                       else modalType.value = modalReportPost
                                                        modalId.value = data.board_id
                                                        scope.launch {
                                                                bottomSheetState.animateTo(

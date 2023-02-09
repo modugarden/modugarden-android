@@ -200,7 +200,10 @@ fun PostContentCommentScreen(navController: NavHostController,
                                 .padding(vertical = 30.dp)
                         ) {
                             GlideImage(
-                                imageModel = data.value.profileImage,
+                                imageModel =
+                                if(data.value.profileImage == null)
+                                    R.drawable.ic_default_profile
+                                else data.value.profileImage,
                                 contentDescription = "",
                                 modifier = Modifier
                                     .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
@@ -333,7 +336,10 @@ fun PostContentCommentScreen(navController: NavHostController,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 GlideImage(
-                                    imageModel = data.value.profileImage,
+                                    imageModel =
+                                    if(data.value.profileImage == null)
+                                        R.drawable.ic_default_profile
+                                    else data.value.profileImage,
                                     contentDescription = "",
                                     modifier = Modifier
                                         .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
@@ -361,6 +367,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                             modifier = Modifier
                                 .padding(horizontal = 18.dp)
                         ) {
+                            Log.i("댓글 신고 아이디",data.value.commentId.toString())
                             itemsIndexed(
                                 listOf(
                                     Report.ABUSE,
@@ -372,9 +379,10 @@ fun PostContentCommentScreen(navController: NavHostController,
                             ) { index, item ->
                                 ReportCategoryItem(
                                     report = item,
-                                    id = data.value.commentId,
-                                    modalType = modalReportComment,
-                                    scope,bottomSheetState)
+                                    id = mutableStateOf(data.value.commentId),
+                                    modalType = mutableStateOf(modalReportComment) ,
+                                    scope,
+                                    bottomSheetState)
                             }
 
                         }
@@ -753,7 +761,7 @@ fun CommentItem(
                     if (comment.parentId!=null) Spacer(modifier = Modifier.size(18.dp))
                     // 댓글 작성자 프로필 사진
                     GlideImage(
-                        imageModel =comment.profileImage,
+                        imageModel = comment.profileImage ?: R.drawable.ic_default_profile,
                         contentDescription = "",
                         modifier = Modifier
                             .size(30.dp)
@@ -811,7 +819,7 @@ fun CommentItem(
                                 scope.launch {
                                     bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
                                 }
-                                Log.i("focused", isButtonClicked.value.toString())
+                                Log.i("댓글 신고",data.value.commentId.toString())
                             },
                         painter = painterResource(id = R.drawable.ic_dot3_vertical_s),
                         contentDescription = "신고/ 삭제", tint = moduGray_strong
