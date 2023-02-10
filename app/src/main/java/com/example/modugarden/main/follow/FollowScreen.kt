@@ -7,6 +7,9 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -22,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.api.dto.GetFollowFeedCuration
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.route.NavigationGraphFollow
+import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.viewmodel.RefreshViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -54,9 +58,14 @@ fun FollowMainScreen(postres:MutableState<PostDTO.GetFollowFeedPost>,
     val context = LocalContext.current.applicationContext
     val posts = mutableStateOf(postres.value.content)
     val curations = mutableStateOf(curationres.value.content)
-    val mode = remember { mutableStateOf(true) }
+    val mode = remember { mutableStateOf(0) }
+    val following = 1
+    val nofollowing = 2
     //포스트, 큐레이션 수
-    mode.value = (posts.value.isNotEmpty() || curations.value.isNotEmpty())
+    if (posts.value==null|| curations.value==null) mode.value = 0
+    else if (posts.value!!.isEmpty() && curations.value!!.isEmpty()) mode.value=nofollowing
+    else mode.value=following
+
 
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
@@ -70,15 +79,16 @@ fun FollowMainScreen(postres:MutableState<PostDTO.GetFollowFeedPost>,
     {
         // 포스트 수 + 큐레이션 수 1개 이상일 경우
         Box(){
-            if (mode.value) {
+            Log.i("모드",mode.value.toString())
+            if (mode.value==1) {
                 FollowingScreen(
-                    posts.value,
-                    curations.value,
+                    posts.value!!,
+                    curations.value!!,
                     navController = navController,
                     navFollowController = navFollowController,
                     userViewModel = userViewModel
                 )
-            } else {
+            } else if(mode.value==2) {
                 Log.i("시점","else")
                 NoFollowingScreen(
 
@@ -86,6 +96,12 @@ fun FollowMainScreen(postres:MutableState<PostDTO.GetFollowFeedPost>,
                     userViewModel =userViewModel,
                     refreshViewModel = refreshViewModel
                 )
+            }
+            else {
+                val scrollState = rememberScrollState()
+                Box(modifier = Modifier.fillMaxSize().background(moduBackground).verticalScroll(scrollState)) {
+                    
+                }
             }
         }
     }

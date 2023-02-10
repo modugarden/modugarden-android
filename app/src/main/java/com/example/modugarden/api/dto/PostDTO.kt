@@ -113,7 +113,7 @@ class PostDTO {
     )
 
     data class GetFollowFeedPost(
-        var content: List<GetFollowFeedPostContent> = listOf(),
+        var content: List<GetFollowFeedPostContent>? ,
         val first: Boolean = false,
         val hasNext: Boolean = false,
         val last: Boolean = false
