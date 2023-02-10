@@ -66,7 +66,6 @@ fun FollowMainScreen(postres:MutableState<PostDTO.GetFollowFeedPost>,
     else if (posts.value!!.isEmpty() && curations.value!!.isEmpty()) mode.value=nofollowing
     else mode.value=following
 
-
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
         onRefresh = {
@@ -91,7 +90,6 @@ fun FollowMainScreen(postres:MutableState<PostDTO.GetFollowFeedPost>,
             } else if(mode.value==2) {
                 Log.i("시점","else")
                 NoFollowingScreen(
-
                     navController =navFollowController,
                     userViewModel =userViewModel,
                     refreshViewModel = refreshViewModel
@@ -100,7 +98,6 @@ fun FollowMainScreen(postres:MutableState<PostDTO.GetFollowFeedPost>,
             else {
                 val scrollState = rememberScrollState()
                 Box(modifier = Modifier.fillMaxSize().background(moduBackground).verticalScroll(scrollState)) {
-                    
                 }
             }
         }
