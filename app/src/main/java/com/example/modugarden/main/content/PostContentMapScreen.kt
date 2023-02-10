@@ -1,5 +1,7 @@
 package com.example.modugarden.main.content
 
+import android.media.Image
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,6 +22,8 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +51,10 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.skydoves.landscapist.glide.GlideImage
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @Composable
 fun PostContentMapScreen(navController: NavHostController,data:MapInfo) {
@@ -61,7 +69,6 @@ fun PostContentMapScreen(navController: NavHostController,data:MapInfo) {
     {
 
         Box {
-            val singapore = LatLng(1.35, 103.87)
             val cameraPositionState = rememberCameraPositionState {
                 position = CameraPosition.fromLatLngZoom(LatLng(data.lat!!, data.lng!!), 20f)
             }
@@ -113,8 +120,8 @@ fun PostContentMapScreen(navController: NavHostController,data:MapInfo) {
             .padding(18.dp)
             .align(Alignment.BottomCenter))
         { // 위치 사진
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
+           GlideImage(
+                imageModel = data.photoURL,
                 contentDescription = "",
                 modifier = Modifier
                     .clip(CircleShape)

@@ -9,5 +9,5 @@ data class MapInfo(
     val address : String?,
     val lat : Double?,
     val lng : Double?,
-    val place_id : String?
+    val photoURL : String?
 ):Parcelable

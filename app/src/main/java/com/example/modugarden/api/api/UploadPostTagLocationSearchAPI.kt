@@ -13,6 +13,6 @@ interface UploadPostTagLocationSearchAPI {
         @Query("radius") radius: Int,
         @Query("query") query: String,
         @Query("key") key: String = google_maps_key,
-        @Query("language") language: String = "korea"
+        @Query("language") language: String = "ko"
     ): Call<MapsGeocoding>
 }
