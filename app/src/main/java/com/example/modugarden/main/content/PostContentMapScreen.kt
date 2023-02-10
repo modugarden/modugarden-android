@@ -126,7 +126,7 @@ fun PostContentMapScreen(navController: NavHostController,data:MapInfo) {
                 modifier = Modifier
                     .clip(CircleShape)
                     .size(50.dp)
-                    .border(0.5.dp, Color(0xFFCCCCCC), CircleShape),
+                    .border(1.dp, moduGray_light, CircleShape),
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(18.dp))

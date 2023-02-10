@@ -35,6 +35,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,6 +51,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
@@ -68,6 +70,7 @@ import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
+import com.example.modugarden.viewmodel.DeleteContentViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
@@ -96,6 +99,15 @@ fun FollowingScreen(
     val modalContentId = remember { mutableStateOf(0) }
     val modalContentImage :MutableState<String?> = remember { mutableStateOf("") }
     val modalContentTitle = remember { mutableStateOf("") }
+
+    val deleteContentViewModel :DeleteContentViewModel = viewModel()
+    val postList = remember { mutableStateListOf<PostDTO.GetFollowFeedPostContent>() }
+    postList.clear()
+    val curationList = remember { mutableStateListOf<GetFollowFeedCurationContent>() }
+    curationList.clear()
+
+    postList.addAll(posts)
+    curationList.addAll(curations)
 
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
@@ -209,9 +221,12 @@ fun FollowingScreen(
                                                             Log.i("포스트 삭제", "서버 연결 실패")
                                                         }
                                                     })
-                                            }
-                                            else
-                                            {
+
+                                                deleteContentViewModel.deletePost(modalContentId.value,postList)
+                                                scope.launch {
+                                                    bottomSheetState.hide()
+                                                }
+                                            } else {
                                                 RetrofitBuilder.curationAPI
                                                     .deleteCuration(modalContentId.value)
                                                     .enqueue(object :
@@ -234,10 +249,12 @@ fun FollowingScreen(
                                                             Log.i("큐레이션 삭제", "서버 연결 실패")
                                                         }
                                                     })
+                                                deleteContentViewModel.deleteCuration(modalContentId.value,curationList)
+                                                scope.launch {
+                                                    bottomSheetState.hide()
+                                                }
                                             }
-                                            scope.launch {
-                                                bottomSheetState.hide()
-                                            }
+
 
                                         },
                                     shape = RoundedCornerShape(10.dp),
@@ -393,7 +410,7 @@ fun FollowingScreen(
                     }
                     //포스트 카드
 
-                    items(posts,
+                    items(postList,
                         key = { post -> post.board_id }) {
                         PostCard(
                             navFollowController,
@@ -410,7 +427,7 @@ fun FollowingScreen(
                     }
 
                     //큐레이션
-                       items(curations,
+                       items(curationList,
                            key = { curation -> curation.curation_id }) {
                            CurationCard(
                                navFollowController,
@@ -425,7 +442,6 @@ fun FollowingScreen(
                                userViewModel = userViewModel
                            )
                        }
-
 
                     // 팔로우 피드 맨 끝
                     item { FollowEndCard(navController) }
