@@ -26,12 +26,12 @@ enum class NAV_ROUTE_FOLLOW(val routeName: String, val description: String){
     USERPROFILE("USERPROFILE", "남의 프로필")
 }
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("SuspiciousIndentation")
+@SuppressLint("SuspiciousIndentation", "UnrememberedMutableState")
 @Composable
 fun NavigationGraphFollow(
     navController: NavHostController,
     navFollowController: NavHostController,
-    userViewModel: UserViewModel = viewModel(),
+    UVforFollow: UserViewModel ,
     refreshViewModel : RefreshViewModel = viewModel()
 ) {
    
@@ -43,12 +43,28 @@ fun NavigationGraphFollow(
         composable(
             NAV_ROUTE_FOLLOW.FOLLOW.routeName
         ) {
-            FollowMainScreen(navController,navFollowController, userViewModel)
+            //팔로우 피드 게시물
+            val context = LocalContext.current.applicationContext
+            val postres
+                    = remember { mutableStateOf(PostDTO.GetFollowFeedPost()) }
+            refreshViewModel.getPosts(postres,context)
+
+            val curationres
+                    = remember { mutableStateOf(GetFollowFeedCuration()) }
+            refreshViewModel.getCurations(curationres,context)
+            FollowMainScreen(
+                postres = postres,
+                curationres = curationres,
+                userViewModel= UVforFollow,
+                navController = navController,
+                navFollowController =navFollowController
+            )
+
         }
         composable(
             NAV_ROUTE_FOLLOW.USERPROFILE.routeName
         ) { backStackEntry ->
-            ProfileApp(userViewModel.getUserId(), false, navController)
+            ProfileApp(UVforFollow.getUserId(), false, navController)
         }
     }
 }
