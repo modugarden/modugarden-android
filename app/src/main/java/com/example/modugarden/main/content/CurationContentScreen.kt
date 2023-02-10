@@ -2,18 +2,19 @@ package com.example.modugarden.main.content
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.os.Build
 import android.util.Log
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -39,13 +40,12 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.modugarden.ApplicationClass
-import com.example.modugarden.ApplicationClass.Companion.refresh
-import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.DeleteCurationResponse
@@ -60,6 +60,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("CommitPrefEdits")
 @Composable
@@ -75,8 +76,9 @@ fun CurationContentScreen(curation_id :Int) {
     var responseBody by remember { mutableStateOf(GetCurationResponse()) }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val refreshViewModel:RefreshViewModel= viewModel()
-    val userId =
-        ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
+    val userId
+    = ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
+    val isLoading = remember { mutableStateOf(true) }
 
     RetrofitBuilder.curationAPI.getCuraionContent(curation_id)
         .enqueue(object : Callback<GetCurationResponse> {
@@ -258,8 +260,7 @@ fun CurationContentScreen(curation_id :Int) {
             )
             {
                 Text(text = curation!!.title, style = moduBold, fontSize = 16.sp,
-                maxLines = 2)
-                Spacer(modifier = Modifier.weight(1f))
+                maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
 
                 CurationHeartCard(
                     curationId = curation_id,
@@ -299,17 +300,33 @@ fun CurationContentScreen(curation_id :Int) {
                     .height(1.dp)
             )
             // 컨텐츠
-            AndroidView(factory = {
-                WebView(it).apply {
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                    )
-                    webViewClient = WebViewClient()
-                    loadUrl(curation!!.link)
-                }
-            }, update = { it.loadUrl(curation!!.link) }
-            )
+            Box (){
+                AndroidView(
+                    factory = {
+                        WebView(it)
+                            .apply {
+                                layoutParams = ViewGroup.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    ViewGroup.LayoutParams.MATCH_PARENT)
+
+                                    webViewClient = object : WebViewClient(){
+
+                                    /*override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                                        super.onPageStarted(view, url, favicon)
+                                        isLoading.value=true
+                                    }*/
+
+                                    override fun onPageFinished(view: WebView?, url: String?) {
+                                        super.onPageFinished(view, url)
+                                        isLoading.value=false
+                                    }
+                                }
+                            }
+                    }, update = { it.loadUrl(curation!!.link) }
+                )
+                if (isLoading.value) ShowProgressBarV2()
+            }
+
         }
     }
 }
