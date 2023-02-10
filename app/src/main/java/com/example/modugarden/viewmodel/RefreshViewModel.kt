@@ -13,6 +13,7 @@ import com.example.modugarden.api.dto.FollowRecommendationRes
 import com.example.modugarden.api.dto.FollowRecommendationResContent
 import com.example.modugarden.api.dto.GetFollowFeedCuration
 import com.example.modugarden.api.dto.PostDTO
+import com.example.modugarden.api.dto.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -135,5 +136,27 @@ class RefreshViewModel: ViewModel() {
             })
     }
 
+    fun getUserInfo(userInfoResResult:MutableState<UserInfoResResult>, context: Context?){
+        RetrofitBuilder.userAPI
+            .readUserInfo(userInfoResResult.value.id)
+            .enqueue(object : Callback<UserInfoRes> {
+                override fun onResponse(
+                    call: Call<UserInfoRes>,
+                    response: Response<UserInfoRes>
+                ) {
+                    if (response.isSuccessful) {
+                        val res = response.body()
+                        Log.i("res",res.toString())
+                        if (res != null) {
+                            userInfoResResult.value = res.result
+                        }
+                    }
+                }
+                override fun onFailure(call: Call<UserInfoRes>, t: Throwable) {
+                    Toast.makeText(context, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
+                }
+
+            })
+    }
 }
 
