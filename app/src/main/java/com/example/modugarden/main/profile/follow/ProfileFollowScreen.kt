@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.modugarden.main.profile.ProfileScreenV2
+import com.example.modugarden.main.profile.ProfileScreenV4
 import com.example.modugarden.viewmodel.UserViewModel
 
 enum class ProfileFollowScreen (val title: String) {
@@ -61,7 +62,7 @@ fun ProfileFollow (
             }
         }
         composable(route = ProfileFollowScreen.Profile.name) {
-            ProfileScreenV2(
+            ProfileScreenV4(
                 userId = viewModel.getUserId(),
                 navController = navController,
                 upperNavHostController = upperNavController,
