@@ -46,11 +46,11 @@ fun NavigationGraphFollow(
             //팔로우 피드 게시물
             val context = LocalContext.current.applicationContext
             val postres
-                    = remember { mutableStateOf(PostDTO.GetFollowFeedPost()) }
+                    = remember { mutableStateOf(PostDTO.GetFollowFeedPost(null)) }
             refreshViewModel.getPosts(postres,context)
 
             val curationres
-                    = remember { mutableStateOf(GetFollowFeedCuration()) }
+                    = remember { mutableStateOf(GetFollowFeedCuration(null)) }
             refreshViewModel.getCurations(curationres,context)
             FollowMainScreen(
                 postres = postres,

@@ -158,7 +158,7 @@ fun CurationCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 GlideImage(
-                    imageModel = data.image,
+                    imageModel = data.user_profile_image,
                     contentDescription = null,
                     modifier = Modifier
                         .size(26.dp)
