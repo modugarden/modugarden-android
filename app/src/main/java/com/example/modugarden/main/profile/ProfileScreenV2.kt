@@ -1,8 +1,13 @@
 package com.example.modugarden.main.profile
 
+import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -62,6 +67,7 @@ import com.google.accompanist.pager.rememberPagerState
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
 
 private val myId = sharedPreferences.getInt(clientId, 0)
@@ -83,6 +89,18 @@ fun ProfileScreenV2(
     val context = LocalContext.current
     val data = remember { mutableStateOf( UserInfoResResult() ) }
     val followState = remember { mutableStateOf(false) }
+
+    val launcher = rememberLauncherForActivityResult(contract =
+    ActivityResultContracts.StartIntentSenderForResult()) {
+        RetrofitBuilder.userAPI.readUserInfo(userId)
+            .enqueue(object : AuthCallBack<UserInfoRes>(context, "성공!") {
+                override fun onResponse(call: Call<UserInfoRes>, response: Response<UserInfoRes>) {
+                    super.onResponse(call, response)
+                    data.value = response.body()?.result!!
+                    followState.value = response.body()!!.result.follow
+                }
+            })
+    }
 
     RetrofitBuilder.userAPI.readUserInfo(userId)
         .enqueue(object : AuthCallBack<UserInfoRes>(context, "성공!") {
@@ -184,13 +202,34 @@ fun ProfileScreenV2(
                                 .align(CenterVertically)
                                 .size(24.dp)
                                 .bounceClick {
-                                    if (myId == data.value.id)
-                                        context.startActivity(
-                                            Intent(
-                                                context,
-                                                SettingsActivity::class.java
-                                            )
+                                    if (myId == data.value.id) {
+                                        val intent =
+                                            Intent(context, SettingsActivity::class.java)
+
+                                        val pendIntent: PendingIntent
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                            pendIntent = PendingIntent
+                                                .getActivity(
+                                                    context,
+                                                    0,
+                                                    intent,
+                                                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                                                )
+
+                                        } else {
+                                            pendIntent = PendingIntent
+                                                .getActivity(
+                                                    context, 0,
+                                                    intent, PendingIntent.FLAG_UPDATE_CURRENT
+                                                )
+                                        }
+
+                                        launcher.launch(
+                                            IntentSenderRequest
+                                                .Builder(pendIntent)
+                                                .build()
                                         )
+                                    }
                                 },
                             tint =
                             if(myId == data.value.id)

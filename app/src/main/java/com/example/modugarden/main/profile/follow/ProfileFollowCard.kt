@@ -57,7 +57,7 @@ fun ProfileCard(
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = user.categories.toString(),
+                text = user.categories.joinToString(", ","",""),
                 style = TextStyle(
                     color = moduGray_normal,
                     fontSize = 11.sp

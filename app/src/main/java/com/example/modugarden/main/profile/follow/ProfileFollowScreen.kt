@@ -1,5 +1,7 @@
 package com.example.modugarden.main.profile.follow
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Surface
@@ -20,6 +22,7 @@ enum class ProfileFollowScreen (val title: String) {
     New(title = "다른 프로필")
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileApp(
     userId: Int,
@@ -36,6 +39,7 @@ fun ProfileApp(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileFollow (
     userId: Int,
@@ -51,7 +55,7 @@ fun ProfileFollow (
         startDestination = ProfileFollowScreen.Profile.name,
     ) {
         composable(route = ProfileFollowScreen.Follow.name) {
-            ProfileFollowMainScreen(viewModel.getUserId(), navController, viewModel) {
+            ProfileFollowMainScreen(viewModel.getUserId(), navController) {
                 viewModel.setNextUserId(it)
                 navController.navigate(ProfileFollowScreen.New.name)
             }

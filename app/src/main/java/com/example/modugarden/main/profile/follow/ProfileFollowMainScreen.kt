@@ -42,7 +42,6 @@ val pages = listOf("팔로워", "팔로잉")
 fun ProfileFollowMainScreen(
     id: Int,
     navController: NavController,
-    viewModel: UserViewModel,
     onUserClick: (Int) -> Unit
 ) {
     val scope = rememberCoroutineScope()

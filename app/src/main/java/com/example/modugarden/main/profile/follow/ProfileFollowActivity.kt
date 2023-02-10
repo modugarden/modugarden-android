@@ -46,7 +46,6 @@ class ProfileFollowActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val userId = intent.getIntExtra("userId", 0)
         }
     }
 }
