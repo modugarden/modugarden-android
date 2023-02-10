@@ -4,10 +4,13 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.FollowRecommendationRes
+import com.example.modugarden.api.dto.FollowRecommendationResContent
 import com.example.modugarden.api.dto.GetFollowFeedCuration
 import com.example.modugarden.api.dto.PostDTO
 import kotlinx.coroutines.delay
@@ -22,7 +25,25 @@ import retrofit2.Response
 class RefreshViewModel: ViewModel() {
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> get() = _isRefreshing.asStateFlow()
+    private val refreshPage = mutableStateOf(0)
 
+    private val beforeRecommendList = mutableStateOf(FollowRecommendationRes().content)
+
+    fun getBeforeRecommendList(): MutableState<List<FollowRecommendationResContent>> {
+        return beforeRecommendList
+    }
+
+    fun setBeforeRecommendList(recommendList :List<FollowRecommendationResContent>) {
+        beforeRecommendList.value = recommendList
+    }
+
+    fun getRefreshPage(): Int {
+        return refreshPage.value
+    }
+    fun addRefreshPage() {
+        refreshPage.value += 1
+        if(refreshPage.value > 10) refreshPage.value = 0
+    }
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.emit(true)
@@ -31,8 +52,11 @@ class RefreshViewModel: ViewModel() {
         }
     }
 
-    fun  getRecommend(recommendRes: MutableState<FollowRecommendationRes>,page:Int){
-        RetrofitBuilder.followAPI.getRecommendFollowList(page)
+    fun  getRecommend(
+        recommendList: MutableState<List<FollowRecommendationResContent>>,
+        page:Int=0
+    ){
+        RetrofitBuilder.followAPI.getRecommendFollowList(refreshPage.value)
             .enqueue(object : Callback<FollowRecommendationRes> {
                 override fun onResponse(
                     call: Call<FollowRecommendationRes>,
@@ -41,10 +65,11 @@ class RefreshViewModel: ViewModel() {
                     if (response.isSuccessful) {
                         val res = response.body()
                         if (res != null) {
-                            recommendRes.value = res
-                            Log.i("추천", recommendRes.toString())
+                            beforeRecommendList.value = res.content
+                            recommendList.value = res.content
+//                            recommendRes.value = res
                         }
-                    } else Log.i("추천", "실패")
+                    }
                 }
 
                 override fun onFailure(call: Call<FollowRecommendationRes>, t: Throwable) {

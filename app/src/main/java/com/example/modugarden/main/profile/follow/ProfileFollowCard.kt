@@ -36,7 +36,7 @@ fun ProfileCard(
             }
     ) {
         GlideImage(
-            imageModel = user.profileImg,
+            imageModel = user.profileImage,
             contentDescription = null,
             modifier = Modifier
                 .size(50.dp)
@@ -78,30 +78,5 @@ fun ProfileCard(
                 .padding(vertical = 5.dp, horizontal = 10.dp)
                 .align(Alignment.CenterVertically)
         )
-//        Card(
-//            modifier = Modifier
-//                .align(Alignment.CenterVertically)
-//                .wrapContentSize()
-//                .bounceClick {
-//                    // 팔로우 api
-//                    onClick(followState.value)
-//                    followState.value = !followState.value
-//                },
-//            shape = RoundedCornerShape(5.dp),
-//            backgroundColor = if(followState.value) { moduBackground } else { moduPoint }
-//        ) {
-//            Text(
-//                text = if(followState.value) { "팔로잉" } else { "팔로우" },
-//                style = TextStyle(
-//                    color = if(followState.value) { Color.Black } else { Color.White },
-//                    fontSize = 11.sp,
-//                    fontWeight = FontWeight.Bold,
-//                    textAlign = TextAlign.Center
-//                ),
-//                modifier = Modifier
-//                    .padding(vertical = 5.dp, horizontal = 10.dp)
-//                    .align(Alignment.CenterVertically)
-//            )
-//        }
     }
 }

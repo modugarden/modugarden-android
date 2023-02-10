@@ -60,11 +60,10 @@ fun FollowMainScreen(navController: NavHostController,
     refreshViewModel.getCurations(curationres,context)
 
     val curations = mutableStateOf(curationres.value.content)
-    Log.i("모드1",mode.value.toString())
+
 
     //포스트, 큐레이션 수
     mode.value = (posts.value.isNotEmpty() || curations.value.isNotEmpty())
-    Log.i("모드2",mode.value.toString())
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
         onRefresh = {
