@@ -5,7 +5,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.modugarden.api.RetrofitBuilder
@@ -136,7 +135,12 @@ class RefreshViewModel: ViewModel() {
             })
     }
 
-    fun getUserInfo(userInfoResResult:MutableState<UserInfoResResult>, context: Context?){
+    fun getUserInfo(
+        userInfoResResult: MutableState<UserInfoResResult>,
+        context: Context?,
+        loadingState: MutableState<Boolean>
+    ){
+        loadingState.value = true
         RetrofitBuilder.userAPI
             .readUserInfo(userInfoResResult.value.id)
             .enqueue(object : Callback<UserInfoRes> {
@@ -149,6 +153,7 @@ class RefreshViewModel: ViewModel() {
                         Log.i("res",res.toString())
                         if (res != null) {
                             userInfoResResult.value = res.result
+                            loadingState.value = false
                         }
                     }
                 }
