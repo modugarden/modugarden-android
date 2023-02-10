@@ -24,11 +24,13 @@ import retrofit2.Response
 class RefreshViewModel: ViewModel() {
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> get() = _isRefreshing.asStateFlow()
-    private val refreshPage = mutableStateOf(-1)
+    private val refreshPage = mutableStateOf(0)
 
     fun getRefreshPage(): Int {
-        refreshPage.value += 1
         return refreshPage.value
+    }
+    fun addRefreshPage() {
+        refreshPage.value += 1
     }
     fun refresh() {
         viewModelScope.launch {
@@ -42,7 +44,7 @@ class RefreshViewModel: ViewModel() {
         recommendList: MutableState<List<FollowRecommendationResContent>>,
         page:Int=0
     ){
-        RetrofitBuilder.followAPI.getRecommendFollowList(page)
+        RetrofitBuilder.followAPI.getRecommendFollowList(refreshPage.value)
             .enqueue(object : Callback<FollowRecommendationRes> {
                 override fun onResponse(
                     call: Call<FollowRecommendationRes>,
@@ -53,9 +55,8 @@ class RefreshViewModel: ViewModel() {
                         if (res != null) {
                             recommendList.value = res.content
 //                            recommendRes.value = res
-                            Log.i("추천", "$page : ${recommendList.value}")
                         }
-                    } else Log.i("추천", "실패")
+                    }
                 }
 
                 override fun onFailure(call: Call<FollowRecommendationRes>, t: Throwable) {

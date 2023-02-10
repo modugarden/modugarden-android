@@ -25,7 +25,7 @@ data class FollowListDtoResContent(
     val categories: List<String> = listOf(),
     val follow: Boolean = false,
     val nickname: String = "",
-    val profileImg: String = "",
+    val profileImage: String = "",
     val userId: Int = 0
 )
 
@@ -39,7 +39,7 @@ data class FollowRecommendationResContent(
     val categories: List<String> = listOf(),
     val isFollow: Boolean = false,
     val nickname: String = "",
-    val profileImg: String = "",
+    val profileImage: String = "",
     val userId: Int = 0
 )
 

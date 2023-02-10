@@ -18,6 +18,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.FollowRecommendationRes
 import com.example.modugarden.api.dto.GetFollowFeedCuration
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.route.NavigationGraphFollow
@@ -25,6 +27,9 @@ import com.example.modugarden.viewmodel.RefreshViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -85,13 +90,37 @@ fun FollowMainScreen(navController: NavHostController,
                     navFollowController = navFollowController,
                     userViewModel = userViewModel
                 )
-            } else {
-
+            }
+            else {
+//                val firstRecommendList = remember { mutableStateOf(FollowRecommendationRes().content) }
+//
+//                RetrofitBuilder.followAPI.getRecommendFollowList(0)
+//                    .enqueue(object : Callback<FollowRecommendationRes> {
+//                        override fun onResponse(
+//                            call: Call<FollowRecommendationRes>,
+//                            response: Response<FollowRecommendationRes>
+//                        ) {
+//                            if (response.isSuccessful) {
+//                                val res = response.body()
+//                                if (res != null) {
+//                                    firstRecommendList.value = res.content
+//                                }
+//                            } else Log.i("추천", "실패")
+//                        }
+//
+//                        override fun onFailure(call: Call<FollowRecommendationRes>, t: Throwable) {
+//
+//                        }
+//                    })
                 NoFollowingScreen(
-                    navController =navFollowController,
-                    userViewModel =userViewModel,
+//                    firstRecommendList = firstRecommendList.value,
+                    navController = navFollowController,
+                    userViewModel = userViewModel,
                     refreshViewModel = refreshViewModel
                 )
+
+
+
             }
         }
     }
