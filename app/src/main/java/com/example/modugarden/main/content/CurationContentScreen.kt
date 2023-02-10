@@ -2,11 +2,15 @@ package com.example.modugarden.main.content
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.graphics.Bitmap
+import android.os.Build
 import android.util.Log
 import android.view.ViewGroup
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -60,6 +64,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("CommitPrefEdits")
 @Composable
@@ -77,6 +82,7 @@ fun CurationContentScreen(curation_id :Int) {
     val refreshViewModel:RefreshViewModel= viewModel()
     val userId =
         ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
+    val isLoading = remember { mutableStateOf(true) }
 
     RetrofitBuilder.curationAPI.getCuraionContent(curation_id)
         .enqueue(object : Callback<GetCurationResponse> {
@@ -299,17 +305,33 @@ fun CurationContentScreen(curation_id :Int) {
                     .height(1.dp)
             )
             // 컨텐츠
-            AndroidView(factory = {
-                WebView(it).apply {
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                    )
-                    webViewClient = WebViewClient()
-                    loadUrl(curation!!.link)
-                }
-            }, update = { it.loadUrl(curation!!.link) }
-            )
+            Box (){
+                AndroidView(
+                    factory = {
+                        WebView(it)
+                            .apply {
+                                layoutParams = ViewGroup.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    ViewGroup.LayoutParams.MATCH_PARENT)
+
+                                    webViewClient = object : WebViewClient(){
+
+                                    /*override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                                        super.onPageStarted(view, url, favicon)
+                                        isLoading.value=true
+                                    }*/
+
+                                    override fun onPageFinished(view: WebView?, url: String?) {
+                                        super.onPageFinished(view, url)
+                                        isLoading.value=false
+                                    }
+                                }
+                            }
+                    }, update = { it.loadUrl(curation!!.link) }
+                )
+                if (isLoading.value) ShowProgressBarV2()
+            }
+
         }
     }
 }

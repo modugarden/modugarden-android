@@ -854,6 +854,19 @@ fun ShowProgressBar() {
         )
     }
 }
+@Composable
+fun ShowProgressBarV2() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Transparent)
+    ) {
+        CircularProgressIndicator(
+            color = moduPoint,
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
 
 @Composable
 fun PostHeartCard(
