@@ -2,7 +2,6 @@ package com.example.modugarden.ui.theme
 
 import android.graphics.Rect
 import android.util.Log
-import android.view.KeyEvent
 import android.view.ViewTreeObserver
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
@@ -15,7 +14,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -35,9 +33,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -53,24 +49,19 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import com.example.modugarden.ApplicationClass.Companion.clientId
+import com.example.modugarden.ApplicationClass.Companion.clientNickname
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.RetrofitBuilder.curationAPI
 import com.example.modugarden.api.RetrofitBuilder.postAPI
-import com.example.modugarden.api.dto.CurationLikeResponse
-import com.example.modugarden.api.dto.CurationStoreResponse
-import com.example.modugarden.api.dto.FollowDtoRes
-import com.example.modugarden.api.dto.GetCurationLikeStateResponse
+import com.example.modugarden.api.dto.*
 import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.data.RecentSearch
 import com.example.modugarden.data.RecentSearchDatabase
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
-import com.skydoves.landscapist.glide.GlideImage
+import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -195,16 +186,114 @@ fun EditText(
 }
 
 @Composable
-fun DisabledEditText(
+fun NicknameEditText(
     title: String?, //textField 위에 들어갈 제목.
     data: MutableState<String>, //textField의 데이터 값을 저장.
     isTextFieldFocused: MutableState<Boolean>, //textField가 포커싱 되어 있는지 여부.
     modifier: Modifier = Modifier
         .fillMaxWidth(),
     keyboardType: KeyboardType = KeyboardType.Text, //키보드 형식 (비밀번호, 이메일 등.)
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    errorState: MutableState<Boolean>,
+    placeholder: String = "",
+    placeholderSize: Int = 20,
+) {
+    val focusRequester = remember { FocusRequester() }
+    Column {
+        if (title!!.isNotEmpty()) {
+            Text(
+                title,
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                color =
+                if (errorState.value) moduErrorPoint
+                else if (isTextFieldFocused.value) moduPoint
+                else moduGray_strong
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+        }
+        TextField(
+            modifier = modifier
+                .focusRequester(focusRequester)
+                .onFocusChanged {
+                    isTextFieldFocused.value = it.isFocused
+                    val jsonObject = JsonObject()
+                    jsonObject.addProperty("nickname", data.value)
+                    if(!isTextFieldFocused.value)
+                        RetrofitBuilder.signupAPI.signupNicknameIsDuplicatedAPI(jsonObject)
+                            .enqueue(object : Callback<SignupNicknameIsDuplicatedDTO> {
+                                override fun onResponse(
+                                    call: Call<SignupNicknameIsDuplicatedDTO>,
+                                    response: Response<SignupNicknameIsDuplicatedDTO>
+                                ) {
+                                    if(data.value != sharedPreferences.getString(clientNickname, ""))
+                                        errorState.value = response.body()?.result?.isDuplicated!!
+                                    Log.d("onResponse", "닉네임 체크 : \n" +
+                                            "${response.body()}\n" +
+                                            "${response.body()?.result?.isDuplicated}\n" +
+                                            "${errorState.value}" )
+                                }
+                                override fun onFailure(
+                                    call: Call<SignupNicknameIsDuplicatedDTO>,
+                                    t: Throwable
+                                ) {
+
+                                }
+                            })
+                }
+                .border(
+                    width = 1.dp,
+                    shape = RoundedCornerShape(10.dp),
+                    color =
+                    if (isTextFieldFocused.value)
+                        if (errorState.value) moduErrorPoint
+                        else moduPoint
+                    else if (errorState.value)
+                        moduErrorBackgroundPoint
+                    else moduBackground
+                )
+                .animateContentSize(),
+            value = data.value,
+            keyboardActions = keyboardActions,
+            onValueChange = { textValue ->
+                data.value = textValue
+            },
+            shape = RoundedCornerShape(10.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor =
+                if (errorState.value) moduErrorBackgroundPoint
+                else if (isTextFieldFocused.value) moduTextFieldPoint
+                else moduBackground,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            ),
+            textStyle = TextStyle(fontSize = 20.sp, color = moduBlack),
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            singleLine = true,
+            placeholder = { Text(placeholder, color = moduGray_normal, fontSize = placeholderSize.sp) }
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+        Text(text =
+        if (errorState.value) "중복된 닉네임이예요."
+        else if (data.value.length in 0..25) "2~25자의 영문, 숫자, _만 가능해요."
+        else "글자 수를 초과했어요",
+            fontWeight = FontWeight.Bold, fontSize = 11.sp,
+            color =
+            if (errorState.value) moduErrorPoint
+            else if (isTextFieldFocused.value) moduPoint
+            else moduGray_strong)
+    }
+}
+
+@Composable
+fun DisabledEditText(
+    title: String?, //textField 위에 들어갈 제목.
+    data: MutableState<String>, //textField의 데이터 값을 저장.
+    modifier: Modifier = Modifier
+        .fillMaxWidth(),
+    keyboardType: KeyboardType = KeyboardType.Text, //키보드 형식 (비밀번호, 이메일 등.)
     singleLine: Boolean = false, //textField를 한 줄 고정할 것인지 여부.
     description: String = "", //textField 아래에 들어갈 설명.
-    errorListener: MutableState<Boolean> = mutableStateOf(false), //textField에 들어갈 값의 조건이 틀렸는지 여부.
     textStyle: TextStyle = TextStyle(fontSize = 20.sp, color = moduGray_normal), //textField의 글자 스타일 설정.
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -214,16 +303,13 @@ fun DisabledEditText(
                 title,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
-                color = if(errorListener.value) moduErrorPoint else if (isTextFieldFocused.value) moduPoint else moduGray_strong
+                color = moduGray_strong
             )
             Spacer(modifier = Modifier.height(5.dp))
         }
         TextField(
             modifier = modifier
                 .focusRequester(focusRequester)
-                .onFocusChanged {
-                    isTextFieldFocused.value = it.isFocused
-                }
                 .animateContentSize(),
             value = data.value,
             onValueChange = { textValue ->
@@ -231,7 +317,7 @@ fun DisabledEditText(
             },
             shape = RoundedCornerShape(10.dp),
             colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = if (errorListener.value) moduErrorBackgroundPoint else if (isTextFieldFocused.value) moduTextFieldPoint else moduBackground,
+                backgroundColor = moduBackground,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
             ),
@@ -242,7 +328,7 @@ fun DisabledEditText(
         )
         if(description != "") {
             Spacer(modifier = Modifier.height(5.dp))
-            Text(description, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = if (errorListener.value) moduErrorPoint else if (isTextFieldFocused.value) moduPoint else moduGray_strong)
+            Text(description, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = moduGray_strong)
         }
     }
 }
@@ -529,6 +615,59 @@ fun BottomButton(
         }
     }
 }
+
+@Composable
+fun ProfileUpdateBottomButton(
+    title: String,
+    onClick: () -> Unit,
+    dpScale: Dp = 18.dp,
+    alpha: Float = 1f,
+    shapeScale: Dp = 15.dp,
+    color: Color = moduPoint,
+    textColor: Color = Color.White,
+    disabled: MutableState<Boolean>
+) {
+    Box(
+        modifier = Modifier
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color.White.copy(alpha = 0f), Color.White),
+                    startY = 0f,
+                    endY = 50f
+                )
+            )
+    ) {
+        Card(
+            modifier = Modifier
+                .bounceClick {
+                    if(!disabled.value)
+                        onClick.invoke()
+                }
+                .padding(dpScale)
+                .fillMaxWidth()
+                .alpha(
+                    if(!disabled.value)
+                        alpha
+                    else
+                        alpha / 2
+                ),
+            shape = RoundedCornerShape(shapeScale),
+            backgroundColor = color,
+            elevation = 0.dp,
+        ) {
+            Text(
+                title,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = textColor,
+                modifier = Modifier
+                    .padding(18.dp),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
 //스낵바
 @Composable
 fun SnackBar(
