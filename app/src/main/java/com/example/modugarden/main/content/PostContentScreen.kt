@@ -281,20 +281,18 @@ fun PostContentScreen(
                         lat.value = locinfo.split("``")[1].toDouble()
                         lng.value = locinfo.split("``")[2].toDouble()
                         place_id.value = locinfo.split("``")[3]
-
+                        Log.i("장소 아이디", place_id.value)
                         RetrofitBuilder.postLocationPhotoAPI
                             .getPhotoReference(place_id.value)
                             .enqueue(object : Callback<MapsDetailRes>{
                                 override fun onResponse(call: Call<MapsDetailRes>, response: Response<MapsDetailRes>) {
                                     if (response.isSuccessful){
-                                        val res = response.body()?.result
+                                        val res = response.body()?.result?.photos?.get(0)
                                         if(res!=null){
-                                            Log.i("아이디",place_id.value)
-                                            photoRef.value = res.photos[0].photo_reference
-                                            Log.i("장소 세부정보", response.body().toString())
+                                            photoRef.value = res.photo_reference
                                         }
                                         else
-                                            Log.i("장소 세부정보","실패")
+                                            Log.i("장소 세부정보 사진","없디")
                                     }
                                 }
 
@@ -302,8 +300,10 @@ fun PostContentScreen(
                                     TODO("Not yet implemented")
                                 }
                             })
-                        photoURL.value =
-                            "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference="+ photoRef.value+"&key="+ BuildConfig.google_maps_key
+                        if(photoRef.value!="") {
+                            photoURL.value =
+                                "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + photoRef!!.value + "&key=" + BuildConfig.google_maps_key
+                        }
                         Log.i("장소 사진",photoURL.value)
                         Locale.setDefault(Locale.KOREAN)
                         val geocoder = Geocoder(
@@ -573,7 +573,7 @@ fun PostContentScreen(
                                         modifier = Modifier
                                             .weight(1f)
                                             .bounceClick {
-                                                isLoading.value=true
+                                                isLoading.value = true
                                                 RetrofitBuilder.postAPI
                                                     .deletePost(post.id)
                                                     .enqueue(object :
@@ -582,11 +582,10 @@ fun PostContentScreen(
                                                             call: Call<PostDTO.DeletePostResponse>,
                                                             response: Response<PostDTO.DeletePostResponse>
                                                         ) {
-                                                            if(response.body()?.isSuccess == true){
+                                                            if (response.body()?.isSuccess == true) {
                                                                 isLoading.value = false
                                                                 Log.i("포스트 삭제", "성공")
-                                                            }
-                                                            else Log.i("포스트 삭제", "실패")
+                                                            } else Log.i("포스트 삭제", "실패")
                                                         }
 
                                                         override fun onFailure(

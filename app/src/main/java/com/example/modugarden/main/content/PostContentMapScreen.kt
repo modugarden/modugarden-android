@@ -121,7 +121,9 @@ fun PostContentMapScreen(navController: NavHostController,data:MapInfo) {
             .align(Alignment.BottomCenter))
         { // 위치 사진
            GlideImage(
-                imageModel = data.photoURL,
+                imageModel =
+                if (data.photoURL=="") R.drawable.ic_default_profile
+                else data.photoURL,
                 contentDescription = "",
                 modifier = Modifier
                     .clip(CircleShape)

@@ -39,6 +39,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.*
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.core.graphics.toColorInt
@@ -146,7 +147,10 @@ fun PostCard(
                                                 .padding(18.dp)
                                                 .bounceClick {
                                                         userViewModel.setUserId(data.user_id)
-                                                        Log.d("postCardUserId", data.user_id.toString())
+                                                        Log.d(
+                                                                "postCardUserId",
+                                                                data.user_id.toString()
+                                                        )
                                                         navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName) {
                                                         }
                                                 },//프로필
@@ -288,12 +292,20 @@ fun PostCard(
                                                                 .padding(18.dp)
                                                 ) {
 
-                                                        Text(
-                                                                data.title,
-                                                                fontSize = 16.sp,
-                                                                fontWeight = FontWeight.Bold,
-                                                                color = Color("#17291F".toColorInt())
-                                                        )
+                                                        Row(Modifier.fillMaxWidth(1f)){
+                                                                Text(
+                                                                        data.title,
+                                                                        fontSize = 16.sp,
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        color = Color("#17291F".toColorInt()),
+                                                                        maxLines = 1,
+                                                                        overflow = TextOverflow.Ellipsis,
+                                                                        modifier = Modifier.weight(
+                                                                                0.9f
+                                                                        )
+                                                                )
+                                                                Spacer(modifier = Modifier.weight(0.1f))
+                                                        }
                                                         Row(
                                                                 Modifier.fillMaxWidth(),
                                                                 horizontalArrangement = Arrangement.SpaceBetween

@@ -64,7 +64,7 @@ fun NavigationGraphFollow(
         composable(
             NAV_ROUTE_FOLLOW.USERPROFILE.routeName
         ) { backStackEntry ->
-            ProfileApp(UVforFollow.getUserId(), false, navController)
+            ProfileApp(UVforFollow.getUserId(), false, navFollowController)
         }
     }
 }
