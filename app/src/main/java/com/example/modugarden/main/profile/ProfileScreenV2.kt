@@ -9,6 +9,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,13 +17,12 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterEnd
@@ -60,10 +60,13 @@ import com.example.modugarden.main.content.timeToDate
 import com.example.modugarden.main.profile.follow.ProfileFollowScreen
 import com.example.modugarden.main.settings.SettingsActivity
 import com.example.modugarden.ui.theme.*
+import com.example.modugarden.viewmodel.RefreshViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -89,15 +92,18 @@ fun ProfileScreenV2(
     val context = LocalContext.current
     val data = remember { mutableStateOf( UserInfoResResult() ) }
     val followState = remember { mutableStateOf(false) }
+    val loadingState = remember { mutableStateOf(true) }
 
     val launcher = rememberLauncherForActivityResult(contract =
     ActivityResultContracts.StartIntentSenderForResult()) {
+        loadingState.value = true
         RetrofitBuilder.userAPI.readUserInfo(userId)
             .enqueue(object : AuthCallBack<UserInfoRes>(context, "성공!") {
                 override fun onResponse(call: Call<UserInfoRes>, response: Response<UserInfoRes>) {
                     super.onResponse(call, response)
                     data.value = response.body()?.result!!
                     followState.value = response.body()!!.result.follow
+                    loadingState.value = false
                 }
             })
     }
@@ -108,6 +114,7 @@ fun ProfileScreenV2(
                 super.onResponse(call, response)
                 data.value = response.body()?.result!!
                 followState.value = response.body()!!.result.follow
+                loadingState.value = false
             }
         })
 
@@ -115,25 +122,33 @@ fun ProfileScreenV2(
         title = "",
         bottomSheetState = bottomSheetState,
         sheetScreen = {
-            ModalBottomSheetItem(text = "신고", icon = R.drawable.ic_profile_block, trailing = true, modifier = Modifier.bounceClick {
-                scope.launch {
-                    bottomSheetState.hide()
-                }
-            })
-            ModalBottomSheetItem(text = "차단", icon = R.drawable.ic_profile_block, trailing = true, modifier = Modifier.bounceClick {
-                scope.launch {
-                    bottomSheetState.hide()
-                }
-            })
+            ModalBottomSheetItem(
+                text = "신고",
+                icon = R.drawable.ic_profile_block,
+                trailing = true,
+                modifier = Modifier.bounceClick {
+                    scope.launch {
+                        bottomSheetState.hide()
+                    }
+                })
+            ModalBottomSheetItem(
+                text = "차단",
+                icon = R.drawable.ic_profile_block,
+                trailing = true,
+                modifier = Modifier.bounceClick {
+                    scope.launch {
+                        bottomSheetState.hide()
+                    }
+                })
         },
         uiScreen = {
-            Scaffold (
+            Scaffold(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(color = Color.White),
                 scaffoldState = scaffoldState,
                 snackbarHost = {
-                    ScaffoldSnackBar (
+                    ScaffoldSnackBar(
                         snackbarHostState = it
                     )
                 }
@@ -151,7 +166,7 @@ fun ProfileScreenV2(
                             .height(42.dp)
                             .padding(horizontal = 18.dp)
                     ) {
-                        if(!userViewModel.getOnBNB()) {
+                        if (!userViewModel.getOnBNB()) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_arrow_left_bold),
                                 contentDescription = null,
@@ -164,7 +179,7 @@ fun ProfileScreenV2(
                             )
                         }
                         Spacer(modifier = Modifier.weight(1f))
-                        if(myId != data.value.id) {
+                        if (myId != data.value.id) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ellipsis_vertical),
                                 contentDescription = null,
@@ -181,9 +196,9 @@ fun ProfileScreenV2(
 
                     }
                     Row(
-                       modifier = Modifier
-                           .align(CenterHorizontally)
-                           .wrapContentSize()
+                        modifier = Modifier
+                            .align(CenterHorizontally)
+                            .wrapContentSize()
                     ) {
                         Spacer(modifier = Modifier.width(42.dp))
                         Text(
@@ -232,7 +247,7 @@ fun ProfileScreenV2(
                                     }
                                 },
                             tint =
-                            if(myId == data.value.id)
+                            if (myId == data.value.id)
                                 moduGray_normal
                             else
                                 Color.Transparent
@@ -240,7 +255,7 @@ fun ProfileScreenV2(
                     }
                     Spacer(modifier = Modifier.size(10.dp))
                     Text(
-                        text =  data.value.categories.joinToString(", ","",""),
+                        text = data.value.categories.joinToString(", ", "", ""),
                         style = TextStyle(
                             color = moduGray_normal,
                             fontWeight = FontWeight.Bold,
@@ -289,7 +304,7 @@ fun ProfileScreenV2(
                         ) {
                             GlideImage(
                                 imageModel =
-                                if(data.value.profileImage == null)
+                                if (data.value.profileImage == null)
                                     R.drawable.ic_default_profile
                                 else
                                     data.value.profileImage,
@@ -306,8 +321,16 @@ fun ProfileScreenV2(
                                 },
                                 requestOptions = {
                                     RequestOptions()
-                                        .override(256,256)
+                                        .override(256, 256)
                                 }
+                            )
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_user_state),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .clip(CircleShape)
+                                    .padding(8.dp)
                             )
                         }
                         Card(
@@ -343,7 +366,7 @@ fun ProfileScreenV2(
 
                     Spacer(modifier = Modifier.size(30.dp))
 
-                    if(myId != userId) {
+                    if (myId != userId) {
                         FollowCard(
                             id = userId,
                             modifier = Modifier
@@ -352,7 +375,9 @@ fun ProfileScreenV2(
                                 .align(CenterHorizontally),
                             snackBarAction = {
                                 scope.launch {
-                                    if (followState.value) scaffoldState.snackbarHostState.showSnackbar("${data.value.nickname} 님을 팔로우 했어요.")
+                                    if (followState.value) scaffoldState.snackbarHostState.showSnackbar(
+                                        "${data.value.nickname} 님을 팔로우 했어요."
+                                    )
                                     else scaffoldState.snackbarHostState.showSnackbar("${data.value.nickname} 님을 언팔로우 했어요.")
                                 }
                             },
@@ -364,35 +389,41 @@ fun ProfileScreenV2(
 
                     Spacer(modifier = Modifier.size(30.dp))
 
-                    val postList = remember { mutableStateOf<List<PostDTO.GetUserPostResponseContent>?>(
-                        listOf())
+                    val postList = remember {
+                        mutableStateOf<List<PostDTO.GetUserPostResponseContent>?>(
+                            listOf()
+                        )
                     }
 
                     RetrofitBuilder.postAPI.getUserPost(userId)
-                        .enqueue(object : AuthCallBack<PostDTO.GetUserPostResponse>(context, "성공!") {
+                        .enqueue(object :
+                            AuthCallBack<PostDTO.GetUserPostResponse>(context, "성공!") {
                             override fun onResponse(
                                 call: Call<PostDTO.GetUserPostResponse>,
                                 response: Response<PostDTO.GetUserPostResponse>
                             ) {
                                 super.onResponse(call, response)
-                                if(response.body()?.content != null)
+                                if (response.body()?.content != null)
                                     postList.value = response.body()?.content
                             }
                         })
 
-                    val curationList = remember { mutableStateOf<List<GetUserCurationsResponseContent>?>(
-                        listOf())
+                    val curationList = remember {
+                        mutableStateOf<List<GetUserCurationsResponseContent>?>(
+                            listOf()
+                        )
                     }
 
-                    if(data.value.postCount > 0) {
+                    if (data.value.postCount > 0) {
                         RetrofitBuilder.curationAPI.getUserCuration(userId)
-                            .enqueue(object : AuthCallBack<GetUserCurationsResponse>(context, "성공!") {
+                            .enqueue(object :
+                                AuthCallBack<GetUserCurationsResponse>(context, "성공!") {
                                 override fun onResponse(
                                     call: Call<GetUserCurationsResponse>,
                                     response: Response<GetUserCurationsResponse>
                                 ) {
                                     super.onResponse(call, response)
-                                    if(response.body()?.content != null)
+                                    if (response.body()?.content != null)
                                         curationList.value = response.body()?.content
                                 }
                             })
@@ -405,29 +436,29 @@ fun ProfileScreenV2(
                         Text(text = "포스트",
                             fontSize = 20.sp,
                             color =
-                                if(pagerState.currentPage == 0) moduBlack
-                                else moduGray_normal,
+                            if (pagerState.currentPage == 0) moduBlack
+                            else moduGray_normal,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier
                                 .bounceClick {
-                                scope.launch {
-                                    pagerState.animateScrollToPage(0)
-                                }
-                        })
+                                    scope.launch {
+                                        pagerState.animateScrollToPage(0)
+                                    }
+                                })
                         Spacer(Modifier.size(20.dp))
                         Text(text = "큐레이션",
                             fontSize = 20.sp,
                             color =
-                                if(pagerState.currentPage == 1) moduBlack
-                                else moduGray_normal,
+                            if (pagerState.currentPage == 1) moduBlack
+                            else moduGray_normal,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.bounceClick {
                                 scope.launch {
                                     pagerState.animateScrollToPage(1)
                                 }
-                        })
+                            })
                         Spacer(modifier = Modifier.weight(1f))
-                        if(myId == data.value.id) {
+                        if (myId == data.value.id) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_profile_saved),
                                 contentDescription = null,
@@ -453,19 +484,23 @@ fun ProfileScreenV2(
                     ) { page ->
                         when (page) {
                             0 -> {
-                                if (postList.value?.isEmpty() == false) {
+                                if (postList.value?.isNotEmpty() == true) {
                                     LazyVerticalGrid(
                                         columns = GridCells.Fixed(2),
                                         verticalArrangement = Arrangement.spacedBy(18.dp),
                                         horizontalArrangement = Arrangement.spacedBy(18.dp),
-                                        modifier = Modifier.fillMaxSize(),
+                                        modifier = Modifier
+                                            .fillMaxSize(),
                                         contentPadding = PaddingValues(18.dp)
                                     ) {
                                         items(postList.value!!) { postCard ->
                                             // 이미지가 들어간 버튼을 넣어야 함
                                             Box(modifier = Modifier.bounceClick {
                                                 context.startActivity(
-                                                    Intent(context, PostContentActivity::class.java)
+                                                    Intent(
+                                                        context,
+                                                        PostContentActivity::class.java
+                                                    )
                                                         .putExtra("board_id", postCard.id)
                                                         .putExtra("run", true)
                                                 )
@@ -498,18 +533,22 @@ fun ProfileScreenV2(
                                                     },
                                                     requestOptions = {
                                                         RequestOptions()
-                                                            .override(256,256)
+                                                            .override(256, 256)
                                                     }
                                                 )
                                             }
                                         }
                                     }
                                 }
+                                else if (userId == myId) {
+                                    NoContentScreen(loadingState)
+                                }
                             }
                             1 -> {
-                                if(data.value.postCount > 0) {
+                                if (curationList.value?.isNotEmpty() == true) {
                                     LazyColumn(
-                                        modifier = Modifier.fillMaxSize(),
+                                        modifier = Modifier
+                                            .fillMaxSize(),
                                         verticalArrangement = Arrangement.spacedBy(15.dp),
                                         contentPadding = PaddingValues(18.dp)
                                     ) {
@@ -557,7 +596,7 @@ fun ProfileScreenV2(
                                                     },
                                                     requestOptions = {
                                                         RequestOptions()
-                                                            .override(256,256)
+                                                            .override(256, 256)
                                                     }
                                                 )
                                                 Spacer(modifier = Modifier.width(18.dp))
@@ -587,7 +626,11 @@ fun ProfileScreenV2(
                                                         )
                                                         Spacer(modifier = Modifier.weight(1f))
                                                         Text(
-                                                            text = "${curationCard.category}, ${timeToDate(curationCard.created_date)}",
+                                                            text = "${curationCard.category}, ${
+                                                                timeToDate(
+                                                                    curationCard.created_date
+                                                                )
+                                                            }",
                                                             fontSize = 12.sp,
                                                             color = moduGray_strong
                                                         )
@@ -596,9 +639,8 @@ fun ProfileScreenV2(
                                             }
                                         }
                                     }
-                                }
-                                else {
-
+                                } else if (userId == myId) {
+                                    NoContentScreen(loadingState)
                                 }
                             }
                         }
@@ -607,4 +649,55 @@ fun ProfileScreenV2(
             }
         }
     )
+}
+
+@Composable
+fun NoContentScreen(
+    loadingState: MutableState<Boolean>
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        if (loadingState.value) {
+            CircularProgressIndicator(
+                color = moduPoint,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        } else {
+            Column(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .align(Center)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_no_post),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(150.dp)
+                        .align(CenterHorizontally)
+                )
+                Spacer(modifier = Modifier.size(10.dp))
+                Text(
+                    text = "게시물이 없어요.",
+                    style = TextStyle(
+                        color = moduBlack,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier.align(CenterHorizontally)
+                )
+                Spacer(modifier = Modifier.size(10.dp))
+                Text(
+                    text = "업로드에서 게시물을 추가해보세요.",
+                    style = TextStyle(
+                        color = moduGray_strong,
+                        fontSize = 14.sp
+                    ),
+                    modifier = Modifier.align(CenterHorizontally)
+                )
+            }
+        }
+    }
 }
