@@ -2,6 +2,7 @@ package com.example.modugarden.main.settings
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -27,6 +28,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import com.bumptech.glide.request.RequestOptions
+import com.example.modugarden.ApplicationClass.Companion.clientNickname
+import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.UpdateUserSettingInfoRes
@@ -68,11 +71,10 @@ fun SettingsProfileScreen(
     val birthState = remember { mutableStateOf(settingViewModel.getBirth()) }
     val emailState = remember { mutableStateOf(settingViewModel.getEmail()) }
     val nicknameFocusState = remember { mutableStateOf(false) }
-    val birthFocusState = remember { mutableStateOf(false) }
-    val emailFocusState = remember { mutableStateOf(false) }
+    val nicknameErrorState = remember { mutableStateOf(false) }
     val modalType = remember { mutableStateOf(ModalType.ProfileImage) }
     val categoriesState = remember { mutableStateOf(settingViewModel.getCategories()) }
-    val imageState = remember { mutableStateOf(settingViewModel.getImage()) }
+    val imageState = remember { mutableStateOf (settingViewModel.getImage()) }
 
     // 사진 가져오는 런쳐
     val takePhotoFromAlbumLauncher =
@@ -123,7 +125,7 @@ fun SettingsProfileScreen(
                     }
                 })
             }
-        },
+            },
         uiScreen = {
             Column(
                 modifier = Modifier
@@ -178,22 +180,21 @@ fun SettingsProfileScreen(
                 }
 
                 Spacer(modifier = Modifier.height(36.dp))
-                EditText(
+                NicknameEditText(
                     title = "닉네임",
                     data = nicknameState,
-                    isTextFieldFocused = nicknameFocusState
+                    isTextFieldFocused = nicknameFocusState,
+                    errorState = nicknameErrorState
                 )
                 Spacer(modifier = Modifier.height(18.dp))
                 DisabledEditText(
                     title = "생년월일",
-                    data = birthState,
-                    isTextFieldFocused = birthFocusState
+                    data = birthState
                 )
                 Spacer(modifier = Modifier.height(18.dp))
                 DisabledEditText(
                     title = "이메일",
-                    data = emailState,
-                    isTextFieldFocused = emailFocusState
+                    data = emailState
                 )
                 Spacer(modifier = Modifier.height(18.dp))
                 Text(
@@ -265,7 +266,7 @@ fun SettingsProfileScreen(
                     }
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                BottomButton(
+                ProfileUpdateBottomButton(
                     title = "수정 완료",
                     onClick = {
                         // 정보 수정 API
@@ -313,6 +314,7 @@ fun SettingsProfileScreen(
                                         categoriesState.value,
                                         imageState.value
                                     )
+                                    sharedPreferences.edit().putString(clientNickname, nicknameState.value).apply()
                                 }
 
                                 override fun onFailure(
@@ -325,7 +327,8 @@ fun SettingsProfileScreen(
                             })
                         onButtonClicked()
                     },
-                    dpScale = 0.dp
+                    dpScale = 0.dp,
+                    disabled = nicknameErrorState
                 )
             }
         }
