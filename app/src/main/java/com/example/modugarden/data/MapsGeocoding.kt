@@ -1,5 +1,21 @@
 package com.example.modugarden.data
 
+data class MapsDetailRes(
+    val html_attributions: List<String>?,
+    val result: PlaceDetails?,
+    val status: String,
+)
+
+data class PlaceDetails(
+    val photos:List<PhotoReference>
+)
+
+data class PhotoReference(
+    val height:Int,
+    val width:Int,
+    val html_attributions:List<String>,
+    val photo_reference :String
+)
 data class MapsGeocoding(
     val html_attributions: List<String>,
     val results: List<Place>,

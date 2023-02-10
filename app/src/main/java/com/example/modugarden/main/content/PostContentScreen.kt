@@ -72,10 +72,12 @@ import androidx.core.graphics.toColorInt
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.modugarden.ApplicationClass
+import com.example.modugarden.BuildConfig
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.data.MapInfo
+import com.example.modugarden.data.MapsDetailRes
 import com.example.modugarden.data.Report
 import com.example.modugarden.main.follow.DotsIndicator
 import com.example.modugarden.main.follow.moduBold
@@ -103,6 +105,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -122,10 +125,12 @@ fun PostContentScreen(
     userViewModel: UserViewModel
 ) {
     val pagerState= rememberPagerState()//뷰페이저, 인디케이터 페이지 상태 변수
+    val firstPagerState = rememberPagerState()
+    val secondPagerState = rememberPagerState()
     val scrollState = rememberScrollState()//스크롤 상태 변수
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
-    val modalType = remember{ mutableStateOf(0) } // 신고 or 위치 모달 타입 정하는 변수
+    val modalType = remember{ mutableStateOf(modalLocationType) }// 신고 or 위치 모달 타입 정하는 변수
 
     var responseBody by remember { mutableStateOf(PostDTO.GetPostResponse()) }
     var likeNum =  remember{ mutableStateOf(0) }
@@ -166,10 +171,9 @@ fun PostContentScreen(
         })
 
     if (responseBody.result != null) {
-
         val post = responseBody.result
-        val locinfo = post!!.image[pagerState.currentPage].location
-        val loclength = post!!.image[pagerState.currentPage].location.length
+        val locinfo = post!!.image[firstPagerState.currentPage].location
+        val loclength = post!!.image[firstPagerState.currentPage].location.length
         val locButtonState = remember {mutableStateOf(loclength == 0) }
 
         ModalBottomSheetLayout(
@@ -213,8 +217,9 @@ fun PostContentScreen(
                                         .padding(vertical = 18.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Image(
-                                        painter = painterResource(id = R.drawable.ic_user),
+                                    GlideImage(
+                                        imageModel =
+                                        post.user_profile_image ?: R.drawable.ic_default_profile,
                                         contentDescription = "",
                                         modifier = Modifier
                                             .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
@@ -261,27 +266,54 @@ fun PostContentScreen(
 
                     }
                 }
-                else if (modalType.value == modalLocationType) {
+                if (modalType.value == modalLocationType) {
                     val location = remember { mutableStateOf("") }
                     location.value = locinfo.split("``")[0]
                     val address = remember { mutableStateOf("") }
                     val lat = remember { mutableStateOf(0.0) }
                     val lng = remember { mutableStateOf(0.0) }
                     val place_id = remember { mutableStateOf("") }
+                    val photoRef = remember { mutableStateOf("") }
+                    val photoURL = remember { mutableStateOf("") }
 
                     if (locinfo.contains("``")) {
                         lat.value = locinfo.split("``")[1].toDouble()
                         lng.value = locinfo.split("``")[2].toDouble()
                         place_id.value = locinfo.split("``")[3]
+
+                        RetrofitBuilder.postLocationPhotoAPI
+                            .getPhotoReference(place_id.value)
+                            .enqueue(object : Callback<MapsDetailRes>{
+                                override fun onResponse(call: Call<MapsDetailRes>, response: Response<MapsDetailRes>) {
+                                    if (response.isSuccessful){
+                                        val res = response.body()?.result
+                                        if(res!=null){
+                                            Log.i("아이디",place_id.value)
+                                            photoRef.value = res.photos[0].photo_reference
+                                            Log.i("장소 세부정보", response.body().toString())
+                                        }
+                                        else
+                                            Log.i("장소 세부정보","실패")
+                                    }
+                                }
+
+                                override fun onFailure(call: Call<MapsDetailRes>, t: Throwable) {
+                                    TODO("Not yet implemented")
+                                }
+                            })
+                        photoURL.value =
+                            "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference="+ photoRef.value+"&key="+ BuildConfig.google_maps_key
+                        Log.i("장소 사진",photoURL.value)
+                        Locale.setDefault(Locale.KOREAN)
                         val geocoder = Geocoder(
                             LocalContext.current.applicationContext,
                             Locale.KOREA
                         )
-                        val latlng = geocoder.getFromLocation(lat.value, lng.value, 1)?.get(0)
+                        val latlng = geocoder.getFromLocation(lat.value, lng.value, 1,)?.get(0)
                             ?.getAddressLine(0)
                         if (latlng != null) {
                             val country = geocoder.getFromLocation(lat.value, lng.value, 1)
-                                ?.get(0)?.countryName!!
+                                ?.get(0)?.countryName
                             address.value = latlng.replace("$country ", "")
                         }
                     }
@@ -424,13 +456,16 @@ fun PostContentScreen(
                                                             address.value,
                                                             lat.value,
                                                             lng.value,
-                                                            place_id.value
+                                                            photoURL.value
                                                         )
                                                     navController.currentBackStackEntry?.savedStateHandle?.set(
                                                         "map_data",
                                                         map_data
                                                     )
                                                     navController.navigate(NAV_ROUTE_POSTCONTENT.MAP.routeName)
+                                                    scope.launch {
+                                                        bottomSheetState.hide()
+                                                    }
                                                 },
                                             shape = RoundedCornerShape(10.dp),
                                             backgroundColor = moduPoint,
@@ -455,7 +490,7 @@ fun PostContentScreen(
 
                     }
                 }
-                else { //삭제 모달
+                if(modalType.value== modalDeletePost) { //삭제 모달
                     Card(
                         modifier = Modifier
                             .padding(10.dp),
@@ -590,8 +625,7 @@ fun PostContentScreen(
                 .background(Color.White)) {
                 Column {
                     val count = post!!.image.size
-                    val firstPagerState = rememberPagerState()
-                    val secondPagerState = rememberPagerState()
+
                     // 포스트 카드 이미지 슬라이드
                     Box{
 
