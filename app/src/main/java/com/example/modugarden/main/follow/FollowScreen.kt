@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,42 +29,35 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun FollowScreen(navController: NavHostController, userViewModel: UserViewModel= viewModel()){
+fun FollowScreen(navController: NavHostController, UVforMain:UserViewModel,UVforFollow: UserViewModel= viewModel()){
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
         val navFollowController = rememberNavController()
-        NavigationGraphFollow(navController, navFollowController, userViewModel)
+        NavigationGraphFollow(navController, navFollowController, UVforFollow=UVforFollow)
     }
 }
 @SuppressLint("UnrememberedMutableState")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun FollowMainScreen(navController: NavHostController,
+fun FollowMainScreen(postres:MutableState<PostDTO.GetFollowFeedPost>,
+                     curationres:MutableState<GetFollowFeedCuration>,
+                    navController: NavHostController,
                      navFollowController: NavHostController,
-                    userViewModel: UserViewModel = viewModel(),
+                    userViewModel: UserViewModel ,
                      refreshViewModel :RefreshViewModel = viewModel()
 ) {
-    val context = LocalContext.current.applicationContext
-    val mode = remember { mutableStateOf(true) }
+
     val isRefreshing by refreshViewModel.isRefreshing.collectAsState()
-
-    //팔로우 피드 게시물
-    val postres
-            = remember { mutableStateOf(PostDTO.GetFollowFeedPost()) }
-    refreshViewModel.getPosts(postres,context)
+    val context = LocalContext.current.applicationContext
     val posts = mutableStateOf(postres.value.content)
-    val curationres
-            = remember { mutableStateOf(GetFollowFeedCuration()) }
-    refreshViewModel.getCurations(curationres,context)
-
     val curations = mutableStateOf(curationres.value.content)
-
-
+    val mode = remember { mutableStateOf(true) }
     //포스트, 큐레이션 수
     mode.value = (posts.value.isNotEmpty() || curations.value.isNotEmpty())
+
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
         onRefresh = {

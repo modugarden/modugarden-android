@@ -365,7 +365,9 @@ fun FollowingScreen(
             }
         })
     {
-        Box() {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .background(moduBackground)) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -394,7 +396,7 @@ fun FollowingScreen(
                     items(posts,
                         key = { post -> post.board_id }) {
                         PostCard(
-                            navController,
+                            navFollowController,
                             data = it,
                             scope,
                             snackbarHostState,
@@ -411,7 +413,7 @@ fun FollowingScreen(
                        items(curations,
                            key = { curation -> curation.curation_id }) {
                            CurationCard(
-                               navController,
+                               navFollowController,
                                data = it,
                                scope = scope,
                                snackbarHostState = snackbarHostState,
