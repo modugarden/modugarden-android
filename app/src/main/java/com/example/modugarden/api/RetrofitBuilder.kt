@@ -21,4 +21,6 @@ object RetrofitBuilder {
     val signupAPI: SignupAPI = retrofitWithNoInterceptor.create(SignupAPI::class.java)
 
     val searchLocationAPI: UploadPostTagLocationSearchAPI = retrofitGoogleMap.create(UploadPostTagLocationSearchAPI::class.java)
+    val postLocationPhotoAPI: PostLocationPhotoAPI = retrofitGoogleMap.create(PostLocationPhotoAPI::class.java)
+
 }
