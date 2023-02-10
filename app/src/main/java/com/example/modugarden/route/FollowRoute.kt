@@ -5,14 +5,20 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.modugarden.api.dto.GetFollowFeedCuration
+import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.follow.FollowMainScreen
 import com.example.modugarden.main.profile.follow.ProfileApp
+import com.example.modugarden.viewmodel.RefreshViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 
 enum class NAV_ROUTE_FOLLOW(val routeName: String, val description: String){
@@ -25,12 +31,15 @@ enum class NAV_ROUTE_FOLLOW(val routeName: String, val description: String){
 fun NavigationGraphFollow(
     navController: NavHostController,
     navFollowController: NavHostController,
-    userViewModel: UserViewModel = viewModel()
+    userViewModel: UserViewModel = viewModel(),
+    refreshViewModel : RefreshViewModel = viewModel()
 ) {
+   
 
     NavHost(navFollowController, startDestination = NAV_ROUTE_FOLLOW.FOLLOW.routeName,
         modifier = Modifier.fillMaxSize()
     ) {
+
         composable(
             NAV_ROUTE_FOLLOW.FOLLOW.routeName
         ) {
