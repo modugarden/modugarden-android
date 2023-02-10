@@ -61,10 +61,14 @@ fun NoFollowingScreen(
     val scrollState = rememberScrollState()//스크롤 상태 변수
 
     //팔로우 추천
-    val recommendList = remember { mutableStateOf(FollowRecommendationRes().content) }
+    val recommendList = remember { mutableStateOf(refreshViewModel.getBeforeRecommendList().value) }
 
     val recommendPage = remember { mutableStateOf(0)}
 
+    if( recommendList.value.size == 0) {
+        refreshViewModel.getRecommend(recommendList)
+    }
+    else {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -267,6 +271,7 @@ fun NoFollowingScreen(
 
                 }
             })
+    }
     }
 
  }

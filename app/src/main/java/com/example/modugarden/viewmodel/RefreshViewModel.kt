@@ -5,6 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.modugarden.api.RetrofitBuilder
@@ -26,11 +27,22 @@ class RefreshViewModel: ViewModel() {
     val isRefreshing: StateFlow<Boolean> get() = _isRefreshing.asStateFlow()
     private val refreshPage = mutableStateOf(0)
 
+    private val beforeRecommendList = mutableStateOf(FollowRecommendationRes().content)
+
+    fun getBeforeRecommendList(): MutableState<List<FollowRecommendationResContent>> {
+        return beforeRecommendList
+    }
+
+    fun setBeforeRecommendList(recommendList :List<FollowRecommendationResContent>) {
+        beforeRecommendList.value = recommendList
+    }
+
     fun getRefreshPage(): Int {
         return refreshPage.value
     }
     fun addRefreshPage() {
         refreshPage.value += 1
+        if(refreshPage.value > 10) refreshPage.value = 0
     }
     fun refresh() {
         viewModelScope.launch {
@@ -53,6 +65,7 @@ class RefreshViewModel: ViewModel() {
                     if (response.isSuccessful) {
                         val res = response.body()
                         if (res != null) {
+                            beforeRecommendList.value = res.content
                             recommendList.value = res.content
 //                            recommendRes.value = res
                         }
