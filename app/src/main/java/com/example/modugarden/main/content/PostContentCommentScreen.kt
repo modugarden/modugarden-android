@@ -117,13 +117,12 @@ fun PostContentCommentScreen(navController: NavHostController,
             = remember{ mutableStateOf(GetCommentContent(nickname = "", comment = "", localDateTime = "", parentId = null, profileImage = "", commentId = 0, userId = 0)) } // 클릭한 댓글 데이터*/
     val isReplying = remember{mutableStateOf(false)}
     val textFieldComment = remember { mutableStateOf("") } // 댓글 입력 데이터
-
     val isTextFieldFocused = remember { mutableStateOf(false) }
-    val isCommentFocused= remember { mutableStateOf(false) }
+    val isButtonClicked = remember{mutableStateOf(false)}
+    
     val focusManager = LocalFocusManager.current
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
-    val isButtonClicked = remember{mutableStateOf(false)}
     val scope = rememberCoroutineScope()
     val activity = (LocalContext.current as? Activity)//액티비티 종료할 때 필요한 변수
     val context = LocalContext.current.applicationContext
@@ -155,7 +154,7 @@ fun PostContentCommentScreen(navController: NavHostController,
     if (commentDB != null) {
         commentList.clear()
         commentList.addAll(commentDB) }
-    var commentSize = remember { mutableStateOf(0) }
+    val commentSize = remember { mutableStateOf(0) }
 
     Log.i("댓글 리스트",commentList.toString())
 
@@ -251,6 +250,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                                 modifier = Modifier
                                     .weight(1f)
                                     .bounceClick {
+                                        Log.i("댓글",data.value.toString())
                                         RetrofitBuilder.commentAPI
                                             .deleteComment(boardId, data.value.commentId)
                                             .enqueue(object : Callback<DeleteCommentResponse> {
@@ -258,6 +258,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                     call: Call<DeleteCommentResponse>,
                                                     response: Response<DeleteCommentResponse>
                                                 ) {
+                                                    Log.i("삭제",response.body().toString())
                                                     if (response.isSuccessful) {
                                                         Log.i("댓글 삭제", "성공")
                                                     }
@@ -655,6 +656,7 @@ fun PostContentCommentScreen(navController: NavHostController,
                                                                     val res = response.body()
                                                                     if (res != null) {
                                                                         comment = res.result
+                                                                        Log.i("댓글 작성",comment.toString())
                                                                         // 답글 입력중이라면
                                                                         if (isReplying.value) {
                                                                             commentViewModel.addComment(
@@ -735,7 +737,6 @@ fun CommentItem(
     userViewModel: UserViewModel,
     navController: NavHostController
 ){
-
         Column(
             modifier = Modifier
                 .wrapContentSize()

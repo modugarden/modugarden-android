@@ -85,6 +85,7 @@ import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
 import com.example.modugarden.ui.theme.FollowCard
 import com.example.modugarden.ui.theme.PostHeartCard
 import com.example.modugarden.ui.theme.PostSaveCard
+import com.example.modugarden.ui.theme.ShowProgressBarV2
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_light
@@ -124,7 +125,6 @@ fun PostContentScreen(
     board_id:Int,
     userViewModel: UserViewModel
 ) {
-    val pagerState= rememberPagerState()//뷰페이저, 인디케이터 페이지 상태 변수
     val firstPagerState = rememberPagerState()
     val secondPagerState = rememberPagerState()
     val scrollState = rememberScrollState()//스크롤 상태 변수
@@ -132,6 +132,7 @@ fun PostContentScreen(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val modalType = remember{ mutableStateOf(modalLocationType) }// 신고 or 위치 모달 타입 정하는 변수
 
+    val isLoading = remember { mutableStateOf(false) }
     var responseBody by remember { mutableStateOf(PostDTO.GetPostResponse()) }
     var likeNum =  remember{ mutableStateOf(0) }
     val activity = (LocalContext.current as? Activity)//액티비티 종료할 때 필요한 변수
@@ -572,6 +573,7 @@ fun PostContentScreen(
                                         modifier = Modifier
                                             .weight(1f)
                                             .bounceClick {
+                                                isLoading.value=true
                                                 RetrofitBuilder.postAPI
                                                     .deletePost(post.id)
                                                     .enqueue(object :
@@ -580,10 +582,10 @@ fun PostContentScreen(
                                                             call: Call<PostDTO.DeletePostResponse>,
                                                             response: Response<PostDTO.DeletePostResponse>
                                                         ) {
-                                                            if (response.isSuccessful) Log.i(
-                                                                "포스트 삭제",
-                                                                "성공"
-                                                            )
+                                                            if(response.body()?.isSuccess == true){
+                                                                isLoading.value = false
+                                                                Log.i("포스트 삭제", "성공")
+                                                            }
                                                             else Log.i("포스트 삭제", "실패")
                                                         }
 
@@ -983,6 +985,7 @@ fun PostContentScreen(
                         tint = Color.White
                     )
                 }
+                if (isLoading.value) ShowProgressBarV2()
 
 
 

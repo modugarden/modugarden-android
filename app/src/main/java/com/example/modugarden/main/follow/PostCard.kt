@@ -85,7 +85,6 @@ fun PostCard(
         modalImage: MutableState<String?>,
         modalId:MutableState<Int>
 ) {
-
         val isButtonClickedLike = remember { mutableStateOf(false) } // 버튼 바
         val isButtonClickedSave = remember { mutableStateOf(false) }
         val order: PagerState = rememberPagerState() //뷰페이저, 인디케이터 페이지 상태 변수
@@ -155,9 +154,7 @@ fun PostCard(
                                 ) {
                                         GlideImage(
                                                 imageModel =
-                                                if(data.user_profile_image == null)
-                                                        R.drawable.ic_default_profile
-                                                else data.user_profile_image,
+                                                data.user_profile_image ?: R.drawable.ic_default_profile,
                                                 contentDescription = null,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
