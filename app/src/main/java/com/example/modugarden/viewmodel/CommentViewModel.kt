@@ -22,7 +22,6 @@ import retrofit2.Response
 
 class CommentViewModel() : ViewModel() {
 
-
     fun addComment(comment : GetCommentContent, commentList : SnapshotStateList<GetCommentContent>,
     ){
         commentList.add(comment)

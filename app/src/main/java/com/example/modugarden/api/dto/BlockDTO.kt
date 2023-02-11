@@ -1,10 +1,10 @@
 package com.example.modugarden.api.dto
 
 data class GetBlockedListResponse(
-    val content: List<GetBlockedListResponseContent>,
-    val first: Boolean,
-    val hasNext: Boolean,
-    val last: Boolean
+    val content: List<GetBlockedListResponseContent> = listOf(),
+    val first: Boolean=false,
+    val hasNext: Boolean=false,
+    val last: Boolean=false
 )
 
 data class GetBlockedListResponseContent(
