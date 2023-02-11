@@ -27,6 +27,8 @@ import androidx.compose.ui.Alignment.Companion.CenterEnd
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment.Companion.Top
+import androidx.compose.ui.Alignment.Companion.TopCenter
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -438,7 +440,7 @@ fun ProfileScreenV4(
                                         }
                                     })
                             }
-                            Spacer(modifier = Modifier.size(12.dp))
+                            Spacer(modifier = Modifier.size(12.dp)) // 290
 
                             Column(modifier = Modifier.height(screenHeight)) {
                                 Spacer(modifier = Modifier.size(18.dp))
@@ -637,14 +639,14 @@ fun ProfileScreenV4(
                                                                         fontWeight = FontWeight.Bold
                                                                     ),
                                                                     modifier = Modifier.align(
-                                                                        Alignment.CenterVertically
+                                                                        CenterVertically
                                                                     )
                                                                 )
                                                             } else {
                                                                 Column(
                                                                     modifier = Modifier
                                                                         .height(42.dp)
-                                                                        .align(Alignment.CenterVertically)
+                                                                        .align(CenterVertically)
                                                                 ) {
                                                                     Text(
                                                                         text = curationCard.title,
@@ -696,17 +698,18 @@ fun NoContentScreenV4(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .padding(top = 75.dp)
     ) {
         if (loadingState.value) {
             CircularProgressIndicator(
                 color = moduPoint,
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(TopCenter)
             )
         } else {
             Column(
                 modifier = Modifier
                     .wrapContentSize()
-                    .align(Center)
+                    .align(TopCenter)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_no_post),
