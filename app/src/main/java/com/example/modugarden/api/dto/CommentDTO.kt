@@ -11,19 +11,21 @@ data class CommentDTO(
 
 
 data class GetCommentResponse(
-    val content : List<GetCommentContent>? = null,
+    val content : List<GetCommentContent> = listOf(),
     val first : Boolean? = null,
     val hasNext : Boolean? = null,
     val last : Boolean? = null
     )
 data class GetCommentContent(
-    var comment: String,
-    val commentId : Int,
-    val nickname : String,
-    val parentId : Int?,
-    val profileImage : String?,
-    val userId : Int,
-    val localDateTime: String
+    val block:Boolean = false,
+    val isblocked:Boolean = false,
+    var comment: String = "",
+    val commentId : Int=0,
+    val nickname : String="",
+    val parentId : Int?=null,
+    val profileImage : String?=null,
+    val userId : Int=0,
+    val localDateTime: String=""
 )
 
 data class DeleteCommentResponse(

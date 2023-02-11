@@ -71,6 +71,8 @@ import kotlin.math.pow
 
 //바운스 버튼
 enum class ButtonState { Pressed, Idle }
+
+
 //바운스 버튼
 fun Modifier.bounceClick(onClick: () -> Unit) = composed {
 

@@ -100,46 +100,7 @@ fun CurationCard(
     val isButtonClickedSave = remember { mutableStateOf(false)}
     val userId =
         ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
- /*   val buttonLauncher = rememberLauncherForActivityResult(contract =
-    ActivityResultContracts.StartIntentSenderForResult()) {
-        RetrofitBuilder.curationAPI.getStateCurationLike(data.curation_id)
-            .enqueue(  object : Callback<GetCurationLikeStateResponse> {
-                override fun onResponse(
-                    call: Call<GetCurationLikeStateResponse>,
-                    response: Response<GetCurationLikeStateResponse>
-                ) {
-                    isButtonClickedLike.value = response.body()?.result?.check ?: true
-                }
 
-                override fun onFailure(
-                    call: Call<GetCurationLikeStateResponse>,
-                    t: Throwable
-                ) {
-
-                }
-
-            })
-
-        RetrofitBuilder.curationAPI.getCurationStoreState(data.curation_id)
-            .enqueue(  object : Callback<GetCurationLikeStateResponse> {
-                override fun onResponse(
-                    call: Call<GetCurationLikeStateResponse>,
-                    response: Response<GetCurationLikeStateResponse>
-                ) {
-                    isButtonClickedSave.value = response.body()?.result?.check ?: true
-                }
-
-                override fun onFailure(
-                    call: Call<GetCurationLikeStateResponse>,
-                    t: Throwable
-                ) {
-
-                }
-
-            })
-
-    }
-*/
     feedLauncher.let {
         RetrofitBuilder.curationAPI.getStateCurationLike(data.curation_id)
             .enqueue(  object : Callback<GetCurationLikeStateResponse> {
