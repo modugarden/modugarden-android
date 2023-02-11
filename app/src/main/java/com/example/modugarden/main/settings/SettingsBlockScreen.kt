@@ -124,7 +124,7 @@ fun BlockedProfileCard (
             .height(50.dp)
     ) {
         GlideImage(
-            imageModel = user.profileImage,
+            imageModel = user.profileImage ?: R.drawable.ic_default_profile,
             contentDescription = null,
             modifier = Modifier
                 .size(50.dp)
@@ -146,7 +146,7 @@ fun BlockedProfileCard (
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = user.categories.toString(),
+                text = user.categories.joinToString(", ", "", ""),
                 style = TextStyle(
                     color = moduGray_normal,
                     fontSize = 11.sp

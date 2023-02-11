@@ -11,7 +11,7 @@ data class GetBlockedListResponseContent(
     val categories: List<String>,
     val id: Int,
     val nickname: String,
-    val profileImage: String
+    val profileImage: String?
 )
 
 data class BlockUserResponse(
@@ -22,8 +22,8 @@ data class BlockUserResponse(
 )
 
 data class BlockUserResponseResult(
-    val blockUserId: Int,
-    val userId: Int
+    val userId: Int,
+    val blockUserId: Int
 )
 
 data class UnBlockUserResponse(

@@ -56,79 +56,26 @@ fun SettingsWithdrawScreen () {
             }
         )
         if (withdrawDialogState.value) {
-            ModuDialog {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(18.dp)
-                        .wrapContentHeight()
-                ) {
-                    Text(
-                        text = "정말 탈퇴하시겠습니까?",
-                        style = TextStyle(
-                            textAlign = TextAlign.Center,
-                            color = moduBlack,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .align(Alignment.CenterHorizontally)
-                    )
-                    Spacer(modifier = Modifier.size(18.dp))
-                    Row(
-                        modifier = Modifier
-                            .height(50.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Card(
-                            modifier = Modifier
-                                .weight(1f)
-                                .bounceClick {
-                                    withdrawDialogState.value = !withdrawDialogState.value
-                                },
-                            shape = RoundedCornerShape(10.dp),
-                            backgroundColor = moduGray_light,
-                            elevation = 0.dp
-                        ) {
-                            Text(
-                                text = "취소",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                color = moduGray_strong,
-                                modifier = Modifier
-                                    .padding(14.dp),
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                        Spacer(modifier = Modifier.size(18.dp))
-                        Card(
-                            modifier = Modifier
-                                .weight(1f)
-                                .bounceClick {
-                                    RetrofitBuilder.userAPI.withdraw()
-                                        .enqueue(AuthCallBack<WithdrawResponse>(context, "탈퇴 요청"))
-                                    context.startActivity(
-                                        Intent(context, LoginActivity::class.java)
-                                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                    )
-                                },
-                            shape = RoundedCornerShape(10.dp),
-                            backgroundColor = moduErrorPoint,
-                            elevation = 0.dp
-                        ) {
-                            Text(
-                                text = "탈퇴",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                color = Color.White,
-                                modifier = Modifier
-                                    .padding(14.dp),
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                }
+            // 다이얼로그 호출
+            SmallDialog(
+                text = "정말 탈퇴하시겠습니까?",
+                textColor = moduBlack,
+                backgroundColor = Color.White,
+                positiveButtonText = "탈퇴",
+                negativeButtonText = "취소",
+                positiveButtonTextColor = Color.White,
+                negativeButtonTextColor = moduGray_strong,
+                positiveButtonColor = moduErrorPoint,
+                negativeButtonColor = moduGray_light,
+                dialogState = withdrawDialogState
+            ) {
+                RetrofitBuilder.userAPI
+                    .withdraw()
+                    .enqueue(AuthCallBack<WithdrawResponse>(context, "탈퇴 요청"))
+                context.startActivity(
+                    Intent(context, LoginActivity::class.java)
+                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                )
             }
         }
     }

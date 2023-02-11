@@ -31,6 +31,8 @@ data class UserInfoRes(
 )
 
 data class UserInfoResResult(
+    val block: Boolean = false,
+    val blocked: Boolean = false,
     val categories: List<String> = listOf(),
     val follow: Boolean = false,
     val followerCount: Int = 0,
