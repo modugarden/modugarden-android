@@ -1,5 +1,6 @@
 package com.example.modugarden.main.settings
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,9 +13,12 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +38,8 @@ import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.GetBlockedListResponse
 import com.example.modugarden.api.dto.GetBlockedListResponseContent
+import com.example.modugarden.api.dto.GetCommentContent
+import com.example.modugarden.api.dto.GetCommentResponse
 import com.example.modugarden.api.dto.UnBlockUserResponse
 import com.example.modugarden.ui.theme.*
 import com.skydoves.landscapist.glide.GlideImage
@@ -46,9 +52,7 @@ import retrofit2.Response
 @Preview(showBackground = true)
 fun SettingsBlockScreen () {
     val context = LocalContext.current
-    val userList = remember { mutableStateOf(
-        listOf(GetBlockedListResponseContent(listOf(), 0, "", "")
-    ))}
+    var blockRes by remember { mutableStateOf(GetBlockedListResponse()) }
 
     RetrofitBuilder.blockAPI.getBlockedList()
         .enqueue(object : AuthCallBack<GetBlockedListResponse>(context, "차단 목록 불러오기 성공!"){
@@ -58,12 +62,15 @@ fun SettingsBlockScreen () {
             ) {
                 super.onResponse(call, response)
                 if(response.body()?.content != null) {
-                    userList.value = response.body()?.content!!
+                    blockRes = response.body()!!
+                    Log.i("차단",blockRes.toString())
                 }
             }
         })
-
-    if(userList.value.isEmpty())
+    val blockUserList = remember { mutableStateListOf<GetBlockedListResponseContent>() }
+    blockUserList.clear()
+    blockUserList.addAll(blockRes.content)
+    if(blockUserList.isEmpty())
     {
         Box(modifier = Modifier.fillMaxSize())
         {
@@ -97,7 +104,7 @@ fun SettingsBlockScreen () {
                 contentPadding = PaddingValues(18.dp)
             ) {
                 items(
-                    items = userList.value,
+                    items = blockUserList,
                     key = { user -> user.id }
                 ) { blockedProfile ->
                     BlockedProfileCard(blockedProfile) {
@@ -106,7 +113,7 @@ fun SettingsBlockScreen () {
                         }
                         RetrofitBuilder.blockAPI.unBlockUser(blockedProfile.id)
                             .enqueue(AuthCallBack<UnBlockUserResponse>(context, "${blockedProfile.id} 차단 해제 성공!"))
-                        userList.value = userList.value.minus(blockedProfile)
+                        blockUserList.remove(blockedProfile)
                     }
                 }
             }
@@ -121,17 +128,18 @@ fun BlockedProfileCard (
 ) {
     Row(
         modifier = Modifier
-            .height(50.dp)
+
     ) {
         GlideImage(
             imageModel = user.profileImage ?: R.drawable.ic_default_profile,
             contentDescription = null,
             modifier = Modifier
+                .padding(end = 18.dp)
                 .size(50.dp)
-                .clip(CircleShape),
+                .clip(CircleShape)
+            ,
             contentScale = ContentScale.Crop
         )
-        Spacer(modifier = Modifier.width(20.dp))
         Column(
             modifier = Modifier
                 .padding(vertical = 5.dp)
@@ -145,8 +153,11 @@ fun BlockedProfileCard (
                 )
             )
             Spacer(modifier = Modifier.weight(1f))
+            Log.i("카테고리",user.categories.toString()
+            )
             Text(
-                text = user.categories.joinToString(", ", "", ""),
+
+                text = user.categories.toString().replace("[","").replace("]",""),
                 style = TextStyle(
                     color = moduGray_normal,
                     fontSize = 11.sp
