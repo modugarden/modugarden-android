@@ -100,6 +100,7 @@ import com.example.modugarden.viewmodel.UserViewModel
 import com.google.gson.JsonObject
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -414,29 +415,11 @@ fun PostContentCommentScreen(
                                 .fillMaxWidth()
                                 .padding(18.dp)
                                 .bounceClick {
-                                    RetrofitBuilder.blockAPI
-                                        .blockUser(data.value.userId)
-                                        .enqueue(object : Callback<BlockUserResponse> {
-                                            override fun onResponse(
-                                                call: Call<BlockUserResponse>,
-                                                response: Response<BlockUserResponse>
-                                            ) {
-                                                if (response.isSuccessful) {
-                                                    Log.i("작성자 차단 성공", "${data.value.nickname} 차단 ")
-
-                                                } else
-                                                    Log.i("작성자 차단 실패", "${data.value.nickname} 차단 ")
-                                            }
-
-                                            override fun onFailure(
-                                                call: Call<BlockUserResponse>,
-                                                t: Throwable
-                                            ) {
-                                                Log.i("작성자 차단 ", "서버 연결 실패ㄹ")
-                                            }
-                                        })
                                     scope.launch {
                                         bottomSheetState.hide()
+                                    }
+                                    CoroutineScope(Dispatchers.IO).launch {
+                                        RetrofitBuilder.blockAPI.blockUser(data.value.userId).execute()
                                     }
                                 },
                             verticalAlignment = Alignment.CenterVertically

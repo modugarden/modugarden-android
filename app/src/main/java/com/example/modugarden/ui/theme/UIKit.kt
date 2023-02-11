@@ -1,5 +1,7 @@
 package com.example.modugarden.ui.theme
 
+import android.content.Context
+import android.content.Intent
 import android.graphics.Rect
 import android.util.Log
 import android.view.ViewTreeObserver
@@ -52,6 +54,7 @@ import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.clientNickname
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
+import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.RetrofitBuilder.curationAPI
 import com.example.modugarden.api.RetrofitBuilder.postAPI
@@ -59,6 +62,7 @@ import com.example.modugarden.api.dto.*
 import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.data.RecentSearch
 import com.example.modugarden.data.RecentSearchDatabase
+import com.example.modugarden.login.LoginActivity
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.google.gson.JsonObject
@@ -1238,7 +1242,9 @@ fun FollowCard(
     modifier: Modifier,
     snackBarAction: () -> Unit,
     followState: MutableState<Boolean>,
-    contentModifier: Modifier
+    contentModifier: Modifier,
+    blockState: MutableState<Boolean> = mutableStateOf(false),
+    unBlockSnackBarAction: () -> Unit = {}
 ) {
     if(id == sharedPreferences.getInt(clientId,0)) {
         Card(
@@ -1252,63 +1258,80 @@ fun FollowCard(
         Card(
             modifier = modifier
                 .bounceClick {
-                    // 팔로우 api
-                    if (!followState.value) {
-                        RetrofitBuilder.followAPI.follow(id).enqueue(
-                            object : Callback<FollowDtoRes> {
+                    if (blockState.value) {
+                        RetrofitBuilder.blockAPI.unBlockUser(id).enqueue(
+                            object : Callback<UnBlockUserResponse> {
                                 override fun onResponse(
-                                    call: Call<FollowDtoRes>,
-                                    response: Response<FollowDtoRes>
+                                    call: Call<UnBlockUserResponse>,
+                                    response: Response<UnBlockUserResponse>
                                 ) {
-                                    snackBarAction()
-                                    followState.value = !followState.value
-                                }
-
-                                override fun onFailure(call: Call<FollowDtoRes>, t: Throwable) {
-
-                                }
-                            }
-                        )
-                    } else {
-                        RetrofitBuilder.followAPI.unFollow(id).enqueue(
-                            object : Callback<FollowDtoRes> {
-                                override fun onResponse(
-                                    call: Call<FollowDtoRes>,
-                                    response: Response<FollowDtoRes>
-                                ) {
-                                    snackBarAction()
-                                    if (response.isSuccessful) {
-                                        followState.value = !followState.value
+                                    if(response.code() == 200) {
+                                        unBlockSnackBarAction()
+                                        blockState.value = false
                                     }
                                 }
 
-                                override fun onFailure(call: Call<FollowDtoRes>, t: Throwable) {
+                                override fun onFailure(call: Call<UnBlockUserResponse>, t: Throwable) {
 
                                 }
                             }
                         )
                     }
+                    // 팔로우 api
+                    else {
+                        if (!followState.value) {
+                            RetrofitBuilder.followAPI.follow(id).enqueue(
+                                object : Callback<FollowDtoRes> {
+                                    override fun onResponse(
+                                        call: Call<FollowDtoRes>,
+                                        response: Response<FollowDtoRes>
+                                    ) {
+                                        snackBarAction()
+                                        followState.value = !followState.value
+                                    }
+
+                                    override fun onFailure(call: Call<FollowDtoRes>, t: Throwable) {
+
+                                    }
+                                }
+                            )
+                        } else {
+                            RetrofitBuilder.followAPI.unFollow(id).enqueue(
+                                object : Callback<FollowDtoRes> {
+                                    override fun onResponse(
+                                        call: Call<FollowDtoRes>,
+                                        response: Response<FollowDtoRes>
+                                    ) {
+                                        snackBarAction()
+                                        if (response.isSuccessful) {
+                                            followState.value = !followState.value
+                                        }
+                                    }
+
+                                    override fun onFailure(call: Call<FollowDtoRes>, t: Throwable) {
+
+                                    }
+                                }
+                            )
+                        }
+                    }
                 },
             shape = RoundedCornerShape(10.dp),
-            backgroundColor = if (followState.value) {
-                moduBackground
-            } else {
-                moduPoint
-            },
+            backgroundColor =
+            if (followState.value || blockState.value) { moduBackground }
+            else { moduPoint },
             elevation = 0.dp
         ) {
             Text(
-                text = if (followState.value) {
-                    "팔로잉"
-                } else {
-                    "팔로우"
-                },
+                text =
+                if (blockState.value) { "차단 해제" }
+                else
+                    if (followState.value) { "팔로잉" }
+                    else { "팔로우" },
                 style = TextStyle(
-                    color = if (followState.value) {
-                        Color.Black
-                    } else {
-                        Color.White
-                    },
+                    color =
+                    if (followState.value || blockState.value) { moduBlack }
+                    else { Color.White },
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
@@ -1329,10 +1352,96 @@ fun ModuDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight(),
-            shape = RoundedCornerShape(15.dp),
-            color = Color.White
+            shape = RoundedCornerShape(15.dp)
         ) {
             content()
+        }
+    }
+}
+
+@Composable
+fun SmallDialog(
+    text: String,
+    textColor: Color,
+    backgroundColor: Color,
+    positiveButtonText: String,
+    negativeButtonText: String,
+    positiveButtonTextColor: Color,
+    negativeButtonTextColor: Color,
+    positiveButtonColor: Color,
+    negativeButtonColor: Color,
+    dialogState: MutableState<Boolean>,
+    onPositiveButtonClick: () -> Unit
+) {
+    ModuDialog {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp)
+                .wrapContentHeight()
+                .background(backgroundColor),
+        ) {
+            Text(
+                text = text,
+                style = TextStyle(
+                    textAlign = TextAlign.Center,
+                    color = textColor,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.size(18.dp))
+            Row(
+                modifier = Modifier
+                    .height(50.dp)
+                    .fillMaxWidth()
+            ) {
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .bounceClick {
+                            dialogState.value = false
+                        },
+                    shape = RoundedCornerShape(10.dp),
+                    backgroundColor = negativeButtonColor,
+                    elevation = 0.dp
+                ) {
+                    Text(
+                        text = negativeButtonText,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = negativeButtonTextColor,
+                        modifier = Modifier
+                            .padding(14.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Spacer(modifier = Modifier.size(18.dp))
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .bounceClick {
+                            onPositiveButtonClick()
+                            dialogState.value = false
+                        },
+                    shape = RoundedCornerShape(10.dp),
+                    backgroundColor = positiveButtonColor,
+                    elevation = 0.dp
+                ) {
+                    Text(
+                        text = positiveButtonText,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = positiveButtonTextColor,
+                        modifier = Modifier
+                            .padding(14.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         }
     }
 }

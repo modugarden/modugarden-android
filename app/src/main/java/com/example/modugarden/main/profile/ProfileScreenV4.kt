@@ -3,6 +3,7 @@ package com.example.modugarden.main.profile
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -67,6 +68,8 @@ import com.google.accompanist.pager.rememberPagerState
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Response
@@ -93,27 +96,75 @@ fun ProfileScreenV4(
     val loadingState = remember { mutableStateOf(true) }
     val refreshViewModel = RefreshViewModel()
     val isRefreshing by refreshViewModel.isRefreshing.collectAsState()
+    val blockDialogState = remember { mutableStateOf(false) }
+    val unBlockDialogState = remember { mutableStateOf(false) }
+    val reportDialogState = remember { mutableStateOf(false) }
+    val blockState = remember { mutableStateOf(false) }
+    val blockedState = remember { mutableStateOf(false) }
+
+    if(blockDialogState.value)
+        SmallDialog(
+            text = "${data.value.nickname}님을 차단하시겠습니까?",
+            textColor = moduBlack,
+            backgroundColor = Color.White,
+            positiveButtonText = "차단",
+            negativeButtonText = "취소",
+            positiveButtonTextColor = moduGray_strong,
+            negativeButtonTextColor = moduGray_normal,
+            positiveButtonColor = moduGray_light,
+            negativeButtonColor = moduBackground,
+            dialogState = blockDialogState
+        ) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val blockResponse = RetrofitBuilder.blockAPI.blockUser(userId).execute()
+                blockState.value = true
+                Log.d("onResponse", blockResponse.toString())
+            }
+        }
+
+    if(reportDialogState.value)
+        SmallDialog(
+            text = "${data.value.nickname}님을 신고하시겠습니까?",
+            textColor = moduBlack,
+            backgroundColor = Color.White,
+            positiveButtonText = "신고",
+            negativeButtonText = "취소",
+            positiveButtonTextColor = Color.White,
+            negativeButtonTextColor = moduBlack,
+            positiveButtonColor = moduErrorPoint,
+            negativeButtonColor = moduBackground,
+            dialogState = reportDialogState
+        ) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val reportResponse = RetrofitBuilder.reportAPI.reportUser(userId).execute()
+                Log.d("onResponse", reportResponse.toString())
+            }
+        }
 
     val launcher = rememberLauncherForActivityResult(contract =
     ActivityResultContracts.StartIntentSenderForResult()) {
         loadingState.value = true
         RetrofitBuilder.userAPI.readUserInfo(userId)
-            .enqueue(object : AuthCallBack<UserInfoRes>(context, "성공!") {
+            .enqueue(object : AuthCallBack<UserInfoRes>(context, "설정 -> 프로필 복귀 시 api") {
                 override fun onResponse(call: Call<UserInfoRes>, response: Response<UserInfoRes>) {
                     super.onResponse(call, response)
                     data.value = response.body()?.result!!
                     followState.value = response.body()!!.result.follow
+                    blockState.value = response.body()!!.result.block
+                    blockedState.value = response.body()!!.result.blocked
                     loadingState.value = false
                 }
             })
     }
 
     RetrofitBuilder.userAPI.readUserInfo(userId)
-        .enqueue(object : AuthCallBack<UserInfoRes>(context, "성공!") {
+        .enqueue(object : AuthCallBack<UserInfoRes>(context, "유저 정보 불러오기") {
             override fun onResponse(call: Call<UserInfoRes>, response: Response<UserInfoRes>) {
                 super.onResponse(call, response)
                 data.value = response.body()?.result!!
                 followState.value = response.body()!!.result.follow
+                blockState.value = response.body()!!.result.block
+                blockedState.value = response.body()!!.result.blocked
                 loadingState.value = false
             }
         })
@@ -124,19 +175,21 @@ fun ProfileScreenV4(
         sheetScreen = {
             ModalBottomSheetItem(
                 text = "신고",
-                icon = R.drawable.ic_profile_block,
+                icon = R.drawable.ic_report,
                 trailing = true,
                 modifier = Modifier.bounceClick {
                     scope.launch {
+                        reportDialogState.value = true
                         bottomSheetState.hide()
                     }
                 })
             ModalBottomSheetItem(
                 text = "차단",
-                icon = R.drawable.ic_profile_block,
+                icon = R.drawable.ic_block,
                 trailing = true,
                 modifier = Modifier.bounceClick {
                     scope.launch {
+                        blockDialogState.value = true
                         bottomSheetState.hide()
                     }
                 })
@@ -318,10 +371,7 @@ fun ProfileScreenV4(
                                 ) {
                                     GlideImage(
                                         imageModel =
-                                        if (data.value.profileImage == null)
-                                            R.drawable.ic_default_profile
-                                        else
-                                            data.value.profileImage,
+                                        data.value.profileImage ?: R.drawable.ic_default_profile,
                                         modifier = Modifier
                                             .fillMaxHeight()
                                             .aspectRatio(1f)
@@ -380,7 +430,7 @@ fun ProfileScreenV4(
 
                             Spacer(modifier = Modifier.size(30.dp))
 
-                            if (myId != userId) {
+                            if (myId != userId && !blockedState.value) {
                                 FollowCard(
                                     id = userId,
                                     modifier = Modifier
@@ -396,8 +446,14 @@ fun ProfileScreenV4(
                                         }
                                     },
                                     followState = followState,
+                                    blockState = blockState,
                                     contentModifier = Modifier
-                                        .padding(vertical = 6.dp, horizontal = 10.dp)
+                                        .padding(vertical = 6.dp, horizontal = 10.dp),
+                                    unBlockSnackBarAction = {
+                                        scope.launch {
+                                            scaffoldState.snackbarHostState.showSnackbar("${data.value.nickname} 님을 차단해제했어요.")
+                                        }
+                                    }
                                 )
                             }
 
@@ -512,7 +568,9 @@ fun ProfileScreenV4(
                                 ) { page ->
                                     when (page) {
                                         0 -> {
-                                            if (postList.value?.isNotEmpty() == true) {
+                                            if (blockedState.value) {
+                                                NoContentScreenV4(loadingState = loadingState, false)
+                                            } else if (postList.value?.isNotEmpty() == true) {
                                                 LazyVerticalGrid(
                                                     columns = GridCells.Fixed(2),
                                                     verticalArrangement = Arrangement.spacedBy(18.dp),
@@ -571,11 +629,13 @@ fun ProfileScreenV4(
                                                     }
                                                 }
                                             } else if (userId == myId) {
-                                                NoContentScreenV4(loadingState)
+                                                NoContentScreenV4(loadingState, true)
                                             }
                                         }
                                         1 -> {
-                                            if (curationList.value?.isNotEmpty() == true) {
+                                            if (blockedState.value) {
+                                                NoContentScreenV4(loadingState = loadingState, false)
+                                            } else if (curationList.value?.isNotEmpty() == true) {
                                                 LazyColumn(
                                                     modifier = Modifier
                                                         .fillMaxSize(),
@@ -676,7 +736,7 @@ fun ProfileScreenV4(
                                                     }
                                                 }
                                             } else if (userId == myId) {
-                                                NoContentScreenV4(loadingState)
+                                                NoContentScreenV4(loadingState, true)
                                             }
                                         }
                                     }
@@ -692,7 +752,8 @@ fun ProfileScreenV4(
 
 @Composable
 fun NoContentScreenV4(
-    loadingState: MutableState<Boolean>
+    loadingState: MutableState<Boolean>,
+    isMyProfile: Boolean
 ) {
     Box(
         modifier = Modifier
@@ -729,14 +790,17 @@ fun NoContentScreenV4(
                     modifier = Modifier.align(CenterHorizontally)
                 )
                 Spacer(modifier = Modifier.size(10.dp))
-                Text(
-                    text = "업로드에서 게시물을 추가해보세요.",
-                    style = TextStyle(
-                        color = moduGray_strong,
-                        fontSize = 14.sp
-                    ),
-                    modifier = Modifier.align(CenterHorizontally)
-                )
+                if(isMyProfile)
+                    Text(
+                        text = "업로드에서 게시물을 추가해보세요.",
+                        style = TextStyle(
+                            color = moduGray_strong,
+                            fontSize = 14.sp
+                        ),
+                        modifier = Modifier.align(CenterHorizontally)
+                    )
+                else
+                    Spacer(modifier = Modifier.size(14.dp))
             }
         }
     }
