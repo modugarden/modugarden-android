@@ -6,7 +6,9 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -84,7 +86,9 @@ fun PostCard(
         modalType:MutableState<Int>,
         modalTitle:MutableState<String>,
         modalImage: MutableState<String?>,
-        modalId:MutableState<Int>
+        modalId:MutableState<Int>,
+      feedLauncher: ManagedActivityResultLauncher<IntentSenderRequest,ActivityResult>
+
 ) {
         val isButtonClickedLike = remember { mutableStateOf(false) } // 버튼 바
         val isButtonClickedSave = remember { mutableStateOf(false) }
@@ -92,7 +96,8 @@ fun PostCard(
         val mContext = LocalContext.current
         val userId =
                 ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
-        val launcher = rememberLauncherForActivityResult(contract =
+
+        val buttonLauncher = rememberLauncherForActivityResult(contract =
         ActivityResultContracts.StartIntentSenderForResult()) {
                 RetrofitBuilder.postAPI.getPostLikeState(data.board_id)
                         .enqueue(  object : Callback<PostDTO.GetPostLikeStateResponse> {
@@ -212,11 +217,14 @@ fun PostCard(
                                                         )
                                         }
 
-                                        launcher.launch(
+                                        buttonLauncher.launch(
                                                 IntentSenderRequest
                                                         .Builder(pendIntent)
                                                         .build()
                                         )
+                                        feedLauncher.launch(IntentSenderRequest
+                                                .Builder(pendIntent)
+                                                .build())
                                 })
                                 {       // 포스트 카드 이미지 슬라이드
                                         Box() {
@@ -346,34 +354,7 @@ fun PostCard(
                                                likeNum = null
                                        )
 //
-//                                       Icon(modifier = Modifier
-//                                               .padding(end = 18.dp)
-//                                               .bounceClick {
-//                                                       if (isButtonClickedLike.value) {
-//                                                               isButtonClickedLike.value = false
-//                                                               data.liKeNum = data.liKeNum + 1
-//                                                       }
-//                                                       else {
-//                                                               isButtonClickedLike.value = true
-//                                                               data.liKeNum = data.liKeNum - 1
-//                                                       }
 //
-//                                               }
-//                                               ,painter = painterResource
-//                                                       (id =
-//                                               if (isButtonClickedLike.value)
-//                                                       R.drawable.ic_heart_solid
-//                                               else
-//                                                       R.drawable.ic_heart_line
-//                                               ),
-//                                               contentDescription = "좋아요",
-//                                               tint =
-//                                                       if (isButtonClickedLike.value)
-//                                                               Color(0xFFFF6767)
-//                                                       else
-//                                                               moduBlack
-//
-//                                       )
                                        // 댓글
                                        Icon(modifier = Modifier
                                                .padding(end = 18.dp)

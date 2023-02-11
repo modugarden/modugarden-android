@@ -120,17 +120,33 @@ fun PostContentMapScreen(navController: NavHostController,data:MapInfo) {
             .padding(18.dp)
             .align(Alignment.BottomCenter))
         { // 위치 사진
-           GlideImage(
-                imageModel =
-                if (data.photoURL=="") R.drawable.ic_default_profile
-                else data.photoURL,
-                contentDescription = "",
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .size(50.dp)
-                    .border(1.dp, moduGray_light, CircleShape),
-                contentScale = ContentScale.Crop
-            )
+            if (data.photoURL==""){
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(moduGray_light)
+                        .size(40.dp),
+                    contentAlignment = Alignment.Center
+                )
+                {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_map_pin),
+                        contentDescription = "",
+                        modifier = Modifier
+                    )
+                }
+            }
+           else {
+                GlideImage(
+                    imageModel = data.photoURL,
+                    contentDescription = "",
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(50.dp)
+                        .border(1.dp, moduGray_light, CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            }
             Spacer(modifier = Modifier.width(18.dp))
             Column(
                 modifier = Modifier
