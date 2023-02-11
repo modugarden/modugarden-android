@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.modugarden.R
 import com.example.modugarden.api.dto.FollowListDtoResContent
 
 import com.example.modugarden.ui.theme.*
@@ -36,7 +37,9 @@ fun ProfileCard(
             }
     ) {
         GlideImage(
-            imageModel = user.profileImage,
+            imageModel =
+            if (user.profileImage==null)R.drawable.ic_default_profile
+            else user.profileImage,
             contentDescription = null,
             modifier = Modifier
                 .size(50.dp)
