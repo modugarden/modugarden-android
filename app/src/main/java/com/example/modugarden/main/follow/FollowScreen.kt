@@ -129,10 +129,8 @@ fun FollowMainScreen(
                     .fillMaxSize()
                     .background(moduBackground)
                     .verticalScroll(scrollState)) {
-                   /* Text(text="삭제중", fontSize = 30.sp)*/
                     if (isLoading.value){
                         ShowProgressBarV2()
-
                     }
                 }
             }

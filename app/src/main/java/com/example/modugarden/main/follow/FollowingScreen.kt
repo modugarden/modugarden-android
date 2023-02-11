@@ -7,6 +7,8 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -228,7 +230,10 @@ fun FollowingScreen(
                                                         }
                                                     })
 
-                                                deleteContentViewModel.deletePost(modalContentId.value,postList)
+                                                deleteContentViewModel.deletePost(
+                                                    modalContentId.value,
+                                                    postList
+                                                )
                                                 scope.launch {
                                                     bottomSheetState.hide()
                                                 }
@@ -255,7 +260,10 @@ fun FollowingScreen(
                                                             Log.i("큐레이션 삭제", "서버 연결 실패")
                                                         }
                                                     })
-                                                deleteContentViewModel.deleteCuration(modalContentId.value,curationList)
+                                                deleteContentViewModel.deleteCuration(
+                                                    modalContentId.value,
+                                                    curationList
+                                                )
                                                 scope.launch {
                                                     bottomSheetState.hide()
                                                 }
@@ -452,7 +460,10 @@ fun FollowingScreen(
                        }
 
                     // 팔로우 피드 맨 끝
-                    item { FollowEndCard(navController) }
+                    item {
+                        AnimatedVisibility(visible =true, enter = fadeIn() ) {
+                            FollowEndCard(navController)
+                        } }
                 }
 
             }

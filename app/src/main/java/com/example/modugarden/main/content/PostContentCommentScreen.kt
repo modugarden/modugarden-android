@@ -10,6 +10,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,6 +28,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
@@ -105,7 +107,9 @@ import retrofit2.Response
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnrememberedMutableState")
-@OptIn( ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
+@OptIn( ExperimentalMaterialApi::class, ExperimentalAnimationApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun PostContentCommentScreen(
     navController: NavHostController,
@@ -128,7 +132,6 @@ fun PostContentCommentScreen(
     val scope = rememberCoroutineScope()
     val activity = (LocalContext.current as? Activity)//액티비티 종료할 때 필요한 변수
     val context = LocalContext.current.applicationContext
-
     LaunchedEffect(bottomSheetState.targetValue) {
         isButtonClicked.value = bottomSheetState.targetValue != ModalBottomSheetValue.Hidden
     }
@@ -153,10 +156,14 @@ fun PostContentCommentScreen(
         })
     val commentDB= commentres.content
     val commentList = remember { mutableStateListOf<GetCommentContent>() }
-    if (commentDB != null) {
-        commentList.clear()
-        commentList.addAll(commentDB) }
-    val commentSize = remember { mutableStateOf(0) }
+    commentList.clear()
+    commentList.addAll(commentDB)
+    val isBlockedList = commentDB.filter { it.isblocked } // 날 차단한 유저의 댓글
+    commentList.removeAll(isBlockedList)
+
+    val block_parent = commentDB.filter { it.parentId==null && it.block} // 내가 차단한 유저 & 부모 댓글
+    val block_child = commentDB.filter { it.parentId!=null && it.block } // 내가 차단한 유저 & 자식 댓글
+
 
     Log.i("댓글 리스트",commentList.toString())
 
@@ -252,7 +259,7 @@ fun PostContentCommentScreen(
                                 modifier = Modifier
                                     .weight(1f)
                                     .bounceClick {
-                                        Log.i("댓글",data.value.toString())
+                                        Log.i("댓글", data.value.toString())
                                         RetrofitBuilder.commentAPI
                                             .deleteComment(boardId, data.value.commentId)
                                             .enqueue(object : Callback<DeleteCommentResponse> {
@@ -260,7 +267,12 @@ fun PostContentCommentScreen(
                                                     call: Call<DeleteCommentResponse>,
                                                     response: Response<DeleteCommentResponse>
                                                 ) {
-                                                    Log.i("삭제",response.body().toString())
+                                                    Log.i(
+                                                        "삭제",
+                                                        response
+                                                            .body()
+                                                            .toString()
+                                                    )
                                                     if (response.isSuccessful) {
                                                         Log.i("댓글 삭제", "성공")
                                                     }
@@ -402,26 +414,27 @@ fun PostContentCommentScreen(
                                 .fillMaxWidth()
                                 .padding(18.dp)
                                 .bounceClick {
-                                             RetrofitBuilder.blockAPI.blockUser(data.value.userId)
-                                                 .enqueue(object :Callback<BlockUserResponse>{
-                                                     override fun onResponse(
-                                                         call: Call<BlockUserResponse>,
-                                                         response: Response<BlockUserResponse>
-                                                     ) {
-                                                         if(response.isSuccessful){
-                                                             Log.i("작성자 차단 성공","${data.value.nickname} 차단 ")
+                                    RetrofitBuilder.blockAPI
+                                        .blockUser(data.value.userId)
+                                        .enqueue(object : Callback<BlockUserResponse> {
+                                            override fun onResponse(
+                                                call: Call<BlockUserResponse>,
+                                                response: Response<BlockUserResponse>
+                                            ) {
+                                                if (response.isSuccessful) {
+                                                    Log.i("작성자 차단 성공", "${data.value.nickname} 차단 ")
 
-                                                         }
-                                                         else
-                                                             Log.i("작성자 차단 실패","${data.value.nickname} 차단 ")
-                                                     }
-                                                     override fun onFailure(
-                                                         call: Call<BlockUserResponse>,
-                                                         t: Throwable
-                                                     ) {
-                                                         Log.i("작성자 차단 ","서버 연결 실패ㄹ")
-                                                     }
-                                                 })
+                                                } else
+                                                    Log.i("작성자 차단 실패", "${data.value.nickname} 차단 ")
+                                            }
+
+                                            override fun onFailure(
+                                                call: Call<BlockUserResponse>,
+                                                t: Throwable
+                                            ) {
+                                                Log.i("작성자 차단 ", "서버 연결 실패ㄹ")
+                                            }
+                                        })
                                     scope.launch {
                                         bottomSheetState.hide()
                                     }
@@ -482,7 +495,7 @@ fun PostContentCommentScreen(
                                 Spacer(modifier = Modifier.size(18.dp))
                                 Text(text = "댓글", style = moduBold, fontSize = 16.sp)
                                 Spacer(modifier = Modifier.size(5.dp))
-                                Text(text = "${commentSize.value}", color = moduGray_strong, fontSize = 16.sp)
+                                Text(text = commentList.size.toString(), color = moduGray_strong, fontSize = 16.sp)
                                 Spacer(modifier = Modifier.weight(1f))
 
                             }
@@ -498,6 +511,7 @@ fun PostContentCommentScreen(
                                     .wrapContentSize()
                                     .background(Color.White)
                             ){
+
                                 val sortedComments  = mutableStateListOf<GetCommentContent>() //  정렬 리스트 초기화
                                 val parents = commentList.filter { it.parentId==null } // 댓글 리스트
                                 val childs = commentList.filter { it.parentId != null } // 답글 리스트
@@ -509,19 +523,25 @@ fun PostContentCommentScreen(
                                         }
                                     }
                                 }
-                                commentSize.value = sortedComments.size
-                                items(sortedComments){ comment->
-                                    CommentItem(
-                                        comment = comment,
-                                        scope = scope,
-                                        bottomSheetState = bottomSheetState,
-                                        data = data,
-                                        isReplying = isReplying,
-                                        isButtonClicked = isButtonClicked,
-                                        userViewModel=userViewModel,
-                                        navController = navController
-                                    )
+                                items(sortedComments, key = { it.commentId }){ comment->
+                                    if (comment in block_parent || comment in block_child) {
+                                        BlockCommentItem(comment = comment)
+                                    }
+                                    else {
+                                        CommentItem(
+                                            comment = comment,
+                                            scope = scope,
+                                            bottomSheetState = bottomSheetState,
+                                            data = data,
+                                            isReplying = isReplying,
+                                            isButtonClicked = isButtonClicked,
+                                            userViewModel = userViewModel,
+                                            navController = navController
+                                        )
+                                    }
+
                                 }
+
 
 
                             }
@@ -630,8 +650,7 @@ fun PostContentCommentScreen(
                                         modifier = Modifier
                                             .bounceClick {
                                                 if (textFieldComment.value.isNotEmpty()) {
-                                                    var comment =
-                                                        GetCommentContent("", 0, "", 0, "", 0, "")
+                                                    var comment: GetCommentContent
                                                     val jsonData = JsonObject()
                                                     jsonData.apply {
                                                         addProperty(
@@ -658,7 +677,10 @@ fun PostContentCommentScreen(
                                                                     val res = response.body()
                                                                     if (res != null) {
                                                                         comment = res.result
-                                                                        Log.i("댓글 작성",comment.toString())
+                                                                        Log.i(
+                                                                            "댓글 작성",
+                                                                            comment.toString()
+                                                                        )
                                                                         // 답글 입력중이라면
                                                                         if (isReplying.value) {
                                                                             commentViewModel.addComment(
@@ -725,11 +747,54 @@ fun PostContentCommentScreen(
 
 }
 
+@Composable
+fun BlockCommentItem(
+    comment: GetCommentContent
+){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+    ) {
+        Box()
+        {
+            Row(
+                modifier = Modifier
+                    .padding(18.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (comment.parentId!=null) Spacer(modifier = Modifier.size(18.dp))
+                // 댓글 작성자 프로필 사진
+                GlideImage(
+                    imageModel = R.drawable.ic_default_profile,
+                    contentDescription = "",
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.size(10.dp))
+
+                // 댓글 내용
+                    Text(
+                        text = "차단된 유저의 댓글입니다.",
+                        color = moduGray_strong,
+                        fontSize = 14.sp
+                    )
+
+            }
+        }
+
+
+    }
+}
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun CommentItem(
+fun LazyItemScope.CommentItem(
     comment: GetCommentContent,
     scope:CoroutineScope,
     bottomSheetState:ModalBottomSheetState,
@@ -740,19 +805,19 @@ fun CommentItem(
     navController: NavHostController
 ){
         Column(
-            modifier = Modifier
-                .wrapContentSize()
+            modifier =
+            Modifier
+                .fillMaxWidth()
                 .background(Color.White)
-
+                .animateItemPlacement()
         ) {
             Box()
             {
-                val focusRequester = remember { FocusRequester() }
                 Row(
                     modifier = Modifier
                         .background(
                             if ((isReplying.value && comment.commentId == data.value.commentId)
-                                || (isButtonClicked.value&& (comment.commentId == data.value.commentId) )
+                                || (isButtonClicked.value && (comment.commentId == data.value.commentId))
                             ) moduBackground
                             else Color.White
                         )
