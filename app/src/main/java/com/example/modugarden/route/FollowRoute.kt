@@ -2,6 +2,8 @@ package com.example.modugarden.route
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -34,8 +36,6 @@ fun NavigationGraphFollow(
     UVforFollow: UserViewModel ,
     refreshViewModel : RefreshViewModel = viewModel()
 ) {
-   
-
     NavHost(navFollowController, startDestination = NAV_ROUTE_FOLLOW.FOLLOW.routeName,
         modifier = Modifier.fillMaxSize()
     ) {
@@ -43,28 +43,18 @@ fun NavigationGraphFollow(
         composable(
             NAV_ROUTE_FOLLOW.FOLLOW.routeName
         ) {
-            //팔로우 피드 게시물
-            val context = LocalContext.current.applicationContext
-            val postres
-                    = remember { mutableStateOf(PostDTO.GetFollowFeedPost(null)) }
-            refreshViewModel.getPosts(postres,context)
 
-            val curationres
-                    = remember { mutableStateOf(GetFollowFeedCuration(null)) }
-            refreshViewModel.getCurations(curationres,context)
             FollowMainScreen(
-                postres = postres,
-                curationres = curationres,
                 userViewModel= UVforFollow,
                 navController = navController,
-                navFollowController =navFollowController
+                navFollowController =navFollowController,
             )
 
         }
         composable(
             NAV_ROUTE_FOLLOW.USERPROFILE.routeName
         ) { backStackEntry ->
-            ProfileApp(UVforFollow.getUserId(), false, navController)
+            ProfileApp(UVforFollow.getUserId(), false, navFollowController)
         }
     }
 }

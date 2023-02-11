@@ -3,6 +3,9 @@ package com.example.modugarden.main.follow
 import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -88,6 +91,8 @@ fun FollowingScreen(
     navController: NavHostController,
     navFollowController: NavHostController,
     userViewModel: UserViewModel,
+    feedLauncher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
+    feedLauncher2: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>
 ) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -108,6 +113,7 @@ fun FollowingScreen(
 
     postList.addAll(posts)
     curationList.addAll(curations)
+
 
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
@@ -422,11 +428,12 @@ fun FollowingScreen(
                             modalTitle = modalContentTitle,
                             modalImage = modalContentImage,
                             modalId = modalContentId,
-                            userViewModel = userViewModel
-                        )
+                            userViewModel = userViewModel,
+                            feedLauncher = feedLauncher)
                     }
 
                     //큐레이션
+                    Log.i("큐레이션 리스트",curationList.toString())
                        items(curationList,
                            key = { curation -> curation.curation_id }) {
                            CurationCard(
@@ -438,8 +445,9 @@ fun FollowingScreen(
                                modalType = modalType,
                                modalTitle = modalContentTitle,
                                modalImage = modalContentImage,
-                               modalContentId,
-                               userViewModel = userViewModel
+                               modalContentId = modalContentId,
+                               userViewModel = userViewModel,
+                               feedLauncher = feedLauncher2
                            )
                        }
 

@@ -9,11 +9,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.modugarden.api.dto.PostDTO
-import com.example.modugarden.data.FollowPost
 import com.example.modugarden.data.MapInfo
 import com.example.modugarden.main.content.PostContentCommentScreen
-import com.example.modugarden.main.content.PostContentLocationScreen
 import com.example.modugarden.main.content.PostContentMapScreen
 import com.example.modugarden.main.content.PostContentScreen
 import com.example.modugarden.main.profile.follow.ProfileApp
@@ -30,10 +27,12 @@ enum class NAV_ROUTE_POSTCONTENT(val routeName: String, val description: String)
 }
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NavigationGraphPostContent(navController: NavHostController,
-                               commentViewModel: CommentViewModel= viewModel(),
-                               userViewModel: UserViewModel = viewModel(),
-                              board_id:Int) {
+fun NavigationGraphPostContent(
+    navController: NavHostController,
+    commentViewModel: CommentViewModel = viewModel(),
+    userViewModel: UserViewModel = viewModel(),
+    board_id: Int,
+) {
     NavHost(navController = navController, startDestination = NAV_ROUTE_POSTCONTENT.MAIN.routeName) {
         composable(NAV_ROUTE_POSTCONTENT.MAIN.routeName) {
             PostContentScreen(

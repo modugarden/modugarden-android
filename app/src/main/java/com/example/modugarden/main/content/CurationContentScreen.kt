@@ -219,9 +219,7 @@ fun CurationContentScreen(curation_id :Int) {
                                             scope.launch {
                                                 bottomSheetState.hide()
                                             }
-                                            refreshViewModel.refresh()
                                             activity?.finish()
-
                                         },
                                     shape = RoundedCornerShape(10.dp),
                                     backgroundColor = Color(0xFFFF7272),

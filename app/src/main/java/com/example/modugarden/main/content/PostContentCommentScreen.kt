@@ -107,11 +107,13 @@ import retrofit2.Response
 @SuppressLint("UnrememberedMutableState")
 @OptIn( ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun PostContentCommentScreen(navController: NavHostController,
-                             commentViewModel: CommentViewModel= viewModel(),
-                             userViewModel: UserViewModel,
-                             boardId:Int,
-                             run: Boolean) {
+fun PostContentCommentScreen(
+    navController: NavHostController,
+    commentViewModel: CommentViewModel = viewModel(),
+    userViewModel: UserViewModel,
+    boardId: Int,
+    run: Boolean,
+) {
 
     val data
             = remember{ mutableStateOf(GetCommentContent(nickname = "", comment = "", localDateTime = "", parentId = null, profileImage = "", commentId = 0, userId = 0)) } // 클릭한 댓글 데이터*/

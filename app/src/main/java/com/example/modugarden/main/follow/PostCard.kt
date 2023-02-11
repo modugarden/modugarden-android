@@ -6,7 +6,9 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -39,6 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.*
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.core.graphics.toColorInt
@@ -83,7 +86,9 @@ fun PostCard(
         modalType:MutableState<Int>,
         modalTitle:MutableState<String>,
         modalImage: MutableState<String?>,
-        modalId:MutableState<Int>
+        modalId:MutableState<Int>,
+      feedLauncher: ManagedActivityResultLauncher<IntentSenderRequest,ActivityResult>
+
 ) {
         val isButtonClickedLike = remember { mutableStateOf(false) } // 버튼 바
         val isButtonClickedSave = remember { mutableStateOf(false) }
@@ -91,7 +96,8 @@ fun PostCard(
         val mContext = LocalContext.current
         val userId =
                 ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
-        val launcher = rememberLauncherForActivityResult(contract =
+
+        val buttonLauncher = rememberLauncherForActivityResult(contract =
         ActivityResultContracts.StartIntentSenderForResult()) {
                 RetrofitBuilder.postAPI.getPostLikeState(data.board_id)
                         .enqueue(  object : Callback<PostDTO.GetPostLikeStateResponse> {
@@ -146,7 +152,10 @@ fun PostCard(
                                                 .padding(18.dp)
                                                 .bounceClick {
                                                         userViewModel.setUserId(data.user_id)
-                                                        Log.d("postCardUserId", data.user_id.toString())
+                                                        Log.d(
+                                                                "postCardUserId",
+                                                                data.user_id.toString()
+                                                        )
                                                         navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName) {
                                                         }
                                                 },//프로필
@@ -208,11 +217,14 @@ fun PostCard(
                                                         )
                                         }
 
-                                        launcher.launch(
+                                        buttonLauncher.launch(
                                                 IntentSenderRequest
                                                         .Builder(pendIntent)
                                                         .build()
                                         )
+                                        feedLauncher.launch(IntentSenderRequest
+                                                .Builder(pendIntent)
+                                                .build())
                                 })
                                 {       // 포스트 카드 이미지 슬라이드
                                         Box() {
@@ -288,12 +300,20 @@ fun PostCard(
                                                                 .padding(18.dp)
                                                 ) {
 
-                                                        Text(
-                                                                data.title,
-                                                                fontSize = 16.sp,
-                                                                fontWeight = FontWeight.Bold,
-                                                                color = Color("#17291F".toColorInt())
-                                                        )
+                                                        Row(Modifier.fillMaxWidth(1f)){
+                                                                Text(
+                                                                        data.title,
+                                                                        fontSize = 16.sp,
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        color = Color("#17291F".toColorInt()),
+                                                                        maxLines = 1,
+                                                                        overflow = TextOverflow.Ellipsis,
+                                                                        modifier = Modifier.weight(
+                                                                                0.9f
+                                                                        )
+                                                                )
+                                                                Spacer(modifier = Modifier.weight(0.1f))
+                                                        }
                                                         Row(
                                                                 Modifier.fillMaxWidth(),
                                                                 horizontalArrangement = Arrangement.SpaceBetween
@@ -334,34 +354,7 @@ fun PostCard(
                                                likeNum = null
                                        )
 //
-//                                       Icon(modifier = Modifier
-//                                               .padding(end = 18.dp)
-//                                               .bounceClick {
-//                                                       if (isButtonClickedLike.value) {
-//                                                               isButtonClickedLike.value = false
-//                                                               data.liKeNum = data.liKeNum + 1
-//                                                       }
-//                                                       else {
-//                                                               isButtonClickedLike.value = true
-//                                                               data.liKeNum = data.liKeNum - 1
-//                                                       }
 //
-//                                               }
-//                                               ,painter = painterResource
-//                                                       (id =
-//                                               if (isButtonClickedLike.value)
-//                                                       R.drawable.ic_heart_solid
-//                                               else
-//                                                       R.drawable.ic_heart_line
-//                                               ),
-//                                               contentDescription = "좋아요",
-//                                               tint =
-//                                                       if (isButtonClickedLike.value)
-//                                                               Color(0xFFFF6767)
-//                                                       else
-//                                                               moduBlack
-//
-//                                       )
                                        // 댓글
                                        Icon(modifier = Modifier
                                                .padding(end = 18.dp)

@@ -6,6 +6,8 @@ import android.location.Geocoder
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,21 +19,17 @@ import androidx.compose.foundation.layout.Row
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
@@ -69,7 +67,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.modugarden.ApplicationClass
 import com.example.modugarden.BuildConfig
@@ -92,11 +89,9 @@ import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.ui.theme.moduPoint
-import com.example.modugarden.viewmodel.RefreshViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.VerticalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -106,7 +101,6 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -122,8 +116,8 @@ import java.util.Locale
 @Composable
 fun PostContentScreen(
     navController: NavHostController,
-    board_id:Int,
-    userViewModel: UserViewModel
+    board_id: Int,
+    userViewModel: UserViewModel,
 ) {
     val firstPagerState = rememberPagerState()
     val secondPagerState = rememberPagerState()
@@ -281,20 +275,18 @@ fun PostContentScreen(
                         lat.value = locinfo.split("``")[1].toDouble()
                         lng.value = locinfo.split("``")[2].toDouble()
                         place_id.value = locinfo.split("``")[3]
-
+                        Log.i("장소 아이디", place_id.value)
                         RetrofitBuilder.postLocationPhotoAPI
                             .getPhotoReference(place_id.value)
                             .enqueue(object : Callback<MapsDetailRes>{
                                 override fun onResponse(call: Call<MapsDetailRes>, response: Response<MapsDetailRes>) {
                                     if (response.isSuccessful){
-                                        val res = response.body()?.result
+                                        val res = response.body()?.result?.photos?.get(0)
                                         if(res!=null){
-                                            Log.i("아이디",place_id.value)
-                                            photoRef.value = res.photos[0].photo_reference
-                                            Log.i("장소 세부정보", response.body().toString())
+                                            photoRef.value = res.photo_reference
                                         }
                                         else
-                                            Log.i("장소 세부정보","실패")
+                                            Log.i("장소 세부정보 사진","없디")
                                     }
                                 }
 
@@ -302,8 +294,10 @@ fun PostContentScreen(
                                     TODO("Not yet implemented")
                                 }
                             })
-                        photoURL.value =
-                            "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference="+ photoRef.value+"&key="+ BuildConfig.google_maps_key
+                        if(photoRef.value!="") {
+                            photoURL.value =
+                                "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + photoRef!!.value + "&key=" + BuildConfig.google_maps_key
+                        }
                         Log.i("장소 사진",photoURL.value)
                         Locale.setDefault(Locale.KOREAN)
                         val geocoder = Geocoder(
@@ -573,7 +567,7 @@ fun PostContentScreen(
                                         modifier = Modifier
                                             .weight(1f)
                                             .bounceClick {
-                                                isLoading.value=true
+                                                isLoading.value = true
                                                 RetrofitBuilder.postAPI
                                                     .deletePost(post.id)
                                                     .enqueue(object :
@@ -582,11 +576,10 @@ fun PostContentScreen(
                                                             call: Call<PostDTO.DeletePostResponse>,
                                                             response: Response<PostDTO.DeletePostResponse>
                                                         ) {
-                                                            if(response.body()?.isSuccess == true){
+                                                            if (response.body()?.isSuccess == true) {
                                                                 isLoading.value = false
                                                                 Log.i("포스트 삭제", "성공")
-                                                            }
-                                                            else Log.i("포스트 삭제", "실패")
+                                                            } else Log.i("포스트 삭제", "실패")
                                                         }
 
                                                         override fun onFailure(
@@ -1069,22 +1062,3 @@ fun Tagitem(modalType:MutableState<Int>,
 
 }}
 
-/*
-@RequiresApi(Build.VERSION_CODES.O)
-
-@Composable
-fun PostContentPreview(){
-    val dana = User(
-        image = "https://ifh.cc/g/jDDHBg.png".toUri(),
-        name = "dana",
-        category = listOf(""),
-        follower = 1,
-        following = 1,
-        state = false,
-        post = null,
-        curation = null
-    )
-
-    PostContentScreen(navController = rememberNavController(), post = followPosts[0], userViewModel = viewModel())
-
-}*/

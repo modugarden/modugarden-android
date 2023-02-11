@@ -5,7 +5,9 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -90,6 +92,7 @@ fun CurationCard(
     modalImage: MutableState<String?>,
     modalContentId: MutableState<Int>,
     userViewModel: UserViewModel,
+    feedLauncher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>
 ) {
     val mContext = LocalContext.current
 
@@ -97,7 +100,7 @@ fun CurationCard(
     val isButtonClickedSave = remember { mutableStateOf(false)}
     val userId =
         ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
-    val launcher = rememberLauncherForActivityResult(contract =
+    val buttonLauncher = rememberLauncherForActivityResult(contract =
     ActivityResultContracts.StartIntentSenderForResult()) {
         RetrofitBuilder.curationAPI.getStateCurationLike(data.curation_id)
             .enqueue(  object : Callback<GetCurationLikeStateResponse> {
@@ -158,7 +161,7 @@ fun CurationCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 GlideImage(
-                    imageModel = data.user_profile_image,
+                    imageModel = data.user_profile_image ?: R.drawable.ic_default_profile,
                     contentDescription = null,
                     modifier = Modifier
                         .size(26.dp)
@@ -203,11 +206,14 @@ fun CurationCard(
                             )
                     }
 
-                    launcher.launch(
+                    buttonLauncher.launch(
                         IntentSenderRequest
                             .Builder(pendIntent)
                             .build()
                     )
+                    feedLauncher.launch(IntentSenderRequest
+                        .Builder(pendIntent)
+                        .build())
                 }
             )
             {// 큐레이션 썸네일
