@@ -97,7 +97,7 @@ fun PostCard(
         val userId =
                 ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
 
-        val buttonLauncher = rememberLauncherForActivityResult(contract =
+/*        val buttonLauncher = rememberLauncherForActivityResult(contract =
         ActivityResultContracts.StartIntentSenderForResult()) {
                 RetrofitBuilder.postAPI.getPostLikeState(data.board_id)
                         .enqueue(  object : Callback<PostDTO.GetPostLikeStateResponse> {
@@ -135,8 +135,46 @@ fun PostCard(
 
                         })
 
-        }
+        }*/
 
+        feedLauncher.let {
+                RetrofitBuilder.postAPI.getPostLikeState(data.board_id)
+                        .enqueue(  object : Callback<PostDTO.GetPostLikeStateResponse> {
+                                override fun onResponse(
+                                        call: Call<PostDTO.GetPostLikeStateResponse>,
+                                        response: Response<PostDTO.GetPostLikeStateResponse>
+                                ) {
+                                        isButtonClickedLike.value = response.body()?.result?.check ?: true
+                                }
+
+                                override fun onFailure(
+                                        call: Call<PostDTO.GetPostLikeStateResponse>,
+                                        t: Throwable
+                                ) {
+
+                                }
+
+                        })
+
+                RetrofitBuilder.postAPI.getPostSaveState(data.board_id)
+                        .enqueue(  object : Callback<PostDTO.GetPostSaveStateResponse> {
+                                override fun onResponse(
+                                        call: Call<PostDTO.GetPostSaveStateResponse>,
+                                        response: Response<PostDTO.GetPostSaveStateResponse>
+                                ) {
+                                        isButtonClickedSave.value = response.body()?.result?.check ?: true
+                                }
+
+                                override fun onFailure(
+                                        call: Call<PostDTO.GetPostSaveStateResponse>,
+                                        t: Throwable
+                                ) {
+
+                                }
+
+                        })
+
+        }
         Card(
                 modifier = Modifier
                         .padding(start = 18.dp, end = 18.dp, top = 9.dp, bottom = 9.dp)
@@ -217,11 +255,11 @@ fun PostCard(
                                                         )
                                         }
 
-                                        buttonLauncher.launch(
+                                        /*buttonLauncher.launch(
                                                 IntentSenderRequest
                                                         .Builder(pendIntent)
                                                         .build()
-                                        )
+                                        )*/
                                         feedLauncher.launch(IntentSenderRequest
                                                 .Builder(pendIntent)
                                                 .build())

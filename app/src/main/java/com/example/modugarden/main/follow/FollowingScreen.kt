@@ -92,7 +92,7 @@ fun FollowingScreen(
     navFollowController: NavHostController,
     userViewModel: UserViewModel,
     feedLauncher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
-    feedLauncher2: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>
+   feedLauncher2: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>
 ) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }

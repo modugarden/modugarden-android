@@ -202,11 +202,13 @@ fun CurationContentScreen(curation_id :Int) {
                                                         call: Call<DeleteCurationResponse>,
                                                         response: Response<DeleteCurationResponse>
                                                     ) {
-                                                        if (response.body()?.isSuccess == true) Log.i(
-                                                            "큐레이션 삭제",
-                                                            "성공"
-                                                        )
-                                                        else Log.i("큐레이션 삭제", "실패")
+                                                        if (response.body()?.isSuccess == true) {
+                                                            Log.i(
+                                                                "큐레이션 삭제",
+                                                                "성공"
+                                                            )
+                                                            activity?.finish()
+                                                        } else Log.i("큐레이션 삭제", "실패")
                                                     }
 
                                                     override fun onFailure(
@@ -216,10 +218,7 @@ fun CurationContentScreen(curation_id :Int) {
                                                         Log.i("큐레이션 삭제", "서버 연결 실패")
                                                     }
                                                 })
-                                            scope.launch {
-                                                bottomSheetState.hide()
-                                            }
-                                            activity?.finish()
+
                                         },
                                     shape = RoundedCornerShape(10.dp),
                                     backgroundColor = Color(0xFFFF7272),
