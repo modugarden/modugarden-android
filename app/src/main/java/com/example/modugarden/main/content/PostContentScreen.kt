@@ -2,6 +2,7 @@ package com.example.modugarden.main.content
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.location.Geocoder
 import android.os.Build
 import android.util.Log
@@ -129,10 +130,9 @@ fun PostContentScreen(
     val isLoading = remember { mutableStateOf(false) }
     var responseBody by remember { mutableStateOf(PostDTO.GetPostResponse()) }
     var likeNum =  remember{ mutableStateOf(0) }
-    val activity = (LocalContext.current as? Activity)//액티비티 종료할 때 필요한 변수
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }// 팔로우 스낵바 메세지 상태 변수
-    val context = LocalContext.current.applicationContext
+    val context = LocalContext.current
     val followState = remember { mutableStateOf(false) }
     val userId =
         ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
@@ -579,6 +579,7 @@ fun PostContentScreen(
                                                             if (response.body()?.isSuccess == true) {
                                                                 isLoading.value = false
                                                                 Log.i("포스트 삭제", "성공")
+                                                                (context as Activity).finish()
                                                             } else Log.i("포스트 삭제", "실패")
                                                         }
 
@@ -592,7 +593,7 @@ fun PostContentScreen(
                                                 scope.launch {
                                                     bottomSheetState.hide()
                                                 }
-                                                activity?.finish()
+
                                             },
                                         shape = RoundedCornerShape(10.dp),
                                         backgroundColor = Color(0xFFFF7272),
@@ -958,7 +959,7 @@ fun PostContentScreen(
                     // 뒤로 가기 버튼
                     Icon(
                         modifier = Modifier
-                            .bounceClick { activity?.finish() },
+                            .bounceClick { (context as Activity).finish()},
                         painter = painterResource(id = R.drawable.ic_arrow_left_bold),
                         contentDescription = "뒤로가기",
                         tint = Color.White

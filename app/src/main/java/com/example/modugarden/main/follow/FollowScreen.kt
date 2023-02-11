@@ -9,10 +9,12 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,9 +63,23 @@ fun FollowMainScreen(
     val postres
             = remember { mutableStateOf(PostDTO.GetFollowFeedPost(null)) }
     refreshViewModel.getPosts(postres,context)
+
     val curationres
             = remember { mutableStateOf(GetFollowFeedCuration(null)) }
     refreshViewModel.getCurations(curationres,context)
+    val feedLauncher
+    = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()) {
+        isLoading.value=true
+        refreshViewModel.getPosts(postres,context)
+    }
+    val feedLauncher2
+    = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()) {
+        isLoading.value=true
+        refreshViewModel.getCurations(curationres,context)
+    }
+
     val isRefreshing by refreshViewModel.isRefreshing.collectAsState()
     val posts = mutableStateOf(postres.value.content)
     val curations = mutableStateOf(curationres.value.content)
@@ -71,18 +87,6 @@ fun FollowMainScreen(
     val following = 1
     val nofollowing = 2
 
-    val feedLauncher = rememberLauncherForActivityResult(contract =
-    ActivityResultContracts.StartIntentSenderForResult()) {
-        isLoading.value=true
-        refreshViewModel.getPosts(postres,context)
-        refreshViewModel.getCurations(curationres,context)
-    }
-    val feedLauncher2 = rememberLauncherForActivityResult(contract =
-    ActivityResultContracts.StartIntentSenderForResult()) {
-        isLoading.value=true
-        refreshViewModel.getPosts(postres,context)
-        refreshViewModel.getCurations(curationres,context)
-    }
     //포스트, 큐레이션 수
     if (posts.value==null|| curations.value==null) mode.value = 0
     else if (posts.value!!.isEmpty() && curations.value!!.isEmpty()) mode.value=nofollowing
@@ -108,7 +112,7 @@ fun FollowMainScreen(
                     navController = navController,
                     navFollowController = navFollowController,
                     userViewModel = userViewModel,
-                    feedLauncher= feedLauncher,
+                    feedLauncher = feedLauncher,
                     feedLauncher2 = feedLauncher2
                 )
             } else if(mode.value==2) {
@@ -125,7 +129,7 @@ fun FollowMainScreen(
                     .fillMaxSize()
                     .background(moduBackground)
                     .verticalScroll(scrollState)) {
-                    Text(text="삭제중", fontSize = 30.sp)
+                   /* Text(text="삭제중", fontSize = 30.sp)*/
                     if (isLoading.value){
                         ShowProgressBarV2()
 
