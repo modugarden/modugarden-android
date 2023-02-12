@@ -3,6 +3,7 @@ package com.example.modugarden.ui.theme
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
+import android.net.Uri
 import android.util.Log
 import android.view.ViewTreeObserver
 import androidx.compose.animation.animateContentSize
@@ -52,6 +53,8 @@ import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.clientNickname
+import com.example.modugarden.ApplicationClass.Companion.fcmToken
+import com.example.modugarden.ApplicationClass.Companion.profileImage
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
 import com.example.modugarden.api.AuthCallBack
@@ -62,11 +65,13 @@ import com.example.modugarden.api.dto.*
 import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.data.RecentSearch
 import com.example.modugarden.data.RecentSearchDatabase
+import com.example.modugarden.fcm.MyFcmService
 import com.example.modugarden.login.LoginActivity
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -1246,7 +1251,8 @@ fun FollowCard(
     followState: MutableState<Boolean>,
     contentModifier: Modifier,
     blockState: MutableState<Boolean> = mutableStateOf(false),
-    unBlockSnackBarAction: () -> Unit = {}
+    unBlockSnackBarAction: () -> Unit = {},
+    fcmTokenState: MutableState<List<String>> = mutableStateOf<List<String>>(listOf())
 ) {
     if(id == sharedPreferences.getInt(clientId,0)) {
         Card(
@@ -1290,6 +1296,17 @@ fun FollowCard(
                                     ) {
                                         snackBarAction()
                                         followState.value = !followState.value
+                                        fcmTokenState.value.forEach {token ->
+                                            Log.d("onTokenResponse", "sendNotification : $token")
+                                            sendNotification(
+                                                0,
+                                                sharedPreferences.getInt(clientId, 0),
+                                                sharedPreferences.getString(profileImage, ""),
+                                                "팔로우 알림",
+                                                token,
+                                                "${sharedPreferences.getString(clientNickname,"")}님이 회원님을 팔로우했어요."
+                                            )
+                                        }
                                     }
 
                                     override fun onFailure(call: Call<FollowDtoRes>, t: Throwable) {
@@ -1502,5 +1519,38 @@ fun OneButtonSmallDialog(
                 )
             }
         }
+    }
+}
+
+fun sendNotification(
+    notificationType: Int,
+    targetId: Int,
+    targetImage: String?,
+    titleMessage: String,
+    fcmToken: String?,
+    message: String
+) {
+    val jsonBody = JsonObject()
+    val notificationBody = JsonObject()
+    val dataBody = JsonObject()
+    dataBody.apply {
+        addProperty("image", targetImage)
+    }
+    notificationBody.apply {
+        addProperty(
+            "title",
+            "$notificationType,$targetId,${sharedPreferences.getString(clientNickname,"")},$titleMessage"
+        )
+        addProperty("body", message)
+    }
+    jsonBody.apply {
+        addProperty("to", fcmToken)
+        addProperty("priority", "high")
+        add("notification", notificationBody)
+        add("data", dataBody)
+    }
+    CoroutineScope(Dispatchers.IO).launch {
+        val response = RetrofitBuilder.fcmSendAPI.fcmSendAPI(jsonBody = jsonBody).execute()
+        Log.d("onTokenResponse", response.toString())
     }
 }
