@@ -65,6 +65,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
@@ -223,7 +224,7 @@ fun PostContentScreen(
                                         contentScale = ContentScale.Crop
                                     )
                                     Spacer(modifier = Modifier.size(18.dp))
-                                    Text(text = post!!.title, style = moduBold, fontSize = 14.sp)
+                                    Text(text = post!!.title, style = moduBold, fontSize = 14.sp,maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 }
                             }
 

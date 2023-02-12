@@ -11,5 +11,6 @@ data class Result(
     val accessToken_expiredDate: String,
     val nickname: String,
     val refreshToken: String,
-    val userId: Int
+    val userId: Int,
+    val profileImage:String?
 )

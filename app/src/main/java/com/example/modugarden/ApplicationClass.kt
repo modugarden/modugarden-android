@@ -24,6 +24,7 @@ class ApplicationClass : Application() {
         val accessToken = "Access Token"
         val refreshToken = "Refresh Token"
         val clientId = "Client ID"
+        val profileImage = "Profile Image"
         val clientNickname = "Client Nickname"
         val commentNotification = "Comment Notification Setting"
         val commentChildNotification = "Comment Child Notification Setting"
