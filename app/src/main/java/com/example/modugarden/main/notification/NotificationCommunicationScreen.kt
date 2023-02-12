@@ -80,9 +80,12 @@ fun NotificationCommunicationScreen() {
                 val dataBody = JsonObject()
                 dataBody.apply {
                     addProperty("image", "https://www.elegantthemes.com/blog/wp-content/uploads/2019/12/401-error-wordpress-featured-image.jpg")
+                    addProperty("type", 0)
+                    addProperty("name", "kim__tune_test")
+                    addProperty("address", "")
                 }
                 notificationBody.apply {
-                    addProperty("title", "${index.value},1,kim__tune")
+                    addProperty("title", "kim__tune_test님이 팔로우 했어요")
                     addProperty("body", "kim__tune님이 팔로우 했어요")
                 }
                 jsonBody.apply {
