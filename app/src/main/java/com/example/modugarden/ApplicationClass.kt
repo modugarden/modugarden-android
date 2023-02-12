@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit
 class ApplicationClass : Application() {
     private val baseUrl = "http://3.38.50.190:8080"
     private val baseUrlGoogleMap = "https://maps.googleapis.com/maps/api/"
+    private val baseUrlFcmSend = "https://fcm.googleapis.com/"
 
     val gson: Gson = GsonBuilder().setLenient().create()
 
@@ -42,6 +43,7 @@ class ApplicationClass : Application() {
         lateinit var retrofit: Retrofit
         lateinit var retrofitWithNoInterceptor: Retrofit
         lateinit var retrofitGoogleMap: Retrofit
+        lateinit var retrofitFcmSend: Retrofit
     }
 
     override fun onCreate() {
@@ -70,6 +72,11 @@ class ApplicationClass : Application() {
 
         retrofitGoogleMap = Retrofit.Builder()
             .baseUrl(baseUrlGoogleMap)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+
+        retrofitFcmSend = Retrofit.Builder()
+            .baseUrl(baseUrlFcmSend)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }

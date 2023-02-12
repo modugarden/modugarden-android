@@ -24,6 +24,7 @@ android {
         buildConfigField "String", "NAVER_CLIENT_SECRET", properties["naver_client_secret"]
         buildConfigField "String", "MAPS_API_KEY", properties["google_maps_key"]
         buildConfigField "String", "GOOGLE_WEB_KEY", properties["google_web_key"]
+        buildConfigField "String", "GOOGLE_FCM_KEY", properties["google_fcm_key"]
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

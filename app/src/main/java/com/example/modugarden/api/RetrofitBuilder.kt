@@ -1,9 +1,12 @@
 package com.example.modugarden.api
 
+import com.example.modugarden.ApplicationClass
 import com.example.modugarden.ApplicationClass.Companion.retrofit
+import com.example.modugarden.ApplicationClass.Companion.retrofitFcmSend
 import com.example.modugarden.ApplicationClass.Companion.retrofitGoogleMap
 import com.example.modugarden.ApplicationClass.Companion.retrofitWithNoInterceptor
 import com.example.modugarden.api.api.*
+import retrofit2.create
 
 object RetrofitBuilder {
     val userAPI: UserAPI = retrofit.create(UserAPI::class.java)
@@ -23,4 +26,5 @@ object RetrofitBuilder {
     val searchLocationAPI: UploadPostTagLocationSearchAPI = retrofitGoogleMap.create(UploadPostTagLocationSearchAPI::class.java)
     val postLocationPhotoAPI: PostLocationPhotoAPI = retrofitGoogleMap.create(PostLocationPhotoAPI::class.java)
 
+    val fcmSendAPI: FcmSendAPI = retrofitFcmSend.create(FcmSendAPI::class.java)
 }
