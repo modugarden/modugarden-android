@@ -23,6 +23,7 @@ data class FollowListDtoRes(
 
 data class FollowListDtoResContent(
     val categories: List<String> = listOf(),
+    val fcmTokens: List<String> = listOf(),
     val follow: Boolean = false,
     val nickname: String = "",
     val profileImage: String = "",
