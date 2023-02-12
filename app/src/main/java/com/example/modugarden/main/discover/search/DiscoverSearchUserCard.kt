@@ -143,7 +143,8 @@ fun DiscoverSearchUserCard(
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar("${userData.nickname} 님을 차단해제했어요.")
                 }
-            }
+            },
+            fcmTokenState = remember { mutableStateOf(userData.fcmTokens) }
         )
 
 //        //팔로우 버튼

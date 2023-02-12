@@ -751,7 +751,8 @@ fun PostContentScreen(
                                     }},
                                     followState = followState,
                                     contentModifier =Modifier
-                                        .padding(vertical = 6.dp, horizontal = 10.dp)
+                                        .padding(vertical = 6.dp, horizontal = 10.dp),
+                                    fcmTokenState = remember { mutableStateOf(post.fcmTokens) }
                                 )
 
                             }
