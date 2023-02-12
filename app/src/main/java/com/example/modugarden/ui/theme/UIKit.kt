@@ -1445,3 +1445,60 @@ fun SmallDialog(
         }
     }
 }
+
+@Composable
+fun OneButtonSmallDialog(
+    text: String,
+    textColor: Color,
+    backgroundColor: Color,
+    buttonText: String,
+    buttonTextColor: Color,
+    buttonColor: Color,
+    dialogState: MutableState<Boolean>,
+    onButtonClick: () -> Unit = {}
+) {
+    ModuDialog {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp)
+                .wrapContentHeight()
+                .background(backgroundColor),
+        ) {
+            Text(
+                text = text,
+                style = TextStyle(
+                    textAlign = TextAlign.Center,
+                    color = textColor,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.size(18.dp))
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .bounceClick {
+                        onButtonClick()
+                        dialogState.value = false
+                    },
+                shape = RoundedCornerShape(10.dp),
+                backgroundColor = buttonColor,
+                elevation = 0.dp
+            ) {
+                Text(
+                    text = buttonText,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = buttonTextColor,
+                    modifier = Modifier
+                        .padding(14.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
