@@ -11,7 +11,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -55,6 +54,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -65,6 +65,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -76,10 +77,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.modugarden.ApplicationClass
+import com.example.modugarden.ApplicationClass.Companion.clientId
+import com.example.modugarden.ApplicationClass.Companion.profileImage
+import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
-import com.example.modugarden.api.dto.BlockUserResponse
 import com.example.modugarden.api.dto.CommentDTO
 import com.example.modugarden.api.dto.DeleteCommentResponse
 import com.example.modugarden.api.dto.GetCommentContent
@@ -109,7 +111,7 @@ import retrofit2.Response
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnrememberedMutableState")
 @OptIn( ExperimentalMaterialApi::class, ExperimentalAnimationApi::class,
-    ExperimentalFoundationApi::class
+    ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class
 )
 @Composable
 fun PostContentCommentScreen(
@@ -136,6 +138,9 @@ fun PostContentCommentScreen(
     LaunchedEffect(bottomSheetState.targetValue) {
         isButtonClicked.value = bottomSheetState.targetValue != ModalBottomSheetValue.Hidden
     }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+
     var commentres by remember { mutableStateOf(GetCommentResponse()) }
 
     RetrofitBuilder.commentAPI.getComments(boardId)
@@ -169,8 +174,7 @@ fun PostContentCommentScreen(
     Log.i("댓글 리스트",commentList.toString())
 
     val userId =
-        ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0)
-
+        sharedPreferences.getInt(clientId, 0)
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
         sheetBackgroundColor = Color.Transparent,
@@ -568,7 +572,6 @@ fun PostContentCommentScreen(
                                     }}
 
 
-
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -588,8 +591,12 @@ fun PostContentCommentScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     // 댓글 작성자 프로필 사진
-                                    Image(
-                                        painter = painterResource(id = R.drawable.ic_user),
+                                    GlideImage(
+                                        imageModel =
+                                        sharedPreferences.getString(
+                                            profileImage,
+                                            null
+                                        ) ?: R.drawable.ic_default_profile,
                                         contentDescription = "",
                                         modifier = Modifier
                                             .size(30.dp)
@@ -629,7 +636,6 @@ fun PostContentCommentScreen(
                                     )
                                     // 댓글 작성 아이콘, 댓글 입력중이면  (변경 필요)
                                     Icon(
-
                                         modifier = Modifier
                                             .bounceClick {
                                                 if (textFieldComment.value.isNotEmpty()) {
@@ -704,9 +710,8 @@ fun PostContentCommentScreen(
                                                             }
                                                         })
                                                 }
+                                                keyboardController?.hide()
                                                 textFieldComment.value = ""
-
-
                                             }
                                             .alpha(
                                                 if (textFieldComment.value.isNotEmpty()) 1f
@@ -751,7 +756,7 @@ fun BlockCommentItem(
                 if (comment.parentId!=null) Spacer(modifier = Modifier.size(18.dp))
                 // 댓글 작성자 프로필 사진
                 GlideImage(
-                    imageModel = R.drawable.ic_default_profile,
+                    imageModel = R.drawable.ic_block_profile,
                     contentDescription = "",
                     modifier = Modifier
                         .size(30.dp)
@@ -792,7 +797,6 @@ fun LazyItemScope.CommentItem(
             Modifier
                 .fillMaxWidth()
                 .background(Color.White)
-                .animateItemPlacement()
         ) {
             Box()
             {

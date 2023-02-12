@@ -1,8 +1,12 @@
 package com.example.modugarden.main.content
 
+import android.app.Activity
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -14,11 +18,13 @@ import com.example.modugarden.viewmodel.CommentViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 
 class PostContentActivity: ComponentActivity() {
+    var keyboardManager : InputMethodManager?=null
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val extras = intent.extras
+            var keyboardManager =getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager?
             if(extras != null) {
                 val board_id = extras.getInt("board_id",0)
                 val run = extras.getBoolean("run",true)
@@ -28,6 +34,7 @@ class PostContentActivity: ComponentActivity() {
 
         }
     }
+
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

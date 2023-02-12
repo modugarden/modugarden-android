@@ -93,8 +93,8 @@ fun FollowingScreen(
     navController: NavHostController,
     navFollowController: NavHostController,
     userViewModel: UserViewModel,
-    feedLauncher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
-   feedLauncher2: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>
+    postLauncher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
+    curationLauncher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>
 ) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -115,7 +115,6 @@ fun FollowingScreen(
 
     postList.addAll(posts)
     curationList.addAll(curations)
-
 
     ModalBottomSheetLayout(
         sheetElevation = 0.dp,
@@ -437,7 +436,7 @@ fun FollowingScreen(
                             modalImage = modalContentImage,
                             modalId = modalContentId,
                             userViewModel = userViewModel,
-                            feedLauncher = feedLauncher)
+                            feedLauncher = postLauncher)
                     }
 
                     //큐레이션
@@ -455,7 +454,7 @@ fun FollowingScreen(
                                modalImage = modalContentImage,
                                modalContentId = modalContentId,
                                userViewModel = userViewModel,
-                               feedLauncher = feedLauncher2
+                               feedLauncher = curationLauncher
                            )
                        }
 

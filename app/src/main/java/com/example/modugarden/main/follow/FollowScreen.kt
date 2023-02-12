@@ -9,12 +9,9 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -67,13 +63,13 @@ fun FollowMainScreen(
     val curationres
             = remember { mutableStateOf(GetFollowFeedCuration(null)) }
     refreshViewModel.getCurations(curationres,context)
-    val feedLauncher
+    val postLauncher
     = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()) {
         isLoading.value=true
         refreshViewModel.getPosts(postres,context)
     }
-    val feedLauncher2
+    val curationLauncher
     = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()) {
         isLoading.value=true
@@ -112,8 +108,8 @@ fun FollowMainScreen(
                     navController = navController,
                     navFollowController = navFollowController,
                     userViewModel = userViewModel,
-                    feedLauncher = feedLauncher,
-                    feedLauncher2 = feedLauncher2
+                    postLauncher = postLauncher,
+                    curationLauncher = curationLauncher
                 )
             } else if(mode.value==2) {
                 Log.i("시점","else")

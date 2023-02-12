@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -51,6 +53,7 @@ import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.DeleteCurationResponse
 import com.example.modugarden.api.dto.GetCurationResponse
 import com.example.modugarden.api.dto.PostDTO
+import com.example.modugarden.data.Report
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.RefreshViewModel
@@ -62,15 +65,14 @@ import retrofit2.Response
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
-@SuppressLint("CommitPrefEdits")
+@SuppressLint("CommitPrefEdits", "UnrememberedMutableState")
 @Composable
 fun CurationContentScreen(curation_id :Int) {
     val focusManager = LocalFocusManager.current
     //액티비티 종료할 때 사용할 변수
-    val activity = (LocalContext.current as? Activity)
+    val context = LocalContext.current
     val isButtonClickedLike = remember { mutableStateOf(false) }
     val isButtonClickedSave = remember { mutableStateOf(false) }
-    val context = LocalContext.current.applicationContext
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var responseBody by remember { mutableStateOf(GetCurationResponse()) }
@@ -79,7 +81,7 @@ fun CurationContentScreen(curation_id :Int) {
     val userId
     = ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
     val isLoading = remember { mutableStateOf(true) }
-
+    val modalType = remember{ mutableStateOf(modalLocationType) }// 신고 or 위치 모달 타입 정하는 변수
     RetrofitBuilder.curationAPI.getCuraionContent(curation_id)
         .enqueue(object : Callback<GetCurationResponse> {
             override fun onResponse(
@@ -111,6 +113,92 @@ fun CurationContentScreen(curation_id :Int) {
         sheetBackgroundColor = Color.Transparent,
         sheetState = bottomSheetState,
         sheetContent = {
+            if (modalType.value == modalReportType) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    shape = RoundedCornerShape(15.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 18.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // 회색 선
+                        Box(
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(5.dp)
+                                .alpha(0.4f)
+                                .background(moduGray_normal, RoundedCornerShape(30.dp))
+
+                        )
+                        Spacer(modifier = Modifier.size(30.dp))
+
+                        Column(
+                            modifier = Modifier
+                                .padding(horizontal = 18.dp)
+                        ) {
+                            Text(text = "큐레이션 신고", style = moduBold, fontSize = 20.sp)
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 18.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                GlideImage(
+                                    imageModel =
+                                    curation!!.user_profile_image ?: R.drawable.ic_default_profile,
+                                    contentDescription = "",
+                                    modifier = Modifier
+                                        .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
+                                        .size(25.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                                Spacer(modifier = Modifier.size(18.dp))
+                                Text(text = curation.title, style = moduBold, fontSize = 14.sp,maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            }
+                        }
+
+                        // 구분선
+                        Divider(
+                            color = moduGray_light, modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                        )
+
+                        // 신고 카테고리 리스트
+                        LazyColumn(
+                            modifier = Modifier
+                                .padding(horizontal = 18.dp)
+                        ) {
+                            itemsIndexed(
+                                listOf(
+                                    Report.ABUSE,
+                                    Report.TERROR,
+                                    Report.SEXUAL,
+                                    Report.FISHING,
+                                    Report.INAPPROPRIATE
+                                )
+                            ) { index, item ->
+                                ReportCategoryItem(
+                                    report = item,
+                                    mutableStateOf(curation_id),
+                                    modalType, scope, bottomSheetState
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.size(18.dp))
+                    }
+
+
+                }
+            }
+            else {
                 Card(
                     modifier = Modifier
                         .padding(10.dp),
@@ -143,7 +231,8 @@ fun CurationContentScreen(curation_id :Int) {
                                     .padding(vertical = 30.dp)
                             ) {
                                 GlideImage(
-                                    imageModel = curation!!.user_profile_image ?: R.drawable.ic_default_profile,
+                                    imageModel = curation!!.user_profile_image
+                                        ?: R.drawable.ic_default_profile,
                                     contentDescription = "",
                                     modifier = Modifier
                                         .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
@@ -207,7 +296,7 @@ fun CurationContentScreen(curation_id :Int) {
                                                                 "큐레이션 삭제",
                                                                 "성공"
                                                             )
-                                                            activity?.finish()
+                                                            (context as Activity).finish()
                                                         } else Log.i("큐레이션 삭제", "실패")
                                                     }
 
@@ -238,6 +327,7 @@ fun CurationContentScreen(curation_id :Int) {
                         }
                     }
                 }
+            }
 
 
 
@@ -252,12 +342,23 @@ fun CurationContentScreen(curation_id :Int) {
             Row(
                 modifier = Modifier
                     .padding(18.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .background(Color.White)
+                ,
                 verticalAlignment = Alignment.CenterVertically
             )
             {
-                Text(text = curation!!.title, style = moduBold, fontSize = 16.sp,
-                maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                // 뒤로 가기 버튼
+                Icon(
+                    modifier = Modifier
+                        .bounceClick { (context as Activity).finish()},
+                    painter = painterResource(id = R.drawable.ic_arrow_left_bold),
+                    contentDescription = "뒤로가기",
+                    tint = moduBlack
+                )
+                Text(
+                    text = curation!!.title, style = moduBold, fontSize = 16.sp,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f).padding(start = 10.dp))
 
                 CurationHeartCard(
                     curationId = curation_id,
@@ -266,29 +367,30 @@ fun CurationContentScreen(curation_id :Int) {
                 )
 
                 // 스크랩
-                if(curation.user_id==userId) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_delete_24),
-                        contentDescription = "삭제",
-                        tint = moduBlack,
-                        modifier = Modifier
-                            .padding(end = 18.dp)
-                            .bounceClick {
-                                scope.launch {
-                                    bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                                }
-                            })
-                }
-                else CurationSaveCard(
+                CurationSaveCard(
                     curationId = curation_id,
                     modifier =  Modifier.padding(end = 18.dp),
                     saveState = isButtonClickedSave)
 
-                Icon(painter = painterResource(id = R.drawable.ic_xmark),
+                // 메뉴 버튼
+                Icon(
+                    modifier = Modifier
+                        .bounceClick {
+                            //버튼 클릭하면 바텀 모달 상태 변수 바뀜
+                            if(curation.user_id==userId) modalType.value = modalDeletePost
+                            else modalType.value = modalReportType
+                            scope.launch {
+                                bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+                            }},
+                    painter = painterResource(id = R.drawable.ic_dot3_vertical),
+                    contentDescription = "뒤로가기",
+                    tint = moduBlack
+                )
+                /*Icon(painter = painterResource(id = R.drawable.ic_xmark),
                     contentDescription = "창 닫기",
                     modifier = Modifier.bounceClick {
                         activity?.finish()
-                    })
+                    })*/
             }
             // 구분선
             Divider(
@@ -306,7 +408,7 @@ fun CurationContentScreen(curation_id :Int) {
                                     ViewGroup.LayoutParams.MATCH_PARENT,
                                     ViewGroup.LayoutParams.MATCH_PARENT)
 
-                                    webViewClient = object : WebViewClient(){
+                                webViewClient = object : WebViewClient(){
 
                                     /*override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                                         super.onPageStarted(view, url, favicon)
@@ -323,10 +425,14 @@ fun CurationContentScreen(curation_id :Int) {
                 )
                 if (isLoading.value) ShowProgressBarV2()
             }
+        }
+
+
+
 
         }
     }
-}
+
 }
 
 //@Preview

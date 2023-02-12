@@ -46,6 +46,7 @@ import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.clientNickname
 import com.example.modugarden.ApplicationClass.Companion.googleLogin
 import com.example.modugarden.ApplicationClass.Companion.normalLogin
+import com.example.modugarden.ApplicationClass.Companion.profileImage
 import com.example.modugarden.ApplicationClass.Companion.refreshToken
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.api.AuthCallBack
@@ -138,6 +139,7 @@ fun MainLoginScreen(navController: NavController) {
                                                         editor.putString(accessToken, res1.result.accessToken)
                                                         editor.putString(refreshToken, res1.result.refreshToken)
                                                         editor.putInt(clientId, res1.result.userId)
+                                                        editor.putString(profileImage,res1.result.profileImage)
                                                         editor.putString(clientNickname, res1.result.nickname)
                                                         editor.apply()
                                                         fcmCheckAPI.fcmCheckAPI().enqueue(object: Callback<FcmCheckDTO> {
