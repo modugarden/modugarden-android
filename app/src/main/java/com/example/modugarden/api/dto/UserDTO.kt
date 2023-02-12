@@ -14,6 +14,8 @@ data class FindByNicknameRes(
     val last: Boolean ?= null
 )
 data class FindByNicknameResContent(
+    val block: Boolean,
+    val blocked: Boolean,
     val categories: List<String>,
     val follow: Boolean,
     val nickname: String,
