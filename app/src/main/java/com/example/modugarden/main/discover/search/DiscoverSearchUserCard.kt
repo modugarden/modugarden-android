@@ -45,6 +45,7 @@ fun DiscoverSearchUserCard(
 ) {
 
     val followState = remember{ mutableStateOf(userData.follow) }
+    val blockState = remember { mutableStateOf(userData.block) }
 
     Row(
         modifier = Modifier
@@ -124,8 +125,8 @@ fun DiscoverSearchUserCard(
             id = userData.userId,
             modifier = Modifier
                 .align(Alignment.CenterVertically)
-                .width(60.dp)
-                .height(32.dp),
+                .wrapContentHeight()
+                .wrapContentWidth(),
             snackBarAction = {
                 coroutineScope.launch {
                     if(followState.value) snackbarHostState.showSnackbar("${userData.nickname} 님을 팔로우 했어요.")
@@ -133,10 +134,16 @@ fun DiscoverSearchUserCard(
 
                 }
             },
+            blockState = blockState,
             followState = followState,
             contentModifier = Modifier
                 .align(Alignment.CenterVertically)
-                .padding(vertical = 6.dp, horizontal = 10.dp)
+                .padding(vertical = 6.dp, horizontal = 10.dp),
+            unBlockSnackBarAction = {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar("${userData.nickname} 님을 차단해제했어요.")
+                }
+            }
         )
 
 //        //팔로우 버튼
