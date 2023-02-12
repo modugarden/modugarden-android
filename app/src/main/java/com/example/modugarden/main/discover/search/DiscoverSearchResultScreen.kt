@@ -108,51 +108,6 @@ fun DiscoverSearchResultScreen(
 
             }
 
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .wrapContentHeight()
-//                    .padding(start = 18.dp, top = 40.dp, end = 18.dp, bottom = 15.dp),
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Text(
-//                    text = "탐색",
-//                    color = moduBlack,
-//                    fontSize = 22.sp,
-//                    fontWeight = FontWeight(700)
-//                )
-//
-//                Spacer(modifier = Modifier.weight(1f))
-//
-//                //뒤로가기 버튼으로 누르면 stack 다 날라가고 discover main 스크린으로 이동하
-//                Image(
-//                    painter = painterResource(id = R.drawable.ic_cross_line_bold_black),
-//                    contentDescription = null,
-//                    modifier = Modifier
-//                        .bounceClick {
-//                            navController.popBackStack(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERMAIN.routeName, inclusive = false)
-//                        }
-//                )
-//            }
-//
-//            Row(
-//                modifier = Modifier
-//                    .wrapContentHeight()
-//                    .fillMaxWidth()
-//                    .padding(start = 18.dp, end = 18.dp),
-//                verticalAlignment = Alignment.CenterVertically
-//            ){
-//                //검색창
-//                SearchTextField(
-//                    searchText =  searchText,
-//                    isTextFieldSearchFocused = isTextFieldSearchFocused,
-//                    focusManager = focusManager,
-//                    db = db,
-//                    navController = navController
-//                )
-//
-//            }
-
             DiscoverSearchResult(
                 searchedText,
                 coroutineScope ,
