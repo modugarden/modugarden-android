@@ -1301,10 +1301,11 @@ fun FollowCard(
                                             sendNotification(
                                                 0,
                                                 sharedPreferences.getInt(clientId, 0),
+                                                sharedPreferences.getString(clientNickname,""),
                                                 sharedPreferences.getString(profileImage, ""),
                                                 "팔로우 알림",
                                                 token,
-                                                "${sharedPreferences.getString(clientNickname,"")}님이 회원님을 팔로우했어요."
+                                                "님이 회원님을 팔로우했어요."
                                             )
                                         }
                                     }
@@ -1525,28 +1526,25 @@ fun OneButtonSmallDialog(
 fun sendNotification(
     notificationType: Int,
     targetId: Int,
+    targetName: String?,
     targetImage: String?,
     titleMessage: String,
     fcmToken: String?,
     message: String
 ) {
     val jsonBody = JsonObject()
-    val notificationBody = JsonObject()
     val dataBody = JsonObject()
     dataBody.apply {
+        addProperty("title", titleMessage)
+        addProperty("body", targetName + message)
         addProperty("image", targetImage)
-    }
-    notificationBody.apply {
-        addProperty(
-            "title",
-            "$notificationType,$targetId,${sharedPreferences.getString(clientNickname,"")},$titleMessage"
-        )
-        addProperty("body", message)
+        addProperty("type", notificationType.toString())
+        addProperty("name", targetName)
+        addProperty("address", targetId.toString())
     }
     jsonBody.apply {
         addProperty("to", fcmToken)
         addProperty("priority", "high")
-        add("notification", notificationBody)
         add("data", dataBody)
     }
     CoroutineScope(Dispatchers.IO).launch {

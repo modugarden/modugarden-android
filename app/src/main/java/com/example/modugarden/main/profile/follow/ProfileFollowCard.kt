@@ -38,8 +38,7 @@ fun ProfileCard(
     ) {
         GlideImage(
             imageModel =
-            if (user.profileImage==null)R.drawable.ic_default_profile
-            else user.profileImage,
+            user.profileImage ?: R.drawable.ic_default_profile,
             contentDescription = null,
             modifier = Modifier
                 .size(50.dp)
@@ -79,7 +78,8 @@ fun ProfileCard(
             followState = followState,
             contentModifier = Modifier
                 .padding(vertical = 5.dp, horizontal = 10.dp)
-                .align(Alignment.CenterVertically)
+                .align(Alignment.CenterVertically),
+            fcmTokenState = remember { mutableStateOf(user.fcmTokens) }
         )
     }
 }
