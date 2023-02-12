@@ -44,6 +44,7 @@ import com.example.modugarden.ApplicationClass.Companion.autoLoginPw
 import com.example.modugarden.ApplicationClass.Companion.autoLoginSetting
 import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.clientNickname
+import com.example.modugarden.ApplicationClass.Companion.fcmToken
 import com.example.modugarden.ApplicationClass.Companion.googleLogin
 import com.example.modugarden.ApplicationClass.Companion.normalLogin
 import com.example.modugarden.ApplicationClass.Companion.profileImage
@@ -288,7 +289,7 @@ fun MainLoginScreen(navController: NavController) {
                                                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                                                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                             )
-                                            val fcmToken = sharedPreferences.getString("fcmToken", "")
+                                            val fcmToken = sharedPreferences.getString(fcmToken, "")
                                             Log.d("apires", "fcmToken :: $fcmToken")
                                             val jsonDataFcmToken = JsonObject()
                                             jsonDataFcmToken.apply {
@@ -523,7 +524,7 @@ fun MainLoginScreen(navController: NavController) {
             val jsonData = JsonObject().apply {
                 addProperty("email", user?.email)
             }
-            val fcmToken = sharedPreferences.getString("fcmToken", "")
+            val fcmToken = sharedPreferences.getString(fcmToken, "")
             Log.d("apires", "fcmToken :: $fcmToken")
             val jsonDataFcmToken = JsonObject()
             jsonDataFcmToken.apply {
