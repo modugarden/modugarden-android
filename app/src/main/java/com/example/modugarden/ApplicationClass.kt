@@ -24,20 +24,25 @@ class ApplicationClass : Application() {
 
         val accessToken = "Access Token"
         val refreshToken = "Refresh Token"
+        val fcmToken = "fcmToken"
+
         val clientId = "Client ID"
         val profileImage = "Profile Image"
         val clientNickname = "Client Nickname"
+
         val commentNotification = "Comment Notification Setting"
         val commentChildNotification = "Comment Child Notification Setting"
         val followNotification = "Follow Notification Setting"
         val serviceNotification = "Service Notification Setting"
         val marketingNotification = "Marketing Notification Setting"
+
         val autoLoginSetting = "Auto Login Setting"
         val autoLoginId = "Auto Login ID"
         val autoLoginPw = "Auto Login Password"
         val autoLoginOption = "Auto Login Option"
         val normalLogin = "Option : Normal"
         val googleLogin = "Option : Google"
+
         val refresh = "refresh"
 
         lateinit var retrofit: Retrofit

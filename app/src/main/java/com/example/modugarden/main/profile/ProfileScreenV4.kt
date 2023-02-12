@@ -102,6 +102,7 @@ fun ProfileScreenV4(
     val reportDialogState = remember { mutableStateOf(false) }
     val blockState = remember { mutableStateOf(false) }
     val blockedState = remember { mutableStateOf(false) }
+    val fcmTokenState = remember { mutableStateOf<List<String>>(listOf())}
 
     val postList = remember {
         mutableStateOf<List<PostDTO.GetUserPostResponseContent>?>(
@@ -159,6 +160,7 @@ fun ProfileScreenV4(
                 followState.value = response.body()!!.result.follow
                 blockState.value = response.body()!!.result.block
                 blockedState.value = response.body()!!.result.blocked
+                fcmTokenState.value = response.body()!!.result.fcmTokens
                 loadingState.value = false
             }
         })
@@ -500,7 +502,8 @@ fun ProfileScreenV4(
                                         scope.launch {
                                             scaffoldState.snackbarHostState.showSnackbar("${data.value.nickname} 님을 차단해제했어요.")
                                         }
-                                    }
+                                    },
+                                    fcmTokenState = fcmTokenState
                                 )
                             }
 
