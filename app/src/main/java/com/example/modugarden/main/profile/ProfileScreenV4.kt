@@ -3,6 +3,7 @@ package com.example.modugarden.main.profile
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -97,14 +98,38 @@ fun ProfileScreenV4(
     val refreshViewModel = RefreshViewModel()
     val isRefreshing by refreshViewModel.isRefreshing.collectAsState()
     val blockDialogState = remember { mutableStateOf(false) }
+    val alreadyBlockDialogState = remember { mutableStateOf(false) }
     val unBlockDialogState = remember { mutableStateOf(false) }
     val reportDialogState = remember { mutableStateOf(false) }
     val blockState = remember { mutableStateOf(false) }
     val blockedState = remember { mutableStateOf(false) }
 
+    val postList = remember {
+        mutableStateOf<List<PostDTO.GetUserPostResponseContent>?>(
+            listOf()
+        )
+    }
+
+    val curationList = remember {
+        mutableStateOf<List<GetUserCurationsResponseContent>?>(
+            listOf()
+        )
+    }
+
+    if(alreadyBlockDialogState.value)
+        OneButtonSmallDialog(
+            text = "이미 차단한 유저예요.",
+            textColor = moduBlack,
+            backgroundColor = Color.White,
+            buttonText = "확인",
+            buttonTextColor = Color.White,
+            buttonColor = moduPoint,
+            dialogState = alreadyBlockDialogState
+        )
+
     if(blockDialogState.value)
         SmallDialog(
-            text = "${data.value.nickname}님을 차단하시겠습니까?",
+            text = "${data.value.nickname}님을\n차단하시겠습니까?",
             textColor = moduBlack,
             backgroundColor = Color.White,
             positiveButtonText = "차단",
@@ -124,7 +149,7 @@ fun ProfileScreenV4(
 
     if(reportDialogState.value)
         SmallDialog(
-            text = "${data.value.nickname}님을 신고하시겠습니까?",
+            text = "${data.value.nickname}님을\n신고하시겠습니까?",
             textColor = moduBlack,
             backgroundColor = Color.White,
             positiveButtonText = "신고",
@@ -155,6 +180,26 @@ fun ProfileScreenV4(
                     loadingState.value = false
                 }
             })
+    }
+
+    val postLauncher = rememberLauncherForActivityResult(contract =
+    ActivityResultContracts.StartIntentSenderForResult()) {
+        loadingState.value = true
+        CoroutineScope(Dispatchers.IO).launch {
+            val postResponse = RetrofitBuilder.postAPI.getUserPost(userId).execute()
+            postList.value = postResponse.body()?.content
+            loadingState.value = false
+        }
+    }
+
+    val curationLauncher = rememberLauncherForActivityResult(contract =
+    ActivityResultContracts.StartIntentSenderForResult()) {
+        loadingState.value = true
+        CoroutineScope(Dispatchers.IO).launch {
+            val curationResponse = RetrofitBuilder.curationAPI.getUserCuration(userId).execute()
+            curationList.value = curationResponse.body()?.content
+            loadingState.value = false
+        }
     }
 
     RetrofitBuilder.userAPI.readUserInfo(userId)
@@ -189,7 +234,10 @@ fun ProfileScreenV4(
                 trailing = true,
                 modifier = Modifier.bounceClick {
                     scope.launch {
-                        blockDialogState.value = true
+                        if(blockState.value)
+                            alreadyBlockDialogState.value = true
+                        else
+                            blockDialogState.value = true
                         bottomSheetState.hide()
                     }
                 })
@@ -346,7 +394,7 @@ fun ProfileScreenV4(
                                 ) {
                                     Column {
                                         Text(
-                                            text = data.value.postCount.toString(),
+                                            text = ((postList.value?.size ?: 0) + (curationList.value?.size ?: 0)).toString(),
                                             style = TextStyle(
                                                 color = moduBlack,
                                                 fontWeight = FontWeight.Bold,
@@ -457,12 +505,6 @@ fun ProfileScreenV4(
                                 )
                             }
 
-                            val postList = remember {
-                                mutableStateOf<List<PostDTO.GetUserPostResponseContent>?>(
-                                    listOf()
-                                )
-                            }
-
                             RetrofitBuilder.postAPI.getUserPost(userId)
                                 .enqueue(object :
                                     AuthCallBack<PostDTO.GetUserPostResponse>(context, "성공!") {
@@ -475,12 +517,6 @@ fun ProfileScreenV4(
                                             postList.value = response.body()?.content
                                     }
                                 })
-
-                            val curationList = remember {
-                                mutableStateOf<List<GetUserCurationsResponseContent>?>(
-                                    listOf()
-                                )
-                            }
 
                             if (data.value.postCount > 0) {
                                 RetrofitBuilder.curationAPI.getUserCuration(userId)
@@ -570,7 +606,7 @@ fun ProfileScreenV4(
                                         0 -> {
                                             if (blockedState.value) {
                                                 NoContentScreenV4(loadingState = loadingState, false)
-                                            } else if (postList.value?.isNotEmpty() == true) {
+                                            } else if (postList.value != null && postList.value!!.isNotEmpty()) {
                                                 LazyVerticalGrid(
                                                     columns = GridCells.Fixed(2),
                                                     verticalArrangement = Arrangement.spacedBy(18.dp),
@@ -579,28 +615,41 @@ fun ProfileScreenV4(
                                                         .fillMaxSize(),
                                                     contentPadding = PaddingValues(18.dp)
                                                 ) {
-                                                    items(postList.value!!) { postCard ->
+                                                        items(postList.value ?: listOf()) { postCard ->
                                                         // 이미지가 들어간 버튼을 넣어야 함
-                                                        Box(modifier = Modifier.bounceClick {
-                                                            context.startActivity(
-                                                                Intent(
-                                                                    context,
-                                                                    PostContentActivity::class.java
-                                                                )
-                                                                    .putExtra(
-                                                                        "board_id",
-                                                                        postCard.id
-                                                                    )
-                                                                    .putExtra("run", true)
+                                                        Box(modifier = Modifier
+                                                            .bounceClick {
+                                                                val intent = Intent(context, PostContentActivity::class.java)
+                                                                val bundle = Bundle()
+
+                                                                bundle.putInt("board_id", postCard.id)
+                                                                bundle.putBoolean("run", true)
+
+                                                                intent.putExtras(bundle)
+
+                                                                val pendIntent: PendingIntent
+                                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                                                    pendIntent = PendingIntent
+                                                                        .getActivity(
+                                                                            context, 0,
+                                                                            intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent . FLAG_MUTABLE
+                                                                        )
+
+                                                                } else {
+                                                                    pendIntent = PendingIntent
+                                                                        .getActivity(
+                                                                            context, 0,
+                                                                            intent, PendingIntent.FLAG_UPDATE_CURRENT
+                                                                        )
+                                                                }
+                                                                postLauncher.launch(
+                                                                    IntentSenderRequest
+                                                                        .Builder(pendIntent)
+                                                                        .build()
                                                             )
                                                         }) {
                                                             GlideImage(
-                                                                imageModel =
-                                                                if (postCard.id == 0) {
-                                                                    R.drawable.plus
-                                                                } else {
-                                                                    postCard.image
-                                                                },
+                                                                imageModel = postCard.image,
                                                                 contentDescription = null,
                                                                 modifier = Modifier
                                                                     .fillMaxWidth()
@@ -628,44 +677,71 @@ fun ProfileScreenV4(
                                                         }
                                                     }
                                                 }
-                                            } else if (userId == myId) {
-                                                NoContentScreenV4(loadingState, true)
+                                            } else {
+                                                NoContentScreenV4(loadingState, userId == myId)
                                             }
                                         }
                                         1 -> {
                                             if (blockedState.value) {
                                                 NoContentScreenV4(loadingState = loadingState, false)
-                                            } else if (curationList.value?.isNotEmpty() == true) {
+                                            } else if (curationList.value != null && curationList.value!!.isNotEmpty()) {
                                                 LazyColumn(
                                                     modifier = Modifier
                                                         .fillMaxSize(),
                                                     verticalArrangement = Arrangement.spacedBy(15.dp),
                                                     contentPadding = PaddingValues(18.dp)
                                                 ) {
-                                                    items(curationList.value!!) { curationCard ->
+                                                    items(curationList.value ?: listOf()) { curationCard ->
                                                         Row(
                                                             modifier = Modifier
                                                                 .height(90.dp)
                                                                 .bounceClick {
-                                                                    context.startActivity(
-                                                                        Intent(
-                                                                            context,
-                                                                            CurationContentActivity::class.java
-                                                                        )
-                                                                            .putExtra(
-                                                                                "curation_id",
-                                                                                curationCard.id
+                                                                    val intent = Intent(
+                                                                        context,
+                                                                        CurationContentActivity::class.java
+                                                                    )
+                                                                    val bundle = Bundle()
+
+                                                                    bundle.putInt(
+                                                                        "curation_id",
+                                                                        curationCard.id
+                                                                    )
+
+                                                                    intent.putExtras(bundle)
+
+                                                                    Log.d(
+                                                                        "result-like",
+                                                                        "send : curation_id $curationCard"
+                                                                    )
+                                                                    val pendIntent: PendingIntent
+                                                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                                                        pendIntent = PendingIntent
+                                                                            .getActivity(
+                                                                                context,
+                                                                                0,
+                                                                                intent,
+                                                                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
                                                                             )
-                                                                            .putExtra("run", true)
+
+                                                                    } else {
+                                                                        pendIntent = PendingIntent
+                                                                            .getActivity(
+                                                                                context,
+                                                                                0,
+                                                                                intent,
+                                                                                PendingIntent.FLAG_UPDATE_CURRENT
+                                                                            )
+                                                                    }
+
+                                                                    curationLauncher.launch(
+                                                                        IntentSenderRequest
+                                                                            .Builder(pendIntent)
+                                                                            .build()
                                                                     )
                                                                 }
                                                         ) {
                                                             GlideImage(
-                                                                imageModel = if (curationCard.id == 0) {
-                                                                    R.drawable.plus
-                                                                } else {
-                                                                    curationCard.image
-                                                                },
+                                                                imageModel = curationCard.image,
                                                                 contentDescription = null,
                                                                 modifier = Modifier
                                                                     .size(90.dp)
