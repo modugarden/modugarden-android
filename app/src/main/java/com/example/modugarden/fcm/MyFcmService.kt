@@ -47,14 +47,15 @@ class MyFcmService: FirebaseMessagingService() {
         ).allowMainThreadQueries().build()
         Log.d("MyFcmService", "Notification Title :: ${message.notification?.title}")
         Log.d("MyFcmService", "Notification Body :: ${message.notification?.body}")
+        Log.d("MyFcmService", "Notification ImageUrl :: ${message.notification?.imageUrl}")
         Log.d("MyFcmService", "Notification Data :: ${message.data}")
         val title = message.notification?.title ?: ""
         val body = message.notification?.body ?: ""
-        val data = message.data
+        val image = message.data["image"] ?: ""
         message.notification?.let {
             if(sharedPreferences.getBoolean(it.tag, false))
                 showNotification(it)
-            db.notificationDao().insert(Notification(R.drawable.test_image1, commentNotification, title, body, "", ""))
+                db.notificationDao().insert(Notification(image, Integer.parseInt(title[0].toString()), title.split(",")[2], body, "", title.split(",")[1]))
         }
     }
     private fun showNotification(notification: RemoteMessage.Notification) {
