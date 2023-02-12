@@ -35,8 +35,14 @@ interface UserAPI {
 
     @Multipart
     @PATCH("/users/me/setting-info")
-    fun updateUserProfile(
+    fun updateUserInfo(
         @Part file: MultipartBody.Part?,
+        @Part("updateProfileRequestDto") updateProfileRequestDto: RequestBody
+    ) : Call<UpdateUserSettingInfoRes>
+
+    @Multipart
+    @PATCH("/users/me/setting-profile")
+    fun updateUserProfile(
         @Part("updateProfileRequestDto") updateProfileRequestDto: RequestBody
     ) : Call<UpdateUserSettingInfoRes>
 

@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.ApplicationClass.Companion.clientNickname
+import com.example.modugarden.ApplicationClass.Companion.profileImage
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
@@ -40,6 +41,8 @@ import com.example.modugarden.viewmodel.SettingViewModel
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -76,6 +79,7 @@ fun SettingsProfileScreen(
     val modalType = remember { mutableStateOf(ModalType.ProfileImage) }
     val categoriesState = remember { mutableStateOf(settingViewModel.getCategories()) }
     val imageState = remember { mutableStateOf (settingViewModel.getImage()) }
+    var isImageChanged = false
 
     // 사진 가져오는 런쳐
     val takePhotoFromAlbumLauncher =
@@ -116,12 +120,14 @@ fun SettingsProfileScreen(
                 ModalBottomSheetItem(text = "라이브러리에서 선택", icon = R.drawable.ic_upload_image_mountain, trailing = true, modifier = Modifier.bounceClick {
                     scope.launch {
                         takePhotoFromAlbumLauncher.launch(takePhotoFromAlbumIntent)
+                        isImageChanged = true
                         bottomSheetState.hide()
                     }
                 })
                 ModalBottomSheetItem(text = "기본 이미지로 변경", icon= R.drawable.ic_default_profile, trailing = true, modifier = Modifier.bounceClick {
                     scope.launch {
                         imageState.value = null
+                        isImageChanged = true
                         bottomSheetState.hide()
                     }
                 })
@@ -273,16 +279,6 @@ fun SettingsProfileScreen(
                         // 정보 수정 API
                         // 여기에 이미지 변환해서 올릴 수 있게 해주면 됩니다
 
-                        val file = imageState.value?.let { UriUtil.toFile(context, it) }
-
-                        //api에 사진 데이터는 이 requestFile 넣어주면 되고
-                        val requestFile = file?.let {
-                            MultipartBody.Part.createFormData(
-                                name = "file",
-                                filename = file.name,
-                                body = it.asRequestBody("image/*".toMediaType())
-                            )
-                        }
                         val jsonArray = JsonArray()
                         for(category in categoriesState.value) {
                             jsonArray.add(category)
@@ -296,36 +292,64 @@ fun SettingsProfileScreen(
                         val mediaType = "application/json; charset=utf-8".toMediaType()
                         val jsonBody = jsonData.toString().toRequestBody(mediaType)
 
-                        Log.d("RequestFile", requestFile.toString())
+                        if(isImageChanged) {
+                            val file = imageState.value?.let { UriUtil.toFile(context, it) }
 
-                        RetrofitBuilder.userAPI.updateUserProfile(requestFile, jsonBody)
-                            .enqueue(object : Callback<UpdateUserSettingInfoRes>{
-                                override fun onResponse(
-                                    call: Call<UpdateUserSettingInfoRes>,
-                                    response: Response<UpdateUserSettingInfoRes>
-                                ) {
-                                    Log.d("onResponse",
-                                        response.toString() + "\n" +
-                                    response.body().toString() + "\n" +
-                                    response.errorBody().toString())
-                                    settingViewModel.setSettingInfo(
-                                        nicknameState.value,
-                                        birthState.value,
-                                        emailState.value,
-                                        categoriesState.value,
-                                        imageState.value
-                                    )
-                                    sharedPreferences.edit().putString(clientNickname, nicknameState.value).apply()
-                                }
+                            //api에 사진 데이터는 이 requestFile 넣어주면 되고
+                            val requestFile = file?.let {
+                                MultipartBody.Part.createFormData(
+                                    name = "file",
+                                    filename = file.name,
+                                    body = it.asRequestBody("image/*".toMediaType())
+                                )
+                            }
+                            RetrofitBuilder.userAPI.updateUserInfo(requestFile, jsonBody)
+                                .enqueue(object : Callback<UpdateUserSettingInfoRes>{
+                                    override fun onResponse(
+                                        call: Call<UpdateUserSettingInfoRes>,
+                                        response: Response<UpdateUserSettingInfoRes>
+                                    ) {
+                                        Log.d("onResponse",
+                                            response.toString() + "\n" +
+                                                    response.body().toString() + "\n" +
+                                                    response.errorBody().toString())
+                                        settingViewModel.setSettingInfo(
+                                            nicknameState.value,
+                                            birthState.value,
+                                            emailState.value,
+                                            categoriesState.value,
+                                            imageState.value
+                                        )
+                                        sharedPreferences.edit()
+                                            .putString(profileImage, imageState.value.toString())
+                                            .putString(clientNickname, nicknameState.value)
+                                            .apply()
+                                    }
 
-                                override fun onFailure(
-                                    call: Call<UpdateUserSettingInfoRes>,
-                                    t: Throwable
-                                ) {
-                                    TODO("Not yet implemented")
-                                }
+                                    override fun onFailure(
+                                        call: Call<UpdateUserSettingInfoRes>,
+                                        t: Throwable
+                                    ) {
+                                        TODO("Not yet implemented")
+                                    }
 
-                            })
+                                })
+                        }
+                        else {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                RetrofitBuilder.userAPI.updateUserProfile(jsonBody).execute()
+                                settingViewModel.setSettingInfo(
+                                    nicknameState.value,
+                                    birthState.value,
+                                    emailState.value,
+                                    categoriesState.value,
+                                    imageState.value
+                                )
+                                sharedPreferences.edit()
+                                    .putString(clientNickname, nicknameState.value)
+                                    .apply()
+                            }
+                        }
                         onButtonClicked()
                     },
                     dpScale = 0.dp,
