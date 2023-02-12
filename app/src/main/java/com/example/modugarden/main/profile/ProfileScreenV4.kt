@@ -99,7 +99,6 @@ fun ProfileScreenV4(
     val isRefreshing by refreshViewModel.isRefreshing.collectAsState()
     val blockDialogState = remember { mutableStateOf(false) }
     val alreadyBlockDialogState = remember { mutableStateOf(false) }
-    val unBlockDialogState = remember { mutableStateOf(false) }
     val reportDialogState = remember { mutableStateOf(false) }
     val blockState = remember { mutableStateOf(false) }
     val blockedState = remember { mutableStateOf(false) }
@@ -115,56 +114,6 @@ fun ProfileScreenV4(
             listOf()
         )
     }
-
-    if(alreadyBlockDialogState.value)
-        OneButtonSmallDialog(
-            text = "이미 차단한 유저예요.",
-            textColor = moduBlack,
-            backgroundColor = Color.White,
-            buttonText = "확인",
-            buttonTextColor = Color.White,
-            buttonColor = moduPoint,
-            dialogState = alreadyBlockDialogState
-        )
-
-    if(blockDialogState.value)
-        SmallDialog(
-            text = "${data.value.nickname}님을\n차단하시겠습니까?",
-            textColor = moduBlack,
-            backgroundColor = Color.White,
-            positiveButtonText = "차단",
-            negativeButtonText = "취소",
-            positiveButtonTextColor = moduGray_strong,
-            negativeButtonTextColor = moduGray_normal,
-            positiveButtonColor = moduGray_light,
-            negativeButtonColor = moduBackground,
-            dialogState = blockDialogState
-        ) {
-            CoroutineScope(Dispatchers.IO).launch {
-                val blockResponse = RetrofitBuilder.blockAPI.blockUser(userId).execute()
-                blockState.value = true
-                Log.d("onResponse", blockResponse.toString())
-            }
-        }
-
-    if(reportDialogState.value)
-        SmallDialog(
-            text = "${data.value.nickname}님을\n신고하시겠습니까?",
-            textColor = moduBlack,
-            backgroundColor = Color.White,
-            positiveButtonText = "신고",
-            negativeButtonText = "취소",
-            positiveButtonTextColor = Color.White,
-            negativeButtonTextColor = moduBlack,
-            positiveButtonColor = moduErrorPoint,
-            negativeButtonColor = moduBackground,
-            dialogState = reportDialogState
-        ) {
-            CoroutineScope(Dispatchers.IO).launch {
-                val reportResponse = RetrofitBuilder.reportAPI.reportUser(userId).execute()
-                Log.d("onResponse", reportResponse.toString())
-            }
-        }
 
     val launcher = rememberLauncherForActivityResult(contract =
     ActivityResultContracts.StartIntentSenderForResult()) {
@@ -260,8 +209,58 @@ fun ProfileScreenV4(
                         refreshViewModel.refresh()
                         refreshViewModel.getUserInfo(data, context, loadingState)
                         followState.value = data.value.follow
-                    })
-                {
+                    }) {
+
+                    if(alreadyBlockDialogState.value)
+                        OneButtonSmallDialog(
+                            text = "이미 차단한 유저예요.",
+                            textColor = moduBlack,
+                            backgroundColor = Color.White,
+                            buttonText = "확인",
+                            buttonTextColor = Color.White,
+                            buttonColor = moduPoint,
+                            dialogState = alreadyBlockDialogState
+                        )
+
+                    if(blockDialogState.value)
+                        SmallDialog(
+                            text = "${data.value.nickname}님을\n차단하시겠습니까?",
+                            textColor = moduBlack,
+                            backgroundColor = Color.White,
+                            positiveButtonText = "차단",
+                            negativeButtonText = "취소",
+                            positiveButtonTextColor = moduGray_strong,
+                            negativeButtonTextColor = moduGray_normal,
+                            positiveButtonColor = moduGray_light,
+                            negativeButtonColor = moduBackground,
+                            dialogState = blockDialogState
+                        ) {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val blockResponse = RetrofitBuilder.blockAPI.blockUser(userId).execute()
+                                blockState.value = true
+                                Log.d("onResponse", blockResponse.toString())
+                            }
+                        }
+
+                    if(reportDialogState.value)
+                        SmallDialog(
+                            text = "${data.value.nickname}님을\n신고하시겠습니까?",
+                            textColor = moduBlack,
+                            backgroundColor = Color.White,
+                            positiveButtonText = "신고",
+                            negativeButtonText = "취소",
+                            positiveButtonTextColor = Color.White,
+                            negativeButtonTextColor = moduBlack,
+                            positiveButtonColor = moduErrorPoint,
+                            negativeButtonColor = moduBackground,
+                            dialogState = reportDialogState
+                        ) {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val reportResponse = RetrofitBuilder.reportAPI.reportUser(userId).execute()
+                                Log.d("onResponse", reportResponse.toString())
+                            }
+                        }
+
                     BoxWithConstraints {
                         val screenHeight = maxHeight
                         val scrollState = rememberScrollState()
@@ -811,8 +810,8 @@ fun ProfileScreenV4(
                                                         }
                                                     }
                                                 }
-                                            } else if (userId == myId) {
-                                                NoContentScreenV4(loadingState, true)
+                                            } else {
+                                                NoContentScreenV4(loadingState, userId == myId)
                                             }
                                         }
                                     }
