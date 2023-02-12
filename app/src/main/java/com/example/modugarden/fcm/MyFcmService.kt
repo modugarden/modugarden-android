@@ -61,34 +61,35 @@ class MyFcmService: FirebaseMessagingService() {
         Log.d("MyFcmService", "Notification Body :: ${message.notification?.body}")
         Log.d("MyFcmService", "Notification ImageUrl :: ${message.notification?.imageUrl}")
         Log.d("MyFcmService", "Notification Data :: ${message.data}")
-        val title = message.notification?.title ?: ""
-        val body = message.notification?.body ?: ""
+        val title = message.data["title"] ?: ""
+        val body = message.data["body"] ?: ""
         val image = message.data["image"] ?: ""
-        message.notification?.let {
-            showNotification(it)
-            db.notificationDao().insert(Notification(image, Integer.parseInt(title[0].toString()), title.split(",")[2], body, "", title.split(",")[1]))
+        val type = message.data["type"] ?: ""
+        val name = message.data["name"] ?: ""
+        val address = message.data["address"] ?: ""
+        message.data.let {
+            showNotification(title, body, Integer.parseInt(type))
+            db.notificationDao().insert(Notification(image, Integer.parseInt(type), name, body, "", address))
         }
     }
-    private fun showNotification(notification: RemoteMessage.Notification) {
+    private fun showNotification(title: String, body: String, type: Int) {
         val prefs = sharedPreferences
         val intent = Intent(this, LoginActivity::class.java)
         val pIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         val channelId = prefs.getString("fcm token", "")
 
-        val title = notification.title?.split(',')
+        val title = title
 
         Log.d("MyFcmService", "showNotification :: $title")
 
-        val type = title?.get(0)?.toInt()
-        if(sharedPreferences.getBoolean(notificationList[type!!],true)) {
-            val finalTitle = title[3]
-            Log.d("MyFcmService", "showNotification :: $finalTitle")
+        if(sharedPreferences.getBoolean(notificationList[type],true)) {
+            Log.d("MyFcmService", "showNotification :: $title")
 
             val notificationBuilder = NotificationCompat.Builder(this, channelId ?: "")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setSmallIcon(R.drawable.ic_notification_logo)
-                .setContentTitle(finalTitle)
-                .setContentText(notification.body)
+                .setContentTitle(title)
+                .setContentText(body)
                 .setContentIntent(pIntent)
 
             getSystemService(NotificationManager::class.java).run {
