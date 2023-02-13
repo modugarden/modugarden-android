@@ -70,6 +70,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.ApplicationClass
 import com.example.modugarden.BuildConfig
 import com.example.modugarden.R
@@ -84,6 +85,7 @@ import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
 import com.example.modugarden.ui.theme.FollowCard
 import com.example.modugarden.ui.theme.PostHeartCard
 import com.example.modugarden.ui.theme.PostSaveCard
+import com.example.modugarden.ui.theme.ShowProgressBar
 import com.example.modugarden.ui.theme.ShowProgressBarV2
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
@@ -663,6 +665,16 @@ fun PostContentScreen(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .aspectRatio(1f),
+                                        failure = {
+                                            Text(text = "image request failed.")
+                                        },
+                                        requestOptions = {
+                                            RequestOptions()
+                                                .override(720, 720)
+                                        },
+                                        loading = {
+                                            ShowProgressBar()
+                                        }
                                     )
                             }
                         

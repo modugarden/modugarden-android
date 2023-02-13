@@ -21,7 +21,6 @@ class PostContentActivity: ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val extras = intent.extras
-            var keyboardManager =getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager?
             if(extras != null) {
                 val board_id = extras.getInt("board_id",0)
                 val run = extras.getBoolean("run",true)
@@ -45,8 +44,8 @@ fun PostContentNavScreen(board_id: Int, run: Boolean, fcmTokens: ArrayList<Strin
         navController = navController,
         boardId = board_id,
         commentViewModel = commentViewModel,
-        run =run,
+        run = run,
         userViewModel = userViewModel,
-        fcmToken = fcmTokens)
+        fcmToken = fcmTokens!!)
     Log.i("run/board_id",run.toString()+board_id.toString())
 }
