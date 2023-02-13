@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -39,6 +40,7 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -94,7 +96,8 @@ fun FollowingScreen(
     navFollowController: NavHostController,
     userViewModel: UserViewModel,
     postLauncher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
-    curationLauncher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>
+    curationLauncher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
+    lazyScroll: LazyListState
 ) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -404,7 +407,8 @@ fun FollowingScreen(
                     .background(moduBackground)
             )
             {
-                LazyColumn(state = scrollState) {
+                LazyColumn(
+                    state = lazyScroll) {
 
                     // 상단 로고
                     item {

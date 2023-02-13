@@ -9,9 +9,11 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,14 +36,18 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun FollowScreen(navController: NavHostController, UVforMain:UserViewModel,UVforFollow: UserViewModel= viewModel()){
+fun FollowScreen(navController: NavHostController,
+                 navFollowController:NavHostController,
+                 UVforMain:UserViewModel,
+                 UVforFollow: UserViewModel= viewModel(),
+                 lazyScroll: LazyListState
+){
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        val navFollowController = rememberNavController()
-        NavigationGraphFollow(navController, navFollowController, UVforFollow=UVforFollow)
+        NavigationGraphFollow(navController, navFollowController, UVforFollow=UVforFollow,lazyScroll)
     }
 }
 @SuppressLint("UnrememberedMutableState")
@@ -51,7 +57,8 @@ fun FollowMainScreen(
                     navController: NavHostController,
                      navFollowController: NavHostController,
                     userViewModel: UserViewModel ,
-                     refreshViewModel :RefreshViewModel = viewModel()
+                     refreshViewModel :RefreshViewModel = viewModel(),
+                    lazyScroll:LazyListState
 ) {
     //팔로우 피드 게시물
     val context = LocalContext.current.applicationContext
@@ -109,7 +116,8 @@ fun FollowMainScreen(
                     navFollowController = navFollowController,
                     userViewModel = userViewModel,
                     postLauncher = postLauncher,
-                    curationLauncher = curationLauncher
+                    curationLauncher = curationLauncher,
+                    lazyScroll = lazyScroll
                 )
             } else if(mode.value==2) {
                 Log.i("시점","else")

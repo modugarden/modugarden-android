@@ -8,7 +8,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -23,6 +25,7 @@ import com.example.modugarden.main.profile.follow.ProfileApp
 import com.example.modugarden.main.upload.UploadScreen
 import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
+import kotlinx.coroutines.CoroutineScope
 
 enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val icon: Int) { //main 패키지 루트.
     FOLLOW("FOLLOW", "팔로우", R.drawable.ic_home),
@@ -37,7 +40,10 @@ enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val ico
 @Composable
 fun NavigationGraphBNB(
     navController: NavHostController,
-    userViewModel: UserViewModel = viewModel()
+    navFollowController:NavHostController,
+    userViewModel: UserViewModel = viewModel(),
+    scope: CoroutineScope,
+    lazyScroll:LazyListState
 ) {
 
     val fadeInDuration = 500
@@ -61,7 +67,7 @@ fun NavigationGraphBNB(
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideOutDuration))
             }
         ) {
-            FollowScreen(navController, userViewModel) }
+            FollowScreen(navController, UVforMain = userViewModel, lazyScroll = lazyScroll, navFollowController = navFollowController) }
 
         composable(
             NAV_ROUTE_BNB.DISCOVER.routeName,

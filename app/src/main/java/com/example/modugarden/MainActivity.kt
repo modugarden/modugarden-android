@@ -1,15 +1,22 @@
 package com.example.modugarden
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -17,12 +24,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.route.NAV_ROUTE_BNB
+import com.example.modugarden.route.NAV_ROUTE_FOLLOW
 import com.example.modugarden.route.NavigationGraphBNB
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -33,13 +46,15 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
 }
 
 @Composable
-fun BottomNav(navController: NavController) {
+fun BottomNav(
+    navController: NavController,
+    scope: CoroutineScope,
+    lazyScroll: LazyListState,
+    navFollowController: NavHostController
+) {
     val items = listOf<NAV_ROUTE_BNB>(
         NAV_ROUTE_BNB.FOLLOW,
         NAV_ROUTE_BNB.DISCOVER,
@@ -72,29 +87,46 @@ fun BottomNav(navController: NavController) {
                 alwaysShowLabel = true,
                 onClick = {
                     navController.navigate(item.routeName) {
-                        navController.graph.startDestinationRoute?.let {
-                            popUpTo(it) { saveState = true }
-                        }
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+
+                            /*= currentRoute==item.routeName*/
+                            Log.i("지금",currentRoute.toString())
+                            Log.i("지금2",item.routeName.toString())}
+
                         launchSingleTop = true
                         restoreState = true
+
                     }
+                    if(currentRoute==item.routeName){
+                        scope.launch {
+                            lazyScroll.animateScrollToItem(0)
+                        }
+                        navFollowController.popBackStack(NAV_ROUTE_FOLLOW.USERPROFILE.routeName,true,true)
+                    }
+
                 },
             )
         }
     }
 }
 
+@SuppressLint("UnrememberedMutableState")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainNavScreen() {
     val navController = rememberAnimatedNavController()
+    val scope = rememberCoroutineScope()
+    val lazyScroll = rememberLazyListState()
+    val navFollowController = rememberNavController ()
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
-            bottomBar = { BottomNav(navController = navController) }
+            bottomBar = { BottomNav(navController = navController,scope,lazyScroll,navFollowController) }
         ) {
             Box(modifier = Modifier.padding(it)) {
-                NavigationGraphBNB(navController = navController)
+                NavigationGraphBNB(navController = navController, scope = scope, lazyScroll = lazyScroll, navFollowController = navFollowController)
+
             }
         }
     }
