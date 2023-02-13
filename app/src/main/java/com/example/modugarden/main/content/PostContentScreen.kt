@@ -725,7 +725,14 @@ fun PostContentScreen(
                                 modifier = Modifier
                                     .size(45.dp)
                                     .clip(CircleShape),
-                                contentScale = ContentScale.Crop
+                                contentScale = ContentScale.Crop,
+                                requestOptions = {
+                                    RequestOptions()
+                                        .override(45,45)
+                                },
+                                loading = {
+                                    ShowProgressBar()
+                                }
                             )
                             Spacer(modifier = Modifier.width(18.dp))
                             Column(
