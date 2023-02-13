@@ -121,7 +121,7 @@ fun PostContentCommentScreen(
     commentViewModel: CommentViewModel = viewModel(),
     userViewModel: UserViewModel,
     boardId: Int,
-    fcmToken: ArrayList<String>,
+    fcmToken: ArrayList<String>?,
     run: Boolean,
 ) {
 
@@ -725,7 +725,7 @@ fun PostContentCommentScreen(
                                                                                 commentList
                                                                             )
                                                                         }
-                                                                        fcmToken.forEach { token ->
+                                                                        fcmToken?.forEach { token ->
                                                                             Log.d(
                                                                                 "onTokenResponse",
                                                                                 "sendNotification : $token"

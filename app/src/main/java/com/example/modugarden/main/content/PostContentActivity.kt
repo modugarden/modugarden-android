@@ -25,7 +25,7 @@ class PostContentActivity: ComponentActivity() {
             if(extras != null) {
                 val board_id = extras.getInt("board_id",0)
                 val run = extras.getBoolean("run",true)
-                val fcmTokens = extras.getStringArrayList("fcm_tokens")!!
+                val fcmTokens = extras.getStringArrayList("fcm_tokens")
                 PostContentNavScreen(board_id,run,fcmTokens)
             }
 
@@ -36,7 +36,7 @@ class PostContentActivity: ComponentActivity() {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun PostContentNavScreen(board_id: Int, run: Boolean, fcmTokens: ArrayList<String>) {
+fun PostContentNavScreen(board_id: Int, run: Boolean, fcmTokens: ArrayList<String>?) {
     val navController = rememberNavController()
     val commentViewModel :CommentViewModel = viewModel()
     val userViewModel:UserViewModel = viewModel()

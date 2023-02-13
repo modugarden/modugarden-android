@@ -5,12 +5,15 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Card
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -28,7 +31,8 @@ import com.skydoves.landscapist.glide.GlideImage
 fun NotificationCommunicationCard(
     viewModel: UserViewModel,
     navController: NavHostController,
-    data: Notification
+    data: Notification,
+    onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -66,7 +70,7 @@ fun NotificationCommunicationCard(
         Spacer(modifier = Modifier.width(18.dp))
         Column(
             modifier = Modifier
-                .align(Alignment.CenterVertically)
+                .align(CenterVertically)
         ) {
             Row() {
                 Text(
@@ -100,6 +104,18 @@ fun NotificationCommunicationCard(
                 )
             }
         }
+        Spacer(modifier = Modifier.weight(1f))
+        Icon(
+            painter = painterResource(id = R.drawable.ic_cross_line),
+            contentDescription = null,
+            modifier = Modifier
+                .align(CenterVertically)
+                .size(20.dp)
+                .bounceClick {
+                    onClick()
+                },
+            tint = moduGray_normal
+        )
 
     }
 }

@@ -29,6 +29,9 @@ interface NotificationDao {
 
     @Delete
     fun delete(notification: Notification)
+
+    @Delete
+    fun deleteAll(notifications: List<Notification>)
 }
 
 @Database(entities = [Notification::class], version = 1)
