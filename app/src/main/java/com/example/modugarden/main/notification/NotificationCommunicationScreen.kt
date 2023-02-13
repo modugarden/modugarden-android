@@ -1,19 +1,21 @@
 package com.example.modugarden.main.notification
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.room.Room
 
 import com.example.modugarden.R
 import com.example.modugarden.data.NotificationDatabase
+import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.ui.theme.TopBar
 import com.example.modugarden.viewmodel.UserViewModel
 
@@ -29,9 +31,7 @@ fun NotificationCommunicationScreen(navController: NavHostController, viewModel:
         applicationContext, NotificationDatabase::class.java, "notifcation database"
     ).allowMainThreadQueries().build()
 
-    val mContext = LocalContext.current
-
-    val notificationData = db.notificationDao().getAll()
+    val notificationData = remember { mutableStateOf(db.notificationDao().getAll()) }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -41,16 +41,33 @@ fun NotificationCommunicationScreen(navController: NavHostController, viewModel:
                 title = "알림",
                 main = true,
                 icon1 = R.drawable.ic_settings,
+                icon2 = R.drawable.baseline_delete_24,
                 onClick1 = {
-                    Toast.makeText(mContext, "알림 설정으로 들어가요", Toast.LENGTH_SHORT).show()
+                    navController.navigate(NotificationScreen.Setting.name)
+                },
+                onClick2 = {
+                    db.notificationDao().deleteAll(notificationData.value)
+                    navController.navigate(NotificationScreen.Center.name) {
+                        popUpTo(NotificationScreen.Center.name) {
+                            inclusive = true
+                        }
+                    }
                 },
                 bottomLine = false
             )
-            LazyColumn {
-                itemsIndexed(
-                    items = notificationData,
-                ) { index, item ->
-                    NotificationCommunicationCard(viewModel, navController, item, index == notificationData.size - 1)
+            LazyColumn (
+                contentPadding = PaddingValues(18.dp),
+                verticalArrangement = Arrangement.spacedBy(18.dp)
+            ){
+                itemsIndexed(notificationData.value.reversed()) { index, item ->
+                    NotificationCommunicationCard(viewModel, navController, item) {
+                        db.notificationDao().delete(item)
+                        navController.navigate(NotificationScreen.Center.name) {
+                            popUpTo(NotificationScreen.Center.name) {
+                                inclusive = true
+                            }
+                        }
+                    }
                 }
             }
         }

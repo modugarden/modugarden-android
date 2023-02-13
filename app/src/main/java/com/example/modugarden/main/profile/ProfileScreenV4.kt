@@ -383,8 +383,9 @@ fun ProfileScreenV4(
                             Spacer(modifier = Modifier.size(18.dp))
                             Box(
                                 modifier = Modifier
-                                    .fillMaxWidth()
+                                    .fillMaxWidth(0.95f)
                                     .padding(horizontal = 42.dp)
+                                    .align(CenterHorizontally)
                                     .height(120.dp)
                             ) {
                                 Card(
@@ -437,14 +438,15 @@ fun ProfileScreenV4(
                                                 .override(256, 256)
                                         }
                                     )
-                                    Image(
-                                        painter = painterResource(id = R.drawable.ic_user_state),
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .align(Alignment.TopEnd)
-                                            .clip(CircleShape)
-                                            .padding(8.dp)
-                                    )
+                                    if(data.value.userAuthority == UserAuthority.ROLE_CURATOR.name)
+                                        Image(
+                                            painter = painterResource(id = R.drawable.ic_user_state),
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .align(Alignment.TopEnd)
+                                                .clip(CircleShape)
+                                                .padding(8.dp)
+                                        )
                                 }
                                 Card(
                                     modifier = Modifier

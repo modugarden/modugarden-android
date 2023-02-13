@@ -1294,7 +1294,7 @@ fun FollowCard(
                                                 0,
                                                 sharedPreferences.getInt(clientId, 0),
                                                 sharedPreferences.getString(clientNickname,""),
-                                                sharedPreferences.getString(profileImage, ""),
+                                                sharedPreferences.getString(profileImage, null),
                                                 titleMessage = "팔로우 알림",
                                                 fcmToken = token,
                                                 message = "님이 회원님을 팔로우했어요."
@@ -1521,16 +1521,14 @@ fun sendNotification(
     targetName: String?,
     targetImage: String?,
     titleMessage: String,
-    commentMessage:String?=null,
     fcmToken: String?,
     message: String
 ) {
     val jsonBody = JsonObject()
     val dataBody = JsonObject()
     dataBody.apply {
-        addProperty("title", titleMessage)
-        addProperty("comment",commentMessage)
-        addProperty("body", targetName + message)
+        addProperty("title", targetName + titleMessage)
+        addProperty("body", message)
         addProperty("image", targetImage)
         addProperty("type", notificationType.toString())
         addProperty("name", targetName)

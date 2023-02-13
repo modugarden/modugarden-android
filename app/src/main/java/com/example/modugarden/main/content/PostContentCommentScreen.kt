@@ -79,6 +79,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.ApplicationClass
 import com.example.modugarden.ApplicationClass.Companion.clientId
+import com.example.modugarden.ApplicationClass.Companion.clientNickname
 import com.example.modugarden.ApplicationClass.Companion.profileImage
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
@@ -120,7 +121,7 @@ fun PostContentCommentScreen(
     commentViewModel: CommentViewModel = viewModel(),
     userViewModel: UserViewModel,
     boardId: Int,
-    fcmToken: ArrayList<String>,
+    fcmToken: ArrayList<String>?,
     run: Boolean,
 ) {
 
@@ -676,7 +677,7 @@ fun PostContentCommentScreen(
                                             .alpha(
                                                 if (!isRestricted.value) 1f
                                                 else 0.4f)
-                                            .bounceClick (state = !isRestricted.value){
+                                            .bounceClick {
                                                 if (!isRestricted.value) {
                                                     var comment: GetCommentContent
                                                     val jsonData = JsonObject()
@@ -703,6 +704,7 @@ fun PostContentCommentScreen(
                                                             ) {
                                                                 if (response.isSuccessful) {
                                                                     val res = response.body()
+                                                                    val username = sharedPreferences.getString(clientNickname, "")
                                                                     if (res != null) {
                                                                         comment = res.result
                                                                         Log.i(
@@ -723,29 +725,19 @@ fun PostContentCommentScreen(
                                                                                 commentList
                                                                             )
                                                                         }
-                                                                        fcmToken.forEach { token ->
+                                                                        fcmToken?.forEach { token ->
                                                                             Log.d(
                                                                                 "onTokenResponse",
                                                                                 "sendNotification : $token"
                                                                             )
                                                                             sendNotification(
                                                                                 notificationType = (if (comment.parentId == null) 1 else 2),
-                                                                                sharedPreferences.getInt(
-                                                                                    clientId,
-                                                                                    0
-                                                                                ),
-                                                                                sharedPreferences.getString(
-                                                                                    ApplicationClass.clientNickname,
-                                                                                    ""
-                                                                                ),
-                                                                                sharedPreferences.getString(
-                                                                                    profileImage,
-                                                                                    ""
-                                                                                ),
-                                                                                titleMessage = "댓글 알림",
+                                                                                boardId,
+                                                                                username,
+                                                                                sharedPreferences.getString(profileImage, null),
+                                                                                titleMessage = (if (comment.parentId == null) "님이 댓글을 남겼어요." else "님이 답글을 남겼어요."),
                                                                                 fcmToken = token,
-                                                                                message = (if (comment.parentId == null) "님이 댓글을 남겼어요." else "님이 답글을 남겼어요."),
-                                                                                commentMessage = comment.comment
+                                                                                message = comment.comment
                                                                             )
                                                                         }
 

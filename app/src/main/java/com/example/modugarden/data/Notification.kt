@@ -5,7 +5,7 @@ import androidx.room.*
 
 @Entity
 data class Notification(
-    val image: String,
+    val image: String?,
     val type: Int, //알림 형태, 목적
     val name: String, //연관된 사용자. $name님이 회원님을 팔로우 했어요.
     val description: String, //알림 설명. 댓글/덧글일 경우 표시됨.
@@ -29,6 +29,9 @@ interface NotificationDao {
 
     @Delete
     fun delete(notification: Notification)
+
+    @Delete
+    fun deleteAll(notifications: List<Notification>)
 }
 
 @Database(entities = [Notification::class], version = 1)
