@@ -3,6 +3,7 @@ package com.example.modugarden.route
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -45,17 +46,21 @@ fun NavigationGraphPostContent(
         composable("${NAV_ROUTE_POSTCONTENT.COMMENT.routeName}/{comment_data}",
             arguments = listOf(navArgument(name = "comment_data") { type = NavType.IntType })
         ) { backStackEntry ->
-            PostContentCommentScreen(
-                navController,
-                commentViewModel,
-                userViewModel,
-                backStackEntry.arguments!!.getInt("comment_data"),
-                true
-            )
+            val fcmToken =
+                navController.previousBackStackEntry?.savedStateHandle?.get<MutableState<ArrayList<String>>>("fcm_token")
+            if (fcmToken != null) {
+                PostContentCommentScreen(
+                    navController,
+                    commentViewModel,
+                    userViewModel,
+                    backStackEntry.arguments!!.getInt("comment_data"),
+                    fcmToken = fcmToken.value,
+                    run = true
+                )
+            }
         }
 
         composable(NAV_ROUTE_POSTCONTENT.WRITER.routeName) { ProfileApp(userViewModel.getUserId(), false, navController) }
-
         composable(NAV_ROUTE_POSTCONTENT.LOCATION.routeName) {}
         composable(NAV_ROUTE_POSTCONTENT.MAP.routeName)
         {

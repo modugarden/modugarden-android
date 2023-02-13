@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun BottomNav(
-    navController: NavController,
+    navController: NavHostController,
     scope: CoroutineScope,
     lazyScroll: LazyListState,
     navFollowController: NavHostController
@@ -88,11 +88,7 @@ fun BottomNav(
                 onClick = {
                     navController.navigate(item.routeName) {
                         popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-
-                            /*= currentRoute==item.routeName*/
-                            Log.i("지금",currentRoute.toString())
-                            Log.i("지금2",item.routeName.toString())}
+                            saveState = true }
 
                         launchSingleTop = true
                         restoreState = true
@@ -102,7 +98,8 @@ fun BottomNav(
                         scope.launch {
                             lazyScroll.animateScrollToItem(0)
                         }
-                        navFollowController.popBackStack(NAV_ROUTE_FOLLOW.USERPROFILE.routeName,true,true)
+                        navFollowController
+                            .popBackStack(NAV_ROUTE_FOLLOW.USERPROFILE.routeName,true,true)
                     }
 
                 },
@@ -119,10 +116,10 @@ fun MainNavScreen() {
     val navController = rememberAnimatedNavController()
     val scope = rememberCoroutineScope()
     val lazyScroll = rememberLazyListState()
-    val navFollowController = rememberNavController ()
+    val navFollowController = rememberNavController()
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
-            bottomBar = { BottomNav(navController = navController,scope,lazyScroll,navFollowController) }
+            bottomBar = { BottomNav(navController = navController,scope,lazyScroll, navFollowController = navFollowController) }
         ) {
             Box(modifier = Modifier.padding(it)) {
                 NavigationGraphBNB(navController = navController, scope = scope, lazyScroll = lazyScroll, navFollowController = navFollowController)

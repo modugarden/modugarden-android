@@ -7,8 +7,6 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,7 +24,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -40,7 +37,6 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -103,7 +99,6 @@ fun FollowingScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val bottomSheetState =
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
-    val scrollState = rememberLazyListState()
 
     val modalType =  remember { mutableStateOf(0) }
     val modalContentId = remember { mutableStateOf(0) }
@@ -428,10 +423,10 @@ fun FollowingScreen(
                     //포스트 카드
 
                     items(postList,
-                        key = { post -> post.board_id }) {
+                        key = { post -> post.board_id }) {post->
                         PostCard(
                             navFollowController,
-                            data = it,
+                            data = post,
                             scope,
                             snackbarHostState,
                             bottomSheetState,
@@ -440,16 +435,17 @@ fun FollowingScreen(
                             modalImage = modalContentImage,
                             modalId = modalContentId,
                             userViewModel = userViewModel,
-                            feedLauncher = postLauncher)
+                            feedLauncher = postLauncher,
+                            fcmTokens = post.fcmTokens)
                     }
 
                     //큐레이션
                     Log.i("큐레이션 리스트",curationList.toString())
                        items(curationList,
-                           key = { curation -> curation.curation_id }) {
+                           key = { curation -> curation.curation_id }) {curation->
                            CurationCard(
                                navFollowController,
-                               data = it,
+                               data = curation,
                                scope = scope,
                                snackbarHostState = snackbarHostState,
                                bottomSheetState = bottomSheetState,
@@ -464,9 +460,8 @@ fun FollowingScreen(
 
                     // 팔로우 피드 맨 끝
                     item {
-                        AnimatedVisibility(visible =true, enter = fadeIn() ) {
                             FollowEndCard(navController)
-                        } }
+                         }
                 }
 
             }
