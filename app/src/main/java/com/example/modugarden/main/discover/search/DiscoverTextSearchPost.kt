@@ -73,7 +73,7 @@ fun DiscoverTextSearchPost(searchText: String){
                 contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp)
             ) {
                 itemsIndexed(posts) { idx, item ->
-                    DiscoverSearchPostCard(item)
+                    DiscoverSearchPostCard(item, responseBody)
                 }
             }
         }

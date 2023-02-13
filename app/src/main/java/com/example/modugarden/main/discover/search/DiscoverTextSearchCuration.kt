@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.GetSearchCuration
+import com.example.modugarden.data.Category
 import com.example.modugarden.ui.theme.ShowProgressBar
 import retrofit2.Call
 import retrofit2.Callback
@@ -19,13 +20,12 @@ import retrofit2.Response
 
 
 @Composable
-fun DiscoverTextSearchCuration(searchText: String){
-
+fun DiscoverTextSearchCuration(
+    responseBody:  MutableState<GetSearchCuration>,
+    searchText: String
+){
     val context = LocalContext.current
-
-    var responseBody  by remember { mutableStateOf(GetSearchCuration()) }
-
-    var isLoading by remember { mutableStateOf(true) }
+    var isLoading = remember { mutableStateOf(true) }
 
     RetrofitBuilder.curationAPI
         .getTitleSearchCuration(searchText)
@@ -37,9 +37,9 @@ fun DiscoverTextSearchCuration(searchText: String){
                 if(response.isSuccessful) {
                     val res = response.body()
                     if(res != null) {
-                        responseBody = res
+                        responseBody.value = res
                         Log.d("upload-result123", responseBody.toString())
-                        isLoading = false
+                        isLoading.value = false
                     }
                 }
                 else {
@@ -56,11 +56,11 @@ fun DiscoverTextSearchCuration(searchText: String){
 
         })
 
-    if(isLoading){
+    if(isLoading.value){
         ShowProgressBar()
     }
     else {
-        val curations = responseBody.content
+        val curations = responseBody.value.content
 
         if(curations == null){
             DiscoverSearchNoResultScreen(searchText)

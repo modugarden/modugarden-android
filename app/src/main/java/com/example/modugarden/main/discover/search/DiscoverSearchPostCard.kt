@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -33,6 +34,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.CurationLikeResponse
+import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.ui.theme.*
@@ -44,31 +46,36 @@ import retrofit2.Response
 
 //포스트, 큐레이션에 표시되는 카드들로 데이터 형식 알려주면 그때 넣겠삼삼
 @Composable
-fun DiscoverSearchPostCard(postData: GetSearchCurationPost) {
+fun DiscoverSearchPostCard(
+    postData: GetSearchCurationPost,
+    postList: MutableState<GetSearchPost>
+
+) {
     val mContext = LocalContext.current
     val likeCnt = rememberSaveable{ mutableStateOf(postData.likeNum) }
 
     //이걸로 intent불러서 activity 넘어가면 다시 돌아올때 안에 내용을 실행해줌 약간 onResume느낌으로 가라로 할 수 있을듯
     val launcher = rememberLauncherForActivityResult(contract =
     ActivityResultContracts.StartIntentSenderForResult()) {
-        RetrofitBuilder.postAPI.getPostLikeNum(postData.id)
-            .enqueue(  object : Callback<CurationLikeResponse> {
-                override fun onResponse(
-                    call: Call<CurationLikeResponse>,
-                    response: Response<CurationLikeResponse>
-                ) {
-                    likeCnt.value = response.body()?.result?.like_num ?: 0
-                }
-
-                override fun onFailure(
-                    call: Call<CurationLikeResponse>,
-                    t: Throwable
-                ) {
-
-                }
-
-            })
-        Log.d("result-like", "작동댐??")
+        postList.value = GetSearchPost()
+//        RetrofitBuilder.postAPI.getPostLikeNum(postData.id)
+//            .enqueue(  object : Callback<CurationLikeResponse> {
+//                override fun onResponse(
+//                    call: Call<CurationLikeResponse>,
+//                    response: Response<CurationLikeResponse>
+//                ) {
+//                    likeCnt.value = response.body()?.result?.like_num ?: 0
+//                }
+//
+//                override fun onFailure(
+//                    call: Call<CurationLikeResponse>,
+//                    t: Throwable
+//                ) {
+//
+//                }
+//
+//            })
+//        Log.d("result-like", "작동댐??")
     }
 
     Row(

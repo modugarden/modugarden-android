@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.R
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.modugarden.api.dto.GetSearchCuration
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -38,6 +39,8 @@ fun DiscoverSearchResult(
 
     //ViewPager쓸때 어디 페이지의 state를 확인할 변수
     val pagerState = rememberPagerState()
+
+    var curationResponseBody = remember { mutableStateOf(GetSearchCuration()) }
 
     Spacer(modifier = Modifier.height(18.dp))
     Row(
@@ -72,6 +75,7 @@ fun DiscoverSearchResult(
                 else moduGray_normal,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.bounceClick {
+                    curationResponseBody.value = GetSearchCuration()
                     coroutineScope.launch {
                         pagerState.animateScrollToPage(1)
                     }
@@ -98,40 +102,7 @@ fun DiscoverSearchResult(
     }
 
     Spacer(modifier = Modifier.height(14.dp))
-//    //포스트, 큐레이션 텝 레이아웃
-//    TabRow(
-//        selectedTabIndex = pagerState.currentPage,
-//        backgroundColor = Color.White,
-//        contentColor = Color.Black,
-//        indicator = { tabPositions ->
-//            TabRowDefaults.Indicator(
-//                Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
-//                color = moduBlack,
-//            )
-//        },
-//
-//        ) {
-//        searchPages.forEachIndexed { index, title ->
-//            Tab(
-//                text = {
-//                    Text(
-//                        text = title,
-//                        fontSize = 16.sp,
-//                        color =
-//                        if(pagerState.currentPage == index) moduBlack
-//                        else moduGray_strong,
-//                        fontWeight = FontWeight(500)
-//                    )
-//                },
-//                selected = pagerState.currentPage == index,
-//                onClick = {
-//                    coroutineScope.launch {
-//                        pagerState.animateScrollToPage(index)
-//                    }
-//                }
-//            )
-//        }
-//    }
+
     HorizontalPager(
         modifier = Modifier
             .fillMaxSize(),
@@ -141,7 +112,7 @@ fun DiscoverSearchResult(
         when (page) {
             //나중에 API로 받은 값(List)도 넣어줘야할듯
             0 -> DiscoverTextSearchPost(textFieldSearch)
-            1 -> DiscoverTextSearchCuration(textFieldSearch)
+            1 -> DiscoverTextSearchCuration(curationResponseBody, textFieldSearch)
             2 -> DiscoverSearchUser(textFieldSearch, coroutineScope, snackbarHostState, navController, userViewModel)
         }
 
