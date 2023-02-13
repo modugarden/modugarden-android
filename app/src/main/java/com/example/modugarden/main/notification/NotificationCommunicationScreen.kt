@@ -1,14 +1,13 @@
 package com.example.modugarden.main.notification
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.room.Room
 
@@ -29,8 +28,6 @@ fun NotificationCommunicationScreen(navController: NavHostController, viewModel:
         applicationContext, NotificationDatabase::class.java, "notifcation database"
     ).allowMainThreadQueries().build()
 
-    val mContext = LocalContext.current
-
     val notificationData = db.notificationDao().getAll()
 
     Box(
@@ -42,15 +39,18 @@ fun NotificationCommunicationScreen(navController: NavHostController, viewModel:
                 main = true,
                 icon1 = R.drawable.ic_settings,
                 onClick1 = {
-                    Toast.makeText(mContext, "알림 설정으로 들어가요", Toast.LENGTH_SHORT).show()
+                    navController.navigate(NotificationScreen.Setting.name)
                 },
                 bottomLine = false
             )
-            LazyColumn {
+            LazyColumn (
+                contentPadding = PaddingValues(18.dp),
+                verticalArrangement = Arrangement.spacedBy(18.dp)
+            ){
                 itemsIndexed(
-                    items = notificationData,
+                    items = notificationData.reversed(),
                 ) { index, item ->
-                    NotificationCommunicationCard(viewModel, navController, item, index == notificationData.size - 1)
+                    NotificationCommunicationCard(viewModel, navController, item)
                 }
             }
         }

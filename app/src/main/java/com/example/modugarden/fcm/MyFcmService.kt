@@ -63,11 +63,20 @@ class MyFcmService: FirebaseMessagingService() {
 
         if(sharedPreferences.getBoolean(notificationList[data["type"]!!.toInt()],true)) {
 
+            val title =
+                when (data["type"]!!.toInt()) {
+                    0 -> "팔로우 알림"
+                    1 -> "댓글 알림"
+                    2 -> "답글 알림"
+                    3 -> "서비스 이용 제한"
+                    else -> "마케팅 알림"
+                }
+
             val notificationBuilder = NotificationCompat.Builder(this, channelId ?: "")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setSmallIcon(R.drawable.ic_notification_logo)
-                .setContentTitle(data["title"])
-                .setContentText(data["body"])
+                .setContentTitle(title)
+                .setContentText(data["title"])
                 .setContentIntent(pIntent)
 
             getSystemService(NotificationManager::class.java).run {
