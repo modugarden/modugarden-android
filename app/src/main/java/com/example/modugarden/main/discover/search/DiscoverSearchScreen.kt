@@ -1,5 +1,7 @@
 package com.example.modugarden.main.discover.search
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.modugarden.R
+import com.example.modugarden.api.RetrofitBuilder
+import com.example.modugarden.api.dto.GetSearchCuration
 import com.example.modugarden.data.Category
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.ui.theme.*
@@ -28,6 +32,9 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 //viewPager쓰면 넣어줘야하는 어노테이션
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
@@ -44,6 +51,7 @@ fun DiscoverSearchScreen(navController: NavHostController) {
 
     val focusManager = LocalFocusManager.current
 
+    val curationResponseBody  = remember { mutableStateOf(GetSearchCuration()) }
 
     val showModalSheet = rememberSaveable{ mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
@@ -151,9 +159,11 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                                 else moduGray_normal,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.bounceClick {
+                                    curationResponseBody.value = GetSearchCuration()
                                     scope.launch {
                                         pagerState.animateScrollToPage(1)
                                     }
+
                                 }
                             )
                         }
@@ -209,7 +219,7 @@ fun DiscoverSearchScreen(navController: NavHostController) {
                         when (page) {
                             //나중에 API로 받은 값(List)도 넣어줘야할듯
                             0 -> DiscoverCategorySearchPost(selectedCategory.value)
-                            1 -> DiscoverCategorySearchCuration(selectedCategory.value)
+                            1 -> DiscoverCategorySearchCuration(curationResponseBody, selectedCategory.value)
                         }
 
                     }

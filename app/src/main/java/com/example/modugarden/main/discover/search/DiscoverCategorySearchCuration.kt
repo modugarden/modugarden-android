@@ -24,13 +24,13 @@ import retrofit2.Response
 
 
 @Composable
-fun DiscoverCategorySearchCuration(searchCategory: Category){
+fun DiscoverCategorySearchCuration(
+    responseBody:  MutableState<GetSearchCuration>,
+    searchCategory: Category
+){
 
     val context = LocalContext.current
-
-    val responseBody  = remember { mutableStateOf(GetSearchCuration()) }
-
-    val isLoading = remember { mutableStateOf(true) }
+    val isLoading = remember{ mutableStateOf(true) }
 
     RetrofitBuilder.curationAPI
         .getCategorySearchCuration(searchCategory.category)
@@ -43,7 +43,6 @@ fun DiscoverCategorySearchCuration(searchCategory: Category){
                     val res = response.body()
                     if(res != null) {
                         responseBody.value = res
-                        Log.d("upload-result123", responseBody.toString())
                         isLoading.value = false
                     }
                 }
@@ -60,7 +59,6 @@ fun DiscoverCategorySearchCuration(searchCategory: Category){
             }
 
         })
-
     if(isLoading.value){
         ShowProgressBar()
     }

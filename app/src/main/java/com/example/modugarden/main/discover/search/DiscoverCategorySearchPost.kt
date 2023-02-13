@@ -75,7 +75,7 @@ fun DiscoverCategorySearchPost(category: Category){
                 items = posts,
                 key = {post -> post.id }
             ) { item ->
-                    DiscoverSearchPostCard(item)
+                    DiscoverSearchPostCard(item, responseBody)
                 }
             }
         }
