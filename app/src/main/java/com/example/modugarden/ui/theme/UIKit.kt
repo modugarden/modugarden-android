@@ -1,9 +1,6 @@
 package com.example.modugarden.ui.theme
 
-import android.content.Context
-import android.content.Intent
 import android.graphics.Rect
-import android.net.Uri
 import android.util.Log
 import android.view.ViewTreeObserver
 import androidx.compose.animation.animateContentSize
@@ -53,11 +50,9 @@ import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.clientNickname
-import com.example.modugarden.ApplicationClass.Companion.fcmToken
 import com.example.modugarden.ApplicationClass.Companion.profileImage
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
-import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.RetrofitBuilder.curationAPI
 import com.example.modugarden.api.RetrofitBuilder.postAPI
@@ -65,8 +60,6 @@ import com.example.modugarden.api.dto.*
 import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.data.RecentSearch
 import com.example.modugarden.data.RecentSearchDatabase
-import com.example.modugarden.fcm.MyFcmService
-import com.example.modugarden.login.LoginActivity
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.google.gson.JsonObject
@@ -95,6 +88,7 @@ fun Modifier.bounceClick(onClick: () -> Unit) = composed {
     val scaleDown = 0.95f
     val animationDuration = 150
     val mContext = LocalContext.current
+
 
     this
         .scale(scale = scale.value)
@@ -429,9 +423,7 @@ fun TopBar(
                         .height(titleIconSize)
                         .width(titleIconSize)
                         .align(Alignment.CenterVertically)
-                        .bounceClick {
-                            titleIconOnClick.invoke()
-                        },
+                        .bounceClick{ titleIconOnClick.invoke() },
                     colorFilter = ColorFilter.tint(titleIconTint)
                 )
                 Spacer(modifier = Modifier.width(18.dp))
@@ -1303,9 +1295,9 @@ fun FollowCard(
                                                 sharedPreferences.getInt(clientId, 0),
                                                 sharedPreferences.getString(clientNickname,""),
                                                 sharedPreferences.getString(profileImage, ""),
-                                                "팔로우 알림",
-                                                token,
-                                                "님이 회원님을 팔로우했어요."
+                                                titleMessage = "팔로우 알림",
+                                                fcmToken = token,
+                                                message = "님이 회원님을 팔로우했어요."
                                             )
                                         }
                                     }
@@ -1529,6 +1521,7 @@ fun sendNotification(
     targetName: String?,
     targetImage: String?,
     titleMessage: String,
+    commentMessage:String?=null,
     fcmToken: String?,
     message: String
 ) {
@@ -1536,6 +1529,7 @@ fun sendNotification(
     val dataBody = JsonObject()
     dataBody.apply {
         addProperty("title", titleMessage)
+        addProperty("comment",commentMessage)
         addProperty("body", targetName + message)
         addProperty("image", targetImage)
         addProperty("type", notificationType.toString())

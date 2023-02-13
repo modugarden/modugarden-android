@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.api.dto.GetFollowFeedCuration
 import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.route.NavigationGraphFollow
@@ -47,7 +45,7 @@ fun FollowScreen(navController: NavHostController,
             .fillMaxSize()
             .background(Color.White)
     ) {
-        NavigationGraphFollow(navController, navFollowController, UVforFollow=UVforFollow,lazyScroll)
+        NavigationGraphFollow(navController = navController, navFollowController = navFollowController, UVforFollow=UVforFollow, lazyScroll)
     }
 }
 @SuppressLint("UnrememberedMutableState")
@@ -122,7 +120,7 @@ fun FollowMainScreen(
             } else if(mode.value==2) {
                 Log.i("시점","else")
                 NoFollowingScreen(
-                    navController =navFollowController,
+                    navFollowController =navFollowController,
                     userViewModel =userViewModel,
                     refreshViewModel = refreshViewModel
                 )

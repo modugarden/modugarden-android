@@ -119,7 +119,6 @@ class PostDTO {
         val hasNext: Boolean = false,
         val last: Boolean = false
     )
-
     data class GetFollowFeedPostContent(
         val board_id: Int=0,
         val title: String="",
@@ -127,7 +126,7 @@ class PostDTO {
         val liked : Boolean=false,
         val saved : Boolean=false,
         val created_Date: String="",
-        val fcmTokens: List<String> = listOf(),
+        val fcmTokens: ArrayList<String> = arrayListOf(),
         val user_id: Int=0,
         val user_nickname: String="",
         val user_profile_image: String?="",

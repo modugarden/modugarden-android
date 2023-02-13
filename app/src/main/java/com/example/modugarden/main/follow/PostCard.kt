@@ -7,10 +7,8 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -83,11 +81,12 @@ fun PostCard(
         snackbarHostState: SnackbarHostState,
         bottomSheetState: ModalBottomSheetState,
         userViewModel: UserViewModel,
-        modalType:MutableState<Int>,
-        modalTitle:MutableState<String>,
+        modalType: MutableState<Int>,
+        modalTitle: MutableState<String>,
         modalImage: MutableState<String?>,
-        modalId:MutableState<Int>,
-      feedLauncher: ManagedActivityResultLauncher<IntentSenderRequest,ActivityResult>
+        modalId: MutableState<Int>,
+        feedLauncher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
+        fcmTokens: ArrayList<String>
 
 ) {
         val isButtonClickedLike = remember { mutableStateOf(false) } // 버튼 바
@@ -97,45 +96,6 @@ fun PostCard(
         val userId =
                 ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
 
-/*        val buttonLauncher = rememberLauncherForActivityResult(contract =
-        ActivityResultContracts.StartIntentSenderForResult()) {
-                RetrofitBuilder.postAPI.getPostLikeState(data.board_id)
-                        .enqueue(  object : Callback<PostDTO.GetPostLikeStateResponse> {
-                                override fun onResponse(
-                                        call: Call<PostDTO.GetPostLikeStateResponse>,
-                                        response: Response<PostDTO.GetPostLikeStateResponse>
-                                ) {
-                                        isButtonClickedLike.value = response.body()?.result?.check ?: true
-                                }
-
-                                override fun onFailure(
-                                        call: Call<PostDTO.GetPostLikeStateResponse>,
-                                        t: Throwable
-                                ) {
-
-                                }
-
-                        })
-
-                RetrofitBuilder.postAPI.getPostSaveState(data.board_id)
-                        .enqueue(  object : Callback<PostDTO.GetPostSaveStateResponse> {
-                                override fun onResponse(
-                                        call: Call<PostDTO.GetPostSaveStateResponse>,
-                                        response: Response<PostDTO.GetPostSaveStateResponse>
-                                ) {
-                                        isButtonClickedSave.value = response.body()?.result?.check ?: true
-                                }
-
-                                override fun onFailure(
-                                        call: Call<PostDTO.GetPostSaveStateResponse>,
-                                        t: Throwable
-                                ) {
-
-                                }
-
-                        })
-
-        }*/
 
         feedLauncher.let {
                 RetrofitBuilder.postAPI.getPostLikeState(data.board_id)
@@ -236,6 +196,7 @@ fun PostCard(
 
                                         bundle.putInt("board_id", data.board_id)
                                         bundle.putBoolean("run", true)
+                                        bundle.putStringArrayList("fcm_tokens",fcmTokens)
 
                                         intent.putExtras(bundle)
 
@@ -255,11 +216,6 @@ fun PostCard(
                                                         )
                                         }
 
-                                        /*buttonLauncher.launch(
-                                                IntentSenderRequest
-                                                        .Builder(pendIntent)
-                                                        .build()
-                                        )*/
                                         feedLauncher.launch(IntentSenderRequest
                                                 .Builder(pendIntent)
                                                 .build())
@@ -403,6 +359,7 @@ fun PostCard(
                                                        )
                                                        intent.putExtra("board_id", data.board_id)
                                                        intent.putExtra("run", false)
+                                                       intent.putExtra("fcm_tokens",fcmTokens)
                                                        mContext.startActivity(intent)
 
                                                },

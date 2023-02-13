@@ -36,7 +36,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
-import com.example.modugarden.api.dto.FollowRecommendationRes
 import com.example.modugarden.api.dto.FollowRecommendationResContent
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
 import com.example.modugarden.ui.theme.*
@@ -51,7 +50,7 @@ val moduBold : TextStyle = TextStyle(color = moduBlack, fontWeight = FontWeight.
 //@SuppressLint("UnrememberedMutableState")
 @Composable //팔로잉이 3명 미만일 때 표시되는 화면.
 fun NoFollowingScreen(
-    navController: NavHostController,
+    navFollowController: NavHostController,
     userViewModel: UserViewModel,
     refreshViewModel: RefreshViewModel) {
 
@@ -120,7 +119,7 @@ fun NoFollowingScreen(
                                         .padding(18.dp, 20.dp)
                                         .bounceClick {
                                             userViewModel.setUserId(recommendList.value[i].userId)
-                                            navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName)
+                                            navFollowController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName)
                                         },
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {

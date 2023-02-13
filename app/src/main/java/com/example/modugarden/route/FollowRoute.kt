@@ -28,10 +28,11 @@ fun NavigationGraphFollow(
     UVforFollow: UserViewModel,
     lazyScroll: LazyListState
 ) {
-    NavHost(navFollowController, startDestination = NAV_ROUTE_FOLLOW.FOLLOW.routeName,
+    NavHost(
+        navController= navFollowController,
+        startDestination = NAV_ROUTE_FOLLOW.FOLLOW.routeName,
         modifier = Modifier.fillMaxSize()
     ) {
-
         composable(
             NAV_ROUTE_FOLLOW.FOLLOW.routeName
         ) {
