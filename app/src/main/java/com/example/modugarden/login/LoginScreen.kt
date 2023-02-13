@@ -21,6 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -278,10 +279,126 @@ fun MainLoginScreen(navController: NavController) {
                 Text(text = "오신 것을 환영해요", fontSize = 24.sp, color = moduBlack)
                 Spacer(modifier = Modifier.height(40.dp))
                 //아이디 입력 textField
-                EditText(title = "이메일", data = textFieldId, isTextFieldFocused = isTextFieldFocusedId)
+                EditText(title = "이메일", data = textFieldId, isTextFieldFocused = isTextFieldFocusedId, singleLine = true,
+                    keyboardActions = KeyboardActions(onAny = {
+                        isTextFieldFocusedPw.value = true
+                        focusManager.moveFocus(FocusDirection.Down)
+                    })
+                )
                 Spacer(modifier = Modifier.height(20.dp))
                 //비밀번호 입력 textField
-                EditText(title = "비밀번호", data = textFieldPw, isTextFieldFocused = isTextFieldFocusedPw)
+                EditText(title = "비밀번호", data = textFieldPw, isTextFieldFocused = isTextFieldFocusedPw, singleLine = true,
+                    keyboardActions = KeyboardActions(onAny = {
+                        focusManager.clearFocus()
+                        textFieldId.value = textFieldId.value.trim()
+                        textFieldPw.value = textFieldPw.value.trim()
+                        val jsonData = JsonObject()
+                        jsonData.apply {
+                            addProperty("email", textFieldId.value)
+                            addProperty("password", textFieldPw.value)
+                        }
+                        loginAPI.login(jsonData).enqueue(object: Callback<LoginDTO> {
+                            override fun onResponse(
+                                call: Call<LoginDTO>,
+                                response: Response<LoginDTO>
+                            ) {
+                                if(response.isSuccessful) {
+                                    val res = response.body()
+                                    if(res != null) {
+                                        if(res.isSuccess) {
+                                            Log.e("apires", res.result.accessToken)
+                                            mContext.startActivity(
+                                                Intent(mContext, MainActivity::class.java)
+                                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                            )
+                                            val fcmToken = sharedPreferences.getString("fcmToken", "")
+                                            Log.d("apires", "fcmToken :: $fcmToken")
+                                            val jsonDataFcmToken = JsonObject()
+                                            jsonDataFcmToken.apply {
+                                                addProperty("fcmToken", fcmToken)
+                                            }
+                                            Log.d("Login Info", res.result.toString())
+                                            editor.putString(accessToken, res.result.accessToken)
+                                            editor.putString(refreshToken, res.result.refreshToken)
+                                            editor.putInt(clientId, res.result.userId)
+                                            editor.putString(clientNickname, res.result.nickname)
+                                            editor.putString(autoLoginId, textFieldId.value)
+                                            editor.putString(autoLoginPw, textFieldPw.value)
+                                            editor.putString(autoLoginOption, normalLogin)
+                                            editor.apply()
+                                            fcmCheckAPI.fcmCheckAPI().enqueue(object: Callback<FcmCheckDTO> {
+                                                override fun onResponse(
+                                                    call: Call<FcmCheckDTO>,
+                                                    response: Response<FcmCheckDTO>
+                                                ) {
+                                                    if(response.isSuccessful) {
+                                                        val res = response.body()
+                                                        if(res != null) {
+                                                            if(res.isSuccess) {
+                                                                if(fcmToken !in res.result.fcmTokens) {
+                                                                    Log.d("apires", "새로운 토큰을 저장했어요")
+                                                                    fcmSaveAPI.fcmSaveAPI(jsonDataFcmToken).enqueue(object: Callback<FcmSaveDTO> {
+                                                                        override fun onResponse(call: Call<FcmSaveDTO>, response: Response<FcmSaveDTO>) {
+                                                                            if(response.isSuccessful) {
+                                                                                val res = response.body()
+                                                                                if(res != null) {
+                                                                                    if(res.isSuccess) {
+                                                                                        Log.d("apires", "토큰을 정상적으로 서버에 저장했어요")
+                                                                                    }
+                                                                                    else {
+                                                                                        Log.e("apires", res.message)
+                                                                                    }
+                                                                                }
+                                                                                else {
+                                                                                    Log.e("apires", "res == null")
+                                                                                }
+                                                                            }
+                                                                            else {
+                                                                                Log.e("apires", "response == not Successful")
+                                                                            }
+                                                                        }
+
+                                                                        override fun onFailure(call: Call<FcmSaveDTO>, t: Throwable) {
+                                                                            Log.e("apires", "토큰 전송 실패!")
+                                                                        }
+                                                                    })
+                                                                }
+                                                                Log.d("apires", "토큰 저장 API 작업 완료.")
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                override fun onFailure(
+                                                    call: Call<FcmCheckDTO>,
+                                                    t: Throwable
+                                                ) {
+
+                                                }
+
+                                            })
+                                        }
+                                        else {
+                                            Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                    else {
+                                        Toast.makeText(mContext, "res == null", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                                else {
+                                    Toast.makeText(mContext, "response != isSuccessful", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+
+                            override fun onFailure(call: Call<LoginDTO>, t: Throwable) {
+                                Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
+                            }
+                        })
+                    })
+                )
                 Spacer(modifier = Modifier.height(30.dp))
                 //로그인 버튼
                 Card(
