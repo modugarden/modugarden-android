@@ -484,7 +484,7 @@ fun ProfileScreenV4(
                                     id = userId,
                                     modifier = Modifier
                                         .width(120.dp)
-                                        .width(36.dp)
+                                        .height(36.dp)
                                         .align(CenterHorizontally),
                                     snackBarAction = {
                                         scope.launch {

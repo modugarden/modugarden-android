@@ -1,8 +1,7 @@
 package com.example.modugarden.main.notification
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Card
@@ -10,27 +9,27 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.bumptech.glide.request.RequestOptions
-import com.example.modugarden.ApplicationClass
-import com.example.modugarden.ApplicationClass.Companion.commentChildNotification
-import com.example.modugarden.ApplicationClass.Companion.commentNotification
-import com.example.modugarden.ApplicationClass.Companion.followNotification
-import com.example.modugarden.ApplicationClass.Companion.serviceNotification
 import com.example.modugarden.R
 import com.example.modugarden.data.Notification
 import com.example.modugarden.ui.theme.*
+import com.example.modugarden.viewmodel.UserViewModel
 import com.skydoves.landscapist.glide.GlideImage
 
 @Composable
-fun NotificationCommunicationCard(data: Notification, lastItem: Boolean) {
+fun NotificationCommunicationCard(
+    viewModel: UserViewModel,
+    navController: NavHostController,
+    data: Notification,
+    lastItem: Boolean
+) {
     Row(
         modifier = Modifier
             .padding(top = 25.dp)
@@ -38,6 +37,13 @@ fun NotificationCommunicationCard(data: Notification, lastItem: Boolean) {
             .padding(bottom = if (lastItem) 25.dp else 0.dp)
             .fillMaxWidth()
             .bounceClick {
+                if (data.type == 0) {
+                    Log.d("Notify Center", "Click Notification")
+                    viewModel.setNextUserId(data.address.toInt())
+                    navController.navigate(NotificationScreen.New.name)
+                } else if (data.type == 1 || data.type == 2) {
+                    // 포스트로 넘어가는 코드
+                }
             }
     ) {
         Card(
