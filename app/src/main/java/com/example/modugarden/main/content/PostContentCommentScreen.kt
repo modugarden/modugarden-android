@@ -6,7 +6,8 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -14,13 +15,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -66,18 +67,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.modugarden.ApplicationClass
 import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.clientNickname
 import com.example.modugarden.ApplicationClass.Companion.profileImage
@@ -92,6 +91,7 @@ import com.example.modugarden.data.Report
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
 import com.example.modugarden.ui.theme.addFocusCleaner
+import com.example.modugarden.ui.theme.animateShake
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduBlack
@@ -112,7 +112,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("UnrememberedMutableState")
+@SuppressLint("UnrememberedMutableState", "RememberReturnType")
 @OptIn( ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class
 )
 @Composable
@@ -142,6 +142,14 @@ fun PostContentCommentScreen(
     LaunchedEffect(bottomSheetState.targetValue) {
         isButtonClicked.value = bottomSheetState.targetValue != ModalBottomSheetValue.Hidden
     }
+    val view = LocalView.current
+    val offsetX = remember {
+        androidx.compose.animation.core.Animatable(
+            0f
+        )
+    }
+    if(isRestricted.value) animateShake(offsetX,scope,view)
+
     val keyboardController = LocalSoftwareKeyboardController.current
     var commentres by remember { mutableStateOf(GetCommentResponse()) }
 
@@ -577,22 +585,26 @@ fun PostContentCommentScreen(
                                 }
                                 androidx.compose.animation.AnimatedVisibility(
                                     visible = isRestricted.value, //40자 넘으면 보임
-                                    enter = slideInVertically(initialOffsetY = { it }),
-                                    exit = slideOutVertically(targetOffsetY = { it })
+                                    enter = fadeIn(),
+                                    exit = fadeOut()
                                 ) {
                                     Box(
                                         modifier = Modifier
                                             .background(Color(0XFFFFF2F2))
                                             .fillMaxWidth()
                                             .padding(18.dp, 12.dp)
+                                            .offset(offsetX.value.dp, 0.dp)
 
                                     ) {
                                         Text(
-                                            modifier = Modifier.align(Alignment.CenterStart),
+                                            modifier = Modifier
+                                                .align(Alignment.CenterStart)
+                                                ,
                                             text = "글자 수를 초과하였습니다!",
                                             color = Color(0xFFF24747),
                                             fontSize = 12.sp
                                         )
+
                                         // 답글 창 닫기
                                         Icon(
                                             modifier = Modifier
@@ -676,7 +688,8 @@ fun PostContentCommentScreen(
                                         modifier = Modifier
                                             .alpha(
                                                 if (!isRestricted.value) 1f
-                                                else 0.4f)
+                                                else 0.4f
+                                            )
                                             .bounceClick {
                                                 if (!isRestricted.value) {
                                                     var comment: GetCommentContent
@@ -704,7 +717,11 @@ fun PostContentCommentScreen(
                                                             ) {
                                                                 if (response.isSuccessful) {
                                                                     val res = response.body()
-                                                                    val username = sharedPreferences.getString(clientNickname, "")
+                                                                    val username =
+                                                                        sharedPreferences.getString(
+                                                                            clientNickname,
+                                                                            ""
+                                                                        )
                                                                     if (res != null) {
                                                                         comment = res.result
                                                                         Log.i(
@@ -734,7 +751,10 @@ fun PostContentCommentScreen(
                                                                                 notificationType = (if (comment.parentId == null) 1 else 2),
                                                                                 boardId,
                                                                                 username,
-                                                                                sharedPreferences.getString(profileImage, null),
+                                                                                sharedPreferences.getString(
+                                                                                    profileImage,
+                                                                                    null
+                                                                                ),
                                                                                 titleMessage = (if (comment.parentId == null) "님이 댓글을 남겼어요." else "님이 답글을 남겼어요."),
                                                                                 fcmToken = token,
                                                                                 message = comment.comment
@@ -883,7 +903,9 @@ fun LazyItemScope.CommentItem(
                     Spacer(modifier = Modifier.size(10.dp))
 
                     // 댓글 내용
-                    Column(modifier = Modifier.weight(1f).padding(end = 10.dp)) {
+                    Column(modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 10.dp)) {
                         Row() {
                             Text(
                                 text = "${comment.nickname} ∙ ",
@@ -939,14 +961,4 @@ fun LazyItemScope.CommentItem(
 
         }
 
-}
-
-
-@OptIn(ExperimentalMaterialApi::class)
-@Preview
-@Composable
-fun PostContentCommentPreview(){
-    val navController = rememberNavController()
-    val commentViewModel:CommentViewModel= viewModel()
-    /*PostContentCommentScreen(navController = navController,commentViewModel)*/
 }

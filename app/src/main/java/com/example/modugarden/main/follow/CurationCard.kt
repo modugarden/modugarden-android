@@ -223,6 +223,9 @@ fun CurationCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(1f),
+                        failure = {
+                            Text(text = "image request failed.")
+                        },
                         requestOptions = {
                             RequestOptions()
                                 .override(700,700)
