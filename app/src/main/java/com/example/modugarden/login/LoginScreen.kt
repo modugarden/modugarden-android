@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.ApplicationClass
 import com.example.modugarden.BuildConfig.GOOGLE_WEB_KEY
 import com.example.modugarden.MainActivity
@@ -569,7 +570,14 @@ fun MainLoginScreen(navController: NavController) {
                             contentScale = ContentScale.Fit,
                             modifier = Modifier
                                 .clip(CircleShape)
-                                .size(25.dp)
+                                .size(25.dp),
+                            requestOptions = {
+                                RequestOptions()
+                                    .override(25,25)
+                            },
+                            loading = {
+                                ShowProgressBar()
+                            }
                         )
                         Spacer(Modifier.size(18.dp))
                         Row(

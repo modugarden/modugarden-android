@@ -64,6 +64,9 @@ fun NotificationCommunicationCard(
                     .size(50.dp),
                 requestOptions = {
                     RequestOptions().override(256, 256)
+                },
+                loading = {
+                    ShowProgressBar()
                 }
             )
         }

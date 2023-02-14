@@ -275,6 +275,9 @@ fun UploadPostImageListItem(
                 requestOptions = {
                     RequestOptions()
                         .override(256,256)
+                },
+                loading = {
+                    ShowProgressBar()
                 }
             )
             //사진 삭제 버튼

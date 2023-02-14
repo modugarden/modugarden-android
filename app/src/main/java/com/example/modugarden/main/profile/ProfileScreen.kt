@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
@@ -181,7 +182,14 @@ fun ProfileScreen (
                                 contentDescription = null,
                                 modifier = Modifier
                                     .size(50.dp)
-                                    .clip(CircleShape)
+                                    .clip(CircleShape),
+                               requestOptions = {
+                                   RequestOptions()
+                                       .override(50,50)
+                               },
+                               loading = {
+                                   ShowProgressBar()
+                               }
                             )
                             Column(
                                 modifier = Modifier

@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.DeleteCurationResponse
@@ -67,6 +68,7 @@ import com.example.modugarden.main.content.modalDeleteCuration
 import com.example.modugarden.main.content.modalDeletePost
 import com.example.modugarden.main.content.modalReportCuration
 import com.example.modugarden.main.content.modalReportPost
+import com.example.modugarden.ui.theme.ShowProgressBar
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduBlack
@@ -161,7 +163,14 @@ fun FollowingScreen(
                                         .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
                                         .size(25.dp)
                                         .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
+                                    contentScale = ContentScale.Crop,
+                                    requestOptions = {
+                                        RequestOptions()
+                                            .override(25,25)
+                                    },
+                                    loading = {
+                                        ShowProgressBar()
+                                    }
                                 )
                                 Spacer(modifier = Modifier.width(18.dp))
                                 Text(
@@ -338,7 +347,14 @@ fun FollowingScreen(
                                         .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
                                         .size(25.dp)
                                         .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
+                                    contentScale = ContentScale.Crop,
+                                    requestOptions = {
+                                        RequestOptions()
+                                            .override(25,25)
+                                    },
+                                    loading = {
+                                        ShowProgressBar()
+                                    }
                                 )
                                 Spacer(modifier = Modifier.size(18.dp))
                                 Text(

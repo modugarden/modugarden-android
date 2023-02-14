@@ -224,7 +224,14 @@ fun PostContentScreen(
                                             .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
                                             .size(25.dp)
                                             .clip(CircleShape),
-                                        contentScale = ContentScale.Crop
+                                        contentScale = ContentScale.Crop,
+                                        requestOptions = {
+                                            RequestOptions()
+                                                .override(25,25)
+                                        },
+                                        loading = {
+                                            ShowProgressBar()
+                                        }
                                     )
                                     Spacer(modifier = Modifier.size(18.dp))
                                     Text(text = post!!.title, style = moduBold, fontSize = 14.sp,maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -529,7 +536,14 @@ fun PostContentScreen(
                                             .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
                                             .size(25.dp)
                                             .clip(CircleShape),
-                                        contentScale = ContentScale.Crop
+                                        contentScale = ContentScale.Crop,
+                                        requestOptions = {
+                                            RequestOptions()
+                                                .override(25,25)
+                                        },
+                                        loading = {
+                                            ShowProgressBar()
+                                        }
                                     )
                                     Spacer(modifier = Modifier.width(18.dp))
                                     Text(
@@ -725,7 +739,14 @@ fun PostContentScreen(
                                 modifier = Modifier
                                     .size(45.dp)
                                     .clip(CircleShape),
-                                contentScale = ContentScale.Crop
+                                contentScale = ContentScale.Crop,
+                                requestOptions = {
+                                    RequestOptions()
+                                        .override(45,45)
+                                },
+                                loading = {
+                                    ShowProgressBar()
+                                }
                             )
                             Spacer(modifier = Modifier.width(18.dp))
                             Column(
