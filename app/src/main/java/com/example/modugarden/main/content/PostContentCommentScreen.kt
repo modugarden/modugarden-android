@@ -73,6 +73,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -88,15 +89,19 @@ import com.example.modugarden.api.dto.CommentDTO
 import com.example.modugarden.api.dto.DeleteCommentResponse
 import com.example.modugarden.api.dto.GetCommentContent
 import com.example.modugarden.api.dto.GetCommentResponse
+import com.example.modugarden.api.dto.ReportCommentResponse
 import com.example.modugarden.data.Report
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
+import com.example.modugarden.ui.theme.OneButtonSmallDialog
 import com.example.modugarden.ui.theme.ShowProgressBar
+import com.example.modugarden.ui.theme.SmallDialog
 import com.example.modugarden.ui.theme.addFocusCleaner
 import com.example.modugarden.ui.theme.animateShake
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduBlack
+import com.example.modugarden.ui.theme.moduErrorPoint
 import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
@@ -154,6 +159,82 @@ fun PostContentCommentScreen(
 
     val keyboardController = LocalSoftwareKeyboardController.current
     var commentres by remember { mutableStateOf(GetCommentResponse()) }
+    val reportType = remember { mutableStateOf(0) }
+    val reportCategory = remember{ mutableStateOf("") }
+    val reportMessage = remember{ mutableStateOf("") }
+    val reportDialogState = remember { mutableStateOf(false) }
+    val reportMessageState = remember { mutableStateOf(false) }
+    val blockMessageState = remember { mutableStateOf(false) }
+
+    if (reportDialogState.value){
+        SmallDialog(
+            text = "정말 신고할까요?",
+            text2 = "신고는 취소할 수 없습니다.",
+            textColor = moduBlack,
+            backgroundColor = Color.White,
+            positiveButtonText = "신고",
+            negativeButtonText = "취소",
+            positiveButtonTextColor = Color.White,
+            negativeButtonTextColor = moduBlack,
+            positiveButtonColor = moduErrorPoint,
+            negativeButtonColor = moduBackground,
+            dialogState = reportDialogState,
+            reportCategory=reportCategory.value,
+            reportMessage = reportMessage
+        ) {
+            Log.i(
+                "신고 정보",
+                reportCategory.value + data.value.commentId.toString()
+            )
+            RetrofitBuilder.reportAPI
+                .reportComment(data.value.commentId, reportCategory.value)
+                .enqueue(object : Callback<ReportCommentResponse> {
+                    override fun onResponse(
+                        call: Call<ReportCommentResponse>,
+                        response: Response<ReportCommentResponse>
+                    ) {
+                        if (response.body()?.isSuccess==true) {
+                            reportMessage.value = "소중한 의견을 주셔서 감사합니다!"
+                            Log.i("댓글 신고", "성공+${response.body()}")
+                        } else {
+                            Log.i("댓글 신고 실패", response.body()!!.message)
+                            reportMessage.value = response.body()!!.message
+                        }
+                    }
+
+                    override fun onFailure(
+                        call: Call<ReportCommentResponse>,
+                        t: Throwable
+                    ) {
+                        Log.i("댓글 신고", "서버 연결 실패")
+                    }
+                })
+            reportMessageState.value=true
+        }
+    }
+    if(reportMessageState.value)
+        OneButtonSmallDialog(
+            text = reportMessage.value,
+            textColor = moduBlack,
+            backgroundColor = Color.White,
+            buttonText = "확인",
+            buttonTextColor = Color.White,
+            buttonColor = moduPoint,
+            dialogState = reportMessageState
+        ){
+            reportMessageState.value=false
+            reportMessage.value=""
+        }
+    if(blockMessageState.value)
+        OneButtonSmallDialog(
+            text = "차단이 완료되었습니다.",
+            textColor = moduBlack,
+            backgroundColor = Color.White,
+            buttonText = "확인",
+            buttonTextColor = Color.White,
+            buttonColor = moduPoint,
+            dialogState = blockMessageState
+        )
 
     RetrofitBuilder.commentAPI.getComments(boardId)
         .enqueue(object : Callback<GetCommentResponse> {
@@ -396,7 +477,9 @@ fun PostContentCommentScreen(
                                 Spacer(modifier = Modifier.size(18.dp))
                                 Text(
                                     text = data.value.comment!!,
-                                    style = moduBold, fontSize = 14.sp
+                                    style = moduBold, fontSize = 14.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
                                 )
                             }
                         }
@@ -413,7 +496,6 @@ fun PostContentCommentScreen(
                             modifier = Modifier
                                 .padding(horizontal = 18.dp)
                         ) {
-                            Log.i("댓글 신고 아이디",data.value.commentId.toString())
                             itemsIndexed(
                                 listOf(
                                     Report.ABUSE,
@@ -425,12 +507,12 @@ fun PostContentCommentScreen(
                             ) { index, item ->
                                 ReportCategoryItem(
                                     report = item,
-                                    id = mutableStateOf(data.value.commentId),
-                                    modalType = mutableStateOf(modalReportComment) ,
-                                    scope,
-                                    bottomSheetState)
+                                    reportCategory = reportCategory,
+                                    scope = scope,
+                                    bottomSheetState=bottomSheetState,
+                                    dialogState = reportDialogState
+                                )
                             }
-
                         }
                         Spacer(modifier = Modifier.size(18.dp))
                         // 구분선
@@ -453,6 +535,7 @@ fun PostContentCommentScreen(
                                             .blockUser(data.value.userId)
                                             .execute()
                                     }
+                                    blockMessageState.value =true
                                 },
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -622,15 +705,10 @@ fun PostContentCommentScreen(
                                         )
 
                                         // 답글 창 닫기
-                                        Icon(
+                                        Spacer(
                                             modifier = Modifier
                                                 .align(Alignment.CenterEnd)
-                                                .bounceClick {
-                                                    isRestricted.value = false
-                                                },
-                                            painter = painterResource(id = R.drawable.ic_xmark),
-                                            contentDescription = "",
-                                            tint = moduGray_normal
+                                                .size(24.dp)
                                         )
                                     }
                                 }

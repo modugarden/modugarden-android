@@ -225,25 +225,6 @@ fun ProfileScreenV4(
                             dialogState = alreadyBlockDialogState
                         )
 
-                    if(blockDialogState.value)
-                        SmallDialog(
-                            text = "${data.value.nickname}님을\n차단하시겠습니까?",
-                            textColor = moduBlack,
-                            backgroundColor = Color.White,
-                            positiveButtonText = "차단",
-                            negativeButtonText = "취소",
-                            positiveButtonTextColor = moduGray_strong,
-                            negativeButtonTextColor = moduGray_normal,
-                            positiveButtonColor = moduGray_light,
-                            negativeButtonColor = moduBackground,
-                            dialogState = blockDialogState
-                        ) {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                val blockResponse = RetrofitBuilder.blockAPI.blockUser(userId).execute()
-                                blockState.value = true
-                                Log.d("onResponse", blockResponse.toString())
-                            }
-                        }
 
                     if(reportDialogState.value)
                         SmallDialog(

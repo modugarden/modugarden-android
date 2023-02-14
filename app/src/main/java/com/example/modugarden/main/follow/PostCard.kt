@@ -53,7 +53,7 @@ import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.main.content.modalDeletePost
-import com.example.modugarden.main.content.modalReportPost
+import com.example.modugarden.main.content.reportPost
 import com.example.modugarden.main.content.timeFomatter
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
 import com.example.modugarden.ui.theme.*
@@ -161,8 +161,7 @@ fun PostCard(
                                 ) {
                                         GlideImage(
                                                 imageModel =
-                                                data.user_profile_image ?: R.drawable.ic_default_profile,
-                                                contentDescription = null,
+                                                data.user_profile_image ?: R.drawable.ic_default_profile, contentDescription = null,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier
                                                         .size(26.dp)
@@ -381,7 +380,7 @@ fun PostCard(
                                                        modalTitle.value  = data.title
                                                        modalImage.value = data.user_profile_image
                                                        if (data.user_id==userId) modalType.value = modalDeletePost
-                                                       else modalType.value = modalReportPost
+                                                       else modalType.value = reportPost
                                                        modalId.value = data.board_id
                                                        scope.launch {
                                                                bottomSheetState.animateTo(
