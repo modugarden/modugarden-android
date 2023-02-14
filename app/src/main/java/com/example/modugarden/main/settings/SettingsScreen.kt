@@ -14,6 +14,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.modugarden.ApplicationClass
+import com.example.modugarden.ApplicationClass.Companion.categorySetting
+import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
 import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.RetrofitBuilder
@@ -62,15 +65,13 @@ fun ProfileSettingsScreen(
                 val dd = myBirth.substring(6,8)
 
                 settingViewModel.setSettingInfo(
-                    response.body()?.result?.nickname!!,
                     "${yyyy}년 ${mm}월 ${dd}일",
                     response.body()?.result?.email!!,
-                    response.body()?.result?.categories!!,
-                    null
+                    response.body()?.result?.categories!!
                 )
 
                 if(response.body()?.result?.profileImage != null)
-                    settingViewModel.setImage(response.body()?.result?.profileImage!!.toUri())
+                    sharedPreferences.edit().putString(response.body()?.result?.profileImage, null).apply()
             }
         })
 
