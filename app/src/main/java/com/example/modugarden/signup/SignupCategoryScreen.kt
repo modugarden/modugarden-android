@@ -202,7 +202,7 @@ fun SignupCategoryScreen(navController: NavHostController, data: Signup, signupV
                                         if(response.isSuccessful) {
                                             val res = response.body()
                                             if(res != null) {
-                                                Toast.makeText(mContext, data.birthday.split("/")[0]+"/"+ (if(data.birthday.split("/")[1].toInt() < 10) "0"+data.birthday.split("/")[1] else data.birthday.split("/")[1]) +"/"+ (if(data.birthday.split("/")[2].toInt() < 10) "0"+data.birthday.split("/")[2] else data.birthday.split("/")[2]), Toast.LENGTH_SHORT).show()
+//                                                Toast.makeText(mContext, data.birthday.split("/")[0]+"/"+ (if(data.birthday.split("/")[1].toInt() < 10) "0"+data.birthday.split("/")[1] else data.birthday.split("/")[1]) +"/"+ (if(data.birthday.split("/")[2].toInt() < 10) "0"+data.birthday.split("/")[2] else data.birthday.split("/")[2]), Toast.LENGTH_SHORT).show()
                                                 if(res.isSuccess) {
                                                     //회원가입 API에서 회원가입 성공 리턴값을 받으면 가입 축하 화면으로 넘어갑니다.
                                                     navController.navigate(NAV_ROUTE_SIGNUP.END.routeName) {

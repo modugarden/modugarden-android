@@ -104,6 +104,7 @@ fun ProfileScreenV4(
     val blockedState = remember { mutableStateOf(false) }
     val fcmTokenState = remember { mutableStateOf<List<String>>(listOf())}
 
+    Log.d("Login Info, key1", myId.toString())
     val postList = remember {
         mutableStateOf<List<PostDTO.GetUserPostResponseContent>?>(
             listOf()

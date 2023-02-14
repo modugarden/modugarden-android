@@ -102,13 +102,12 @@ fun UploadPostImageListScreen(
             Row(
                 modifier = Modifier
                     .padding(horizontal = 18.dp)
-                    .padding(top = 18.dp)
+                    .padding(top = 18.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("사진 선택", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = moduBlack, modifier = Modifier.align(Alignment.Top))
+                Text("사진 선택", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = moduBlack)
                 Spacer(modifier = Modifier.width(10.dp))
                 Card(
-                    modifier = Modifier
-                        .align(Alignment.Top),
                     shape = RoundedCornerShape(10.dp),
                     backgroundColor = moduGray_light
                 ) {
