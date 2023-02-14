@@ -1,6 +1,8 @@
 package com.example.modugarden.route
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,6 +23,7 @@ enum class NAV_ROUTE_DISCOVER_SEARCH(val routeName: String, val description: Str
     DISCOVERSEARCHUSERPROFILE("DISCOVER_SEARCH_USER_PROFILE", "탐색 유저 프로필")
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun NavigationGraphDiscoverSearch(

@@ -31,6 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.route.NAV_ROUTE_BNB
+import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
 import com.example.modugarden.route.NavigationGraphBNB
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -95,11 +96,13 @@ fun BottomNav(
 
                     }
                     if(currentRoute==item.routeName){
-                        scope.launch {
-                            lazyScroll.animateScrollToItem(0)
+                        if(currentRoute == "FOLLOW") {
+                            scope.launch {
+                                lazyScroll.animateScrollToItem(0)
+                            }
+                            navFollowController
+                                .popBackStack(NAV_ROUTE_FOLLOW.USERPROFILE.routeName, true, true)
                         }
-                        navFollowController
-                            .popBackStack(NAV_ROUTE_FOLLOW.USERPROFILE.routeName,true,true)
                     }
 
                 },

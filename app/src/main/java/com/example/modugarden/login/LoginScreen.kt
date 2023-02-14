@@ -7,9 +7,12 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,14 +22,23 @@ import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -92,6 +104,14 @@ fun MainLoginScreen(navController: NavController) {
     val editor = sharedPreferences.edit()
     val context = LocalContext.current
     val token = GOOGLE_WEB_KEY
+    val autoLoginState = remember {
+        mutableStateOf(
+            sharedPreferences.getBoolean(
+                autoLoginSetting,
+                false
+            )
+        )
+    }
 
     var user by remember { mutableStateOf(Firebase.auth.currentUser) }
 
@@ -148,6 +168,12 @@ fun MainLoginScreen(navController: NavController) {
                                                         editor.putInt(clientId, res1.result.userId)
                                                         editor.putString(profileImage,res1.result.profileImage)
                                                         editor.putString(clientNickname, res1.result.nickname)
+                                                        if(autoLoginState.value) {
+                                                            editor.putBoolean(autoLoginSetting, true)
+                                                            editor.putString(autoLoginOption, googleLogin)
+                                                        } else {
+                                                            editor.putBoolean(autoLoginSetting, false)
+                                                        }
                                                         editor.apply()
                                                         mContext.startActivity(
                                                             Intent(mContext, MainActivity::class.java)
@@ -288,7 +314,12 @@ fun MainLoginScreen(navController: NavController) {
                 )
                 Spacer(modifier = Modifier.height(20.dp))
                 //비밀번호 입력 textField
-                EditText(title = "비밀번호", data = textFieldPw, isTextFieldFocused = isTextFieldFocusedPw, singleLine = true,
+                EditText(
+                    title = "비밀번호",
+                    data = textFieldPw,
+                    isTextFieldFocused = isTextFieldFocusedPw,
+                    singleLine = true,
+                    keyboardType = KeyboardType.Password,
                     keyboardActions = KeyboardActions(onAny = {
                         focusManager.clearFocus()
                         textFieldId.value = textFieldId.value.trim()
@@ -323,9 +354,14 @@ fun MainLoginScreen(navController: NavController) {
                                             editor.putInt(clientId, res.result.userId)
                                             editor.putString(clientNickname, res.result.nickname)
                                             editor.putString(profileImage, res.result.profileImage)
-                                            editor.putString(autoLoginId, textFieldId.value)
-                                            editor.putString(autoLoginPw, textFieldPw.value)
-                                            editor.putString(autoLoginOption, normalLogin)
+                                            if(autoLoginState.value) {
+                                                editor.putBoolean(autoLoginSetting, true)
+                                                editor.putString(autoLoginId, textFieldId.value)
+                                                editor.putString(autoLoginPw, textFieldPw.value)
+                                                editor.putString(autoLoginOption, normalLogin)
+                                            } else {
+                                                editor.putBoolean(autoLoginSetting, false)
+                                            }
                                             editor.apply()
                                             Log.d("Login Info, key", sharedPreferences.getInt(clientId, 0).toString())
                                             fcmCheckAPI.fcmCheckAPI().enqueue(object: Callback<FcmCheckDTO> {
@@ -406,7 +442,68 @@ fun MainLoginScreen(navController: NavController) {
                         })
                     })
                 )
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(20.dp))
+                Row (
+                    modifier = Modifier
+                        .align(End)
+                ){
+                    Text(
+                        text = "자동 로그인",
+                        style = TextStyle(
+                            color = moduGray_strong,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    val scale = 1.2f
+                    val width = 30.dp
+                    val height = 18.dp
+                    val gapBetweenThumbAndTrackEdge = 1.dp
+                    val thumbRadius = (height / 2) - gapBetweenThumbAndTrackEdge
+
+                    // To move thumb, we need to calculate the position (along x axis)
+                    val animatePosition = animateFloatAsState(
+                        targetValue = if (autoLoginState.value)
+                            with(LocalDensity.current) { (width - thumbRadius - gapBetweenThumbAndTrackEdge).toPx() }
+                        else
+                            with(LocalDensity.current) { (thumbRadius + gapBetweenThumbAndTrackEdge).toPx() }
+                    )
+
+                    Canvas(
+                        modifier = Modifier
+                            .size(width = width, height = height)
+                            .scale(scale = scale)
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onTap = {
+                                        // This is called when the user taps on the canvas
+                                        autoLoginState.value = !autoLoginState.value
+                                    }
+                                )
+                            }
+                            .align(CenterVertically)
+                    ) {
+                        // Track
+                        drawRoundRect(
+                            color = if (autoLoginState.value) moduPoint else moduGray_strong,
+                            cornerRadius = CornerRadius(x = 10.dp.toPx(), y = 10.dp.toPx()),
+                            style = Fill
+                        )
+
+                        // Thumb
+                        drawCircle(
+                            color = Color.White,
+                            radius = thumbRadius.toPx(),
+                            center = Offset(
+                                x = animatePosition.value,
+                                y = size.height / 2
+                            )
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(5.dp))
+                }
+                Spacer(modifier = Modifier.height(20.dp))
                 //로그인 버튼
                 Card(
                     modifier = Modifier
@@ -419,109 +516,174 @@ fun MainLoginScreen(navController: NavController) {
                                 addProperty("email", textFieldId.value)
                                 addProperty("password", textFieldPw.value)
                             }
-                            loginAPI.login(jsonData).enqueue(object: Callback<LoginDTO> {
-                                override fun onResponse(
-                                    call: Call<LoginDTO>,
-                                    response: Response<LoginDTO>
-                                ) {
-                                    if(response.isSuccessful) {
-                                        val res = response.body()
-                                        if(res != null) {
-                                            if(res.isSuccess) {
-                                                Log.e("apires", res.result.accessToken)
-                                                val fcmToken = sharedPreferences.getString("fcmToken", "")
-                                                Log.d("apires", "fcmToken :: $fcmToken")
-                                                val jsonDataFcmToken = JsonObject()
-                                                jsonDataFcmToken.apply {
-                                                    addProperty("fcmToken", fcmToken)
-                                                }
-                                                Log.d("Login Info, result", res.result.userId.toString())
-                                                editor.clear()
-                                                editor.putString(accessToken, res.result.accessToken)
-                                                editor.putString(refreshToken, res.result.refreshToken)
-                                                editor.putInt(clientId, res.result.userId)
-                                                editor.putString(clientNickname, res.result.nickname)
-                                                editor.putString(profileImage, res.result.profileImage)
-                                                editor.putString(autoLoginId, textFieldId.value)
-                                                editor.putString(autoLoginPw, textFieldPw.value)
-                                                editor.putString(autoLoginOption, normalLogin)
-                                                editor.apply()
-                                                Log.d("Login Info, key", sharedPreferences.getInt(clientId, 0).toString())
-                                                mContext.startActivity(
-                                                    Intent(mContext, MainActivity::class.java)
-                                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                                )
-                                                fcmCheckAPI.fcmCheckAPI().enqueue(object: Callback<FcmCheckDTO> {
-                                                    override fun onResponse(
-                                                        call: Call<FcmCheckDTO>,
-                                                        response: Response<FcmCheckDTO>
-                                                    ) {
-                                                        if(response.isSuccessful) {
-                                                            val res = response.body()
-                                                            if(res != null) {
-                                                                if(res.isSuccess) {
-                                                                    if(fcmToken !in res.result.fcmTokens) {
-                                                                        Log.d("apires", "새로운 토큰을 저장했어요")
-                                                                        fcmSaveAPI.fcmSaveAPI(jsonDataFcmToken).enqueue(object: Callback<FcmSaveDTO> {
-                                                                            override fun onResponse(call: Call<FcmSaveDTO>, response: Response<FcmSaveDTO>) {
-                                                                                if(response.isSuccessful) {
-                                                                                    val res = response.body()
-                                                                                    if(res != null) {
-                                                                                        if(res.isSuccess) {
-                                                                                            Log.d("apires", "토큰을 정상적으로 서버에 저장했어요")
+                            loginAPI
+                                .login(jsonData)
+                                .enqueue(object : Callback<LoginDTO> {
+                                    override fun onResponse(
+                                        call: Call<LoginDTO>,
+                                        response: Response<LoginDTO>
+                                    ) {
+                                        if (response.isSuccessful) {
+                                            val res = response.body()
+                                            if (res != null) {
+                                                if (res.isSuccess) {
+                                                    Log.e("apires", res.result.accessToken)
+                                                    val fcmToken =
+                                                        sharedPreferences.getString("fcmToken", "")
+                                                    Log.d("apires", "fcmToken :: $fcmToken")
+                                                    val jsonDataFcmToken = JsonObject()
+                                                    jsonDataFcmToken.apply {
+                                                        addProperty("fcmToken", fcmToken)
+                                                    }
+                                                    Log.d(
+                                                        "Login Info, result",
+                                                        res.result.userId.toString()
+                                                    )
+                                                    editor.clear()
+                                                    editor.putString(accessToken, res.result.accessToken)
+                                                    editor.putString(refreshToken, res.result.refreshToken)
+                                                    editor.putInt(clientId, res.result.userId)
+                                                    editor.putString(clientNickname, res.result.nickname)
+                                                    editor.putString(profileImage, res.result.profileImage)
+                                                    if(autoLoginState.value) {
+                                                        editor.putBoolean(autoLoginSetting, true)
+                                                        editor.putString(autoLoginId, textFieldId.value)
+                                                        editor.putString(autoLoginPw, textFieldPw.value)
+                                                        editor.putString(autoLoginOption, normalLogin)
+                                                    } else {
+                                                        editor.putBoolean(autoLoginSetting, false)
+                                                    }
+                                                    editor.apply()
+                                                    Log.d(
+                                                        "Login Info, key",
+                                                        sharedPreferences
+                                                            .getInt(clientId, 0)
+                                                            .toString()
+                                                    )
+                                                    mContext.startActivity(
+                                                        Intent(mContext, MainActivity::class.java)
+                                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                                    )
+                                                    fcmCheckAPI
+                                                        .fcmCheckAPI()
+                                                        .enqueue(object : Callback<FcmCheckDTO> {
+                                                            override fun onResponse(
+                                                                call: Call<FcmCheckDTO>,
+                                                                response: Response<FcmCheckDTO>
+                                                            ) {
+                                                                if (response.isSuccessful) {
+                                                                    val res = response.body()
+                                                                    if (res != null) {
+                                                                        if (res.isSuccess) {
+                                                                            if (fcmToken !in res.result.fcmTokens) {
+                                                                                Log.d(
+                                                                                    "apires",
+                                                                                    "새로운 토큰을 저장했어요"
+                                                                                )
+                                                                                fcmSaveAPI
+                                                                                    .fcmSaveAPI(
+                                                                                        jsonDataFcmToken
+                                                                                    )
+                                                                                    .enqueue(object :
+                                                                                        Callback<FcmSaveDTO> {
+                                                                                        override fun onResponse(
+                                                                                            call: Call<FcmSaveDTO>,
+                                                                                            response: Response<FcmSaveDTO>
+                                                                                        ) {
+                                                                                            if (response.isSuccessful) {
+                                                                                                val res =
+                                                                                                    response.body()
+                                                                                                if (res != null) {
+                                                                                                    if (res.isSuccess) {
+                                                                                                        Log.d(
+                                                                                                            "apires",
+                                                                                                            "토큰을 정상적으로 서버에 저장했어요"
+                                                                                                        )
+                                                                                                    } else {
+                                                                                                        Log.e(
+                                                                                                            "apires",
+                                                                                                            res.message
+                                                                                                        )
+                                                                                                    }
+                                                                                                } else {
+                                                                                                    Log.e(
+                                                                                                        "apires",
+                                                                                                        "res == null"
+                                                                                                    )
+                                                                                                }
+                                                                                            } else {
+                                                                                                Log.e(
+                                                                                                    "apires",
+                                                                                                    "response == not Successful"
+                                                                                                )
+                                                                                            }
                                                                                         }
-                                                                                        else {
-                                                                                            Log.e("apires", res.message)
-                                                                                        }
-                                                                                    }
-                                                                                    else {
-                                                                                        Log.e("apires", "res == null")
-                                                                                    }
-                                                                                }
-                                                                                else {
-                                                                                    Log.e("apires", "response == not Successful")
-                                                                                }
-                                                                            }
 
-                                                                            override fun onFailure(call: Call<FcmSaveDTO>, t: Throwable) {
-                                                                                Log.e("apires", "토큰 전송 실패!")
+                                                                                        override fun onFailure(
+                                                                                            call: Call<FcmSaveDTO>,
+                                                                                            t: Throwable
+                                                                                        ) {
+                                                                                            Log.e(
+                                                                                                "apires",
+                                                                                                "토큰 전송 실패!"
+                                                                                            )
+                                                                                        }
+                                                                                    })
                                                                             }
-                                                                        })
+                                                                            Log.d(
+                                                                                "apires",
+                                                                                "토큰 저장 API 작업 완료."
+                                                                            )
+                                                                        }
                                                                     }
-                                                                    Log.d("apires", "토큰 저장 API 작업 완료.")
                                                                 }
                                                             }
-                                                        }
-                                                    }
 
-                                                    override fun onFailure(
-                                                        call: Call<FcmCheckDTO>,
-                                                        t: Throwable
-                                                    ) {
+                                                            override fun onFailure(
+                                                                call: Call<FcmCheckDTO>,
+                                                                t: Throwable
+                                                            ) {
 
-                                                    }
+                                                            }
 
-                                                })
+                                                        })
+                                                } else {
+                                                    Toast
+                                                        .makeText(
+                                                            mContext,
+                                                            res.message,
+                                                            Toast.LENGTH_SHORT
+                                                        )
+                                                        .show()
+                                                }
+                                            } else {
+                                                Toast
+                                                    .makeText(
+                                                        mContext,
+                                                        "res == null",
+                                                        Toast.LENGTH_SHORT
+                                                    )
+                                                    .show()
                                             }
-                                            else {
-                                                Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
-                                            }
-                                        }
-                                        else {
-                                            Toast.makeText(mContext, "res == null", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            Toast
+                                                .makeText(
+                                                    mContext,
+                                                    "response != isSuccessful",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                .show()
                                         }
                                     }
-                                    else {
-                                        Toast.makeText(mContext, "response != isSuccessful", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
 
-                                override fun onFailure(call: Call<LoginDTO>, t: Throwable) {
-                                    Toast.makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT).show()
-                                }
-                            })
+                                    override fun onFailure(call: Call<LoginDTO>, t: Throwable) {
+                                        Toast
+                                            .makeText(mContext, "서버가 응답하지 않아요", Toast.LENGTH_SHORT)
+                                            .show()
+                                    }
+                                })
                         },
                     backgroundColor = moduPoint,
                     shape = RoundedCornerShape(15.dp),
@@ -538,7 +700,7 @@ fun MainLoginScreen(navController: NavController) {
                         textAlign = TextAlign.Center
                     )
                 }
-                Spacer(modifier = Modifier.height(50.dp))
+                Spacer(modifier = Modifier.height(40.dp))
                 Text("소셜 계정", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduBlack)
                 Spacer(Modifier.size(18.dp))
                 Card(

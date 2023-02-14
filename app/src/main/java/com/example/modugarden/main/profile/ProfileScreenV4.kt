@@ -49,6 +49,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.bumptech.glide.request.RequestOptions
+import com.example.modugarden.ApplicationClass
+import com.example.modugarden.ApplicationClass.Companion.categorySetting
 import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
@@ -60,6 +62,7 @@ import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.main.content.timeToDate
 import com.example.modugarden.main.profile.follow.ProfileFollowScreen
 import com.example.modugarden.main.settings.SettingsActivity
+import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.RefreshViewModel
 import com.example.modugarden.viewmodel.UserViewModel
@@ -75,7 +78,6 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Response
 
-private val myId = sharedPreferences.getInt(clientId, 0)
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
@@ -86,6 +88,8 @@ fun ProfileScreenV4(
     navController: NavController = NavController(LocalContext.current),
     userViewModel: UserViewModel
 ) {
+    val myId = sharedPreferences.getInt(clientId, 0)
+
     val focusManager = LocalFocusManager.current
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
@@ -104,7 +108,6 @@ fun ProfileScreenV4(
     val blockedState = remember { mutableStateOf(false) }
     val fcmTokenState = remember { mutableStateOf<List<String>>(listOf())}
 
-    Log.d("Login Info, key1", myId.toString())
     val postList = remember {
         mutableStateOf<List<PostDTO.GetUserPostResponseContent>?>(
             listOf()
@@ -163,6 +166,7 @@ fun ProfileScreenV4(
                 blockedState.value = response.body()!!.result.blocked
                 fcmTokenState.value = response.body()!!.result.fcmTokens
                 loadingState.value = false
+                sharedPreferences.edit().putStringSet(categorySetting, response.body()?.result?.categories!!.toSet()).apply()
             }
         })
 
@@ -225,6 +229,25 @@ fun ProfileScreenV4(
                             dialogState = alreadyBlockDialogState
                         )
 
+                    if(blockDialogState.value)
+                        SmallDialog(
+                            text = "${data.value.nickname}님을\n차단하시겠습니까?",
+                            textColor = moduBlack,
+                            backgroundColor = Color.White,
+                            positiveButtonText = "차단",
+                            negativeButtonText = "취소",
+                            positiveButtonTextColor = Color.White,
+                            negativeButtonTextColor = moduBlack,
+                            positiveButtonColor = moduErrorPoint,
+                            negativeButtonColor = moduBackground,
+                            dialogState = blockDialogState
+                        ) {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val blockResponse = RetrofitBuilder.blockAPI.blockUser(userId).execute()
+                                blockState.value = true
+                                Log.d("onResponse", blockResponse.toString())
+                            }
+                        }
 
                     if(reportDialogState.value)
                         SmallDialog(
@@ -407,7 +430,14 @@ fun ProfileScreenV4(
                                         modifier = Modifier
                                             .fillMaxHeight()
                                             .aspectRatio(1f)
-                                            .clip(CircleShape),
+                                            .clip(CircleShape)
+                                            .bounceClick {
+                                                         if(data.value.profileImage != null) {
+                                                             val intent = Intent(context, ProfileImageDetailActivity::class.java)
+                                                             intent.putExtra("imageUrl", data.value.profileImage)
+                                                             context.startActivity(intent)
+                                                         }
+                                            },
                                         loading = {
                                             ShowProgressBar()
                                         },

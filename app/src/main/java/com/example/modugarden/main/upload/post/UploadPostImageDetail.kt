@@ -53,7 +53,7 @@ fun UploadPostImageDetail(
                 navController.popBackStack()
             },
             titleIconTint = Color.White,
-            icon1 = R.drawable.ic_arrow_left_bold,
+            icon1 = R.drawable.ic_cross_line_bold_gray,
             iconTint1 = Color.White,
             onClick1 = {
                 deleteState.value = true
