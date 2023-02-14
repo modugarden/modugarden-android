@@ -2,13 +2,10 @@ package com.example.modugarden.main.content
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.location.Geocoder
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -76,6 +73,7 @@ import com.example.modugarden.BuildConfig
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.PostDTO
+import com.example.modugarden.api.dto.ReportPostResponse
 import com.example.modugarden.data.MapInfo
 import com.example.modugarden.data.MapsDetailRes
 import com.example.modugarden.data.Report
@@ -83,12 +81,16 @@ import com.example.modugarden.main.follow.DotsIndicator
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
 import com.example.modugarden.ui.theme.FollowCard
+import com.example.modugarden.ui.theme.OneButtonSmallDialog
 import com.example.modugarden.ui.theme.PostHeartCard
 import com.example.modugarden.ui.theme.PostSaveCard
 import com.example.modugarden.ui.theme.ShowProgressBar
 import com.example.modugarden.ui.theme.ShowProgressBarV2
+import com.example.modugarden.ui.theme.SmallDialog
 import com.example.modugarden.ui.theme.bounceClick
+import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduBlack
+import com.example.modugarden.ui.theme.moduErrorPoint
 import com.example.modugarden.ui.theme.moduGray_light
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
@@ -129,6 +131,8 @@ fun PostContentScreen(
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
     val modalType = remember{ mutableStateOf(modalLocationType) }// 신고 or 위치 모달 타입 정하는 변수
+    val reportCategory = remember{ mutableStateOf("") }
+    val reportMessage = remember{ mutableStateOf("") }
 
     val isLoading = remember { mutableStateOf(false) }
     var responseBody by remember { mutableStateOf(PostDTO.GetPostResponse()) }
@@ -140,6 +144,120 @@ fun PostContentScreen(
     val userId =
         ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
     val fcmTokenState = remember { mutableStateOf(listOf<String>()) }
+    val reportDialogState = remember { mutableStateOf(false) }
+    val messageDialogState = remember { mutableStateOf(false) }
+    if (reportDialogState.value){
+        SmallDialog(
+            text = "정말 신고할까요?",
+            text2 = "신고는 취소할 수 없습니다.",
+            textColor = moduBlack,
+            backgroundColor = Color.White,
+            positiveButtonText = "신고",
+            negativeButtonText = "취소",
+            positiveButtonTextColor = Color.White,
+            negativeButtonTextColor = moduBlack,
+            positiveButtonColor = moduErrorPoint,
+            negativeButtonColor = moduBackground,
+            dialogState = reportDialogState,
+            reportCategory=reportCategory.value,
+            reportMessage = reportMessage
+        ) {
+                Log.i("신고 정보", reportCategory.value + board_id.toString())
+                RetrofitBuilder.reportAPI
+                    .reportPost(board_id, reportCategory.value)
+                    .enqueue(object : Callback<ReportPostResponse> {
+                        override fun onResponse(
+                            call: Call<ReportPostResponse>,
+                            response: Response<ReportPostResponse>
+                        ) {
+                            if (response.body()?.isSuccess == true) {
+                                reportMessage.value = "소중한 의견을 주셔서 감사합니다!"
+                                Log.i("게시글 신고", "성공+${response.body()}}")
+                            } else { // 또 신고 했으면 알려줌
+                                reportMessage.value = response.body()!!.message
+                                Log.i("게시글 신고 실패", response.body()!!.message)
+                            }
+                        }
+
+                        override fun onFailure(
+                            call: Call<ReportPostResponse>,
+                            t: Throwable
+                        ) {
+                            Log.i("게시글 신고", "서버 연결 실패")
+                        }
+                    }
+                    )
+            messageDialogState.value = true
+           /* if (reportType == reportCuration) {
+                Log.i("신고 정보", reportType.value + id.toString() + modalType.value)
+                RetrofitBuilder.reportAPI
+                    .reportCuration(id, reportType.value)
+                    .enqueue(object : Callback<ReportCurationResponse> {
+                        override fun onResponse(
+                            call: Call<ReportCurationResponse>,
+                            response: Response<ReportCurationResponse>
+                        ) {
+                            if (response.isSuccessful) {
+                                reportMessage.value = "소중한 의견을 주셔서 감사합니다!"
+                                Log.i("큐레이션 신고", "성공+${response.body()}")
+                            } else {
+                                reportMessage.value = response.body()!!.message
+                                Log.i("큐레이션 신고 실패", response.body()!!.message)
+                            }
+                        }
+
+                        override fun onFailure(
+                            call: Call<ReportCurationResponse>,
+                            t: Throwable
+                        ) {
+                            Log.i("큐레이션 신고", "서버 연결 실패")
+                        }
+                    })
+
+            }
+            if (reportType == reportComment) {
+                Log.i(
+                    "신고 정보",
+                    reportType.value + id.toString() + modalType.value
+                )
+                RetrofitBuilder.reportAPI
+                    .reportComment(id, reportType.value)
+                    .enqueue(object : Callback<ReportCommentResponse> {
+                        override fun onResponse(
+                            call: Call<ReportCommentResponse>,
+                            response: Response<ReportCommentResponse>
+                        ) {
+                            if (response.isSuccessful) {
+                                reportMessage.value = "소중한 의견을 주셔서 감사합니다!"
+                                Log.i("댓글 신고", "성공+${response.body()}")
+                            } else {
+                                Log.i("댓글 신고 실패", response.body()!!.message)
+                                reportMessage.value = response.body()!!.message
+                            }
+                        }
+
+                        override fun onFailure(
+                            call: Call<ReportCommentResponse>,
+                            t: Throwable
+                        ) {
+                            Log.i("댓글 신고", "서버 연결 실패")
+                        }
+                    })
+            }*/
+        }
+    }
+    if(messageDialogState.value)
+        OneButtonSmallDialog(
+            text = reportMessage.value,
+            textColor = moduBlack,
+            backgroundColor = Color.White,
+            buttonText = "확인",
+            buttonTextColor = Color.White,
+            buttonColor = moduPoint,
+            dialogState = messageDialogState
+        ){
+            messageDialogState.value=false
+        }
     RetrofitBuilder.postAPI
         .getPostContent(board_id)
         .enqueue(object : Callback<PostDTO.GetPostResponse> {
@@ -261,8 +379,10 @@ fun PostContentScreen(
                                 ) { index, item ->
                                     ReportCategoryItem(
                                         report = item,
-                                        mutableStateOf(board_id),
-                                        modalType, scope, bottomSheetState
+                                        reportCategory = reportCategory,
+                                        scope = scope,
+                                        bottomSheetState=bottomSheetState,
+                                        dialogState = reportDialogState
                                     )
                                 }
                             }
@@ -913,7 +1033,7 @@ fun PostContentScreen(
                                             fcmTokenState
                                         )
                                         navController.navigate("${NAV_ROUTE_POSTCONTENT.COMMENT.routeName}/${post.id}")
-                                                 },
+                                    },
                                 painter = painterResource(id = R.drawable.ic_chat_line),
                                 contentDescription = "댓글",
                                 tint = moduBlack

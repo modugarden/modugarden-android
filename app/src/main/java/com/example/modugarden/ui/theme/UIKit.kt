@@ -1416,6 +1416,7 @@ fun ModuDialog(
 @Composable
 fun SmallDialog(
     text: String,
+    text2:String?=null,
     textColor: Color,
     backgroundColor: Color,
     positiveButtonText: String,
@@ -1425,7 +1426,11 @@ fun SmallDialog(
     positiveButtonColor: Color,
     negativeButtonColor: Color,
     dialogState: MutableState<Boolean>,
+    reportCategory:String?=null,
+    reportType:Int?=null,
+    reportMessage:MutableState<String>?=null,
     onPositiveButtonClick: () -> Unit
+
 ) {
     ModuDialog {
         Column(
@@ -1447,6 +1452,20 @@ fun SmallDialog(
                     .wrapContentHeight()
                     .align(Alignment.CenterHorizontally)
             )
+            if (text2 != null) {
+                Text(
+                    text = text2,
+                    style = TextStyle(
+                        textAlign = TextAlign.Center,
+                        color = moduGray_strong,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
             Spacer(modifier = Modifier.size(18.dp))
             Row(
                 modifier = Modifier

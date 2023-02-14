@@ -54,6 +54,8 @@ import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.DeleteCurationResponse
 import com.example.modugarden.api.dto.GetCurationResponse
 import com.example.modugarden.api.dto.PostDTO
+import com.example.modugarden.api.dto.ReportCurationResponse
+import com.example.modugarden.api.dto.ReportPostResponse
 import com.example.modugarden.data.Report
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.ui.theme.*
@@ -78,11 +80,71 @@ fun CurationContentScreen(curation_id :Int) {
     val snackbarHostState = remember { SnackbarHostState() }
     var responseBody by remember { mutableStateOf(GetCurationResponse()) }
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
-    val refreshViewModel:RefreshViewModel= viewModel()
     val userId
     = ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
     val isLoading = remember { mutableStateOf(true) }
+
     val modalType = remember{ mutableStateOf(modalLocationType) }// 신고 or 위치 모달 타입 정하는 변수
+    val reportCategory = remember{ mutableStateOf("") }
+    val reportMessage = remember{ mutableStateOf("") }
+    val reportDialogState = remember { mutableStateOf(false) }
+    val messageDialogState = remember { mutableStateOf(false) }
+
+    if (reportDialogState.value){
+        SmallDialog(
+            text = "정말 신고할까요?",
+            text2 = "신고는 취소할 수 없습니다.",
+            textColor = moduBlack,
+            backgroundColor = Color.White,
+            positiveButtonText = "신고",
+            negativeButtonText = "취소",
+            positiveButtonTextColor = Color.White,
+            negativeButtonTextColor = moduBlack,
+            positiveButtonColor = moduErrorPoint,
+            negativeButtonColor = moduBackground,
+            dialogState = reportDialogState,
+            reportCategory=reportCategory.value,
+            reportMessage = reportMessage
+        ) {
+                 Log.i("신고 정보", reportCategory.value + curation_id.toString() )
+                 RetrofitBuilder.reportAPI
+                     .reportCuration(curation_id, reportCategory.value)
+                     .enqueue(object : Callback<ReportCurationResponse> {
+                         override fun onResponse(
+                             call: Call<ReportCurationResponse>,
+                             response: Response<ReportCurationResponse>
+                         ) {
+                             if (response.body()?.isSuccess == true) {
+                                 reportMessage.value = "소중한 의견을 주셔서 감사합니다!"
+                                 Log.i("큐레이션 신고", "성공+${response.body()}")
+                             } else {
+                                 reportMessage.value = response.body()!!.message
+                                 Log.i("큐레이션 신고 실패", response.body()!!.message)
+                             }
+                         }
+
+                         override fun onFailure(
+                             call: Call<ReportCurationResponse>,
+                             t: Throwable
+                         ) {
+                             Log.i("큐레이션 신고", "서버 연결 실패")
+                         }
+                     })
+            messageDialogState.value = true
+        }
+    }
+    if(messageDialogState.value)
+        OneButtonSmallDialog(
+            text = reportMessage.value,
+            textColor = moduBlack,
+            backgroundColor = Color.White,
+            buttonText = "확인",
+            buttonTextColor = Color.White,
+            buttonColor = moduPoint,
+            dialogState = messageDialogState
+        ){
+            messageDialogState.value=false
+        }
     RetrofitBuilder.curationAPI.getCuraionContent(curation_id)
         .enqueue(object : Callback<GetCurationResponse> {
             override fun onResponse(
@@ -195,8 +257,10 @@ fun CurationContentScreen(curation_id :Int) {
                             ) { index, item ->
                                 ReportCategoryItem(
                                     report = item,
-                                    mutableStateOf(curation_id),
-                                    modalType, scope, bottomSheetState
+                                    reportCategory = reportCategory,
+                                    scope = scope,
+                                    bottomSheetState=bottomSheetState,
+                                    dialogState = reportDialogState
                                 )
                             }
                         }

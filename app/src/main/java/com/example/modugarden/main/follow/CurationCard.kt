@@ -6,10 +6,8 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -66,7 +64,7 @@ import com.example.modugarden.api.dto.GetCurationLikeStateResponse
 import com.example.modugarden.api.dto.GetFollowFeedCurationContent
 import com.example.modugarden.main.content.CurationContentActivity
 import com.example.modugarden.main.content.modalDeleteCuration
-import com.example.modugarden.main.content.modalReportCuration
+import com.example.modugarden.main.content.reportCuration
 import com.example.modugarden.main.content.timeFomatter
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
 import com.example.modugarden.ui.theme.*
@@ -411,7 +409,7 @@ fun CurationCard(
                 // 신고
                     Icon(modifier = Modifier.bounceClick {
                         if (data.user_id==userId) modalType.value = modalDeleteCuration
-                        else modalType.value = modalReportCuration
+                        else modalType.value = reportCuration
                         modalTitle.value = data.title
                         modalImage.value = data.user_profile_image
                         modalContentId.value = data.curation_id
