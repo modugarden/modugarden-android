@@ -9,11 +9,6 @@ class SettingViewModel : ViewModel() {
     private val birthState = mutableStateOf("")
     private val emailState = mutableStateOf("")
     private val categoriesState = mutableStateOf<List<String>>(listOf())
-    private val imageState = mutableStateOf<Uri?>(null)
-
-    fun setImage(image: Uri?) {
-        imageState.value = image
-    }
 
     fun getBirth() : String {
         return birthState.value
@@ -21,10 +16,6 @@ class SettingViewModel : ViewModel() {
 
     fun getEmail() : String {
         return emailState.value
-    }
-
-    fun getCategories() : List<String> {
-        return categoriesState.value
     }
 
     fun setSettingInfo(
