@@ -92,6 +92,8 @@ import com.example.modugarden.api.dto.GetCommentResponse
 import com.example.modugarden.api.dto.ReportCommentResponse
 import com.example.modugarden.data.Report
 import com.example.modugarden.main.follow.moduBold
+import com.example.modugarden.main.notification.NotificationScreen
+import com.example.modugarden.route.NAV_ROUTE_FOLLOW
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
 import com.example.modugarden.ui.theme.OneButtonSmallDialog
 import com.example.modugarden.ui.theme.ShowProgressBar
@@ -139,7 +141,7 @@ fun PostContentCommentScreen(
     val isTextFieldFocused = remember { mutableStateOf(false) }
     val isButtonClicked = remember{mutableStateOf(false)}
     val isRestricted = remember{mutableStateOf(false)}
-    isRestricted.value = textFieldComment.value.length>40 && textFieldComment.value.isNotEmpty()
+    isRestricted.value = textFieldComment.value.length>40 || textFieldComment.value.isEmpty()
     val focusManager = LocalFocusManager.current
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
@@ -155,11 +157,10 @@ fun PostContentCommentScreen(
             0f
         )
     }
-    if(isRestricted.value) animateShake(offsetX,scope,view)
+    if(textFieldComment.value.length>40) animateShake(offsetX,scope,view)
 
     val keyboardController = LocalSoftwareKeyboardController.current
     var commentres by remember { mutableStateOf(GetCommentResponse()) }
-    val reportType = remember { mutableStateOf(0) }
     val reportCategory = remember{ mutableStateOf("") }
     val reportMessage = remember{ mutableStateOf("") }
     val reportDialogState = remember { mutableStateOf(false) }
@@ -392,8 +393,7 @@ fun PostContentCommentScreen(
                                             })
                                         commentViewModel.deleteComment(
                                             data.value.commentId,
-                                            commentList
-                                        )
+                                            commentList)
                                         scope.launch {
                                             bottomSheetState.hide()
                                         }
@@ -636,14 +636,9 @@ fun PostContentCommentScreen(
                                             navController = navController
                                         )
                                     }
-
                                 }
 
-
-
                             }
-
-
 
                         }
 
@@ -683,7 +678,7 @@ fun PostContentCommentScreen(
                                     }
                                 }
                                 androidx.compose.animation.AnimatedVisibility(
-                                    visible = isRestricted.value, //40자 넘으면 보임
+                                    visible = textFieldComment.value.length>40, //40자 넘으면 보임
                                     enter = fadeIn(),
                                     exit = fadeOut()
                                 ) {
@@ -697,8 +692,7 @@ fun PostContentCommentScreen(
                                     ) {
                                         Text(
                                             modifier = Modifier
-                                                .align(Alignment.CenterStart)
-                                                ,
+                                                .align(Alignment.CenterStart),
                                             text = "글자 수를 초과하였습니다!",
                                             color = Color(0xFFF24747),
                                             fontSize = 12.sp
