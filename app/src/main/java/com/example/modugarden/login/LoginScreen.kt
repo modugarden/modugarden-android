@@ -142,12 +142,6 @@ fun MainLoginScreen(navController: NavController) {
                                                 val res1 = response.body()
                                                 if(res1 != null) {
                                                     if(res1.isSuccess) {
-                                                        mContext.startActivity(
-                                                            Intent(mContext, MainActivity::class.java)
-                                                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                                        )
                                                         Log.e("apires", res1.result.accessToken)
                                                         editor.putString(accessToken, res1.result.accessToken)
                                                         editor.putString(refreshToken, res1.result.refreshToken)
@@ -155,6 +149,12 @@ fun MainLoginScreen(navController: NavController) {
                                                         editor.putString(profileImage,res1.result.profileImage)
                                                         editor.putString(clientNickname, res1.result.nickname)
                                                         editor.apply()
+                                                        mContext.startActivity(
+                                                            Intent(mContext, MainActivity::class.java)
+                                                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                                        )
                                                         fcmCheckAPI.fcmCheckAPI().enqueue(object: Callback<FcmCheckDTO> {
                                                             override fun onResponse(
                                                                 call: Call<FcmCheckDTO>,
@@ -308,19 +308,16 @@ fun MainLoginScreen(navController: NavController) {
                                     if(res != null) {
                                         if(res.isSuccess) {
                                             Log.e("apires", res.result.accessToken)
-                                            mContext.startActivity(
-                                                Intent(mContext, MainActivity::class.java)
-                                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                            )
+
                                             val fcmToken = sharedPreferences.getString("fcmToken", "")
                                             Log.d("apires", "fcmToken :: $fcmToken")
                                             val jsonDataFcmToken = JsonObject()
                                             jsonDataFcmToken.apply {
                                                 addProperty("fcmToken", fcmToken)
                                             }
-                                            Log.d("Login Info", res.result.toString())
+
+                                            Log.d("Login Info, result", res.result.userId.toString())
+                                            editor.clear()
                                             editor.putString(accessToken, res.result.accessToken)
                                             editor.putString(refreshToken, res.result.refreshToken)
                                             editor.putInt(clientId, res.result.userId)
@@ -330,6 +327,7 @@ fun MainLoginScreen(navController: NavController) {
                                             editor.putString(autoLoginPw, textFieldPw.value)
                                             editor.putString(autoLoginOption, normalLogin)
                                             editor.apply()
+                                            Log.d("Login Info, key", sharedPreferences.getInt(clientId, 0).toString())
                                             fcmCheckAPI.fcmCheckAPI().enqueue(object: Callback<FcmCheckDTO> {
                                                 override fun onResponse(
                                                     call: Call<FcmCheckDTO>,
@@ -381,6 +379,13 @@ fun MainLoginScreen(navController: NavController) {
                                                 }
 
                                             })
+
+                                            mContext.startActivity(
+                                                Intent(mContext, MainActivity::class.java)
+                                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                            )
                                         }
                                         else {
                                             Toast.makeText(mContext, res.message, Toast.LENGTH_SHORT).show()
@@ -424,19 +429,14 @@ fun MainLoginScreen(navController: NavController) {
                                         if(res != null) {
                                             if(res.isSuccess) {
                                                 Log.e("apires", res.result.accessToken)
-                                                mContext.startActivity(
-                                                    Intent(mContext, MainActivity::class.java)
-                                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                                )
                                                 val fcmToken = sharedPreferences.getString("fcmToken", "")
                                                 Log.d("apires", "fcmToken :: $fcmToken")
                                                 val jsonDataFcmToken = JsonObject()
                                                 jsonDataFcmToken.apply {
                                                     addProperty("fcmToken", fcmToken)
                                                 }
-                                                Log.d("Login Info", res.result.toString())
+                                                Log.d("Login Info, result", res.result.userId.toString())
+                                                editor.clear()
                                                 editor.putString(accessToken, res.result.accessToken)
                                                 editor.putString(refreshToken, res.result.refreshToken)
                                                 editor.putInt(clientId, res.result.userId)
@@ -446,6 +446,13 @@ fun MainLoginScreen(navController: NavController) {
                                                 editor.putString(autoLoginPw, textFieldPw.value)
                                                 editor.putString(autoLoginOption, normalLogin)
                                                 editor.apply()
+                                                Log.d("Login Info, key", sharedPreferences.getInt(clientId, 0).toString())
+                                                mContext.startActivity(
+                                                    Intent(mContext, MainActivity::class.java)
+                                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                                )
                                                 fcmCheckAPI.fcmCheckAPI().enqueue(object: Callback<FcmCheckDTO> {
                                                     override fun onResponse(
                                                         call: Call<FcmCheckDTO>,

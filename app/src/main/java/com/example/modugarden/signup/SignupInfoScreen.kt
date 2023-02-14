@@ -161,13 +161,13 @@ fun SignupInfoScreen(navController: NavHostController, data: Signup, signupViewM
                                                                 "/"
                                                             )[2]
                                                         )
-                                                        Toast
-                                                            .makeText(
-                                                                mContext,
-                                                                data.birthday,
-                                                                Toast.LENGTH_SHORT
-                                                            )
-                                                            .show()
+//                                                        Toast
+//                                                            .makeText(
+//                                                                mContext,
+//                                                                data.birthday,
+//                                                                Toast.LENGTH_SHORT
+//                                                            )
+//                                                            .show()
                                                         navController.navigate(NAV_ROUTE_SIGNUP.CATEGORY.routeName)
                                                     } else {
                                                         Toast

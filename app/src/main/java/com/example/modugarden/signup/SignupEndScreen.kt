@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.navigation.NavHostController
 import com.example.modugarden.ApplicationClass
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
@@ -34,6 +35,7 @@ import com.example.modugarden.api.dto.FcmCheckDTO
 import com.example.modugarden.api.dto.FcmSaveDTO
 import com.example.modugarden.api.dto.LoginDTO
 import com.example.modugarden.data.Signup
+import com.example.modugarden.login.LoginActivity
 import com.example.modugarden.route.NAV_ROUTE_SIGNUP
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
@@ -91,6 +93,12 @@ fun SignupEndScreen(navController: NavHostController, data: Signup, signupViewMo
             Card(
                 modifier = Modifier
                     .bounceClick {
+                        //바로 회원가입 시키는게 아니라 로그인 하는 창으로 넘어가줌 (sharedPref에 문제가 생기는듯해서)
+                        val intent = Intent(mContext, LoginActivity::class.java)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        mContext.startActivity(intent)
                         //로그인 API 불러와서 팔로우 피드로 넘어감.
                         if(data.social) {
                             val jsonData = JsonObject().apply {
