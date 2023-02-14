@@ -1331,19 +1331,21 @@ fun FollowCard(
                                         call: Call<FollowDtoRes>,
                                         response: Response<FollowDtoRes>
                                     ) {
-                                        snackBarAction()
-                                        followState.value = !followState.value
-                                        fcmTokenState.value.forEach {token ->
-                                            Log.d("onTokenResponse", "sendNotification : $token")
-                                            sendNotification(
-                                                0,
-                                                sharedPreferences.getInt(clientId, 0),
-                                                sharedPreferences.getString(clientNickname,""),
-                                                sharedPreferences.getString(profileImage, null),
-                                                titleMessage = "팔로우 알림",
-                                                fcmToken = token,
-                                                message = "님이 회원님을 팔로우했어요."
-                                            )
+                                        if(response.body()?.code == 200) {
+                                            snackBarAction()
+                                            followState.value = !followState.value
+                                            fcmTokenState.value.forEach {token ->
+                                                Log.d("onTokenResponse", "sendNotification : $token")
+                                                sendNotification(
+                                                    0,
+                                                    sharedPreferences.getInt(clientId, 0),
+                                                    sharedPreferences.getString(clientNickname,""),
+                                                    sharedPreferences.getString(profileImage, null),
+                                                    titleMessage = "팔로우 알림",
+                                                    fcmToken = token,
+                                                    message = "님이 회원님을 팔로우했어요."
+                                                )
+                                            }
                                         }
                                     }
 
@@ -1359,9 +1361,11 @@ fun FollowCard(
                                         call: Call<FollowDtoRes>,
                                         response: Response<FollowDtoRes>
                                     ) {
-                                        snackBarAction()
-                                        if (response.isSuccessful) {
-                                            followState.value = !followState.value
+                                        if(response.body()?.code == 200) {
+                                            snackBarAction()
+                                            if (response.isSuccessful) {
+                                                followState.value = !followState.value
+                                            }
                                         }
                                     }
 
