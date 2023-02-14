@@ -34,6 +34,7 @@ import com.example.modugarden.data.UploadPost
 import com.example.modugarden.main.upload.UploadCurationEx
 import com.example.modugarden.main.upload.curation.UriUtil
 import com.example.modugarden.route.NAV_ROUTE_UPLOAD_POST
+import com.example.modugarden.ui.theme.ShowProgressBar
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_light
@@ -247,7 +248,10 @@ fun UploadPostUploadingCard(
                     .padding(horizontal = 60.dp)
                     .aspectRatio(1f),
                 contentScale = ContentScale.Crop,
-                requestOptions = { RequestOptions().override(500) }
+                requestOptions = { RequestOptions().override(500) },
+                loading = {
+                    ShowProgressBar()
+                }
             )
         }
         Card(

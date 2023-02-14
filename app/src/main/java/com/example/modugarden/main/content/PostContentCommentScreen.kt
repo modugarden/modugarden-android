@@ -234,7 +234,14 @@ fun PostContentCommentScreen(
                                     .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
                                     .size(25.dp)
                                     .clip(CircleShape),
-                                contentScale = ContentScale.Crop
+                                contentScale = ContentScale.Crop,
+                                requestOptions = {
+                                    RequestOptions()
+                                        .override(25,25)
+                                },
+                                loading = {
+                                    ShowProgressBar()
+                                }
                             )
                             Spacer(modifier = Modifier.width(18.dp))
                             Text(
@@ -377,7 +384,14 @@ fun PostContentCommentScreen(
                                         .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
                                         .size(25.dp)
                                         .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
+                                    contentScale = ContentScale.Crop,
+                                    requestOptions = {
+                                        RequestOptions()
+                                            .override(25,25)
+                                    },
+                                    loading = {
+                                        ShowProgressBar()
+                                    }
                                 )
                                 Spacer(modifier = Modifier.size(18.dp))
                                 Text(
@@ -652,7 +666,14 @@ fun PostContentCommentScreen(
                                         modifier = Modifier
                                             .size(30.dp)
                                             .clip(CircleShape),
-                                        contentScale = ContentScale.Crop
+                                        contentScale = ContentScale.Crop,
+                                        requestOptions = {
+                                            RequestOptions()
+                                                .override(30,30)
+                                        },
+                                        loading = {
+                                            ShowProgressBar()
+                                        }
                                     )
                                     Spacer(modifier = Modifier.size(10.dp))
                                     val focusRequester = remember { FocusRequester() }
@@ -835,7 +856,14 @@ fun BlockCommentItem(
                     modifier = Modifier
                         .size(30.dp)
                         .clip(CircleShape),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+                    requestOptions = {
+                        RequestOptions()
+                            .override(30,30)
+                    },
+                    loading = {
+                        ShowProgressBar()
+                    }
                 )
                 Spacer(modifier = Modifier.size(10.dp))
 
