@@ -29,6 +29,7 @@ class ApplicationClass : Application() {
         val clientId = "Client ID"
         val profileImage = "Profile Image"
         val clientNickname = "Client Nickname"
+        val categorySetting = "Client Category"
 
         val commentNotification = "Comment Notification Setting"
         val commentChildNotification = "Comment Child Notification Setting"

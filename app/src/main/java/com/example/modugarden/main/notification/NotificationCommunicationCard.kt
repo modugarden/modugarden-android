@@ -1,5 +1,7 @@
 package com.example.modugarden.main.notification
 
+import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -13,6 +15,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -23,6 +26,7 @@ import androidx.navigation.NavHostController
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
 import com.example.modugarden.data.Notification
+import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.UserViewModel
 import com.skydoves.landscapist.glide.GlideImage
@@ -34,6 +38,7 @@ fun NotificationCommunicationCard(
     data: Notification,
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -43,7 +48,14 @@ fun NotificationCommunicationCard(
                     viewModel.setNextUserId(data.address.toInt())
                     navController.navigate(NotificationScreen.New.name)
                 } else if (data.type == 1 || data.type == 2) {
-                    // 포스트로 넘어가는 코드
+                    val intent = Intent(context, PostContentActivity::class.java)
+                    val bundle = Bundle()
+
+                    bundle.putInt("board_id", data.address.toInt())
+                    bundle.putBoolean("run", true)
+
+                    intent.putExtras(bundle)
+                    context.startActivity(intent)
                 }
             }
     ) {

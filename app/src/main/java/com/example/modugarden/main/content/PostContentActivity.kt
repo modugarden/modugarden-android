@@ -46,6 +46,6 @@ fun PostContentNavScreen(board_id: Int, run: Boolean, fcmTokens: ArrayList<Strin
         commentViewModel = commentViewModel,
         run = run,
         userViewModel = userViewModel,
-        fcmToken = fcmTokens!!)
+        fcmToken = fcmTokens)
     Log.i("run/board_id",run.toString()+board_id.toString())
 }
