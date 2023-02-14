@@ -347,6 +347,7 @@ fun SettingsProfileScreen(
                                 )
                                 sharedPreferences.edit()
                                     .putString(clientNickname, nicknameState.value)
+                                    .putString(profileImage, imageState.value.toString())
                                     .apply()
                             }
                         }

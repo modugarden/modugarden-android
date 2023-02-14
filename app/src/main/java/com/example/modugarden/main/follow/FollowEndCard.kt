@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.R
@@ -65,9 +66,12 @@ fun FollowEndCard(navController: NavHostController) {
             Card(modifier = Modifier
                 .bounceClick {
                     navController.navigate(NAV_ROUTE_BNB.DISCOVER.routeName){
-                        popUpTo(navController.graph.id){
-                            inclusive= true
-                        }
+                        popUpTo(navController.graph.findStartDestination().id){
+                            saveState = true }
+
+                        launchSingleTop = true
+                        restoreState = true
+
                     }
                 }
                 .padding(10.dp, 8.dp),

@@ -70,6 +70,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.ApplicationClass
 import com.example.modugarden.BuildConfig
 import com.example.modugarden.R
@@ -84,6 +85,7 @@ import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
 import com.example.modugarden.ui.theme.FollowCard
 import com.example.modugarden.ui.theme.PostHeartCard
 import com.example.modugarden.ui.theme.PostSaveCard
+import com.example.modugarden.ui.theme.ShowProgressBar
 import com.example.modugarden.ui.theme.ShowProgressBarV2
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
@@ -137,7 +139,7 @@ fun PostContentScreen(
     val followState = remember { mutableStateOf(false) }
     val userId =
         ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
-
+    val fcmTokenState = remember { mutableStateOf(listOf<String>()) }
     RetrofitBuilder.postAPI
         .getPostContent(board_id)
         .enqueue(object : Callback<PostDTO.GetPostResponse> {
@@ -150,6 +152,7 @@ fun PostContentScreen(
                     responseBody = res
                     likeNum.value = res.result?.like_num!!
                     followState.value = res.result.isFollowed
+                    fcmTokenState.value=res.result.fcmTokens
                     Log.d("post-activity-result", responseBody.result?.image.toString())
                 }
                  else {
@@ -662,6 +665,16 @@ fun PostContentScreen(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .aspectRatio(1f),
+                                        failure = {
+                                            Text(text = "image request failed.")
+                                        },
+                                        requestOptions = {
+                                            RequestOptions()
+                                                .override(720, 720)
+                                        },
+                                        loading = {
+                                            ShowProgressBar()
+                                        }
                                     )
                             }
                         
@@ -740,7 +753,6 @@ fun PostContentScreen(
                                     .align(Alignment.CenterVertically),
                                 horizontalAlignment = Alignment.End
                             ) {
-
                                 FollowCard(
                                     id = post.user_id,
                                     modifier =Modifier ,
@@ -752,7 +764,7 @@ fun PostContentScreen(
                                     followState = followState,
                                     contentModifier =Modifier
                                         .padding(vertical = 6.dp, horizontal = 10.dp),
-                                    fcmTokenState = remember { mutableStateOf(post.fcmTokens) }
+                                    fcmTokenState = fcmTokenState
                                 )
 
                             }
@@ -875,8 +887,12 @@ fun PostContentScreen(
                                 modifier = Modifier
                                     .padding(horizontal = 18.dp)
                                     .bounceClick {
+                                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                                            "fcm_token",
+                                            fcmTokenState
+                                        )
                                         navController.navigate("${NAV_ROUTE_POSTCONTENT.COMMENT.routeName}/${post.id}")
-                                    },
+                                                 },
                                 painter = painterResource(id = R.drawable.ic_chat_line),
                                 contentDescription = "댓글",
                                 tint = moduBlack
@@ -887,28 +903,6 @@ fun PostContentScreen(
                                 saveState = isButtonClickedSave,
                                 scope = scope,
                                 snackbarHostState = snackbarHostState)
-                            /* Icon(modifier =
-                             Modifier
-                                 .bounceClick {
-                                     isButtonClickedSave.value = !isButtonClickedSave.value
-                                 }
-                                 .padding(
-                                     if (isButtonClickedSave.value)
-                                         1.75.dp
-                                     else
-                                         0.dp
-                                 )
-                                 ,
-                                 painter = painterResource
-                                     (id =
-                                 if (isButtonClickedSave.value)
-                                     R.drawable.ic_star_solid
-                                 else
-                                     R.drawable.ic_star_line
-                                 ),
-                                 contentDescription = "스크랩",
-                                 tint = moduBlack
-                             )*/
 
                         }
                     }

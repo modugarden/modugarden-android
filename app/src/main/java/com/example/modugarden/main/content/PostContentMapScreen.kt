@@ -36,9 +36,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
 import com.example.modugarden.data.MapInfo
 import com.example.modugarden.main.follow.moduBold
+import com.example.modugarden.ui.theme.ShowProgressBar
 import com.example.modugarden.ui.theme.addFocusCleaner
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBlack
@@ -144,7 +146,14 @@ fun PostContentMapScreen(navController: NavHostController,data:MapInfo) {
                         .clip(CircleShape)
                         .size(50.dp)
                         .border(1.dp, moduGray_light, CircleShape),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+                    requestOptions = {
+                        RequestOptions()
+                            .override(256, 256)
+                    },
+                    loading = {
+                        ShowProgressBar()
+                    }
                 )
             }
             Spacer(modifier = Modifier.width(18.dp))

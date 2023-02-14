@@ -324,6 +324,7 @@ fun MainLoginScreen(navController: NavController) {
                                             editor.putString(refreshToken, res.result.refreshToken)
                                             editor.putInt(clientId, res.result.userId)
                                             editor.putString(clientNickname, res.result.nickname)
+                                            editor.putString(profileImage, res.result.profileImage)
                                             editor.putString(autoLoginId, textFieldId.value)
                                             editor.putString(autoLoginPw, textFieldPw.value)
                                             editor.putString(autoLoginOption, normalLogin)
@@ -439,6 +440,7 @@ fun MainLoginScreen(navController: NavController) {
                                                 editor.putString(refreshToken, res.result.refreshToken)
                                                 editor.putInt(clientId, res.result.userId)
                                                 editor.putString(clientNickname, res.result.nickname)
+                                                editor.putString(profileImage, res.result.profileImage)
                                                 editor.putString(autoLoginId, textFieldId.value)
                                                 editor.putString(autoLoginPw, textFieldPw.value)
                                                 editor.putString(autoLoginOption, normalLogin)
@@ -641,6 +643,7 @@ fun MainLoginScreen(navController: NavController) {
                                 editor.putString(refreshToken, res.result.refreshToken)
                                 editor.putInt(clientId, res.result.userId)
                                 editor.putString(clientNickname, res.result.nickname)
+                                editor.putString(profileImage, res.result.profileImage)
                                 editor.apply()
                                 fcmCheckAPI.fcmCheckAPI()
                                     .enqueue(AuthCallBack<FcmCheckDTO>(context, "자동 로그인"))
@@ -694,6 +697,7 @@ fun MainLoginScreen(navController: NavController) {
                                 editor.putString(refreshToken, res1.result.refreshToken)
                                 editor.putInt(clientId, res1.result.userId)
                                 editor.putString(clientNickname, res1.result.nickname)
+                                editor.putString(profileImage, res1.result.profileImage)
                                 editor.apply()
                                 fcmCheckAPI.fcmCheckAPI().enqueue(object : Callback<FcmCheckDTO> {
                                     override fun onResponse(
