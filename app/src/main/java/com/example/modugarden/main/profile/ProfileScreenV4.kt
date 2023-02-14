@@ -75,7 +75,6 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Response
 
-private val myId = sharedPreferences.getInt(clientId, 0)
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
@@ -86,6 +85,8 @@ fun ProfileScreenV4(
     navController: NavController = NavController(LocalContext.current),
     userViewModel: UserViewModel
 ) {
+    val myId = sharedPreferences.getInt(clientId, 0)
+
     val focusManager = LocalFocusManager.current
     val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
@@ -104,7 +105,6 @@ fun ProfileScreenV4(
     val blockedState = remember { mutableStateOf(false) }
     val fcmTokenState = remember { mutableStateOf<List<String>>(listOf())}
 
-    Log.d("Login Info, key1", myId.toString())
     val postList = remember {
         mutableStateOf<List<PostDTO.GetUserPostResponseContent>?>(
             listOf()
