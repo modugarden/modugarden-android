@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -406,6 +407,11 @@ fun CurationContentScreen(curation_id :Int) {
         }
     )
     {
+        BackHandler(enabled = bottomSheetState.isVisible) {
+            scope.launch {
+                bottomSheetState.hide()
+            }
+        }
         // 상단
         Column(
             modifier = Modifier

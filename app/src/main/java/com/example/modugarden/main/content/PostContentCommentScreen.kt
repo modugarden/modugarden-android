@@ -5,6 +5,7 @@ import android.app.Activity
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -555,6 +556,11 @@ fun PostContentCommentScreen(
             }
 
         }) {
+        BackHandler(enabled = bottomSheetState.isVisible) {
+            scope.launch {
+                bottomSheetState.hide()
+            }
+        }
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
