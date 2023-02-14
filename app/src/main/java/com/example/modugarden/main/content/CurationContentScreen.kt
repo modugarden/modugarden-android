@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.ApplicationClass
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
@@ -157,7 +158,14 @@ fun CurationContentScreen(curation_id :Int) {
                                         .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
                                         .size(25.dp)
                                         .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
+                                    contentScale = ContentScale.Crop,
+                                    requestOptions = {
+                                        RequestOptions()
+                                            .override(25,25)
+                                    },
+                                    loading = {
+                                        ShowProgressBar()
+                                    }
                                 )
                                 Spacer(modifier = Modifier.size(18.dp))
                                 Text(text = curation.title, style = moduBold, fontSize = 14.sp,maxLines = 1, overflow = TextOverflow.Ellipsis)

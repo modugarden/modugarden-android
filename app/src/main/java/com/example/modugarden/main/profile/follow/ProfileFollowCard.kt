@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
 import com.example.modugarden.api.dto.FollowListDtoResContent
 
@@ -43,7 +44,14 @@ fun ProfileCard(
             modifier = Modifier
                 .size(50.dp)
                 .clip(CircleShape),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            requestOptions = {
+                RequestOptions()
+                    .override(50,50)
+            },
+            loading = {
+                ShowProgressBar()
+            }
         )
         Column(
             modifier = Modifier

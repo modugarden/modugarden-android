@@ -77,6 +77,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.clientNickname
 import com.example.modugarden.ApplicationClass.Companion.profileImage
@@ -90,6 +91,7 @@ import com.example.modugarden.api.dto.GetCommentResponse
 import com.example.modugarden.data.Report
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
+import com.example.modugarden.ui.theme.ShowProgressBar
 import com.example.modugarden.ui.theme.addFocusCleaner
 import com.example.modugarden.ui.theme.animateShake
 import com.example.modugarden.ui.theme.bounceClick
@@ -232,7 +234,14 @@ fun PostContentCommentScreen(
                                     .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
                                     .size(25.dp)
                                     .clip(CircleShape),
-                                contentScale = ContentScale.Crop
+                                contentScale = ContentScale.Crop,
+                                requestOptions = {
+                                    RequestOptions()
+                                        .override(25,25)
+                                },
+                                loading = {
+                                    ShowProgressBar()
+                                }
                             )
                             Spacer(modifier = Modifier.width(18.dp))
                             Text(
@@ -375,7 +384,14 @@ fun PostContentCommentScreen(
                                         .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
                                         .size(25.dp)
                                         .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
+                                    contentScale = ContentScale.Crop,
+                                    requestOptions = {
+                                        RequestOptions()
+                                            .override(25,25)
+                                    },
+                                    loading = {
+                                        ShowProgressBar()
+                                    }
                                 )
                                 Spacer(modifier = Modifier.size(18.dp))
                                 Text(
@@ -650,7 +666,14 @@ fun PostContentCommentScreen(
                                         modifier = Modifier
                                             .size(30.dp)
                                             .clip(CircleShape),
-                                        contentScale = ContentScale.Crop
+                                        contentScale = ContentScale.Crop,
+                                        requestOptions = {
+                                            RequestOptions()
+                                                .override(30,30)
+                                        },
+                                        loading = {
+                                            ShowProgressBar()
+                                        }
                                     )
                                     Spacer(modifier = Modifier.size(10.dp))
                                     val focusRequester = remember { FocusRequester() }
@@ -833,7 +856,14 @@ fun BlockCommentItem(
                     modifier = Modifier
                         .size(30.dp)
                         .clip(CircleShape),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+                    requestOptions = {
+                        RequestOptions()
+                            .override(30,30)
+                    },
+                    loading = {
+                        ShowProgressBar()
+                    }
                 )
                 Spacer(modifier = Modifier.size(10.dp))
 
@@ -898,7 +928,14 @@ fun LazyItemScope.CommentItem(
                                 navController.navigate(NAV_ROUTE_POSTCONTENT.WRITER.routeName)
                                 //  포스트 작성자 프로필로
                             },
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
+                        requestOptions = {
+                            RequestOptions()
+                                .override(30,30)
+                        },
+                        loading = {
+                            ShowProgressBar()
+                        }
                     )
                     Spacer(modifier = Modifier.size(10.dp))
 
