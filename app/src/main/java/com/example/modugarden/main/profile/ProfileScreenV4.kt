@@ -60,6 +60,7 @@ import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.main.content.timeToDate
 import com.example.modugarden.main.profile.follow.ProfileFollowScreen
 import com.example.modugarden.main.settings.SettingsActivity
+import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.RefreshViewModel
 import com.example.modugarden.viewmodel.UserViewModel
@@ -426,7 +427,14 @@ fun ProfileScreenV4(
                                         modifier = Modifier
                                             .fillMaxHeight()
                                             .aspectRatio(1f)
-                                            .clip(CircleShape),
+                                            .clip(CircleShape)
+                                            .bounceClick {
+                                                         if(data.value.profileImage != null) {
+                                                             val intent = Intent(context, ProfileImageDetailActivity::class.java)
+                                                             intent.putExtra("imageUrl", data.value.profileImage)
+                                                             context.startActivity(intent)
+                                                         }
+                                            },
                                         loading = {
                                             ShowProgressBar()
                                         },

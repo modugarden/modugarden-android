@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.modugarden.main.profile.ProfileImageDetail
 import com.example.modugarden.main.profile.ProfileScreenV2
 import com.example.modugarden.main.profile.ProfileScreenV4
 import com.example.modugarden.viewmodel.UserViewModel
@@ -20,7 +21,8 @@ import com.example.modugarden.viewmodel.UserViewModel
 enum class ProfileFollowScreen (val title: String) {
     Follow(title = "팔로우"),
     Profile(title = "프로필"),
-    New(title = "다른 프로필")
+    New(title = "다른 프로필"),
+    ProfileImage(title = "프로필 이미지")
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -72,5 +74,10 @@ fun ProfileFollow (
         composable(route = ProfileFollowScreen.New.name) {
             ProfileApp(userId = viewModel.getNextUserId(), false, upperNavController =  navController)
         }
+//        composable(route = ProfileFollowScreen.ProfileImage.name + "/{imageUrl}")
+//        { backStackEntry ->
+//            val imageUrl = backStackEntry.arguments?.getString("imageUrl") ?: ""
+//            ProfileImageDetail(navController = navController, imageUrl = imageUrl)
+//        }
     }
 }
