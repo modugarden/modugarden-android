@@ -2,7 +2,6 @@ package com.example.modugarden.main.settings
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -19,7 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -28,7 +26,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
+import androidx.core.net.toUri
 import com.bumptech.glide.request.RequestOptions
+import com.example.modugarden.ApplicationClass.Companion.categorySetting
 import com.example.modugarden.ApplicationClass.Companion.clientNickname
 import com.example.modugarden.ApplicationClass.Companion.profileImage
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
@@ -71,14 +71,14 @@ fun SettingsProfileScreen(
     val scope = rememberCoroutineScope()
 
     // 각 정보들 저장하는거임 생일이랑 이메일은 리멤버 안해도 되긴 하는데 귀찮아서 안바꿈
-    val nicknameState = remember { mutableStateOf(settingViewModel.getNickname()) }
+    val nicknameState = remember { mutableStateOf(sharedPreferences.getString(clientNickname, "")) }
     val birthState = remember { mutableStateOf(settingViewModel.getBirth()) }
     val emailState = remember { mutableStateOf(settingViewModel.getEmail()) }
     val nicknameFocusState = remember { mutableStateOf(false) }
     val nicknameErrorState = remember { mutableStateOf(false) }
     val modalType = remember { mutableStateOf(ModalType.ProfileImage) }
-    val categoriesState = remember { mutableStateOf(settingViewModel.getCategories()) }
-    val imageState = remember { mutableStateOf (settingViewModel.getImage()) }
+    val categoriesState = remember { mutableStateOf(sharedPreferences.getStringSet(categorySetting, setOf())!!.toList()) }
+    val imageState = remember { mutableStateOf (sharedPreferences.getString(profileImage, null)?.toUri()) }
     var isImageChanged = false
 
     // 사진 가져오는 런쳐
@@ -313,17 +313,6 @@ fun SettingsProfileScreen(
                                             response.toString() + "\n" +
                                                     response.body().toString() + "\n" +
                                                     response.errorBody().toString())
-                                        settingViewModel.setSettingInfo(
-                                            nicknameState.value,
-                                            birthState.value,
-                                            emailState.value,
-                                            categoriesState.value,
-                                            imageState.value
-                                        )
-                                        sharedPreferences.edit()
-                                            .putString(profileImage, imageState.value.toString())
-                                            .putString(clientNickname, nicknameState.value)
-                                            .apply()
                                     }
 
                                     override fun onFailure(
@@ -338,19 +327,18 @@ fun SettingsProfileScreen(
                         else {
                             CoroutineScope(Dispatchers.IO).launch {
                                 RetrofitBuilder.userAPI.updateUserProfile(jsonBody).execute()
-                                settingViewModel.setSettingInfo(
-                                    nicknameState.value,
-                                    birthState.value,
-                                    emailState.value,
-                                    categoriesState.value,
-                                    imageState.value
-                                )
-                                sharedPreferences.edit()
-                                    .putString(clientNickname, nicknameState.value)
-                                    .putString(profileImage, imageState.value.toString())
-                                    .apply()
                             }
                         }
+                        settingViewModel.setSettingInfo(
+                            birthState.value,
+                            emailState.value,
+                            categoriesState.value
+                        )
+                        sharedPreferences.edit()
+                            .putStringSet(categorySetting, categoriesState.value.toSet())
+                            .putString(profileImage, imageState.value.toString())
+                            .putString(clientNickname, nicknameState.value)
+                            .apply()
                         onButtonClicked()
                     },
                     dpScale = 0.dp,

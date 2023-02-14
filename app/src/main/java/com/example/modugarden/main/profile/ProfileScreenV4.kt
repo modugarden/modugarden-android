@@ -49,6 +49,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.bumptech.glide.request.RequestOptions
+import com.example.modugarden.ApplicationClass
+import com.example.modugarden.ApplicationClass.Companion.categorySetting
 import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
@@ -164,6 +166,7 @@ fun ProfileScreenV4(
                 blockedState.value = response.body()!!.result.blocked
                 fcmTokenState.value = response.body()!!.result.fcmTokens
                 loadingState.value = false
+                sharedPreferences.edit().putStringSet(categorySetting, response.body()?.result?.categories!!.toSet()).apply()
             }
         })
 
@@ -233,9 +236,9 @@ fun ProfileScreenV4(
                             backgroundColor = Color.White,
                             positiveButtonText = "차단",
                             negativeButtonText = "취소",
-                            positiveButtonTextColor = moduGray_strong,
-                            negativeButtonTextColor = moduGray_normal,
-                            positiveButtonColor = moduGray_light,
+                            positiveButtonTextColor = Color.White,
+                            negativeButtonTextColor = moduBlack,
+                            positiveButtonColor = moduErrorPoint,
                             negativeButtonColor = moduBackground,
                             dialogState = blockDialogState
                         ) {

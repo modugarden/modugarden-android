@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.ApplicationClass.Companion.autoLoginSetting
+import com.example.modugarden.ApplicationClass.Companion.clientNickname
+import com.example.modugarden.ApplicationClass.Companion.profileImage
 import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
 import com.example.modugarden.login.LoginActivity
@@ -73,7 +75,7 @@ fun SettingsMainScreen (
             Spacer(modifier = Modifier.width(18.dp))
             GlideImage(
                 imageModel =
-                settingViewModel.getImage() ?: R.drawable.ic_default_profile,
+                sharedPreferences.getString(profileImage, null) ?: R.drawable.ic_default_profile,
                 contentDescription = null,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
@@ -99,7 +101,7 @@ fun SettingsMainScreen (
                     .align(Alignment.CenterVertically)
             ) {
                 Text(
-                    text = settingViewModel.getNickname(),
+                    text = sharedPreferences.getString(clientNickname, "") ?: "",
                     style = TextStyle(
                         color = moduBlack,
                         fontSize = 16.sp

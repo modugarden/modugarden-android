@@ -48,6 +48,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -223,7 +224,8 @@ fun EditText(
             textStyle = textStyle,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             singleLine = singleLine,
-            placeholder = { Text(placeholder, color = moduGray_normal, fontSize = placeholderSize.sp) }
+            placeholder = { Text(placeholder, color = moduGray_normal, fontSize = placeholderSize.sp) },
+            visualTransformation = PasswordVisualTransformation()
         )
         if(description != "") {
             Spacer(modifier = Modifier.height(5.dp))
@@ -235,7 +237,7 @@ fun EditText(
 @Composable
 fun NicknameEditText(
     title: String?, //textField 위에 들어갈 제목.
-    data: MutableState<String>, //textField의 데이터 값을 저장.
+    data: MutableState<String?>, //textField의 데이터 값을 저장.
     isTextFieldFocused: MutableState<Boolean>, //textField가 포커싱 되어 있는지 여부.
     modifier: Modifier = Modifier
         .fillMaxWidth(),
@@ -300,7 +302,7 @@ fun NicknameEditText(
                     else moduBackground
                 )
                 .animateContentSize(),
-            value = data.value,
+            value = data.value ?: "",
             keyboardActions = keyboardActions,
             onValueChange = { textValue ->
                 data.value = textValue
@@ -322,7 +324,7 @@ fun NicknameEditText(
         Spacer(modifier = Modifier.height(5.dp))
         Text(text =
         if (errorState.value) "중복된 닉네임이예요."
-        else if (data.value.length in 0..25) "2~25자의 영문, 숫자, _만 가능해요."
+        else if (data.value?.length in 0..25) "2~25자의 영문, 숫자, _만 가능해요."
         else "글자 수를 초과했어요",
             fontWeight = FontWeight.Bold, fontSize = 11.sp,
             color =
