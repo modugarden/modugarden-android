@@ -2,10 +2,7 @@ package com.example.modugarden.main.profile.follow
 
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
@@ -158,9 +155,9 @@ fun ProfileFollowMainScreen(
                     0 -> {
                         LazyColumn(
                             modifier = Modifier
-                                .padding(18.dp)
                                 .fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(18.dp)
+                            verticalArrangement = Arrangement.spacedBy(18.dp),
+                            contentPadding = PaddingValues(18.dp)
                         ) {
                             items(
                                 items = newFollowerList.value,
@@ -183,9 +180,9 @@ fun ProfileFollowMainScreen(
                     1 -> {
                         LazyColumn(
                             modifier = Modifier
-                                .padding(18.dp)
                                 .fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(18.dp)
+                            verticalArrangement = Arrangement.spacedBy(18.dp),
+                            contentPadding = PaddingValues(18.dp)
                         ) {
                             items(
                                 items = newFollowingList.value,

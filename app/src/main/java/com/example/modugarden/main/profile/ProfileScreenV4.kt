@@ -637,7 +637,7 @@ fun ProfileScreenV4(
                                                         .fillMaxSize(),
                                                     contentPadding = PaddingValues(18.dp)
                                                 ) {
-                                                        items(postList.value ?: listOf()) { postCard ->
+                                                        items(items = postList.value ?: listOf(), key = { it.id }) { postCard ->
                                                         // 이미지가 들어간 버튼을 넣어야 함
                                                         Box(modifier = Modifier
                                                             .bounceClick {
@@ -713,7 +713,7 @@ fun ProfileScreenV4(
                                                     verticalArrangement = Arrangement.spacedBy(15.dp),
                                                     contentPadding = PaddingValues(18.dp)
                                                 ) {
-                                                    items(curationList.value ?: listOf()) { curationCard ->
+                                                    items(items = curationList.value ?: listOf(), key = { it.id }) { curationCard ->
                                                         Row(
                                                             modifier = Modifier
                                                                 .height(90.dp)

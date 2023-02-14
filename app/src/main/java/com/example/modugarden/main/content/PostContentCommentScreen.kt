@@ -843,25 +843,24 @@ fun PostContentCommentScreen(
                                                                                 commentList
                                                                             )
                                                                         }
-                                                                        if(userViewModel.getUserId() != sharedPreferences.getInt(clientId, 0))
-                                                                            fcmToken?.forEach { token ->
-                                                                                Log.d(
-                                                                                    "onTokenResponse",
-                                                                                    "sendNotification : $token"
-                                                                                )
-                                                                                sendNotification(
-                                                                                    notificationType = (if (comment.parentId == null) 1 else 2),
-                                                                                    boardId,
-                                                                                    username,
-                                                                                    sharedPreferences.getString(
-                                                                                        profileImage,
-                                                                                        null
-                                                                                    ),
-                                                                                    titleMessage = (if (comment.parentId == null) "님이 댓글을 남겼어요." else "님이 답글을 남겼어요."),
-                                                                                    fcmToken = token,
-                                                                                    message = comment.comment
-                                                                                )
-                                                                            }
+                                                                        fcmToken?.forEach { token ->
+                                                                            Log.d(
+                                                                                "onTokenResponse",
+                                                                                "sendNotification : $token"
+                                                                            )
+                                                                            sendNotification(
+                                                                                notificationType = (if (comment.parentId == null) 1 else 2),
+                                                                                boardId,
+                                                                                username,
+                                                                                sharedPreferences.getString(
+                                                                                    profileImage,
+                                                                                    null
+                                                                                ),
+                                                                                titleMessage = (if (comment.parentId == null) "님이 댓글을 남겼어요." else "님이 답글을 남겼어요."),
+                                                                                fcmToken = token,
+                                                                                message = comment.comment
+                                                                            )
+                                                                        }
 
                                                                     }
                                                                 } else Log.i(
