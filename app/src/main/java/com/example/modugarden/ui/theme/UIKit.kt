@@ -48,6 +48,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -223,7 +224,8 @@ fun EditText(
             textStyle = textStyle,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             singleLine = singleLine,
-            placeholder = { Text(placeholder, color = moduGray_normal, fontSize = placeholderSize.sp) }
+            placeholder = { Text(placeholder, color = moduGray_normal, fontSize = placeholderSize.sp) },
+            visualTransformation = PasswordVisualTransformation()
         )
         if(description != "") {
             Spacer(modifier = Modifier.height(5.dp))

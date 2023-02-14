@@ -51,16 +51,12 @@ fun SettingsNotificationScreen () {
             mutableStateOf(sharedPreferences.getBoolean(serviceNotification,true)) }
         val marketingState = remember {
             mutableStateOf(sharedPreferences.getBoolean(marketingNotification, true)) }
-        val autoLoginState = remember {
-            mutableStateOf(sharedPreferences.getBoolean(autoLoginSetting, false)) }
         Notifications(checkState = commentState, option = "댓글 알림", commentNotification)
         Notifications(checkState = followState, option = "팔로우 알림", followNotification)
         Spacer(modifier = Modifier.height(18.dp))
         Notifications(checkState = serviceState, option = "서비스 알림", serviceNotification)
         Spacer(modifier = Modifier.height(18.dp))
         Notifications(checkState = marketingState, option = "마케팅 알림", marketingNotification)
-        Spacer(modifier = Modifier.height(18.dp))
-        Notifications(checkState = autoLoginState, option = "자동 로그인", autoLoginSetting)
     }
 }
 
