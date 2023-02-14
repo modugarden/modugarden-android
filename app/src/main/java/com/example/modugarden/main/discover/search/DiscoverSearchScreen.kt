@@ -2,6 +2,7 @@ package com.example.modugarden.main.discover.search
 
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -86,6 +87,11 @@ fun DiscoverSearchScreen(navController: NavHostController) {
             })
         },
         uiScreen = {
+            BackHandler(enabled = bottomSheetState.isVisible) {
+                scope.launch {
+                    bottomSheetState.hide()
+                }
+            }
             Box(
                 modifier = Modifier
                     .fillMaxSize()

@@ -3,6 +3,7 @@ package com.example.modugarden.main.follow
 import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -119,6 +120,8 @@ fun FollowingScreen(
     val reportMessage = remember{ mutableStateOf("") }
     val deleteContentViewModel :DeleteContentViewModel = viewModel()
 
+
+    Log.i("백백",bottomSheetState.isVisible.toString())
     val postList = remember { mutableStateListOf<PostDTO.GetFollowFeedPostContent>() }
     postList.clear()
     val curationList = remember { mutableStateListOf<GetFollowFeedCurationContent>() }
@@ -503,6 +506,11 @@ fun FollowingScreen(
             }
         })
     {
+        BackHandler(enabled = bottomSheetState.isVisible) {
+            scope.launch {
+                bottomSheetState.hide()
+            }
+        }
         Box(modifier = Modifier
             .fillMaxSize()
             .background(moduBackground)) {

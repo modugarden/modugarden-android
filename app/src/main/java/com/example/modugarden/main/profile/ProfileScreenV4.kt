@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -199,6 +200,11 @@ fun ProfileScreenV4(
                 })
         },
         uiScreen = {
+            BackHandler(enabled = bottomSheetState.isVisible) {
+                scope.launch {
+                    bottomSheetState.hide()
+                }
+            }
             Scaffold(
                 modifier = Modifier
                     .fillMaxSize()

@@ -1,6 +1,7 @@
 package com.example.modugarden.main.upload.curation
 
 import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -88,6 +89,11 @@ fun UploadCurationInfoScreen(
             })
         },
         uiScreen = {
+            BackHandler(enabled = bottomSheetState.isVisible) {
+                scope.launch {
+                    bottomSheetState.hide()
+                }
+            }
             Column(
                 modifier = Modifier
                     .background(Color.White)
