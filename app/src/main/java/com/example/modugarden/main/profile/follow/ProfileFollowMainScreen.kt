@@ -21,10 +21,7 @@ import com.example.modugarden.api.AuthCallBack
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.FollowListDtoRes
 import com.example.modugarden.api.dto.FollowListDtoResContent
-import com.example.modugarden.ui.theme.ScaffoldSnackBar
-import com.example.modugarden.ui.theme.TopBar
-import com.example.modugarden.ui.theme.moduBlack
-import com.example.modugarden.ui.theme.moduGray_strong
+import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -56,40 +53,6 @@ fun ProfileFollowMainScreen(
     ) }
 
     val context = LocalContext.current
-
-    RetrofitBuilder.followAPI.otherFollowerList(id)
-        .enqueue(object : Callback<FollowListDtoRes> {
-            override fun onResponse(
-                call: Call<FollowListDtoRes>,
-                response: Response<FollowListDtoRes>
-            ) {
-                Log.d("onResponse", response.code().toString() +
-                        "\n" + (response.body()?.content))
-                newFollowerList.value = response.body()?.content!!
-            }
-
-            override fun onFailure(call: Call<FollowListDtoRes>, t: Throwable) {
-                Log.d("onFailure", "안됨")
-            }
-        })
-    RetrofitBuilder.followAPI.otherFollowingList(id)
-        .enqueue(object : AuthCallBack<FollowListDtoRes>(context, "성공") {
-            override fun onResponse(
-                call: Call<FollowListDtoRes>,
-                response: Response<FollowListDtoRes>
-            ) {
-                super.onResponse(call, response)
-                Log.d(
-                    "onResponse", response.code().toString() +
-                            "\n" + (response.body()?.content)
-                )
-                newFollowingList.value = response.body()?.content!!
-            }
-
-            override fun onFailure(call: Call<FollowListDtoRes>, t: Throwable) {
-                Log.d("onFailure", "안됨")
-            }
-        })
 
     Scaffold(
         modifier = Modifier
@@ -156,54 +119,106 @@ fun ProfileFollowMainScreen(
             ) { page ->
                 when (page) {
                     0 -> {
-                        LazyColumn(
-                            modifier = Modifier
-                                .padding(18.dp)
-                                .fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(18.dp)
-                        ) {
-                            items(
-                                items = newFollowerList.value,
-                                key = { user -> user.userId }) { follower ->
-                                ProfileCard(follower, onUserClick) { isFollowing ->
-                                    scope.launch {
-                                        if (isFollowing)
-                                            scaffoldState.snackbarHostState.showSnackbar(
-                                                "${follower.nickname} 님을 언팔로우 했어요."
-                                            )
-                                        else
-                                            scaffoldState.snackbarHostState.showSnackbar(
-                                                "${follower.nickname} 님을 팔로우 했어요."
-                                            )
+                        val isLoading = remember{ mutableStateOf(true) }
+
+                        RetrofitBuilder.followAPI.otherFollowerList(id)
+                            .enqueue(object : Callback<FollowListDtoRes> {
+                                override fun onResponse(
+                                    call: Call<FollowListDtoRes>,
+                                    response: Response<FollowListDtoRes>
+                                ) {
+                                    Log.d("onResponse", response.code().toString() +
+                                            "\n" + (response.body()?.content))
+                                    newFollowerList.value = response.body()?.content!!
+                                    isLoading.value = false
+                                }
+
+                                override fun onFailure(call: Call<FollowListDtoRes>, t: Throwable) {
+                                    Log.d("onFailure", "안됨")
+                                }
+                            })
+
+                        if(isLoading.value) {
+                            ShowProgressBar()
+                        }
+                        else {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .padding(18.dp)
+                                    .fillMaxSize(),
+                                verticalArrangement = Arrangement.spacedBy(18.dp)
+                            ) {
+                                items(
+                                    items = newFollowerList.value,
+                                    key = { user -> user.userId }) { follower ->
+                                    ProfileCard(follower, onUserClick) { isFollowing ->
+                                        scope.launch {
+                                            if (isFollowing)
+                                                scaffoldState.snackbarHostState.showSnackbar(
+                                                    "${follower.nickname} 님을 언팔로우 했어요."
+                                                )
+                                            else
+                                                scaffoldState.snackbarHostState.showSnackbar(
+                                                    "${follower.nickname} 님을 팔로우 했어요."
+                                                )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                     1 -> {
-                        LazyColumn(
-                            modifier = Modifier
-                                .padding(18.dp)
-                                .fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(18.dp)
-                        ) {
-                            items(
-                                items = newFollowingList.value,
-                                key = { user -> user.userId }) {following ->
-                                ProfileCard(following, onUserClick) { isFollowing ->
-                                    scope.launch {
-                                        if (isFollowing)
-                                            scaffoldState.snackbarHostState.showSnackbar(
-                                                "${following.nickname} 님을 언팔로우 했어요."
-                                            )
-                                        else
-                                            scaffoldState.snackbarHostState.showSnackbar(
-                                                "${following.nickname} 님을 팔로우 했어요."
-                                            )
+                        val isLoading = remember{ mutableStateOf(true) }
+
+                        RetrofitBuilder.followAPI.otherFollowingList(id)
+                            .enqueue(object : AuthCallBack<FollowListDtoRes>(context, "성공") {
+                                override fun onResponse(
+                                    call: Call<FollowListDtoRes>,
+                                    response: Response<FollowListDtoRes>
+                                ) {
+                                    super.onResponse(call, response)
+                                    Log.d(
+                                        "onResponse", response.code().toString() +
+                                                "\n" + (response.body()?.content)
+                                    )
+                                    newFollowingList.value = response.body()?.content!!
+                                    isLoading.value = false
+                                }
+
+                                override fun onFailure(call: Call<FollowListDtoRes>, t: Throwable) {
+                                    Log.d("onFailure", "안됨")
+                                }
+                            })
+
+                        if(isLoading.value) {
+                            ShowProgressBar()
+                        }
+                        else{
+                            LazyColumn(
+                                modifier = Modifier
+                                    .padding(18.dp)
+                                    .fillMaxSize(),
+                                verticalArrangement = Arrangement.spacedBy(18.dp)
+                            ) {
+                                items(
+                                    items = newFollowingList.value,
+                                    key = { user -> user.userId }) {following ->
+                                    ProfileCard(following, onUserClick) { isFollowing ->
+                                        scope.launch {
+                                            if (isFollowing)
+                                                scaffoldState.snackbarHostState.showSnackbar(
+                                                    "${following.nickname} 님을 언팔로우 했어요."
+                                                )
+                                            else
+                                                scaffoldState.snackbarHostState.showSnackbar(
+                                                    "${following.nickname} 님을 팔로우 했어요."
+                                                )
+                                        }
                                     }
                                 }
                             }
                         }
+
                     }
                 }
             }
