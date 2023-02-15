@@ -62,6 +62,7 @@ import com.example.modugarden.ApplicationClass.Companion.autoLoginId
 import com.example.modugarden.ApplicationClass.Companion.autoLoginOption
 import com.example.modugarden.ApplicationClass.Companion.autoLoginPw
 import com.example.modugarden.ApplicationClass.Companion.autoLoginSetting
+import com.example.modugarden.ApplicationClass.Companion.clientAuthority
 import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.clientNickname
 import com.example.modugarden.ApplicationClass.Companion.fcmToken
@@ -168,6 +169,7 @@ fun MainLoginScreen(navController: NavController) {
                                                         editor.putInt(clientId, res1.result.userId)
                                                         editor.putString(profileImage,res1.result.profileImage)
                                                         editor.putString(clientNickname, res1.result.nickname)
+                                                        editor.putString(clientAuthority, res1.result.userAuthority)
                                                         if(autoLoginState.value) {
                                                             editor.putBoolean(autoLoginSetting, true)
                                                             editor.putString(autoLoginOption, googleLogin)
@@ -353,6 +355,7 @@ fun MainLoginScreen(navController: NavController) {
                                             editor.putString(refreshToken, res.result.refreshToken)
                                             editor.putInt(clientId, res.result.userId)
                                             editor.putString(clientNickname, res.result.nickname)
+                                            editor.putString(clientAuthority, res.result.userAuthority)
                                             editor.putString(profileImage, res.result.profileImage)
                                             if(autoLoginState.value) {
                                                 editor.putBoolean(autoLoginSetting, true)
@@ -544,6 +547,7 @@ fun MainLoginScreen(navController: NavController) {
                                                     editor.putString(refreshToken, res.result.refreshToken)
                                                     editor.putInt(clientId, res.result.userId)
                                                     editor.putString(clientNickname, res.result.nickname)
+                                                    editor.putString(clientAuthority, res.result.userAuthority)
                                                     editor.putString(profileImage, res.result.profileImage)
                                                     if(autoLoginState.value) {
                                                         editor.putBoolean(autoLoginSetting, true)
@@ -781,7 +785,7 @@ fun MainLoginScreen(navController: NavController) {
                         Text("가입하기", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = moduPoint, modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp), textAlign = TextAlign.Center)
                     }
                 }
-                Spacer(modifier = Modifier.height(50.dp))
+                Spacer(modifier = Modifier.height(30.dp))
             }
         }
     }
@@ -820,6 +824,7 @@ fun MainLoginScreen(navController: NavController) {
                                 editor.putString(refreshToken, res.result.refreshToken)
                                 editor.putInt(clientId, res.result.userId)
                                 editor.putString(clientNickname, res.result.nickname)
+                                editor.putString(clientAuthority, res.result.userAuthority)
                                 editor.putString(profileImage, res.result.profileImage)
                                 editor.apply()
                                 fcmCheckAPI.fcmCheckAPI()
@@ -874,6 +879,7 @@ fun MainLoginScreen(navController: NavController) {
                                 editor.putString(refreshToken, res1.result.refreshToken)
                                 editor.putInt(clientId, res1.result.userId)
                                 editor.putString(clientNickname, res1.result.nickname)
+                                editor.putString(clientAuthority, res1.result.userAuthority)
                                 editor.putString(profileImage, res1.result.profileImage)
                                 editor.apply()
                                 fcmCheckAPI.fcmCheckAPI().enqueue(object : Callback<FcmCheckDTO> {

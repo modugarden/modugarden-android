@@ -12,5 +12,6 @@ data class Result(
     val nickname: String,
     val refreshToken: String,
     val userId: Int,
-    val profileImage:String?
+    val profileImage:String?,
+    val userAuthority: String
 )
