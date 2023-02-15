@@ -1,5 +1,7 @@
 package com.example.modugarden.main.discover
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,22 +12,23 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.route.NavigationGraphDiscoverSearch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DiscoverScreen(navController: NavHostController) {
+fun DiscoverScreen(navController: NavHostController,navDiscoverController:NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
         //탐색 메인화면 부름
-        DiscoverSearchNavScreen()
+        DiscoverSearchNavScreen(navDiscoverController)
     }
 }
 
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DiscoverSearchNavScreen() {
-    val navController = rememberNavController()
-    NavigationGraphDiscoverSearch(navController = navController)
+fun DiscoverSearchNavScreen(navDiscoverController:NavHostController) {
+    NavigationGraphDiscoverSearch(navController = navDiscoverController)
 }
