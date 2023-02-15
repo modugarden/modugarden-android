@@ -79,35 +79,10 @@ fun ProfileTab (
         items(postList) { postCard ->
             // 이미지가 들어간 버튼을 넣어야 함
             Box(modifier = Modifier.bounceClick {
-                val intent = Intent(context, PostContentActivity::class.java)
-
-                val bundle = Bundle()
-
-                bundle.putInt("board_id", postCard.id)
-                bundle.putBoolean("run", true)
-
-                intent.putExtras(bundle)
-
-                val pendIntent: PendingIntent
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    pendIntent = PendingIntent
-                        .getActivity(
-                            context, 0,
-                            intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent . FLAG_MUTABLE
-                        )
-
-                } else {
-                    pendIntent = PendingIntent
-                        .getActivity(
-                            context, 0,
-                            intent, PendingIntent.FLAG_UPDATE_CURRENT
-                        )
-                }
-
-                postLauncher.launch(
-                    IntentSenderRequest
-                        .Builder(pendIntent)
-                        .build()
+                context.startActivity(
+                    Intent(context, PostContentActivity::class.java)
+                        .putExtra("board_id", postCard.id)
+                        .putExtra("run",true)
                 )
             }) {
                 GlideImage(
@@ -375,18 +350,18 @@ fun StoredTab(
             }
         })
 
-    RetrofitBuilder.postAPI.getMyPostStorage()
+    RetrofitBuilder.curationAPI.getMyCurationStorage()
         .enqueue(object :
-            AuthCallBack<GetStoredPostResponse>(context, "저장된 항목 부르기 성공!") {
+            AuthCallBack<GetStoredCurationsResponse>(context, "저장된 항목 부르기 성공!") {
             override fun onResponse(
-                call: Call<GetStoredPostResponse>,
-                response: Response<GetStoredPostResponse>
+                call: Call<GetStoredCurationsResponse>,
+                response: Response<GetStoredCurationsResponse>
             ) {
                 super.onResponse(call, response)
-                if(response.body()?.content != null)
-                    postList.value = response.body()?.content
-            } }
-        )
+                if (response.body()?.content != null)
+                    curationList.value = response.body()?.content
+            }
+        })
 
     val postLauncher = rememberLauncherForActivityResult(contract =
     ActivityResultContracts.StartIntentSenderForResult()) {
@@ -407,33 +382,20 @@ fun StoredTab(
     val curationLauncher = rememberLauncherForActivityResult(contract =
     ActivityResultContracts.StartIntentSenderForResult()) {
 
-        RetrofitBuilder.postAPI.getMyPostStorage()
+        RetrofitBuilder.curationAPI.getMyCurationStorage()
             .enqueue(object :
-                AuthCallBack<GetStoredPostResponse>(context, "저장된 항목 부르기 성공!") {
+                AuthCallBack<GetStoredCurationsResponse>(context, "저장된 항목 부르기 성공!") {
                 override fun onResponse(
-                    call: Call<GetStoredPostResponse>,
-                    response: Response<GetStoredPostResponse>
+                    call: Call<GetStoredCurationsResponse>,
+                    response: Response<GetStoredCurationsResponse>
                 ) {
                     super.onResponse(call, response)
-                    if(response.body()?.content != null)
-                        postList.value = response.body()?.content
-                } }
-            )
+                    if (response.body()?.content != null)
+                        curationList.value = response.body()?.content
+                }
+            })
+
     }
-
-    RetrofitBuilder.curationAPI.getMyCurationStorage()
-        .enqueue(object :
-            AuthCallBack<GetStoredCurationsResponse>(context, "저장된 항목 부르기 성공!") {
-            override fun onResponse(
-                call: Call<GetStoredCurationsResponse>,
-                response: Response<GetStoredCurationsResponse>
-            ) {
-                super.onResponse(call, response)
-                if (response.body()?.content != null)
-                    curationList.value = response.body()?.content
-            }
-        })
-
 
     TabRow(
         selectedTabIndex = pagerState.currentPage,
@@ -562,10 +524,34 @@ fun StoredTab(
                             modifier = Modifier
                                 .height(90.dp)
                                 .bounceClick {
-                                    context.startActivity(
-                                        Intent(context, CurationContentActivity::class.java)
-                                            .putExtra("curation_id", curationCard.id)
-                                            .putExtra("run",true)
+                                    val intent = Intent(context, CurationContentActivity::class.java)
+                                    val bundle = Bundle()
+
+                                    bundle.putInt("curation_id", curationCard.id)
+                                    bundle.putBoolean("run", true)
+
+                                    intent.putExtras(bundle)
+
+                                    val pendIntent: PendingIntent
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                        pendIntent = PendingIntent
+                                            .getActivity(
+                                                context, 0,
+                                                intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent . FLAG_MUTABLE
+                                            )
+
+                                    } else {
+                                        pendIntent = PendingIntent
+                                            .getActivity(
+                                                context, 0,
+                                                intent, PendingIntent.FLAG_UPDATE_CURRENT
+                                            )
+                                    }
+
+                                    curationLauncher.launch(
+                                        IntentSenderRequest
+                                            .Builder(pendIntent)
+                                            .build()
                                     )
                                 }
                         ) {
