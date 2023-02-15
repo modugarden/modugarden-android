@@ -44,6 +44,7 @@ import com.example.modugarden.api.dto.GetCommentResponse
 import com.example.modugarden.api.dto.UnBlockUserResponse
 import com.example.modugarden.ui.theme.*
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -109,9 +110,14 @@ fun SettingsBlockScreen () {
                     key = { user -> user.id }
                 ) { blockedProfile ->
                     BlockedProfileCard(blockedProfile) {
-                        scope.launch {
-                            scaffoldState.snackbarHostState.showSnackbar("${blockedProfile.nickname} 님의 차단을 해제했습니다.")
+                        scope.launch{
+                            val snackBar = scope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar("${blockedProfile.nickname} 님의 차단을 해제했습니다.")
+                            }
+                            delay(900)
+                            snackBar.cancel()
                         }
+
                         RetrofitBuilder.blockAPI.unBlockUser(blockedProfile.id)
                             .enqueue(AuthCallBack<UnBlockUserResponse>(context, "${blockedProfile.id} 차단 해제 성공!"))
                         blockUserList.remove(blockedProfile)

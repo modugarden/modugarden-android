@@ -275,15 +275,20 @@ fun NicknameEditText(
                     isTextFieldFocused.value = it.isFocused
                     val jsonObject = JsonObject()
                     jsonObject.addProperty("nickname", data.value)
-                    if(!isTextFieldFocused.value) {
-                        RetrofitBuilder.signupAPI.signupNicknameIsDuplicatedAPI(jsonObject)
+                    if (!isTextFieldFocused.value) {
+                        RetrofitBuilder.signupAPI
+                            .signupNicknameIsDuplicatedAPI(jsonObject)
                             .enqueue(object : Callback<SignupNicknameIsDuplicatedDTO> {
                                 override fun onResponse(
                                     call: Call<SignupNicknameIsDuplicatedDTO>,
                                     response: Response<SignupNicknameIsDuplicatedDTO>
                                 ) {
-                                    if (data.value != sharedPreferences.getString(clientNickname, "")
-                                        && response.body()?.result?.isDuplicated!!) {
+                                    if (data.value != sharedPreferences.getString(
+                                            clientNickname,
+                                            ""
+                                        )
+                                        && response.body()?.result?.isDuplicated!!
+                                    ) {
                                         invalidNicknameState.value = false
                                         duplicatedState.value = true
                                         overLengthState.value = false
@@ -497,7 +502,7 @@ fun TopBar(
                         .height(titleIconSize)
                         .width(titleIconSize)
                         .align(Alignment.CenterVertically)
-                        .bounceClick{ titleIconOnClick.invoke() },
+                        .bounceClick { titleIconOnClick.invoke() },
                     colorFilter = ColorFilter.tint(titleIconTint)
                 )
                 Spacer(modifier = Modifier.width(18.dp))
@@ -719,13 +724,13 @@ fun ProfileUpdateBottomButton(
         Card(
             modifier = Modifier
                 .bounceClick {
-                    if(!disabled.value)
+                    if (!disabled.value)
                         onClick.invoke()
                 }
                 .padding(dpScale)
                 .fillMaxWidth()
                 .alpha(
-                    if(!disabled.value)
+                    if (!disabled.value)
                         alpha
                     else
                         alpha / 2
@@ -1105,11 +1110,15 @@ fun PostSaveCard(
 
                         }
                     )
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            "게시물을 저장하였습니다.",
-                            duration = SnackbarDuration.Short
-                        )
+                    scope.launch{
+                        val snackBar =scope.launch {
+                            snackbarHostState.showSnackbar(
+                                "게시물을 저장하였습니다.",
+                                duration = SnackbarDuration.Indefinite
+                            )
+                        }
+                        delay(900)
+                        snackBar.cancel()
                     }
                 }
                 /*RetrofitBuilder.postAPI.getPostLikeNum(boardId)
@@ -1298,11 +1307,15 @@ fun CurationSaveCard(
                 )
 
             }
-            scope.launch {
-                snackbarHostState.showSnackbar(
-                    "게시물을 저장하였습니다.",
-                    duration = SnackbarDuration.Short
-                )
+            scope.launch{
+                val snackBar =scope.launch {
+                    snackbarHostState.showSnackbar(
+                        "게시물을 저장하였습니다.",
+                        duration = SnackbarDuration.Indefinite
+                    )
+                }
+                delay(900)
+                snackBar.cancel()
             }
 
         }

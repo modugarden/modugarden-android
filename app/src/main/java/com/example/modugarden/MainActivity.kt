@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -14,9 +13,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,11 +21,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.modugarden.main.profile.follow.ProfileFollowScreen
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.route.NAV_ROUTE_BNB
@@ -39,7 +36,6 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -75,7 +71,9 @@ fun BottomNav(
     navController: NavHostController,
     scope: CoroutineScope,
     lazyScroll: LazyListState,
-    navFollowController: NavHostController
+    navFollowController: NavHostController,
+    navDiscoverController: NavHostController,
+    navProfileController: NavHostController
 ) {
     val items = listOf<NAV_ROUTE_BNB>(
         NAV_ROUTE_BNB.FOLLOW,
@@ -124,6 +122,10 @@ fun BottomNav(
                             navFollowController
                                 .popBackStack(NAV_ROUTE_FOLLOW.USERPROFILE.routeName, true, true)
                         }
+                        navDiscoverController
+                            .popBackStack(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHING.routeName,true,true)
+                        navProfileController
+                            .popBackStack(ProfileFollowScreen.Follow.name,true,true)
                     }
 
                 },
@@ -141,12 +143,22 @@ fun MainNavScreen() {
     val scope = rememberCoroutineScope()
     val lazyScroll = rememberLazyListState()
     val navFollowController = rememberNavController()
+    val navDiscoverController = rememberNavController()
+    val navProfileController = rememberNavController()
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
-            bottomBar = { BottomNav(navController = navController,scope,lazyScroll, navFollowController = navFollowController) }
+            bottomBar = { BottomNav(
+                navController = navController,scope,lazyScroll,
+                navFollowController = navFollowController,
+                navDiscoverController = navDiscoverController,
+                navProfileController=navProfileController) }
         ) {
             Box(modifier = Modifier.padding(it)) {
-                NavigationGraphBNB(navController = navController, scope = scope, lazyScroll = lazyScroll, navFollowController = navFollowController)
+                NavigationGraphBNB(
+                    navController = navController, scope = scope, lazyScroll = lazyScroll,
+                    navFollowController = navFollowController,
+                    navDiscoverController = navDiscoverController,
+                    navProfileController=navProfileController)
 
             }
         }

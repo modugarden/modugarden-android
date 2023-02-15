@@ -49,7 +49,7 @@ fun NotificationScreen(navController: NavHostController) {
             }
             composable(route = NotificationScreen.New.name) {
                 Log.d("Notify_Center", "NotificationScreen New Route")
-                ProfileApp(userId = viewModel.getNextUserId(), false, upperNavController =  navController)
+                ProfileApp(userId = viewModel.getNextUserId(), false, upperNavController =  navController,navProfileController = null)
             }
             composable(route = NotificationScreen.Setting.name) {
                 Column {

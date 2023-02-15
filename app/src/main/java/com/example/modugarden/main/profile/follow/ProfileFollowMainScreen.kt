@@ -27,6 +27,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -164,15 +165,19 @@ fun ProfileFollowMainScreen(
                                 items = newFollowerList.value,
                                 key = { user -> user.userId }) { follower ->
                                 ProfileCard(follower, onUserClick) { isFollowing ->
-                                    scope.launch {
-                                        if (isFollowing)
-                                            scaffoldState.snackbarHostState.showSnackbar(
-                                                "${follower.nickname} 님을 언팔로우 했어요."
-                                            )
-                                        else
-                                            scaffoldState.snackbarHostState.showSnackbar(
-                                                "${follower.nickname} 님을 팔로우 했어요."
-                                            )
+                                    scope.launch{
+                                        val snackBar = scope.launch {
+                                            if (isFollowing)
+                                                scaffoldState.snackbarHostState.showSnackbar(
+                                                    "${follower.nickname} 님을 언팔로우 했어요."
+                                                )
+                                            else
+                                                scaffoldState.snackbarHostState.showSnackbar(
+                                                    "${follower.nickname} 님을 팔로우 했어요."
+                                                )
+                                        }
+                                            delay(900)
+                                        snackBar.cancel()
                                     }
                                 }
                             }
@@ -189,15 +194,19 @@ fun ProfileFollowMainScreen(
                                 items = newFollowingList.value,
                                 key = { user -> user.userId }) {following ->
                                 ProfileCard(following, onUserClick) { isFollowing ->
-                                    scope.launch {
-                                        if (isFollowing)
-                                            scaffoldState.snackbarHostState.showSnackbar(
-                                                "${following.nickname} 님을 언팔로우 했어요."
-                                            )
-                                        else
-                                            scaffoldState.snackbarHostState.showSnackbar(
-                                                "${following.nickname} 님을 팔로우 했어요."
-                                            )
+                                    scope.launch{
+                                        val snackBar=scope.launch {
+                                            if (isFollowing)
+                                                scaffoldState.snackbarHostState.showSnackbar(
+                                                    "${following.nickname} 님을 언팔로우 했어요."
+                                                )
+                                            else
+                                                scaffoldState.snackbarHostState.showSnackbar(
+                                                    "${following.nickname} 님을 팔로우 했어요."
+                                                )
+                                        }
+                                        delay(900)
+                                        snackBar.cancel()
                                     }
                                 }
                             }
