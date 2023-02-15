@@ -145,6 +145,7 @@ fun ProfileFollowMainScreen(
                 }
             }
 
+
             HorizontalPager(
                 count = pages.size,
                 state = pagerState,
