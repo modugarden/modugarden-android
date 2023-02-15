@@ -14,14 +14,14 @@ import com.example.modugarden.route.NavigationGraphDiscoverSearch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DiscoverScreen(navController: NavHostController,navDiscoverController:NavHostController) {
+fun DiscoverScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
         //탐색 메인화면 부름
-        DiscoverSearchNavScreen(navDiscoverController)
+        DiscoverSearchNavScreen()
     }
 }
 
@@ -29,6 +29,7 @@ fun DiscoverScreen(navController: NavHostController,navDiscoverController:NavHos
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DiscoverSearchNavScreen(navDiscoverController:NavHostController) {
-    NavigationGraphDiscoverSearch(navController = navDiscoverController)
+fun DiscoverSearchNavScreen() {
+    val navController = rememberNavController()
+    NavigationGraphDiscoverSearch(navController = navController)
 }

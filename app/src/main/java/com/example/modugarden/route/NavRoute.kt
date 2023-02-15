@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -39,12 +40,10 @@ enum class NAV_ROUTE_BNB(val routeName: String, val description: String, val ico
 @Composable
 fun NavigationGraphBNB(
     navController: NavHostController,
-    navFollowController: NavHostController,
+    navFollowController:NavHostController,
     userViewModel: UserViewModel = viewModel(),
     scope: CoroutineScope,
-    lazyScroll: LazyListState,
-    navDiscoverController: NavHostController,
-    navProfileController: NavHostController
+    lazyScroll:LazyListState
 ) {
 
     val fadeInDuration = 500
@@ -55,7 +54,7 @@ fun NavigationGraphBNB(
     AnimatedNavHost(navController, startDestination = NAV_ROUTE_BNB.FOLLOW.routeName,
         modifier = Modifier.fillMaxSize()) {
         composable(NAV_ROUTE_FOLLOW.USERPROFILE.routeName){
-            ProfileApp(userViewModel.getUserId(), false, navController,navProfileController)
+            ProfileApp(userViewModel.getUserId(), false, navController)
         }
         composable(
             NAV_ROUTE_BNB.FOLLOW.routeName,
@@ -82,7 +81,7 @@ fun NavigationGraphBNB(
                                 slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideInDuration))
                 }
             }
-        ) { DiscoverScreen(navController,navDiscoverController) }
+        ) { DiscoverScreen() }
         composable( //업로드
             NAV_ROUTE_BNB.UPLOAD.routeName,
             enterTransition = {
@@ -169,7 +168,7 @@ fun NavigationGraphBNB(
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(slideOutDuration))
             }
         ) {
-            ProfileApp(sharedPreferences.getInt(clientId,0), true, navController,navProfileController)
+            ProfileApp(sharedPreferences.getInt(clientId,0), true, navController)
         }
     }
 }
