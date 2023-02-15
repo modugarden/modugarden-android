@@ -69,7 +69,8 @@ fun NotificationCommunicationCard(
             GlideImage(
                 imageModel =
                 if(data.type == 3) R.drawable.ic_notification_restrict
-                else data.image?.toUri() ?: R.drawable.ic_default_profile,
+                else if(data.image == "" || data.image == null) R.drawable.ic_default_profile
+                else data.image.toUri(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
