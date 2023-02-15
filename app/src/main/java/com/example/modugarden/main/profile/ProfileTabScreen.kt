@@ -1,8 +1,13 @@
 package com.example.modugarden.main.profile
 
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,6 +22,8 @@ import androidx.compose.material.TabRow
 import androidx.compose.material.TabRowDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
+import com.example.modugarden.api.AuthCallBack
+import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.*
 import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.main.content.CurationContentActivity
@@ -43,6 +52,8 @@ import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Response
 
 @Composable
 fun ProfileTab (
@@ -122,6 +133,7 @@ fun CuratorProfileTab(
 ) {
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
+
 
     TabRow(
         selectedTabIndex = pagerState.currentPage,
@@ -311,12 +323,79 @@ fun CuratorProfileTab(
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun StoredTab(
-    postList: List<GetStoredPostResponseContent>,
-    curationList: List<GetStoredCurationsResponseContent>,
+//    postList: List<GetStoredPostResponseContent>,
+//    curationList: List<GetStoredCurationsResponseContent>,
     context: Context
 ) {
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
+
+    val postList = remember { mutableStateOf<List<GetStoredPostResponseContent>?>(
+        listOf())
+    }
+
+    val curationList = remember { mutableStateOf<List<GetStoredCurationsResponseContent>?>(
+        listOf())
+    }
+    RetrofitBuilder.postAPI.getMyPostStorage()
+        .enqueue(object :
+            AuthCallBack<GetStoredPostResponse>(context, "저장된 항목 부르기 성공!") {
+            override fun onResponse(
+                call: Call<GetStoredPostResponse>,
+                response: Response<GetStoredPostResponse>
+            ) {
+                super.onResponse(call, response)
+                if(response.body()?.content != null)
+                    postList.value = response.body()?.content
+            }
+        })
+
+    RetrofitBuilder.curationAPI.getMyCurationStorage()
+        .enqueue(object :
+            AuthCallBack<GetStoredCurationsResponse>(context, "저장된 항목 부르기 성공!") {
+            override fun onResponse(
+                call: Call<GetStoredCurationsResponse>,
+                response: Response<GetStoredCurationsResponse>
+            ) {
+                super.onResponse(call, response)
+                if (response.body()?.content != null)
+                    curationList.value = response.body()?.content
+            }
+        })
+
+    val postLauncher = rememberLauncherForActivityResult(contract =
+    ActivityResultContracts.StartIntentSenderForResult()) {
+        RetrofitBuilder.postAPI.getMyPostStorage()
+        .enqueue(object :
+            AuthCallBack<GetStoredPostResponse>(context, "저장된 항목 부르기 성공!") {
+            override fun onResponse(
+                call: Call<GetStoredPostResponse>,
+                response: Response<GetStoredPostResponse>
+            ) {
+                super.onResponse(call, response)
+                if(response.body()?.content != null)
+                    postList.value = response.body()?.content
+            }
+        })
+    }
+
+    val curationLauncher = rememberLauncherForActivityResult(contract =
+    ActivityResultContracts.StartIntentSenderForResult()) {
+
+        RetrofitBuilder.curationAPI.getMyCurationStorage()
+            .enqueue(object :
+                AuthCallBack<GetStoredCurationsResponse>(context, "저장된 항목 부르기 성공!") {
+                override fun onResponse(
+                    call: Call<GetStoredCurationsResponse>,
+                    response: Response<GetStoredCurationsResponse>
+                ) {
+                    super.onResponse(call, response)
+                    if (response.body()?.content != null)
+                        curationList.value = response.body()?.content
+                }
+            })
+
+    }
 
     TabRow(
         selectedTabIndex = pagerState.currentPage,
@@ -366,15 +445,40 @@ fun StoredTab(
                     contentPadding = PaddingValues(18.dp)
                 ) {
                     items(
-                        items = postList,
+                        items = postList.value!!,
                         key = { it.board_id }
                     ) { postCard ->
                         // 이미지가 들어간 버튼을 넣어야 함
                         Box(modifier = Modifier.bounceClick {
                             val intent = Intent(context, PostContentActivity::class.java)
-                            intent.putExtra("board_id", postCard.board_id)
-                            intent.putExtra("run",true)
-                            context.startActivity(intent)
+                            val bundle = Bundle()
+
+                            bundle.putInt("board_id", postCard.board_id)
+                            bundle.putBoolean("run", true)
+
+                            intent.putExtras(bundle)
+
+                            val pendIntent: PendingIntent
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                pendIntent = PendingIntent
+                                    .getActivity(
+                                        context, 0,
+                                        intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent . FLAG_MUTABLE
+                                    )
+
+                            } else {
+                                pendIntent = PendingIntent
+                                    .getActivity(
+                                        context, 0,
+                                        intent, PendingIntent.FLAG_UPDATE_CURRENT
+                                    )
+                            }
+
+                            postLauncher.launch(
+                                IntentSenderRequest
+                                    .Builder(pendIntent)
+                                    .build()
+                            )
                         }) {
                             GlideImage(
                                 imageModel =
@@ -415,15 +519,39 @@ fun StoredTab(
                     verticalArrangement = Arrangement.spacedBy(15.dp),
                     contentPadding = PaddingValues(18.dp)
                 ) {
-                    items(curationList) { curationCard ->
+                    items(curationList.value!!) { curationCard ->
                         Row(
                             modifier = Modifier
                                 .height(90.dp)
                                 .bounceClick {
-                                    context.startActivity(
-                                        Intent(context, CurationContentActivity::class.java)
-                                            .putExtra("curation_id", curationCard.id)
-                                            .putExtra("run",true)
+                                    val intent = Intent(context, CurationContentActivity::class.java)
+                                    val bundle = Bundle()
+
+                                    bundle.putInt("curation_id", curationCard.id)
+                                    bundle.putBoolean("run", true)
+
+                                    intent.putExtras(bundle)
+
+                                    val pendIntent: PendingIntent
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                        pendIntent = PendingIntent
+                                            .getActivity(
+                                                context, 0,
+                                                intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent . FLAG_MUTABLE
+                                            )
+
+                                    } else {
+                                        pendIntent = PendingIntent
+                                            .getActivity(
+                                                context, 0,
+                                                intent, PendingIntent.FLAG_UPDATE_CURRENT
+                                            )
+                                    }
+
+                                    curationLauncher.launch(
+                                        IntentSenderRequest
+                                            .Builder(pendIntent)
+                                            .build()
                                     )
                                 }
                         ) {

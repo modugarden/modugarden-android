@@ -42,41 +42,7 @@ class ProfileSaveActivity: ComponentActivity() {
                     bottomLine = false
                 )
 
-                val postList = remember { mutableStateOf<List<PostDTO.GetStoredPostResponseContent>?>(
-                    listOf())
-                }
-
-                val curationList = remember { mutableStateOf<List<GetStoredCurationsResponseContent>?>(
-                    listOf())
-                }
-
-                RetrofitBuilder.postAPI.getMyPostStorage()
-                    .enqueue(object :
-                        AuthCallBack<PostDTO.GetStoredPostResponse>(this@ProfileSaveActivity, "저장된 항목 부르기 성공!") {
-                        override fun onResponse(
-                            call: Call<PostDTO.GetStoredPostResponse>,
-                            response: Response<PostDTO.GetStoredPostResponse>
-                        ) {
-                            super.onResponse(call, response)
-                            if(response.body()?.content != null)
-                                postList.value = response.body()?.content
-                        }
-                    })
-
-                RetrofitBuilder.curationAPI.getMyCurationStorage()
-                    .enqueue(object :
-                        AuthCallBack<GetStoredCurationsResponse>(this@ProfileSaveActivity, "저장된 항목 부르기 성공!") {
-                        override fun onResponse(
-                            call: Call<GetStoredCurationsResponse>,
-                            response: Response<GetStoredCurationsResponse>
-                        ) {
-                            super.onResponse(call, response)
-                            if (response.body()?.content != null)
-                                curationList.value = response.body()?.content
-                        }
-                    })
-
-                StoredTab(postList.value!!, curationList.value!!, context)
+                StoredTab(context)
             }
         }
     }

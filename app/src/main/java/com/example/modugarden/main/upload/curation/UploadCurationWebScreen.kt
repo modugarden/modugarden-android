@@ -30,6 +30,7 @@ import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder.curationAPI
 import com.example.modugarden.api.dto.CurationUploadResponse
 import com.example.modugarden.main.upload.curation.UriUtil.toFile
+import com.example.modugarden.route.NAV_ROUTE_UPLOAD_CURATION
 import com.example.modugarden.ui.theme.BottomButton
 import com.example.modugarden.ui.theme.SnackBar
 import com.example.modugarden.ui.theme.TopBar
@@ -133,10 +134,7 @@ fun UploadCurationWebScreen(
                         }
                     })
 
-                scope.launch {
-                    snackbarHostState.showSnackbar("큐레이션을 게시했어요", duration = SnackbarDuration.Short)
-                }
-                (mContext as Activity).finish()
+                navController.navigate(NAV_ROUTE_UPLOAD_CURATION.UPLOADSUCCESSFULLY.routeName)
             })
         }
         Box(
