@@ -77,6 +77,7 @@ fun SettingsProfileScreen(
     val emailState = remember { mutableStateOf(settingViewModel.getEmail()) }
     val nicknameFocusState = remember { mutableStateOf(false) }
     val nicknameErrorState = remember { mutableStateOf(false) }
+    val categoryErrorState = remember { mutableStateOf(false) }
     val modalType = remember { mutableStateOf(ModalType.ProfileImage) }
     val categoriesState = remember { mutableStateOf(sharedPreferences.getStringSet(categorySetting, setOf())!!.toList()) }
     val imageState = remember { mutableStateOf (sharedPreferences.getString(profileImage, null)?.toUri()) }
@@ -114,9 +115,9 @@ fun SettingsProfileScreen(
         sheetScreen =
         {
             if(modalType.value == ModalType.Categories) {
-                ModalBottomSheetCategoryItem(R.drawable.ic_potted_plant,"식물 가꾸기", categoriesState)
-                ModalBottomSheetCategoryItem(R.drawable.ic_house_with_garden,"플랜테리어", categoriesState)
-                ModalBottomSheetCategoryItem(R.drawable.ic_tent,"여행/나들이", categoriesState)
+                ModalBottomSheetCategoryItem(R.drawable.ic_potted_plant,"식물 가꾸기", categoriesState, categoryErrorState)
+                ModalBottomSheetCategoryItem(R.drawable.ic_house_with_garden,"플랜테리어", categoriesState, categoryErrorState)
+                ModalBottomSheetCategoryItem(R.drawable.ic_tent,"여행/나들이", categoriesState, categoryErrorState)
             } else {
                 ModalBottomSheetItem(text = "라이브러리에서 선택", icon = R.drawable.ic_upload_image_mountain, trailing = true, modifier = Modifier.bounceClick {
                     scope.launch {
@@ -188,7 +189,6 @@ fun SettingsProfileScreen(
                             .clip(CircleShape)
                     )
                 }
-
                 Spacer(modifier = Modifier.height(36.dp))
                 NicknameEditText(
                     title = "닉네임",
@@ -275,6 +275,15 @@ fun SettingsProfileScreen(
                         )
                     }
                 }
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(
+                    text = "1개 또는 2개의 카테고리를 선택할 수 있어요.",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 11.sp,
+                    color =
+                    if (categoryErrorState.value) moduErrorPoint
+                    else moduGray_strong
+                )
                 Spacer(modifier = Modifier.weight(1f))
                 ProfileUpdateBottomButton(
                     title = "수정 완료",
@@ -345,7 +354,8 @@ fun SettingsProfileScreen(
                         onButtonClicked()
                     },
                     dpScale = 0.dp,
-                    disabled = nicknameErrorState
+                    nicknameDisabled = nicknameErrorState,
+                    categoryDisabled = categoryErrorState
                 )
             }
         }
@@ -357,6 +367,7 @@ fun ModalBottomSheetCategoryItem(
     icon: Int,
     text: String,
     categoriesState: MutableState<List<String>>,
+    errorState: MutableState<Boolean>,
     modifier: Modifier = Modifier
 ) {
     val checkState = remember { mutableStateOf(categoriesState.value.contains(text)) }
@@ -390,12 +401,15 @@ fun ModalBottomSheetCategoryItem(
                         .size(24.dp)
                         .align(Alignment.CenterVertically)
                         .bounceClick {
-                            if (categoriesState.value.contains(text) && categoriesState.value.size > 1) {
+                            if (categoriesState.value.contains(text) && categoriesState.value.isNotEmpty()) {
                                 categoriesState.value = categoriesState.value.minus(text)
                                 checkState.value = !checkState.value
+                                if (categoriesState.value.isEmpty())
+                                    errorState.value = true
                             } else if (categoriesState.value.size < 2) {
                                 categoriesState.value = categoriesState.value.plus(text)
                                 checkState.value = !checkState.value
+                                errorState.value = false
                             }
                         }
                 )
