@@ -49,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -225,7 +226,9 @@ fun EditText(
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             singleLine = singleLine,
             placeholder = { Text(placeholder, color = moduGray_normal, fontSize = placeholderSize.sp) },
-            visualTransformation = PasswordVisualTransformation()
+            visualTransformation =
+            if (keyboardType == KeyboardType.Password) PasswordVisualTransformation()
+            else VisualTransformation.None
         )
         if(description != "") {
             Spacer(modifier = Modifier.height(5.dp))
@@ -1328,19 +1331,21 @@ fun FollowCard(
                                         call: Call<FollowDtoRes>,
                                         response: Response<FollowDtoRes>
                                     ) {
-                                        snackBarAction()
-                                        followState.value = !followState.value
-                                        fcmTokenState.value.forEach {token ->
-                                            Log.d("onTokenResponse", "sendNotification : $token")
-                                            sendNotification(
-                                                0,
-                                                sharedPreferences.getInt(clientId, 0),
-                                                sharedPreferences.getString(clientNickname,""),
-                                                sharedPreferences.getString(profileImage, null),
-                                                titleMessage = "팔로우 알림",
-                                                fcmToken = token,
-                                                message = "님이 회원님을 팔로우했어요."
-                                            )
+                                        if(response.body()?.code == 200) {
+                                            snackBarAction()
+                                            followState.value = !followState.value
+                                            fcmTokenState.value.forEach {token ->
+                                                Log.d("onTokenResponse", "sendNotification : $token")
+                                                sendNotification(
+                                                    0,
+                                                    sharedPreferences.getInt(clientId, 0),
+                                                    sharedPreferences.getString(clientNickname,""),
+                                                    sharedPreferences.getString(profileImage, null),
+                                                    titleMessage = "팔로우 알림",
+                                                    fcmToken = token,
+                                                    message = "님이 회원님을 팔로우했어요."
+                                                )
+                                            }
                                         }
                                     }
 
@@ -1356,9 +1361,11 @@ fun FollowCard(
                                         call: Call<FollowDtoRes>,
                                         response: Response<FollowDtoRes>
                                     ) {
-                                        snackBarAction()
-                                        if (response.isSuccessful) {
-                                            followState.value = !followState.value
+                                        if(response.body()?.code == 200) {
+                                            snackBarAction()
+                                            if (response.isSuccessful) {
+                                                followState.value = !followState.value
+                                            }
                                         }
                                     }
 
@@ -1404,7 +1411,7 @@ fun ModuDialog(
     Dialog(onDismissRequest = onDismissRequest) {
         Surface (
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(0.95f)
                 .wrapContentHeight(),
             shape = RoundedCornerShape(15.dp)
         ) {
@@ -1445,7 +1452,7 @@ fun SmallDialog(
                 style = TextStyle(
                     textAlign = TextAlign.Center,
                     color = textColor,
-                    fontSize = 20.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 ),
                 modifier = Modifier
@@ -1458,7 +1465,7 @@ fun SmallDialog(
                     style = TextStyle(
                         textAlign = TextAlign.Center,
                         color = moduGray_strong,
-                        fontSize = 15.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     ),
                     modifier = Modifier
@@ -1543,7 +1550,7 @@ fun OneButtonSmallDialog(
                 style = TextStyle(
                     textAlign = TextAlign.Center,
                     color = textColor,
-                    fontSize = 20.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 ),
                 modifier = Modifier
@@ -1554,6 +1561,7 @@ fun OneButtonSmallDialog(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .wrapContentHeight()
                     .bounceClick {
                         onButtonClick()
                         dialogState.value = false
@@ -1568,6 +1576,7 @@ fun OneButtonSmallDialog(
                     fontSize = 16.sp,
                     color = buttonTextColor,
                     modifier = Modifier
+                        .wrapContentHeight()
                         .padding(14.dp),
                     textAlign = TextAlign.Center
                 )

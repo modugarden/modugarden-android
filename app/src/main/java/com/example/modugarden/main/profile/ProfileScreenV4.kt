@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -199,6 +200,11 @@ fun ProfileScreenV4(
                 })
         },
         uiScreen = {
+            BackHandler(enabled = bottomSheetState.isVisible) {
+                scope.launch {
+                    bottomSheetState.hide()
+                }
+            }
             Scaffold(
                 modifier = Modifier
                     .fillMaxSize()
@@ -631,7 +637,7 @@ fun ProfileScreenV4(
                                                         .fillMaxSize(),
                                                     contentPadding = PaddingValues(18.dp)
                                                 ) {
-                                                        items(postList.value ?: listOf()) { postCard ->
+                                                        items(items = postList.value ?: listOf(), key = { it.id }) { postCard ->
                                                         // 이미지가 들어간 버튼을 넣어야 함
                                                         Box(modifier = Modifier
                                                             .bounceClick {
@@ -707,7 +713,7 @@ fun ProfileScreenV4(
                                                     verticalArrangement = Arrangement.spacedBy(15.dp),
                                                     contentPadding = PaddingValues(18.dp)
                                                 ) {
-                                                    items(curationList.value ?: listOf()) { curationCard ->
+                                                    items(items = curationList.value ?: listOf(), key = { it.id }) { curationCard ->
                                                         Row(
                                                             modifier = Modifier
                                                                 .height(90.dp)

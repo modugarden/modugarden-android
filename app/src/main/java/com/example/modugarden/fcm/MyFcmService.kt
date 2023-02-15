@@ -8,6 +8,7 @@ import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.room.Room
+import com.example.modugarden.ApplicationClass.Companion.clientNickname
 import com.example.modugarden.ApplicationClass.Companion.commentChildNotification
 import com.example.modugarden.ApplicationClass.Companion.commentNotification
 import com.example.modugarden.ApplicationClass.Companion.followNotification
@@ -50,10 +51,11 @@ class MyFcmService: FirebaseMessagingService() {
         val type = message.data["type"] ?: ""
         val name = message.data["name"] ?: ""
         val address = message.data["address"] ?: ""
-        message.data.let {
-            showNotification(message.data)
-            db.notificationDao().insert(Notification(image, type.toInt(), name, body, "", address))
-        }
+        if( sharedPreferences.getString(clientNickname, "") != name)
+            message.data.let {
+                showNotification(message.data)
+                db.notificationDao().insert(Notification(image, type.toInt(), name, body, "", address))
+            }
     }
     private fun showNotification(data: MutableMap<String, String>) {
         val prefs = sharedPreferences
