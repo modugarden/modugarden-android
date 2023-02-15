@@ -30,8 +30,7 @@ enum class ProfileFollowScreen (val title: String) {
 fun ProfileApp(
     userId: Int,
     onBNB: Boolean,
-    upperNavController: NavHostController,
-    navProfileController:NavHostController= rememberNavController()
+    upperNavController: NavHostController
 ) {
     Surface(
         modifier = Modifier
@@ -39,7 +38,7 @@ fun ProfileApp(
             .background(Color.White)
     ) {
         //탐색 메인화면 부름
-        ProfileFollow(userId, onBNB, upperNavController, navProfileController = navProfileController)
+        ProfileFollow(userId, onBNB, upperNavController)
     }
 }
 
@@ -50,31 +49,30 @@ fun ProfileFollow (
     onBNB: Boolean,
     upperNavController: NavHostController,
     viewModel: UserViewModel = viewModel(),
-    navProfileController: NavHostController
+    navController: NavHostController = rememberNavController()
 ) {
     viewModel.setUserId(userId)
     viewModel.setOnBNB(onBNB)
     NavHost(
-        navController = navProfileController,
+        navController = navController,
         startDestination = ProfileFollowScreen.Profile.name,
     ) {
         composable(route = ProfileFollowScreen.Follow.name) {
-            ProfileFollowMainScreen(viewModel.getUserId(), navProfileController) {
+            ProfileFollowMainScreen(viewModel.getUserId(), navController) {
                 viewModel.setNextUserId(it)
-                navProfileController.navigate(ProfileFollowScreen.New.name)
+                navController.navigate(ProfileFollowScreen.New.name)
             }
         }
         composable(route = ProfileFollowScreen.Profile.name) {
             ProfileScreenV4(
                 userId = viewModel.getUserId(),
-                navController = navProfileController,
+                navController = navController,
                 upperNavHostController = upperNavController,
                 userViewModel = viewModel
             )
         }
         composable(route = ProfileFollowScreen.New.name) {
-            ProfileApp(userId = viewModel.getNextUserId(), false,
-                upperNavController =  navProfileController)
+            ProfileApp(userId = viewModel.getNextUserId(), false, upperNavController =  navController)
         }
 //        composable(route = ProfileFollowScreen.ProfileImage.name + "/{imageUrl}")
 //        { backStackEntry ->
