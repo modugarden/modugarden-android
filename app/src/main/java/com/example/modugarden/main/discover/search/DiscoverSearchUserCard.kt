@@ -1,11 +1,7 @@
 package com.example.modugarden.main.discover.search
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -15,8 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,6 +25,7 @@ import com.example.modugarden.ui.theme.*
 import com.example.modugarden.viewmodel.UserViewModel
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -38,7 +33,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun DiscoverSearchUserCard(
     userData : FindByNicknameResContent,
-    coroutineScope : CoroutineScope,
+    scope : CoroutineScope,
     snackbarHostState: SnackbarHostState,
     navController: NavController,
     userViewModel: UserViewModel
@@ -128,11 +123,16 @@ fun DiscoverSearchUserCard(
                 .wrapContentHeight()
                 .wrapContentWidth(),
             snackBarAction = {
-                coroutineScope.launch {
+                scope.launch {
+                    val snackBar = scope.launch {
                     if(followState.value) snackbarHostState.showSnackbar("${userData.nickname} 님을 팔로우 했어요.")
                     else snackbarHostState.showSnackbar("${userData.nickname} 님을 언팔로우 했어요.")
 
                 }
+                delay(900)
+                    snackBar.cancel()
+                }
+
             },
             blockState = blockState,
             followState = followState,
@@ -140,9 +140,14 @@ fun DiscoverSearchUserCard(
                 .align(Alignment.CenterVertically)
                 .padding(vertical = 6.dp, horizontal = 10.dp),
             unBlockSnackBarAction = {
-                coroutineScope.launch {
+                scope.launch {
+                    val snackBar = scope.launch {
                     snackbarHostState.showSnackbar("${userData.nickname} 님을 차단해제했어요.")
                 }
+                delay(900)
+                    snackBar.cancel()
+                }
+
             },
             fcmTokenState = remember { mutableStateOf(userData.fcmTokens) }
         )

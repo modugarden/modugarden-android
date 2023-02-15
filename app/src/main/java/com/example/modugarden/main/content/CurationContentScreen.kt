@@ -448,7 +448,9 @@ fun CurationContentScreen(curation_id :Int) {
                 CurationSaveCard(
                     curationId = curation_id,
                     modifier =  Modifier.padding(end = 18.dp),
-                    saveState = isButtonClickedSave)
+                    saveState = isButtonClickedSave,
+                    scope = scope,
+                    snackbarHostState=snackbarHostState)
 
                 // 메뉴 버튼
                 Icon(

@@ -43,6 +43,7 @@ import com.example.modugarden.viewmodel.RefreshViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 // 볼드 텍스트 타입 설정
@@ -333,9 +334,13 @@ fun FollowRecommendCard(
                     id = data.userId,
                     modifier = Modifier,
                     snackBarAction = {
-                        scope.launch {
-                            if (followState.value) snackbarHostState.showSnackbar("${data.nickname} 님을 팔로우 했어요.")
-                            else snackbarHostState.showSnackbar("${data.nickname} 님을 언팔로우 했어요.")
+                        scope.launch{
+                            val snackBar = scope.launch {
+                                if (followState.value) snackbarHostState.showSnackbar("${data.nickname} 님을 팔로우 했어요.")
+                                else snackbarHostState.showSnackbar("${data.nickname} 님을 언팔로우 했어요.")
+                            }
+                            delay(900)
+                            snackBar.cancel()
                         }
                     },
                     followState = remember { mutableStateOf(data.isFollow) },

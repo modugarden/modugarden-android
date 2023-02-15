@@ -75,6 +75,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Response
@@ -438,11 +439,17 @@ fun ProfileScreenV4(
                                             .aspectRatio(1f)
                                             .clip(CircleShape)
                                             .bounceClick {
-                                                         if(data.value.profileImage != null) {
-                                                             val intent = Intent(context, ProfileImageDetailActivity::class.java)
-                                                             intent.putExtra("imageUrl", data.value.profileImage)
-                                                             context.startActivity(intent)
-                                                         }
+                                                if (data.value.profileImage != null) {
+                                                    val intent = Intent(
+                                                        context,
+                                                        ProfileImageDetailActivity::class.java
+                                                    )
+                                                    intent.putExtra(
+                                                        "imageUrl",
+                                                        data.value.profileImage
+                                                    )
+                                                    context.startActivity(intent)
+                                                }
                                             },
                                         loading = {
                                             ShowProgressBar()
@@ -508,19 +515,28 @@ fun ProfileScreenV4(
                                         .align(CenterHorizontally),
                                     snackBarAction = {
                                         scope.launch {
+                                            val snackBar  = scope.launch {
                                             if (followState.value) scaffoldState.snackbarHostState.showSnackbar(
                                                 "${data.value.nickname} 님을 팔로우 했어요."
                                             )
                                             else scaffoldState.snackbarHostState.showSnackbar("${data.value.nickname} 님을 언팔로우 했어요.")
                                         }
+                                            delay(900)
+                                            snackBar.cancel()
+                                        }
+
                                     },
                                     followState = followState,
                                     blockState = blockState,
                                     contentModifier = Modifier
                                         .padding(vertical = 8.dp, horizontal = 10.dp),
                                     unBlockSnackBarAction = {
-                                        scope.launch {
-                                            scaffoldState.snackbarHostState.showSnackbar("${data.value.nickname} 님을 차단해제했어요.")
+                                        scope.launch{
+                                            val snackBar = scope.launch {
+                                                scaffoldState.snackbarHostState.showSnackbar("${data.value.nickname} 님을 차단해제했어요.")
+                                            }
+                                            delay(900)
+                                            snackBar.cancel()
                                         }
                                     },
                                     fcmTokenState = fcmTokenState

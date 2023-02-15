@@ -380,7 +380,9 @@ fun CurationCard(
                 CurationSaveCard(
                     curationId = data.curation_id,
                     modifier = Modifier,
-                    saveState =  isButtonClickedSave
+                    saveState =  isButtonClickedSave,
+                    scope,
+                    snackbarHostState
                 )
 //                Icon(modifier = Modifier
 //                    .bounceClick {

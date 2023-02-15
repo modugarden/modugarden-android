@@ -74,6 +74,7 @@ import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -1219,7 +1220,9 @@ fun CurationHeartCard(
 fun CurationSaveCard(
     curationId: Int,
     modifier: Modifier,
-    saveState: MutableState<Boolean>
+    saveState: MutableState<Boolean>,
+    scope:CoroutineScope,
+    snackbarHostState: SnackbarHostState,
 ) {
     curationAPI.getCurationStoreState(curationId).enqueue(
         object : Callback<GetCurationLikeStateResponse> {
@@ -1285,6 +1288,12 @@ fun CurationSaveCard(
                 )
 
             }
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    "게시물을 저장하였습니다.",
+                    duration = SnackbarDuration.Short
+                )
+            }
 
         }
         ,painter = painterResource(
@@ -1295,6 +1304,7 @@ fun CurationSaveCard(
         contentDescription = "스크랩",
         tint = moduBlack
     )
+
 }
 
 

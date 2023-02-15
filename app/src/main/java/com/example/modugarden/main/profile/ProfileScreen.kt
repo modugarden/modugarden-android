@@ -35,6 +35,7 @@ import com.example.modugarden.main.profile.follow.ProfileFollowActivity
 import com.example.modugarden.main.settings.SettingsActivity
 import com.example.modugarden.ui.theme.*
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -338,9 +339,14 @@ fun ProfileScreen (
                                     .height(36.dp),
                                 snackBarAction = {
                                     scope.launch {
+                                        val snackBar = scope.launch {
                                         if (followState.value) scaffoldState.snackbarHostState.showSnackbar("${data.value.nickname} 님을 팔로우 했어요.")
                                         else scaffoldState.snackbarHostState.showSnackbar("${data.value.nickname} 님을 언팔로우 했어요.")
                                     }
+                                        delay(900)
+                                        snackBar.cancel()
+                                    }
+
 
                                 },
                                 followState = followState,
