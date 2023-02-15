@@ -251,6 +251,8 @@ fun NicknameEditText(
     placeholderSize: Int = 20,
 ) {
     val focusRequester = remember { FocusRequester() }
+    val duplicatedState = remember { mutableStateOf(false) }
+    val overLengthState = remember { mutableStateOf(false) }
     Column {
         if (title!!.isNotEmpty()) {
             Text(
@@ -271,20 +273,35 @@ fun NicknameEditText(
                     isTextFieldFocused.value = it.isFocused
                     val jsonObject = JsonObject()
                     jsonObject.addProperty("nickname", data.value)
-                    if(!isTextFieldFocused.value)
+                    if(!isTextFieldFocused.value) {
                         RetrofitBuilder.signupAPI.signupNicknameIsDuplicatedAPI(jsonObject)
                             .enqueue(object : Callback<SignupNicknameIsDuplicatedDTO> {
                                 override fun onResponse(
                                     call: Call<SignupNicknameIsDuplicatedDTO>,
                                     response: Response<SignupNicknameIsDuplicatedDTO>
                                 ) {
-                                    if(data.value != sharedPreferences.getString(clientNickname, ""))
-                                        errorState.value = response.body()?.result?.isDuplicated!!
-                                    Log.d("onResponse", "닉네임 체크 : \n" +
-                                            "${response.body()}\n" +
-                                            "${response.body()?.result?.isDuplicated}\n" +
-                                            "${errorState.value}" )
+                                    if (data.value != sharedPreferences.getString(clientNickname, "")
+                                        && response.body()?.result?.isDuplicated!!) {
+                                        duplicatedState.value = true
+                                        overLengthState.value = false
+                                        errorState.value = true
+                                    } else if (data.value?.length !in 0..25) {
+                                        duplicatedState.value = false
+                                        overLengthState.value = true
+                                        errorState.value = true
+                                    } else {
+                                        duplicatedState.value = false
+                                        overLengthState.value = false
+                                        errorState.value = false
+                                    }
+                                    Log.d(
+                                        "onResponse", "닉네임 체크 : \n" +
+                                                "${response.body()}\n" +
+                                                "${response.body()?.result?.isDuplicated}\n" +
+                                                "${errorState.value}"
+                                    )
                                 }
+
                                 override fun onFailure(
                                     call: Call<SignupNicknameIsDuplicatedDTO>,
                                     t: Throwable
@@ -292,6 +309,7 @@ fun NicknameEditText(
 
                                 }
                             })
+                    }
                 }
                 .border(
                     width = 1.dp,
@@ -326,9 +344,9 @@ fun NicknameEditText(
         )
         Spacer(modifier = Modifier.height(5.dp))
         Text(text =
-        if (errorState.value) "중복된 닉네임이예요."
-        else if (data.value?.length in 0..25) "2~25자의 영문, 숫자, _만 가능해요."
-        else "글자 수를 초과했어요",
+        if (duplicatedState.value) "중복된 닉네임이예요."
+        else if (overLengthState.value) "글자 수를 초과했어요."
+        else "2~25자의 영문, 숫자, _만 가능해요.",
             fontWeight = FontWeight.Bold, fontSize = 11.sp,
             color =
             if (errorState.value) moduErrorPoint

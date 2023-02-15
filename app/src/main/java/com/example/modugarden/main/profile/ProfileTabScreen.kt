@@ -2,6 +2,8 @@ package com.example.modugarden.main.profile
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,6 +35,7 @@ import com.example.modugarden.api.dto.*
 import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.main.content.CurationContentActivity
 import com.example.modugarden.main.content.PostContentActivity
+import com.example.modugarden.main.content.timeToDate
 import com.example.modugarden.ui.theme.*
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -304,6 +307,7 @@ fun CuratorProfileTab(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun StoredTab(
@@ -396,10 +400,6 @@ fun StoredTab(
                                 loading = {
                                     ShowProgressBar()
                                 },
-                                // shows an error text if fail to load an image.
-                                failure = {
-                                    Text(text = "image request failed.")
-                                },
                                 requestOptions = {
                                     RequestOptions()
                                         .override(256,256)
@@ -449,10 +449,6 @@ fun StoredTab(
                                 loading = {
                                     ShowProgressBar()
                                 },
-                                // shows an error text if fail to load an image.
-                                failure = {
-                                    Text(text = "image request failed.")
-                                },
                                 requestOptions = {
                                     RequestOptions()
                                         .override(256,256)
@@ -486,7 +482,7 @@ fun StoredTab(
                                     )
                                     Spacer(modifier = Modifier.weight(1f))
                                     Text(
-                                        text = "${curationCard.category_category}, ${curationCard.localDateTime.split('T')[0]}",
+                                        text = "${curationCard.category_category}, ${timeToDate(curationCard.localDateTime)}",
                                         fontSize = 12.sp,
                                         color = moduGray_strong
                                     )
