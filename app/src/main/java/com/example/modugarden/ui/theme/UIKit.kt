@@ -254,6 +254,7 @@ fun NicknameEditText(
     val focusRequester = remember { FocusRequester() }
     val duplicatedState = remember { mutableStateOf(false) }
     val overLengthState = remember { mutableStateOf(false) }
+    val invalidNicknameState = remember { mutableStateOf(false) }
     Column {
         if (title!!.isNotEmpty()) {
             Text(
@@ -283,14 +284,22 @@ fun NicknameEditText(
                                 ) {
                                     if (data.value != sharedPreferences.getString(clientNickname, "")
                                         && response.body()?.result?.isDuplicated!!) {
+                                        invalidNicknameState.value = false
                                         duplicatedState.value = true
                                         overLengthState.value = false
                                         errorState.value = true
-                                    } else if (data.value?.length !in 0..25) {
+                                    } else if (data.value?.length !in 2..25) {
+                                        invalidNicknameState.value = false
                                         duplicatedState.value = false
                                         overLengthState.value = true
                                         errorState.value = true
+                                    } else if (!Regex("^[a-zA-Z0-9_]{2,25}\$").containsMatchIn(data.value!!)) {
+                                        invalidNicknameState.value = true
+                                        duplicatedState.value = false
+                                        overLengthState.value = false
+                                        errorState.value = true
                                     } else {
+                                        invalidNicknameState.value = false
                                         duplicatedState.value = false
                                         overLengthState.value = false
                                         errorState.value = false
@@ -346,7 +355,8 @@ fun NicknameEditText(
         Spacer(modifier = Modifier.height(5.dp))
         Text(text =
         if (duplicatedState.value) "중복된 닉네임이예요."
-        else if (overLengthState.value) "글자 수를 초과했어요."
+        else if (overLengthState.value) "2~25자 사이로 입력해주세요."
+        else if (invalidNicknameState.value) "영문, 숫자, _만 입력해주세요."
         else "2~25자의 영문, 숫자, _만 가능해요.",
             fontWeight = FontWeight.Bold, fontSize = 11.sp,
             color =
