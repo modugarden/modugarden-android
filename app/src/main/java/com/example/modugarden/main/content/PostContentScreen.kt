@@ -6,6 +6,7 @@ import android.location.Geocoder
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -754,6 +755,12 @@ fun PostContentScreen(
 
                 }
             } ) {
+
+            BackHandler(enabled = bottomSheetState.isVisible) {
+                scope.launch {
+                    bottomSheetState.hide()
+                }
+            }
             Box(modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)) {

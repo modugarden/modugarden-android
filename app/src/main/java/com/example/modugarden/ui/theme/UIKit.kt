@@ -1201,7 +1201,9 @@ fun CurationHeartCard(
 fun CurationSaveCard(
     curationId: Int,
     modifier: Modifier,
-    saveState: MutableState<Boolean>
+    saveState: MutableState<Boolean>,
+    scope:CoroutineScope,
+    snackbarHostState: SnackbarHostState,
 ) {
     curationAPI.getCurationStoreState(curationId).enqueue(
         object : Callback<GetCurationLikeStateResponse> {
@@ -1267,6 +1269,12 @@ fun CurationSaveCard(
                 )
 
             }
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    "게시물을 저장하였습니다.",
+                    duration = SnackbarDuration.Short
+                )
+            }
 
         }
         ,painter = painterResource(
@@ -1277,6 +1285,7 @@ fun CurationSaveCard(
         contentDescription = "스크랩",
         tint = moduBlack
     )
+
 }
 
 
