@@ -540,6 +540,7 @@ fun FollowingScreen(
                     }
                     //포스트 카드
 
+
                     items(postList,
                         key = { post -> post.board_id }) {post->
                         PostCard(

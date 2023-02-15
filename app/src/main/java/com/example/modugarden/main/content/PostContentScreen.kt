@@ -38,6 +38,7 @@ import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.SnackbarData
+import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
@@ -108,6 +109,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -906,9 +908,13 @@ fun PostContentScreen(
                                     modifier =Modifier ,
                                     snackBarAction = {
                                         scope.launch {
-                                        if (followState.value) snackbarHostState.showSnackbar("${post.user_nickname} 님을 팔로우 했어요.")
-                                        else snackbarHostState.showSnackbar("${post.user_nickname} 님을 언팔로우 했어요.")
-                                    }},
+                                            val snackBar = scope.launch {
+                                            if (followState.value) snackbarHostState.showSnackbar("${post.user_nickname} 님을 팔로우 했어요.", duration = SnackbarDuration.Indefinite)
+                                            else snackbarHostState.showSnackbar("${post.user_nickname} 님을 언팔로우 했어요.", duration = SnackbarDuration.Indefinite)
+
+                                        }
+                                            delay(900)
+                                            snackBar.cancel()} },
                                     followState = followState,
                                     contentModifier =Modifier
                                         .padding(vertical = 6.dp, horizontal = 10.dp),
