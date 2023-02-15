@@ -123,4 +123,6 @@ dependencies {
     implementation("androidx.paging:paging-compose:1.0.0-alpha17")
 
 
+    // Permission
+    implementation 'io.github.ParkSangGwon:tedpermission-normal:3.3.0'
 }

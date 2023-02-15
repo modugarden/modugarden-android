@@ -1,9 +1,11 @@
 package com.example.modugarden
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -12,11 +14,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -35,14 +33,33 @@ import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
 import com.example.modugarden.route.NavigationGraphBNB
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.gun0912.tedpermission.PermissionListener
+import com.gun0912.tedpermission.normal.TedPermission
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            TedPermission.create()
+                .setPermissionListener(object: PermissionListener {
+
+                    override fun onPermissionGranted() {
+                    }
+                    override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+                    }
+                })
+                .setDeniedMessage("알림 권한을 허용하지 않으면\n푸시알림을 받을 수 없어요.")
+                .setPermissions(Manifest.permission.POST_NOTIFICATIONS)
+                .check()
+
+
+
             MainNavScreen()
         }
     }
