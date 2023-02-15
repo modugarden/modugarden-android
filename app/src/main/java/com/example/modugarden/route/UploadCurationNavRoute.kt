@@ -11,13 +11,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.modugarden.main.upload.curation.UploadCurationImageInfoScreen
 import com.example.modugarden.main.upload.curation.UploadCurationInfoScreen
+import com.example.modugarden.main.upload.curation.UploadCurationUploadSuccessfully
 import com.example.modugarden.main.upload.curation.UploadCurationWebScreen
 import com.example.modugarden.viewmodel.UploadCurationViewModel
 
 enum class NAV_ROUTE_UPLOAD_CURATION(val routeName: String, val description: String) { //upload 패키지 루트.
     INFO("UPLOAD_CURATION_INFO", "큐레이션 업로드 제목, 카테고리 입력창"),
     IMAGEINFO("UPLOAD_CURATION_IMAGEINFO", "큐레이션 업로드 정보 입력창"),
-    WEB("UPLOAD_CURATION_WEB", "큐레이션 업로드 미리보기 창")
+    WEB("UPLOAD_CURATION_WEB", "큐레이션 업로드 미리보기 창"),
+    UPLOADSUCCESSFULLY("UPLOAD_CURATION_UPLOADSUCCESSFULLY", "큐레이션 업로드 성공")
+
 }
 @Composable
 fun NavigationGraphUploadCuration(
@@ -55,6 +58,11 @@ fun NavigationGraphUploadCuration(
         ) { backStackEntry ->
             val url = backStackEntry.arguments?.getString("url") ?: ""
             UploadCurationWebScreen(navController = navController, uploadCurationViewModel, url = url)
+        }
+        composable(
+            NAV_ROUTE_UPLOAD_CURATION.UPLOADSUCCESSFULLY.routeName
+        ) {
+            UploadCurationUploadSuccessfully(navController)
         }
     }
 }
