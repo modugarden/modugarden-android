@@ -1434,6 +1434,7 @@ fun FollowCard(
                 else
                     if (followState.value) { "팔로잉" }
                     else { "팔로우" },
+                maxLines = 1,
                 style = TextStyle(
                     color =
                     if (followState.value || blockState.value) { moduBlack }

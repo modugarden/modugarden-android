@@ -454,10 +454,6 @@ fun ProfileScreenV4(
                                         loading = {
                                             ShowProgressBar()
                                         },
-                                        // shows an error text if fail to load an image.
-                                        failure = {
-                                            Text(text = "image request failed.")
-                                        },
                                         requestOptions = {
                                             RequestOptions()
                                                 .override(256, 256)
@@ -793,10 +789,6 @@ fun ProfileScreenV4(
                                                                 },
                                                                 loading = {
                                                                     ShowProgressBar()
-                                                                },
-                                                                // shows an error text if fail to load an image.
-                                                                failure = {
-                                                                    Text(text = "image request failed.")
                                                                 },
                                                                 requestOptions = {
                                                                     RequestOptions()
