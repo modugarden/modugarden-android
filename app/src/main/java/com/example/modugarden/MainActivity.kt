@@ -48,21 +48,23 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            TedPermission.create()
-                .setPermissionListener(object: PermissionListener {
-
-                    override fun onPermissionGranted() {
-                    }
-                    override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-                    }
-                })
-                .setDeniedMessage("알림 권한을 허용하지 않으면\n푸시알림을 받을 수 없어요.")
-                .setPermissions(Manifest.permission.POST_NOTIFICATIONS)
-                .check()
-
-
-
             MainNavScreen()
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                TedPermission.create()
+                    .setPermissionListener(object: PermissionListener {
+
+                        override fun onPermissionGranted() {
+                        }
+                        override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+                        }
+                    })
+                    .setDeniedMessage("알림을 받으시려면 알림 권한을 허용해주세요.")
+                    .setPermissions(Manifest.permission.POST_NOTIFICATIONS)
+                    .check()
+            }
+
+
         }
     }
 

@@ -517,7 +517,7 @@ fun ProfileScreenV4(
                                     followState = followState,
                                     blockState = blockState,
                                     contentModifier = Modifier
-                                        .padding(vertical = 6.dp, horizontal = 10.dp),
+                                        .padding(vertical = 8.dp, horizontal = 10.dp),
                                     unBlockSnackBarAction = {
                                         scope.launch {
                                             scaffoldState.snackbarHostState.showSnackbar("${data.value.nickname} 님을 차단해제했어요.")
