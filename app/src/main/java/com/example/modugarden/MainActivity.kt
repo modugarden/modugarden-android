@@ -72,8 +72,6 @@ fun BottomNav(
     scope: CoroutineScope,
     lazyScroll: LazyListState,
     navFollowController: NavHostController,
-    navDiscoverController: NavHostController,
-    navProfileController: NavHostController
 ) {
     val items = listOf<NAV_ROUTE_BNB>(
         NAV_ROUTE_BNB.FOLLOW,
@@ -107,9 +105,9 @@ fun BottomNav(
                 alwaysShowLabel = true,
                 onClick = {
                     navController.navigate(item.routeName) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true }
-
+                        navController.graph.startDestinationRoute?.let {
+                            popUpTo(it) { saveState = true }
+                        }
                         launchSingleTop = true
                         restoreState = true
 
@@ -122,10 +120,6 @@ fun BottomNav(
                             navFollowController
                                 .popBackStack(NAV_ROUTE_FOLLOW.USERPROFILE.routeName, true, true)
                         }
-                        navDiscoverController
-                            .popBackStack(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHING.routeName,true,true)
-                        navProfileController
-                            .popBackStack(ProfileFollowScreen.Follow.name,true,true)
                     }
 
                 },
@@ -143,22 +137,14 @@ fun MainNavScreen() {
     val scope = rememberCoroutineScope()
     val lazyScroll = rememberLazyListState()
     val navFollowController = rememberNavController()
-    val navDiscoverController = rememberNavController()
-    val navProfileController = rememberNavController()
+
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
-            bottomBar = { BottomNav(
-                navController = navController,scope,lazyScroll,
-                navFollowController = navFollowController,
-                navDiscoverController = navDiscoverController,
-                navProfileController=navProfileController) }
+            bottomBar = { BottomNav(navController = navController,scope,lazyScroll, navFollowController = navFollowController) }
         ) {
             Box(modifier = Modifier.padding(it)) {
-                NavigationGraphBNB(
-                    navController = navController, scope = scope, lazyScroll = lazyScroll,
-                    navFollowController = navFollowController,
-                    navDiscoverController = navDiscoverController,
-                    navProfileController=navProfileController)
+                NavigationGraphBNB(navController = navController, scope = scope, lazyScroll = lazyScroll,
+                    navFollowController = navFollowController)
 
             }
         }
