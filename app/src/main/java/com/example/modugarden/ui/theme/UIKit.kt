@@ -273,58 +273,6 @@ fun NicknameEditText(
                 .focusRequester(focusRequester)
                 .onFocusChanged {
                     isTextFieldFocused.value = it.isFocused
-                    val jsonObject = JsonObject()
-                    jsonObject.addProperty("nickname", data.value)
-                    if (!isTextFieldFocused.value) {
-                        RetrofitBuilder.signupAPI
-                            .signupNicknameIsDuplicatedAPI(jsonObject)
-                            .enqueue(object : Callback<SignupNicknameIsDuplicatedDTO> {
-                                override fun onResponse(
-                                    call: Call<SignupNicknameIsDuplicatedDTO>,
-                                    response: Response<SignupNicknameIsDuplicatedDTO>
-                                ) {
-                                    if (data.value != sharedPreferences.getString(
-                                            clientNickname,
-                                            ""
-                                        )
-                                        && response.body()?.result?.isDuplicated!!
-                                    ) {
-                                        invalidNicknameState.value = false
-                                        duplicatedState.value = true
-                                        overLengthState.value = false
-                                        errorState.value = true
-                                    } else if (data.value?.length !in 2..25) {
-                                        invalidNicknameState.value = false
-                                        duplicatedState.value = false
-                                        overLengthState.value = true
-                                        errorState.value = true
-                                    } else if (!Regex("^[a-zA-Z0-9_]{2,25}\$").containsMatchIn(data.value!!)) {
-                                        invalidNicknameState.value = true
-                                        duplicatedState.value = false
-                                        overLengthState.value = false
-                                        errorState.value = true
-                                    } else {
-                                        invalidNicknameState.value = false
-                                        duplicatedState.value = false
-                                        overLengthState.value = false
-                                        errorState.value = false
-                                    }
-                                    Log.d(
-                                        "onResponse", "닉네임 체크 : \n" +
-                                                "${response.body()}\n" +
-                                                "${response.body()?.result?.isDuplicated}\n" +
-                                                "${errorState.value}"
-                                    )
-                                }
-
-                                override fun onFailure(
-                                    call: Call<SignupNicknameIsDuplicatedDTO>,
-                                    t: Throwable
-                                ) {
-
-                                }
-                            })
-                    }
                 }
                 .border(
                     width = 1.dp,
@@ -342,6 +290,51 @@ fun NicknameEditText(
             keyboardActions = keyboardActions,
             onValueChange = { textValue ->
                 data.value = textValue
+                val jsonObject = JsonObject()
+                jsonObject.addProperty("nickname", data.value)
+                RetrofitBuilder.signupAPI.signupNicknameIsDuplicatedAPI(jsonObject)
+                    .enqueue(object : Callback<SignupNicknameIsDuplicatedDTO> {
+                        override fun onResponse(
+                            call: Call<SignupNicknameIsDuplicatedDTO>,
+                            response: Response<SignupNicknameIsDuplicatedDTO>
+                        ) {
+                            if (data.value != sharedPreferences.getString(clientNickname, "")
+                                && response.body()?.result?.isDuplicated!!) {
+                                invalidNicknameState.value = false
+                                duplicatedState.value = true
+                                overLengthState.value = false
+                                errorState.value = true
+                            } else if (data.value?.length !in 2..25) {
+                                invalidNicknameState.value = false
+                                duplicatedState.value = false
+                                overLengthState.value = true
+                                errorState.value = true
+                            } else if (!Regex("^[a-zA-Z0-9_]{2,25}\$").containsMatchIn(data.value!!)) {
+                                invalidNicknameState.value = true
+                                duplicatedState.value = false
+                                overLengthState.value = false
+                                errorState.value = true
+                            } else {
+                                invalidNicknameState.value = false
+                                duplicatedState.value = false
+                                overLengthState.value = false
+                                errorState.value = false
+                            }
+                            Log.d(
+                                "onResponse", "닉네임 체크 : \n" +
+                                        "${response.body()}\n" +
+                                        "${response.body()?.result?.isDuplicated}\n" +
+                                        "${errorState.value}"
+                            )
+                        }
+
+                        override fun onFailure(
+                            call: Call<SignupNicknameIsDuplicatedDTO>,
+                            t: Throwable
+                        ) {
+
+                        }
+                    })
             },
             shape = RoundedCornerShape(10.dp),
             colors = TextFieldDefaults.textFieldColors(
@@ -709,7 +702,8 @@ fun ProfileUpdateBottomButton(
     shapeScale: Dp = 15.dp,
     color: Color = moduPoint,
     textColor: Color = Color.White,
-    disabled: MutableState<Boolean>
+    nicknameDisabled: MutableState<Boolean>,
+    categoryDisabled: MutableState<Boolean>
 ) {
     Box(
         modifier = Modifier
@@ -724,13 +718,13 @@ fun ProfileUpdateBottomButton(
         Card(
             modifier = Modifier
                 .bounceClick {
-                    if (!disabled.value)
+                    if(!nicknameDisabled.value && !categoryDisabled.value)
                         onClick.invoke()
                 }
                 .padding(dpScale)
                 .fillMaxWidth()
                 .alpha(
-                    if (!disabled.value)
+                    if(!nicknameDisabled.value && !categoryDisabled.value)
                         alpha
                     else
                         alpha / 2
