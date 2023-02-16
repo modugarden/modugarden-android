@@ -55,40 +55,6 @@ fun ProfileFollowMainScreen(
 
     val context = LocalContext.current
 
-    RetrofitBuilder.followAPI.otherFollowerList(id)
-        .enqueue(object : Callback<FollowListDtoRes> {
-            override fun onResponse(
-                call: Call<FollowListDtoRes>,
-                response: Response<FollowListDtoRes>
-            ) {
-                Log.d("onResponse", response.code().toString() +
-                        "\n" + (response.body()?.content))
-                newFollowerList.value = response.body()?.content!!
-            }
-
-            override fun onFailure(call: Call<FollowListDtoRes>, t: Throwable) {
-                Log.d("onFailure", "안됨")
-            }
-        })
-    RetrofitBuilder.followAPI.otherFollowingList(id)
-        .enqueue(object : AuthCallBack<FollowListDtoRes>(context, "성공") {
-            override fun onResponse(
-                call: Call<FollowListDtoRes>,
-                response: Response<FollowListDtoRes>
-            ) {
-                super.onResponse(call, response)
-                Log.d(
-                    "onResponse", response.code().toString() +
-                            "\n" + (response.body()?.content)
-                )
-                newFollowingList.value = response.body()?.content!!
-            }
-
-            override fun onFailure(call: Call<FollowListDtoRes>, t: Throwable) {
-                Log.d("onFailure", "안됨")
-            }
-        })
-
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -155,6 +121,23 @@ fun ProfileFollowMainScreen(
             ) { page ->
                 when (page) {
                     0 -> {
+                        RetrofitBuilder.followAPI.otherFollowerList(id)
+                            .enqueue(object : Callback<FollowListDtoRes> {
+                                override fun onResponse(
+                                    call: Call<FollowListDtoRes>,
+                                    response: Response<FollowListDtoRes>
+                                ) {
+                                    Log.d("onResponse", response.code().toString() +
+                                            "\n" + (response.body()?.content))
+                                    newFollowerList.value = response.body()?.content!!
+                                }
+
+                                override fun onFailure(call: Call<FollowListDtoRes>, t: Throwable) {
+                                    Log.d("onFailure", "안됨")
+                                }
+                            })
+
+
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize(),
@@ -184,6 +167,26 @@ fun ProfileFollowMainScreen(
                         }
                     }
                     1 -> {
+
+                        RetrofitBuilder.followAPI.otherFollowingList(id)
+                            .enqueue(object : AuthCallBack<FollowListDtoRes>(context, "성공") {
+                                override fun onResponse(
+                                    call: Call<FollowListDtoRes>,
+                                    response: Response<FollowListDtoRes>
+                                ) {
+                                    super.onResponse(call, response)
+                                    Log.d(
+                                        "onResponse", response.code().toString() +
+                                                "\n" + (response.body()?.content)
+                                    )
+                                    newFollowingList.value = response.body()?.content!!
+                                }
+
+                                override fun onFailure(call: Call<FollowListDtoRes>, t: Throwable) {
+                                    Log.d("onFailure", "안됨")
+                                }
+                            })
+
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize(),
