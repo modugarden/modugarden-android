@@ -20,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.navigation.NavController
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.ApplicationClass.Companion.autoLoginSetting
@@ -34,11 +35,11 @@ import com.skydoves.landscapist.glide.GlideImage
 
 @Composable
 fun SettingsMainScreen (
-    navController: NavController,
-    settingViewModel: SettingViewModel
+    navController: NavController
 ) {
     val dialogState = remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val profileImageState = remember { mutableStateOf(sharedPreferences.getString(profileImage, null)) }
 
     if( dialogState.value )
         SmallDialog(
@@ -75,7 +76,7 @@ fun SettingsMainScreen (
             Spacer(modifier = Modifier.width(18.dp))
             GlideImage(
                 imageModel =
-                sharedPreferences.getString(profileImage, null) ?: R.drawable.ic_default_profile,
+                profileImageState.value ?: R.drawable.ic_default_profile,
                 contentDescription = null,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
@@ -84,10 +85,6 @@ fun SettingsMainScreen (
                 contentScale = ContentScale.Crop,
                 loading = {
                     ShowProgressBar()
-                },
-                // shows an error text if fail to load an image.
-                failure = {
-                    Text(text = "image request failed.")
                 },
                 requestOptions = {
                     RequestOptions()
