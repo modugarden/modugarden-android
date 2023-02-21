@@ -1,6 +1,7 @@
 package com.example.modugarden.main.follow
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.activity.compose.BackHandler
@@ -84,6 +85,7 @@ import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.ui.theme.moduPoint
 import com.example.modugarden.viewmodel.DeleteContentViewModel
+import com.example.modugarden.viewmodel.RefreshViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
@@ -103,7 +105,10 @@ fun FollowingScreen(
     userViewModel: UserViewModel,
     postLauncher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
     curationLauncher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
-    lazyScroll: LazyListState
+    lazyScroll: LazyListState,
+    refreshViewModel: RefreshViewModel,
+    postRes: MutableState<PostDTO.GetFollowFeedPost>,
+    context: Context
 ) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -329,6 +334,7 @@ fun FollowingScreen(
                                                                 "성공"
                                                             )
                                                             else Log.i("포스트 삭제", "실패")
+                                                            refreshViewModel.getPosts(postRes,context)
                                                         }
 
                                                         override fun onFailure(

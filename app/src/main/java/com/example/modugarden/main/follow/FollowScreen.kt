@@ -115,7 +115,10 @@ fun FollowMainScreen(
                     userViewModel = userViewModel,
                     postLauncher = postLauncher,
                     curationLauncher = curationLauncher,
-                    lazyScroll = lazyScroll
+                    lazyScroll = lazyScroll,
+                    refreshViewModel = refreshViewModel,
+                    postRes = postres,
+                    context = context
                 )
             } else if(mode.value==2) {
                 Log.i("시점","else")
