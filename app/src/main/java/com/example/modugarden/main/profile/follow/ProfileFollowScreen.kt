@@ -74,10 +74,5 @@ fun ProfileFollow (
         composable(route = ProfileFollowScreen.New.name) {
             ProfileApp(userId = viewModel.getNextUserId(), false, upperNavController =  navController)
         }
-//        composable(route = ProfileFollowScreen.ProfileImage.name + "/{imageUrl}")
-//        { backStackEntry ->
-//            val imageUrl = backStackEntry.arguments?.getString("imageUrl") ?: ""
-//            ProfileImageDetail(navController = navController, imageUrl = imageUrl)
-//        }
     }
 }

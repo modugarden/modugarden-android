@@ -2,6 +2,7 @@ package com.example.modugarden.main.profile.follow
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,29 +10,21 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.modugarden.R
-import com.example.modugarden.api.AuthCallBack
-import com.example.modugarden.api.RetrofitBuilder
-import com.example.modugarden.api.dto.FollowListDtoRes
 import com.example.modugarden.api.dto.FollowListDtoResContent
 import com.example.modugarden.ui.theme.ScaffoldSnackBar
 import com.example.modugarden.ui.theme.TopBar
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduGray_strong
-import com.example.modugarden.viewmodel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 val pages = listOf("팔로워", "팔로잉")
 
@@ -52,8 +45,8 @@ fun ProfileFollowMainScreen(
     val newFollowingList = remember { mutableStateOf(
         listOf(FollowListDtoResContent())
     ) }
-
-    val context = LocalContext.current
+    FollowService.getFollowingList(id, newFollowingList)
+    FollowService.getFollowerList(id, newFollowerList)
 
     Scaffold(
         modifier = Modifier
@@ -68,6 +61,7 @@ fun ProfileFollowMainScreen(
     ) {
         val pagerState = rememberPagerState()
         val coroutineScope = rememberCoroutineScope()
+
         Column(
             modifier = Modifier
                 .padding(it)
@@ -112,7 +106,6 @@ fun ProfileFollowMainScreen(
                 }
             }
 
-
             HorizontalPager(
                 count = pages.size,
                 state = pagerState,
@@ -121,23 +114,7 @@ fun ProfileFollowMainScreen(
             ) { page ->
                 when (page) {
                     0 -> {
-                        RetrofitBuilder.followAPI.otherFollowerList(id)
-                            .enqueue(object : Callback<FollowListDtoRes> {
-                                override fun onResponse(
-                                    call: Call<FollowListDtoRes>,
-                                    response: Response<FollowListDtoRes>
-                                ) {
-                                    Log.d("onResponse", response.code().toString() +
-                                            "\n" + (response.body()?.content))
-                                    newFollowerList.value = response.body()?.content!!
-                                }
-
-                                override fun onFailure(call: Call<FollowListDtoRes>, t: Throwable) {
-                                    Log.d("onFailure", "안됨")
-                                }
-                            })
-
-
+                        FollowService.getFollowerList(id, newFollowerList)
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize(),
@@ -146,7 +123,9 @@ fun ProfileFollowMainScreen(
                         ) {
                             items(
                                 items = newFollowerList.value,
-                                key = { user -> user.userId }) { follower ->
+                                key = { user ->
+                                    user.userId.toString() + user.follow
+                                }) { follower ->
                                 ProfileCard(follower, onUserClick) { isFollowing ->
                                     scope.launch{
                                         val snackBar = scope.launch {
@@ -167,26 +146,7 @@ fun ProfileFollowMainScreen(
                         }
                     }
                     1 -> {
-
-                        RetrofitBuilder.followAPI.otherFollowingList(id)
-                            .enqueue(object : AuthCallBack<FollowListDtoRes>(context, "성공") {
-                                override fun onResponse(
-                                    call: Call<FollowListDtoRes>,
-                                    response: Response<FollowListDtoRes>
-                                ) {
-                                    super.onResponse(call, response)
-                                    Log.d(
-                                        "onResponse", response.code().toString() +
-                                                "\n" + (response.body()?.content)
-                                    )
-                                    newFollowingList.value = response.body()?.content!!
-                                }
-
-                                override fun onFailure(call: Call<FollowListDtoRes>, t: Throwable) {
-                                    Log.d("onFailure", "안됨")
-                                }
-                            })
-
+                        FollowService.getFollowingList(id, newFollowingList)
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize(),
