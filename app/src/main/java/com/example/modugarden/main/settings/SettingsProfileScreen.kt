@@ -80,7 +80,7 @@ fun SettingsProfileScreen(
     val categoryErrorState = remember { mutableStateOf(false) }
     val modalType = remember { mutableStateOf(ModalType.ProfileImage) }
     val categoriesState = remember { mutableStateOf(sharedPreferences.getStringSet(categorySetting, setOf())!!.toList()) }
-    val imageState = remember { mutableStateOf (sharedPreferences.getString(profileImage, null)?.toUri()) }
+    val imageState = remember { mutableStateOf (sharedPreferences.getString(profileImage, null)) }
     var isImageChanged = false
 
     // 사진 가져오는 런쳐
@@ -88,7 +88,7 @@ fun SettingsProfileScreen(
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 result.data?.data?.let {
-                    imageState.value = it
+                    imageState.value = it.toString()
                 }
             } else if (result.resultCode != Activity.RESULT_CANCELED) {
                 Log.d("Image Upload", "fail")
@@ -305,7 +305,7 @@ fun SettingsProfileScreen(
                         val jsonBody = jsonData.toString().toRequestBody(mediaType)
 
                         if(isImageChanged) {
-                            val file = imageState.value?.let { UriUtil.toFile(context, it) }
+                            val file = imageState.value?.let { UriUtil.toFile(context, it.toUri()) }
 
                             //api에 사진 데이터는 이 requestFile 넣어주면 되고
                             val requestFile = file?.let {
@@ -348,7 +348,7 @@ fun SettingsProfileScreen(
                         )
                         sharedPreferences.edit()
                             .putStringSet(categorySetting, categoriesState.value.toSet())
-                            .putString(profileImage, imageState.value.toString())
+                            .putString(profileImage, imageState.value)
                             .putString(clientNickname, nicknameState.value)
                             .apply()
                         onButtonClicked()
