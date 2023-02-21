@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -31,12 +30,10 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -51,7 +48,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
@@ -64,7 +60,7 @@ import com.example.modugarden.api.dto.GetCurationLikeStateResponse
 import com.example.modugarden.api.dto.GetFollowFeedCurationContent
 import com.example.modugarden.main.content.CurationContentActivity
 import com.example.modugarden.main.content.modalDeleteCuration
-import com.example.modugarden.main.content.reportCuration
+import com.example.modugarden.main.content.modalReportCuration
 import com.example.modugarden.main.content.timeFomatter
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
 import com.example.modugarden.ui.theme.*
@@ -90,7 +86,7 @@ fun CurationCard(
     modalImage: MutableState<String?>,
     modalContentId: MutableState<Int>,
     userViewModel: UserViewModel,
-    feedLauncher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>
+    launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>
 ) {
     val mContext = LocalContext.current
 
@@ -99,7 +95,7 @@ fun CurationCard(
     val userId =
         ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
 
-    feedLauncher.let {
+    launcher.let {
         RetrofitBuilder.curationAPI.getStateCurationLike(data.curation_id)
             .enqueue(  object : Callback<GetCurationLikeStateResponse> {
                 override fun onResponse(
@@ -202,7 +198,7 @@ fun CurationCard(
                             )
                     }
 
-                    feedLauncher.launch(IntentSenderRequest
+                    launcher.launch(IntentSenderRequest
                         .Builder(pendIntent)
                         .build())
                 }
@@ -304,13 +300,13 @@ fun CurationCard(
                             data.title,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color("#17291F".toColorInt())
+                            color = moduBlack
                         )
                         Row() {
                             Text(
                                 data.category_category,
                                 fontSize = 12.sp,
-                                color = Color("#75807A".toColorInt())
+                                color = moduGray_strong
                             )
                             Spacer(modifier = Modifier.weight(1f))
                             val value = remember{ mutableStateOf("") }
@@ -331,51 +327,7 @@ fun CurationCard(
                     modifier = Modifier.padding(end = 18.dp),
                     heartState = isButtonClickedLike
                 )
-                Log.i("liked", data.liked.toString())
-//                Icon(modifier = Modifier
-//                    .padding(end = 18.dp)
-//                    .bounceClick {
-//                        isButtonClickedLike.value = !isButtonClickedLike.value
-//                        RetrofitBuilder.curationAPI
-//                            .likeCuration(data.id)
-//                            .enqueue(object :retrofit2.Callback<CurationLikeResponse>{
-//                                override fun onResponse(
-//                                    call: Call<CurationLikeResponse>,
-//                                    response: Response<CurationLikeResponse>
-//                                ) {
-//                                    if(response.isSuccessful) {
-//                                        val res = response.body()
-//                                        if(res != null) {
-//                                            Log.d("like-result", res.toString())
-//                                        }
-//                                    }
-//                                    else {
-//                                        Toast.makeText(mContext, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
-//                                        Log.d("like-result", response.toString())
-//                                    }
-//
-//                                }
-//                                override fun onFailure(
-//                                    call: Call<CurationLikeResponse>,
-//                                    t: Throwable
-//                                ) {
-//                                    Toast.makeText(mContext, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
-//                                }
-//                            })
-//                    }
-//                    ,painter = painterResource
-//                        (id =
-//                            if (isButtonClickedLike.value)
-//                                R.drawable.ic_heart_solid
-//                            else
-//                                R.drawable.ic_heart_line
-//                        ),
-//                    contentDescription = "좋아요",
-//                tint = if (isButtonClickedLike.value)
-//                            Color(0xFFFF6767)
-//                        else
-//                            moduBlack
-//                )
+
                 // 스크랩
                 CurationSaveCard(
                     curationId = data.curation_id,
@@ -384,34 +336,13 @@ fun CurationCard(
                     scope,
                     snackbarHostState
                 )
-//                Icon(modifier = Modifier
-//                    .bounceClick {
-//                        isButtonClickedSave.value = !isButtonClickedSave.value
-//
-//                        if (isButtonClickedSave.value){
-//                            scope.launch {
-//                                snackbarHostState.showSnackbar(
-//                                    "게시물을 저장하였습니다.",
-//                                    duration = SnackbarDuration.Short
-//                                )
-//                            }
-//                        }
-//                    }
-//                    ,painter = painterResource
-//                        (id =
-//                    if (isButtonClickedSave.value)
-//                        R.drawable.ic_star_solid
-//                    else
-//                        R.drawable.ic_star_line
-//                    ),
-//                    contentDescription = "스크랩",
-//                    tint = moduBlack
-//                )
+
                 Spacer(modifier = Modifier.weight(1f))
                 // 신고
                     Icon(modifier = Modifier.bounceClick {
                         if (data.user_id==userId) modalType.value = modalDeleteCuration
-                        else modalType.value = reportCuration
+                        else modalType.value = modalReportCuration
+
                         modalTitle.value = data.title
                         modalImage.value = data.user_profile_image
                         modalContentId.value = data.curation_id
@@ -429,18 +360,4 @@ fun CurationCard(
 
         }
     }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterialApi::class)
-@Preview
-@Composable
-fun CurationPreview(){
-    // 팔로우 스낵바 메세지 띄울 때 필요
-    val scope = rememberCoroutineScope()
-    // 팔로우 스낵바 메세지 상태 변수
-    val snackbarHostState = remember { SnackbarHostState() }
-    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
-
-    /*CurationCard(data = ,scope,snackbarHostState,bottomSheetState)*/
 }

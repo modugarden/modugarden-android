@@ -15,7 +15,6 @@ import com.example.modugarden.main.content.PostContentCommentScreen
 import com.example.modugarden.main.content.PostContentMapScreen
 import com.example.modugarden.main.content.PostContentScreen
 import com.example.modugarden.main.profile.follow.ProfileApp
-import com.example.modugarden.viewmodel.CommentViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 
 //PostContentScreen, PostContentCommentScreen, PostContentMapScreen
@@ -30,7 +29,6 @@ enum class NAV_ROUTE_POSTCONTENT(val routeName: String, val description: String)
 @Composable
 fun NavigationGraphPostContent(
     navController: NavHostController,
-    commentViewModel: CommentViewModel = viewModel(),
     userViewModel: UserViewModel = viewModel(),
     board_id: Int,
 ) {
@@ -51,7 +49,6 @@ fun NavigationGraphPostContent(
             if (fcmToken != null) {
                 PostContentCommentScreen(
                     navController,
-                    commentViewModel,
                     userViewModel,
                     backStackEntry.arguments!!.getInt("comment_data"),
                     fcmToken = fcmToken.value,

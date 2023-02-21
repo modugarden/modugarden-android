@@ -79,16 +79,19 @@ import com.example.modugarden.api.dto.ReportPostResponse
 import com.example.modugarden.data.MapInfo
 import com.example.modugarden.data.MapsDetailRes
 import com.example.modugarden.data.Report
-import com.example.modugarden.main.follow.DotsIndicator
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
+import com.example.modugarden.ui.theme.DeleteModal
+import com.example.modugarden.ui.theme.DotsIndicator
 import com.example.modugarden.ui.theme.FollowCard
 import com.example.modugarden.ui.theme.OneButtonSmallDialog
 import com.example.modugarden.ui.theme.PostHeartCard
 import com.example.modugarden.ui.theme.PostSaveCard
+import com.example.modugarden.ui.theme.ReportModal
 import com.example.modugarden.ui.theme.ShowProgressBar
 import com.example.modugarden.ui.theme.ShowProgressBarV2
 import com.example.modugarden.ui.theme.SmallDialog
+import com.example.modugarden.ui.theme.SnackBar
 import com.example.modugarden.ui.theme.bounceClick
 import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduBlack
@@ -165,7 +168,6 @@ fun PostContentScreen(
             reportCategory=reportCategory.value,
             reportMessage = reportMessage
         ) {
-                Log.i("신고 정보", reportCategory.value + board_id.toString())
                 RetrofitBuilder.reportAPI
                     .reportPost(board_id, reportCategory.value)
                     .enqueue(object : Callback<ReportPostResponse> {
@@ -175,10 +177,8 @@ fun PostContentScreen(
                         ) {
                             if (response.body()?.isSuccess == true) {
                                 reportMessage.value = "소중한 의견을 주셔서 감사합니다!"
-                                Log.i("게시글 신고", "성공+${response.body()}}")
                             } else { // 또 신고 했으면 알려줌
                                 reportMessage.value = response.body()!!.message
-                                Log.i("게시글 신고 실패", response.body()!!.message)
                             }
                         }
 
@@ -191,62 +191,6 @@ fun PostContentScreen(
                     }
                     )
             messageDialogState.value = true
-           /* if (reportType == reportCuration) {
-                Log.i("신고 정보", reportType.value + id.toString() + modalType.value)
-                RetrofitBuilder.reportAPI
-                    .reportCuration(id, reportType.value)
-                    .enqueue(object : Callback<ReportCurationResponse> {
-                        override fun onResponse(
-                            call: Call<ReportCurationResponse>,
-                            response: Response<ReportCurationResponse>
-                        ) {
-                            if (response.isSuccessful) {
-                                reportMessage.value = "소중한 의견을 주셔서 감사합니다!"
-                                Log.i("큐레이션 신고", "성공+${response.body()}")
-                            } else {
-                                reportMessage.value = response.body()!!.message
-                                Log.i("큐레이션 신고 실패", response.body()!!.message)
-                            }
-                        }
-
-                        override fun onFailure(
-                            call: Call<ReportCurationResponse>,
-                            t: Throwable
-                        ) {
-                            Log.i("큐레이션 신고", "서버 연결 실패")
-                        }
-                    })
-
-            }
-            if (reportType == reportComment) {
-                Log.i(
-                    "신고 정보",
-                    reportType.value + id.toString() + modalType.value
-                )
-                RetrofitBuilder.reportAPI
-                    .reportComment(id, reportType.value)
-                    .enqueue(object : Callback<ReportCommentResponse> {
-                        override fun onResponse(
-                            call: Call<ReportCommentResponse>,
-                            response: Response<ReportCommentResponse>
-                        ) {
-                            if (response.isSuccessful) {
-                                reportMessage.value = "소중한 의견을 주셔서 감사합니다!"
-                                Log.i("댓글 신고", "성공+${response.body()}")
-                            } else {
-                                Log.i("댓글 신고 실패", response.body()!!.message)
-                                reportMessage.value = response.body()!!.message
-                            }
-                        }
-
-                        override fun onFailure(
-                            call: Call<ReportCommentResponse>,
-                            t: Throwable
-                        ) {
-                            Log.i("댓글 신고", "서버 연결 실패")
-                        }
-                    })
-            }*/
         }
     }
     if(messageDialogState.value)
@@ -274,18 +218,13 @@ fun PostContentScreen(
                     likeNum.value = res.result?.like_num!!
                     followState.value = res.result.isFollowed
                     fcmTokenState.value=res.result.fcmTokens
-                    Log.d("post-activity-result", responseBody.result?.image.toString())
                 }
                  else {
-                    Toast.makeText(context, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
-                    Log.d("follow-post-result", response.toString())
                 }
             }
 
             override fun onFailure(call: Call<PostDTO.GetPostResponse>, t: Throwable) {
-                Toast.makeText(context, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
-
-                Log.d("follow-curation", "실패")
+                Log.d("follow-curation", "서버 연결 실패")
             }
 
         })
@@ -301,99 +240,16 @@ fun PostContentScreen(
             sheetBackgroundColor = Color.Transparent,
             sheetState = bottomSheetState,
             sheetContent = {
-                if (modalType.value == modalReportType) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
-                        shape = RoundedCornerShape(15.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 18.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            // 회색 선
-                            Box(
-                                modifier = Modifier
-                                    .width(40.dp)
-                                    .height(5.dp)
-                                    .alpha(0.4f)
-                                    .background(moduGray_normal, RoundedCornerShape(30.dp))
-
-                            )
-                            Spacer(modifier = Modifier.size(30.dp))
-
-                            Column(
-                                modifier = Modifier
-                                    .padding(horizontal = 18.dp)
-                            ) {
-                                Text(text = "포스트 신고", style = moduBold, fontSize = 20.sp)
-
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 18.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    GlideImage(
-                                        imageModel =
-                                        post.user_profile_image ?: R.drawable.ic_default_profile,
-                                        contentDescription = "",
-                                        modifier = Modifier
-                                            .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
-                                            .size(25.dp)
-                                            .clip(CircleShape),
-                                        contentScale = ContentScale.Crop,
-                                        requestOptions = {
-                                            RequestOptions()
-                                                .override(25,25)
-                                        },
-                                        loading = {
-                                            ShowProgressBar()
-                                        }
-                                    )
-                                    Spacer(modifier = Modifier.size(18.dp))
-                                    Text(text = post!!.title, style = moduBold, fontSize = 14.sp,maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                }
-                            }
-
-                            // 구분선
-                            Divider(
-                                color = moduGray_light, modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                            )
-
-                            // 신고 카테고리 리스트
-                            LazyColumn(
-                                modifier = Modifier
-                                    .padding(horizontal = 18.dp)
-                            ) {
-                                itemsIndexed(
-                                    listOf(
-                                        Report.ABUSE,
-                                        Report.TERROR,
-                                        Report.SEXUAL,
-                                        Report.FISHING,
-                                        Report.INAPPROPRIATE
-                                    )
-                                ) { index, item ->
-                                    ReportCategoryItem(
-                                        report = item,
-                                        reportCategory = reportCategory,
-                                        scope = scope,
-                                        bottomSheetState=bottomSheetState,
-                                        dialogState = reportDialogState
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.size(18.dp))
-                        }
-
-
-                    }
+                if (modalType.value == modalReportPost) {
+                    ReportModal(
+                        type = "포스트",
+                        profileImage = post.user_profile_image,
+                        title = post.title,
+                        reportCategory = reportCategory,
+                        reportDialogState = reportDialogState,
+                        scope = scope,
+                        bottomSheetState = bottomSheetState
+                    )
                 }
                 if (modalType.value == modalLocationType) {
                     val location = remember { mutableStateOf("") }
@@ -409,7 +265,6 @@ fun PostContentScreen(
                         lat.value = locinfo.split("``")[1].toDouble()
                         lng.value = locinfo.split("``")[2].toDouble()
                         place_id.value = locinfo.split("``")[3]
-                        Log.i("장소 아이디", place_id.value)
                         RetrofitBuilder.postLocationPhotoAPI
                             .getPhotoReference(place_id.value)
                             .enqueue(object : Callback<MapsDetailRes>{
@@ -420,19 +275,17 @@ fun PostContentScreen(
                                             photoRef.value = res.photo_reference
                                         }
                                         else
-                                            Log.i("장소 세부정보 사진","없디")
+                                            photoRef.value = ""
                                     }
                                 }
 
                                 override fun onFailure(call: Call<MapsDetailRes>, t: Throwable) {
-                                    TODO("Not yet implemented")
                                 }
                             })
                         if(photoRef.value!="") {
                             photoURL.value =
                                 "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + photoRef!!.value + "&key=" + BuildConfig.google_maps_key
                         }
-                        Log.i("장소 사진",photoURL.value)
                         Locale.setDefault(Locale.KOREAN)
                         val geocoder = Geocoder(
                             LocalContext.current.applicationContext,
@@ -619,141 +472,43 @@ fun PostContentScreen(
 
                     }
                 }
-                if(modalType.value== modalDeletePost) { //삭제 모달
-                    Card(
-                        modifier = Modifier
-                            .padding(10.dp),
-                        shape = RoundedCornerShape(15.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 18.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .width(40.dp)
-                                    .height(5.dp)
-                                    .background(moduGray_normal, RoundedCornerShape(30.dp))
-                                    .alpha(0.2f)
-                            )
-
-                            Spacer(modifier = Modifier.size(30.dp))
-
-                            Column(
-                                modifier = Modifier
-                                    .padding(horizontal = 18.dp)
-                            ) {
-                                Text(text = "포스트를 삭제할까요?", style = moduBold, fontSize = 20.sp)
-
-                                Row(
-                                    modifier = Modifier
-                                        .padding(vertical = 30.dp)
-                                ) {
-                                    GlideImage(
-                                        imageModel = post.user_profile_image
-                                            ?: R.drawable.ic_default_profile,
-                                        contentDescription = "",
-                                        modifier = Modifier
-                                            .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
-                                            .size(25.dp)
-                                            .clip(CircleShape),
-                                        contentScale = ContentScale.Crop,
-                                        requestOptions = {
-                                            RequestOptions()
-                                                .override(25,25)
-                                        },
-                                        loading = {
-                                            ShowProgressBar()
+                if(modalType.value== modalDeletePost) {
+                    DeleteModal(
+                        type = "포스트",
+                        profileImage = post.user_profile_image,
+                        title = post.title,
+                        scope = scope,
+                        bottomSheetState = bottomSheetState,
+                        deleteAction = {
+                            isLoading.value = true
+                            RetrofitBuilder.postAPI
+                                .deletePost(post.id)
+                                .enqueue(object :
+                                    Callback<PostDTO.DeletePostResponse> {
+                                    override fun onResponse(
+                                        call: Call<PostDTO.DeletePostResponse>,
+                                        response: Response<PostDTO.DeletePostResponse>
+                                    ) {
+                                        if (response.body()?.isSuccess == true) {
+                                            isLoading.value = false
+                                            (context as Activity).finish()
+                                        } else {
+                                            TODO()
                                         }
-                                    )
-                                    Spacer(modifier = Modifier.width(18.dp))
-                                    Text(
-                                        post.title,
-                                        fontSize = 16.sp,
-                                        color = moduBlack,
-                                        modifier = Modifier.align(Alignment.CenterVertically)
-                                    )
-                                    Spacer(modifier = Modifier.weight(1f))
-
-
-                                }
-                                //버튼
-                                Row {
-                                    Card(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .bounceClick {
-                                                scope.launch {
-                                                    bottomSheetState.hide()
-                                                }
-                                            },
-                                        shape = RoundedCornerShape(10.dp),
-                                        backgroundColor = moduGray_light,
-                                        elevation = 0.dp
-                                    ) {
-                                        Text(
-                                            text = "취소",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 16.sp,
-                                            color = moduGray_strong,
-                                            modifier = Modifier
-                                                .padding(14.dp),
-                                            textAlign = TextAlign.Center
-                                        )
                                     }
-                                    Spacer(modifier = Modifier.size(18.dp))
-                                    Card(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .bounceClick {
-                                                isLoading.value = true
-                                                RetrofitBuilder.postAPI
-                                                    .deletePost(post.id)
-                                                    .enqueue(object :
-                                                        Callback<PostDTO.DeletePostResponse> {
-                                                        override fun onResponse(
-                                                            call: Call<PostDTO.DeletePostResponse>,
-                                                            response: Response<PostDTO.DeletePostResponse>
-                                                        ) {
-                                                            if (response.body()?.isSuccess == true) {
-                                                                isLoading.value = false
-                                                                Log.i("포스트 삭제", "성공")
-                                                                (context as Activity).finish()
-                                                            } else Log.i("포스트 삭제", "실패")
-                                                        }
 
-                                                        override fun onFailure(
-                                                            call: Call<PostDTO.DeletePostResponse>,
-                                                            t: Throwable
-                                                        ) {
-                                                            Log.i("포스트 삭제", "서버 연결 실패")
-                                                        }
-                                                    })
-                                                scope.launch {
-                                                    bottomSheetState.hide()
-                                                }
-
-                                            },
-                                        shape = RoundedCornerShape(10.dp),
-                                        backgroundColor = Color(0xFFFF7272),
-                                        elevation = 0.dp
+                                    override fun onFailure(
+                                        call: Call<PostDTO.DeletePostResponse>,
+                                        t: Throwable
                                     ) {
-                                        Text(
-                                            text = "삭제",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 16.sp,
-                                            color = Color.White,
-                                            modifier = Modifier
-                                                .padding(14.dp),
-                                            textAlign = TextAlign.Center
-                                        )
+                                        TODO()
                                     }
-                                }
+                                })
+                            scope.launch {
+                                bottomSheetState.hide()
                             }
                         }
-                    }
+                    )
 
                 }
             } ) {
@@ -822,7 +577,7 @@ fun PostContentScreen(
                             }
                         
                         // 포스트 카드 이미지 슬라이드 인디케이터
-                        if ( post!!.image.size!=1) {
+                        if ( post!!.image.size>1) {
                             DotsIndicator(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -857,7 +612,6 @@ fun PostContentScreen(
                                 userViewModel.setUserId(responseBody.result!!.user_id)
                                 navController.navigate(NAV_ROUTE_POSTCONTENT.WRITER.routeName)
                                 //  포스트 작성자 프로필로
-
                             }
                         )
                         {
@@ -934,7 +688,8 @@ fun PostContentScreen(
                     // 제목, 카테고리, 업로드 시간, 내용
                             HorizontalPager(
                                 modifier = Modifier
-                                    .padding(18.dp)
+                                    .padding(horizontal = 18.dp)
+                                    .padding(top = 18.dp)
                                     .weight(1f)
                                     .background(Color.White)
                                     .verticalScroll(scrollState),
@@ -973,6 +728,7 @@ fun PostContentScreen(
                                                 .padding(vertical = 18.dp),
                                             text = post!!.image[page].content, fontSize = 16.sp
                                         )
+                                        Spacer(modifier = Modifier.size(18.dp))
                                     }
 
                                     else{//내용
@@ -1061,45 +817,7 @@ fun PostContentScreen(
                         }
                     }
 
-                /*        // 구분선
-                        Divider(
-                            color = moduGray_light,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                        )
-                        // 상품 태그 영역
-                        Column(modifier = Modifier
-                            .background(Color.White)) {
-                            Row(
-                                modifier = Modifier
-                                    .padding(18.dp, 18.dp, 18.dp, 0.dp)
-                                    .fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            )
-                            {
-                                Text(text = "위치 태그", style = moduBold, fontSize = 16.sp)
-                                Spacer(modifier = Modifier.size(10.dp))
-                                // 상품 태그 갯수
-                                Text(text = "1", color = moduGray_strong, fontSize = 16.sp)
-                                Spacer(modifier = Modifier.weight(1f))
-                                // 상품 더보기 아이콘
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_chevron_right),
-                                    contentDescription = "상품 더보기 아이콘",
-                                    tint = moduBlack
-                                )
-
-                            }
-                            Column {
-                                Tagitem(modalType,scope,bottomSheetState)
-                            }
-
-                        }
-
-*/
                 }
-
 
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -1120,7 +838,7 @@ fun PostContentScreen(
                             .bounceClick {
                                 //버튼 클릭하면 바텀 모달 상태 변수 바뀜
                                 if(post.user_id==userId) modalType.value = modalDeletePost
-                                else modalType.value = modalReportType
+                                else modalType.value = modalReportPost
                                 scope.launch {
                                     bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
                                 }},
@@ -1131,85 +849,18 @@ fun PostContentScreen(
                 }
                 if (isLoading.value) ShowProgressBarV2()
 
-
-
-                // 커스텀한 알림
-                SnackbarHost(
+                Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(18.dp),
-                    hostState = snackbarHostState,
-                    snackbar = { snackbarData: SnackbarData ->
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    Color("#62766B".toColorInt()),
-                                    RoundedCornerShape(10.dp)
-                                )
-                        ) {
-                            Row(
-                                Modifier
-                                    .padding(12.dp, 17.dp)
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.ic_check_solid),
-                                    contentDescription = "체크",
-                                    Modifier.size(16.dp),
-                                )
-                                Spacer(modifier = Modifier.size(12.dp))
-                                Text(
-                                    text = snackbarData.message,
-                                    color = Color.White,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-
-                        }
-                    })
+                        .padding(30.dp)
+                ) {
+                    SnackBar(snackbarHostState = snackbarHostState)
+                }
             }
         }
 
 
 
     }
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun Tagitem(modalType:MutableState<Int>,
-            scope: CoroutineScope,
-            bottomSheetState:ModalBottomSheetState){
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(18.dp)
-            .bounceClick {
-                modalType.value = modalLocationType
-                scope.launch {
-                    bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                }
-
-            })
-        {
-            // 상품 1 사진
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
-                contentDescription = "",
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(CircleShape)
-                    .border(0.5.dp, Color(0xFFCCCCCC), CircleShape),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.width(18.dp))
-            Column(
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-            ) {
-                Text(text = "Location", style = moduBold, fontSize = 12.sp,)
-                Text(text = "adress", fontSize = 14.sp, color = Color.Gray)
-            }
-
-        }
-
-}}
+}
 
