@@ -20,6 +20,9 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -41,6 +44,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -51,12 +55,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
+import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.ApplicationClass.Companion.clientId
 import com.example.modugarden.ApplicationClass.Companion.clientNickname
 import com.example.modugarden.ApplicationClass.Companion.profileImage
@@ -69,9 +75,13 @@ import com.example.modugarden.api.dto.*
 import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.data.RecentSearch
 import com.example.modugarden.data.RecentSearchDatabase
+import com.example.modugarden.data.Report
+import com.example.modugarden.main.content.ReportCategoryItem
+import com.example.modugarden.main.content.modalLocationType
 import com.example.modugarden.main.follow.moduBold
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.google.gson.JsonObject
+import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -718,13 +728,13 @@ fun ProfileUpdateBottomButton(
         Card(
             modifier = Modifier
                 .bounceClick {
-                    if(!nicknameDisabled.value && !categoryDisabled.value)
+                    if (!nicknameDisabled.value && !categoryDisabled.value)
                         onClick.invoke()
                 }
                 .padding(dpScale)
                 .fillMaxWidth()
                 .alpha(
-                    if(!nicknameDisabled.value && !categoryDisabled.value)
+                    if (!nicknameDisabled.value && !categoryDisabled.value)
                         alpha
                     else
                         alpha / 2
@@ -1531,7 +1541,7 @@ fun SmallDialog(
                         .bounceClick {
                             dialogState.value = false
                         },
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(15.dp),
                     backgroundColor = negativeButtonColor,
                     elevation = 0.dp
                 ) {
@@ -1553,7 +1563,7 @@ fun SmallDialog(
                             onPositiveButtonClick()
                             dialogState.value = false
                         },
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(15.dp),
                     backgroundColor = positiveButtonColor,
                     elevation = 0.dp
                 ) {
@@ -1612,7 +1622,7 @@ fun OneButtonSmallDialog(
                         onButtonClick()
                         dialogState.value = false
                     },
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(15.dp),
                 backgroundColor = buttonColor,
                 elevation = 0.dp
             ) {
@@ -1659,4 +1669,348 @@ fun sendNotification(
         val response = RetrofitBuilder.fcmSendAPI.fcmSendAPI(jsonBody = jsonBody).execute()
         Log.d("onTokenResponse", response.toString())
     }
+}
+
+// 슬라이드 인디케이터 컴포넌트
+@Composable
+fun DotsIndicator(
+    modifier: Modifier,
+    dotSize: Int,
+    dotPadding:Int,
+    totalDots: Int,
+    selectedIndex: Int,
+    selectedColor: Color = moduGray_strong,
+    unSelectedColor: Color,
+){
+    LazyRow(
+        modifier = modifier
+        , horizontalArrangement = Arrangement.Center
+        , verticalAlignment = Alignment.Bottom
+
+    ) {
+        items(totalDots) { index ->
+            if (index == selectedIndex) {
+                Box(
+                    modifier = Modifier
+                        .size(dotSize.dp)
+                        .clip(CircleShape)
+                        .background(selectedColor)
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(dotSize.dp)
+                        .clip(CircleShape)
+                        .background(unSelectedColor)
+                )
+            }
+
+            if (index != totalDots - 1) {
+                Spacer(modifier = Modifier.padding(horizontal = dotPadding.dp))
+            }
+        }
+    }
+}
+
+//삭제 모달
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun DeleteModal(
+    type:String,
+    profileImage:String?,
+    title: String,
+    scope: CoroutineScope,
+    bottomSheetState: ModalBottomSheetState,
+    deleteAction: () -> Unit,
+)
+{
+    Card(
+        modifier = Modifier
+            .padding(10.dp),
+        shape = RoundedCornerShape(15.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(40.dp)
+                    .height(5.dp)
+                    .background(moduGray_normal, RoundedCornerShape(30.dp))
+                    .alpha(0.2f)
+            )
+
+            Spacer(modifier = Modifier.size(30.dp))
+
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 18.dp)
+            ) {
+                Text(text = type+"을 삭제할까요?", style = moduBold, fontSize = 20.sp)
+
+                Row(
+                    modifier = Modifier
+                        .padding(vertical = 30.dp)
+                ) {
+                    GlideImage(
+                        imageModel =
+                        profileImage ?: R.drawable.ic_default_profile,
+                        contentDescription = "",
+                        modifier = Modifier
+                            .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
+                            .size(25.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop,
+                        requestOptions = {
+                            RequestOptions()
+                                .override(25, 25)
+                        },
+                        loading = {
+                            ShowProgressBar()
+                        }
+                    )
+                    Spacer(modifier = Modifier.width(18.dp))
+                    Text(
+                        title,
+                        fontSize = 16.sp,
+                        color = moduBlack,
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+
+                }
+                //버튼
+                Row {
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .bounceClick {
+                                scope.launch {
+                                    bottomSheetState.hide()
+                                }
+                            },
+                        shape = RoundedCornerShape(15.dp),
+                        backgroundColor = moduGray_light,
+                        elevation = 0.dp
+                    ) {
+                        Text(
+                            text = "취소",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = moduGray_strong,
+                            modifier = Modifier
+                                .padding(14.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(18.dp))
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .bounceClick {
+                                deleteAction()
+                            },
+                        shape = RoundedCornerShape(15.dp),
+                        backgroundColor = Color(0xFFFF7272),
+                        elevation = 0.dp
+                    ) {
+                        Text(
+                            text = "삭제",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = Color.White,
+                            modifier = Modifier
+                                .padding(14.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ReportModal( type:String,
+                 profileImage:String?,
+                 userId:Int?=null,
+                 userName:String?=null,
+                 title: String,
+                 reportCategory: MutableState<String>,
+                 reportDialogState:MutableState<Boolean>,
+                 blockMessageState:MutableState<Boolean>?=null,
+                 scope: CoroutineScope,
+                 bottomSheetState: ModalBottomSheetState,
+                ){
+    Card(
+        modifier = Modifier
+            .padding(10.dp),
+        shape = RoundedCornerShape(15.dp)
+    )
+    {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // 회색 선
+            Box(
+                modifier = Modifier
+                    .width(40.dp)
+                    .height(5.dp)
+                    .background(moduGray_normal, RoundedCornerShape(30.dp))
+                    .alpha(0.2f)
+            )
+            Spacer(modifier = Modifier.size(30.dp))
+
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 18.dp)
+            ) {
+                Text(text = "$type 신고", style = moduBold, fontSize = 20.sp)
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 18.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    GlideImage(
+                        imageModel =
+                        profileImage ?: R.drawable.ic_default_profile,
+                        contentDescription = "",
+                        modifier = Modifier
+                            .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
+                            .size(25.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop,
+                        requestOptions = {
+                            RequestOptions()
+                                .override(25,25)
+                        },
+                        loading = {
+                            ShowProgressBar()
+                        }
+                    )
+                    Spacer(modifier = Modifier.size(18.dp))
+                    Text(
+                        text = title,
+                        style = moduBold, fontSize = 14.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+
+            // 구분선
+            Divider(
+                color = moduGray_light, modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+            )
+
+            // 신고 카테고리 리스트
+            LazyColumn(
+                modifier = Modifier
+                    .padding(horizontal = 18.dp)
+            ) {
+                itemsIndexed(
+                    listOf(
+                        Report.ABUSE,
+                        Report.TERROR,
+                        Report.SEXUAL,
+                        Report.FISHING,
+                        Report.INAPPROPRIATE
+                    )
+                ) { index, item ->
+                    ReportCategoryItem(
+                        report = item,
+                        reportCategory = reportCategory,
+                        scope = scope,
+                        bottomSheetState=bottomSheetState,
+                        dialogState = reportDialogState
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.size(18.dp))
+            // 구분선
+            Divider(
+                color = moduGray_light, modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+            )
+            if(type=="댓글"){//댓글 작성자 차단
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp)
+                        .bounceClick {
+                            scope.launch {
+                                bottomSheetState.hide()
+                            }
+                            CoroutineScope(Dispatchers.IO).launch {
+                                RetrofitBuilder.blockAPI
+                                    .blockUser(userId!!)
+                                    .execute()
+                            }
+                            blockMessageState!!.value = true
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = userName!!, style = moduBold, fontSize = 16.sp)
+                    Text(text = "님 차단하기", color = moduBlack, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.weight(1f))
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_chevron_right),
+                        contentDescription = null, tint = moduGray_strong
+                    )
+                }
+            }
+
+        }
+
+
+    }
+}
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun Tagitem(modalType:MutableState<Int>,
+            scope: CoroutineScope,
+            bottomSheetState:ModalBottomSheetState){
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(18.dp)
+        .bounceClick {
+            modalType.value = modalLocationType
+            scope.launch {
+                bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+            }
+
+        })
+    {
+        // 상품 1 사진
+        Image(
+            painter = painterResource(id = R.drawable.ic_launcher_background),
+            contentDescription = "",
+            modifier = Modifier
+                .size(50.dp)
+                .clip(CircleShape)
+                .border(0.5.dp, Color(0xFFCCCCCC), CircleShape),
+            contentScale = ContentScale.Crop
+        )
+        Spacer(modifier = Modifier.width(18.dp))
+        Column(
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+        ) {
+            Text(text = "Location", style = moduBold, fontSize = 12.sp,)
+            Text(text = "adress", fontSize = 14.sp, color = Color.Gray)
+        }
+
+    }
+
 }

@@ -56,7 +56,7 @@ data class GetCurationContent(
     val isSaved : Boolean,
     val title: String,
     val link: String,
-    val preview_image: String?,
+    val preview_image: String,
     val like_num: Int,
     val created_Date: String,
     val user_id: Int,

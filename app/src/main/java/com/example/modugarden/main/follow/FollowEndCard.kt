@@ -39,7 +39,6 @@ fun FollowEndCard(navController: NavHostController) {
         Column(Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center) {
-
             val size = 270.dp
             Spacer(modifier = Modifier.size(size))
             Image(painter = painterResource(id = R.drawable.ic_search_post), contentDescription = "")
@@ -92,11 +91,4 @@ fun FollowEndCard(navController: NavHostController) {
         }
 
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun FollowEndPreview(){
-    val navController = rememberNavController()
-    FollowEndCard(navController)
 }

@@ -67,7 +67,7 @@ fun NavigationGraphBNB(
                         slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(slideOutDuration))
             }
         ) {
-            FollowScreen(navController = navController, UVforMain = userViewModel, lazyScroll = lazyScroll, navFollowController = navFollowController) }
+            FollowScreen(navController = navController, lazyScroll = lazyScroll, navFollowController = navFollowController) }
 
         composable(
             NAV_ROUTE_BNB.DISCOVER.routeName,

@@ -107,7 +107,6 @@ fun CurationContentScreen(curation_id :Int) {
             reportCategory=reportCategory.value,
             reportMessage = reportMessage
         ) {
-                 Log.i("신고 정보", reportCategory.value + curation_id.toString() )
                  RetrofitBuilder.reportAPI
                      .reportCuration(curation_id, reportCategory.value)
                      .enqueue(object : Callback<ReportCurationResponse> {
@@ -117,10 +116,8 @@ fun CurationContentScreen(curation_id :Int) {
                          ) {
                              if (response.body()?.isSuccess == true) {
                                  reportMessage.value = "소중한 의견을 주셔서 감사합니다!"
-                                 Log.i("큐레이션 신고", "성공+${response.body()}")
                              } else {
                                  reportMessage.value = response.body()!!.message
-                                 Log.i("큐레이션 신고 실패", response.body()!!.message)
                              }
                          }
 
@@ -128,7 +125,7 @@ fun CurationContentScreen(curation_id :Int) {
                              call: Call<ReportCurationResponse>,
                              t: Throwable
                          ) {
-                             Log.i("큐레이션 신고", "서버 연결 실패")
+                            TODO()
                          }
                      })
             messageDialogState.value = true
@@ -156,11 +153,8 @@ fun CurationContentScreen(curation_id :Int) {
                     val res = response.body()
                     if (res != null) {
                         responseBody = res
-                        Log.d("curation-activity-result", responseBody.toString())
                     }
                 } else {
-                    Toast.makeText(context, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
-                    Log.d("curation-activity-result", response.toString())
                 }
             }
 
@@ -177,232 +171,49 @@ fun CurationContentScreen(curation_id :Int) {
         sheetBackgroundColor = Color.Transparent,
         sheetState = bottomSheetState,
         sheetContent = {
-            if (modalType.value == modalReportType) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    shape = RoundedCornerShape(15.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 18.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        // 회색 선
-                        Box(
-                            modifier = Modifier
-                                .width(40.dp)
-                                .height(5.dp)
-                                .alpha(0.4f)
-                                .background(moduGray_normal, RoundedCornerShape(30.dp))
-
-                        )
-                        Spacer(modifier = Modifier.size(30.dp))
-
-                        Column(
-                            modifier = Modifier
-                                .padding(horizontal = 18.dp)
-                        ) {
-                            Text(text = "큐레이션 신고", style = moduBold, fontSize = 20.sp)
-
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 18.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                GlideImage(
-                                    imageModel =
-                                    curation!!.user_profile_image ?: R.drawable.ic_default_profile,
-                                    contentDescription = "",
-                                    modifier = Modifier
-                                        .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
-                                        .size(25.dp)
-                                        .clip(CircleShape),
-                                    contentScale = ContentScale.Crop,
-                                    requestOptions = {
-                                        RequestOptions()
-                                            .override(25,25)
-                                    },
-                                    loading = {
-                                        ShowProgressBar()
+            if (modalType.value == modalReportCuration){
+                ReportModal(
+                    type = "큐레이션",
+                    profileImage = curation!!.user_profile_image,
+                    title = curation.title,
+                    reportCategory = reportCategory ,
+                    reportDialogState = reportDialogState,
+                    scope = scope,
+                    bottomSheetState = bottomSheetState
+                )
+            }
+            else
+                DeleteModal(
+                    type = "큐레이션",
+                    profileImage = curation!!.user_profile_image,
+                    title = curation.title,
+                    scope = scope,
+                    bottomSheetState = bottomSheetState,
+                    deleteAction = {
+                            RetrofitBuilder.curationAPI
+                                .deleteCuration(curation_id)
+                                .enqueue(object :
+                                    Callback<DeleteCurationResponse> {
+                                    override fun onResponse(
+                                        call: Call<DeleteCurationResponse>,
+                                        response: Response<DeleteCurationResponse>
+                                    ) {
+                                        if (response.body()?.isSuccess == true) {
+                                            (context as Activity).finish()
+                                        }
                                     }
-                                )
-                                Spacer(modifier = Modifier.size(18.dp))
-                                Text(text = curation.title, style = moduBold, fontSize = 14.sp,maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            }
-                        }
 
-                        // 구분선
-                        Divider(
-                            color = moduGray_light, modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                        )
+                                    override fun onFailure(
+                                        call: Call<DeleteCurationResponse>,
+                                        t: Throwable
+                                    ) {
+                                        TODO()
+                                    }
+                                })
 
-                        // 신고 카테고리 리스트
-                        LazyColumn(
-                            modifier = Modifier
-                                .padding(horizontal = 18.dp)
-                        ) {
-                            itemsIndexed(
-                                listOf(
-                                    Report.ABUSE,
-                                    Report.TERROR,
-                                    Report.SEXUAL,
-                                    Report.FISHING,
-                                    Report.INAPPROPRIATE
-                                )
-                            ) { index, item ->
-                                ReportCategoryItem(
-                                    report = item,
-                                    reportCategory = reportCategory,
-                                    scope = scope,
-                                    bottomSheetState=bottomSheetState,
-                                    dialogState = reportDialogState
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.size(18.dp))
+
                     }
-
-
-                }
-            }
-            else {
-                Card(
-                    modifier = Modifier
-                        .padding(10.dp),
-                    shape = RoundedCornerShape(15.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 18.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .width(40.dp)
-                                .height(5.dp)
-                                .background(moduGray_normal, RoundedCornerShape(30.dp))
-                                .alpha(0.2f)
-                        )
-
-                        Spacer(modifier = Modifier.size(30.dp))
-
-                        Column(
-                            modifier = Modifier
-                                .padding(horizontal = 18.dp)
-                        ) {
-                            Text(text = "큐레이션 삭제할까요?", style = moduBold, fontSize = 20.sp)
-
-                            Row(
-                                modifier = Modifier
-                                    .padding(vertical = 30.dp)
-                            ) {
-                                GlideImage(
-                                    imageModel = curation!!.user_profile_image
-                                        ?: R.drawable.ic_default_profile,
-                                    contentDescription = "",
-                                    modifier = Modifier
-                                        .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
-                                        .size(25.dp)
-                                        .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
-                                )
-                                Spacer(modifier = Modifier.width(18.dp))
-                                Text(
-                                    curation.title,
-                                    fontSize = 16.sp,
-                                    color = moduBlack,
-                                    modifier = Modifier.align(Alignment.CenterVertically)
-                                )
-                                Spacer(modifier = Modifier.weight(1f))
-
-
-                            }
-                            //버튼
-                            Row {
-                                // 취소
-                                Card(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .bounceClick {
-                                            scope.launch {
-                                                bottomSheetState.hide()
-                                            }
-                                        },
-                                    shape = RoundedCornerShape(10.dp),
-                                    backgroundColor = moduGray_light,
-                                    elevation = 0.dp
-                                ) {
-                                    Text(
-                                        text = "취소",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp,
-                                        color = moduGray_strong,
-                                        modifier = Modifier
-                                            .padding(14.dp),
-                                        textAlign = TextAlign.Center
-                                    )
-                                }
-                                Spacer(modifier = Modifier.size(18.dp))
-
-                                //삭제
-                                Card(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .bounceClick {
-                                            RetrofitBuilder.curationAPI
-                                                .deleteCuration(curation_id)
-                                                .enqueue(object :
-                                                    Callback<DeleteCurationResponse> {
-                                                    override fun onResponse(
-                                                        call: Call<DeleteCurationResponse>,
-                                                        response: Response<DeleteCurationResponse>
-                                                    ) {
-                                                        if (response.body()?.isSuccess == true) {
-                                                            Log.i(
-                                                                "큐레이션 삭제",
-                                                                "성공"
-                                                            )
-                                                            (context as Activity).finish()
-                                                        } else Log.i("큐레이션 삭제", "실패")
-                                                    }
-
-                                                    override fun onFailure(
-                                                        call: Call<DeleteCurationResponse>,
-                                                        t: Throwable
-                                                    ) {
-                                                        Log.i("큐레이션 삭제", "서버 연결 실패")
-                                                    }
-                                                })
-
-                                        },
-                                    shape = RoundedCornerShape(10.dp),
-                                    backgroundColor = Color(0xFFFF7272),
-                                    elevation = 0.dp
-                                ) {
-                                    Text(
-                                        text = "삭제",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp,
-                                        color = Color.White,
-                                        modifier = Modifier
-                                            .padding(14.dp),
-                                        textAlign = TextAlign.Center
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-
+                )
 
         }
     )
@@ -436,7 +247,9 @@ fun CurationContentScreen(curation_id :Int) {
                 )
                 Text(
                     text = curation!!.title, style = moduBold, fontSize = 16.sp,
-                    maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f).padding(start = 10.dp))
+                    maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 10.dp))
 
                 CurationHeartCard(
                     curationId = curation_id,
@@ -458,7 +271,7 @@ fun CurationContentScreen(curation_id :Int) {
                         .bounceClick {
                             //버튼 클릭하면 바텀 모달 상태 변수 바뀜
                             if(curation.user_id==userId) modalType.value = modalDeletePost
-                            else modalType.value = modalReportType
+                            else modalType.value = modalReportCuration
                             scope.launch {
                                 bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
                             }},
@@ -466,11 +279,6 @@ fun CurationContentScreen(curation_id :Int) {
                     contentDescription = "뒤로가기",
                     tint = moduBlack
                 )
-                /*Icon(painter = painterResource(id = R.drawable.ic_xmark),
-                    contentDescription = "창 닫기",
-                    modifier = Modifier.bounceClick {
-                        activity?.finish()
-                    })*/
             }
             // 구분선
             Divider(
@@ -489,12 +297,6 @@ fun CurationContentScreen(curation_id :Int) {
                                     ViewGroup.LayoutParams.MATCH_PARENT)
 
                                 webViewClient = object : WebViewClient(){
-
-                                    /*override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                                        super.onPageStarted(view, url, favicon)
-                                        isLoading.value=true
-                                    }*/
-
                                     override fun onPageFinished(view: WebView?, url: String?) {
                                         super.onPageFinished(view, url)
                                         isLoading.value=false
@@ -514,10 +316,3 @@ fun CurationContentScreen(curation_id :Int) {
     }
 
 }
-
-//@Preview
-//@Composable
-//fun CurationContentPreview() {
-//
-//    CurationContent("")
-//}

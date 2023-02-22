@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.fadeIn
@@ -13,7 +12,6 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,17 +23,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -73,11 +67,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.ApplicationClass.Companion.clientId
@@ -91,12 +82,11 @@ import com.example.modugarden.api.dto.DeleteCommentResponse
 import com.example.modugarden.api.dto.GetCommentContent
 import com.example.modugarden.api.dto.GetCommentResponse
 import com.example.modugarden.api.dto.ReportCommentResponse
-import com.example.modugarden.data.Report
 import com.example.modugarden.main.follow.moduBold
-import com.example.modugarden.main.notification.NotificationScreen
-import com.example.modugarden.route.NAV_ROUTE_FOLLOW
 import com.example.modugarden.route.NAV_ROUTE_POSTCONTENT
+import com.example.modugarden.ui.theme.DeleteModal
 import com.example.modugarden.ui.theme.OneButtonSmallDialog
+import com.example.modugarden.ui.theme.ReportModal
 import com.example.modugarden.ui.theme.ShowProgressBar
 import com.example.modugarden.ui.theme.SmallDialog
 import com.example.modugarden.ui.theme.addFocusCleaner
@@ -106,16 +96,13 @@ import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduBlack
 import com.example.modugarden.ui.theme.moduErrorPoint
 import com.example.modugarden.ui.theme.moduGray_light
-import com.example.modugarden.ui.theme.moduGray_normal
 import com.example.modugarden.ui.theme.moduGray_strong
 import com.example.modugarden.ui.theme.moduPoint
 import com.example.modugarden.ui.theme.sendNotification
-import com.example.modugarden.viewmodel.CommentViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 import com.google.gson.JsonObject
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -128,7 +115,6 @@ import retrofit2.Response
 @Composable
 fun PostContentCommentScreen(
     navController: NavHostController,
-    commentViewModel: CommentViewModel = viewModel(),
     userViewModel: UserViewModel,
     boardId: Int,
     fcmToken: ArrayList<String>?,
@@ -184,10 +170,6 @@ fun PostContentCommentScreen(
             reportCategory=reportCategory.value,
             reportMessage = reportMessage
         ) {
-            Log.i(
-                "신고 정보",
-                reportCategory.value + data.value.commentId.toString()
-            )
             RetrofitBuilder.reportAPI
                 .reportComment(data.value.commentId, reportCategory.value)
                 .enqueue(object : Callback<ReportCommentResponse> {
@@ -197,9 +179,7 @@ fun PostContentCommentScreen(
                     ) {
                         if (response.body()?.isSuccess==true) {
                             reportMessage.value = "소중한 의견을 주셔서 감사합니다!"
-                            Log.i("댓글 신고", "성공+${response.body()}")
                         } else {
-                            Log.i("댓글 신고 실패", response.body()!!.message)
                             reportMessage.value = response.body()!!.message
                         }
                     }
@@ -247,7 +227,6 @@ fun PostContentCommentScreen(
                 val res = response.body()
                 if (res != null) {
                     commentres = res
-                    Log.d("댓글디비-result", commentres.toString())
                 }
             }
 
@@ -276,283 +255,54 @@ fun PostContentCommentScreen(
         sheetState = bottomSheetState,
         sheetContent = {
             if(data.value.userId==userId){
-                Card(
-                    modifier = Modifier
-                        .padding(10.dp),
-                    shape = RoundedCornerShape(15.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 18.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                    Box(
-                        modifier = Modifier
-                            .width(40.dp)
-                            .height(5.dp)
-                            .background(moduGray_normal, RoundedCornerShape(30.dp))
-                            .alpha(0.2f)
-                    )
-
-                    Spacer(modifier = Modifier.size(30.dp))
-
-                    Column(
-                        modifier = Modifier
-                            .padding(horizontal = 18.dp)
-                    ) {
-                        Text(text = "댓글을 삭제할까요?", style = moduBold, fontSize = 20.sp)
-
-                        Row(
-                            modifier = Modifier
-                                .padding(vertical = 30.dp)
-                        ) {
-                            GlideImage(
-                                imageModel =
-                                if(data.value.profileImage == null)
-                                    R.drawable.ic_default_profile
-                                else data.value.profileImage,
-                                contentDescription = "",
-                                modifier = Modifier
-                                    .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
-                                    .size(25.dp)
-                                    .clip(CircleShape),
-                                contentScale = ContentScale.Crop,
-                                requestOptions = {
-                                    RequestOptions()
-                                        .override(25,25)
-                                },
-                                loading = {
-                                    ShowProgressBar()
+                DeleteModal(
+                    type = "댓글",
+                    profileImage = data.value.profileImage,
+                    title = data.value.comment,
+                    scope = scope,
+                    bottomSheetState = bottomSheetState,
+                    deleteAction = {
+                        RetrofitBuilder.commentAPI
+                            .deleteComment(boardId, data.value.commentId)
+                            .enqueue(object : Callback<DeleteCommentResponse> {
+                                override fun onResponse(
+                                    call: Call<DeleteCommentResponse>,
+                                    response: Response<DeleteCommentResponse>
+                                ) {
+                                    if (response.body()?.isSuccess == true) {
+                                            commentList.removeAll( commentList.filter { it.commentId==data.value.commentId || it.parentId==data.value.commentId})
+                                        scope.launch {
+                                            bottomSheetState.hide()
+                                        }
+                                    } else {
+                                        TODO()
+                                    }
                                 }
-                            )
-                            Spacer(modifier = Modifier.width(18.dp))
-                            Text(
-                                data.value.comment,
-                                fontSize = 16.sp,
-                                color = moduBlack,
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
 
-
-                        }
-                        //버튼
-                        Row {
-                            Card(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .bounceClick {
-                                        scope.launch {
-                                            bottomSheetState.hide()
-                                        }
-                                    },
-                                shape = RoundedCornerShape(10.dp),
-                                backgroundColor = moduGray_light,
-                                elevation = 0.dp
-                            ) {
-                                Text(
-                                    text = "취소",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = moduGray_strong,
-                                    modifier = Modifier
-                                        .padding(14.dp),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                            Spacer(modifier = Modifier.size(18.dp))
-                            Card(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .bounceClick {
-                                        Log.i("댓글", data.value.toString())
-                                        RetrofitBuilder.commentAPI
-                                            .deleteComment(boardId, data.value.commentId)
-                                            .enqueue(object : Callback<DeleteCommentResponse> {
-                                                override fun onResponse(
-                                                    call: Call<DeleteCommentResponse>,
-                                                    response: Response<DeleteCommentResponse>
-                                                ) {
-                                                    Log.i(
-                                                        "삭제",
-                                                        response
-                                                            .body()
-                                                            .toString()
-                                                    )
-                                                    if (response.isSuccessful) {
-                                                        Log.i("댓글 삭제", "성공")
-                                                    }
-                                                }
-
-                                                override fun onFailure(
-                                                    call: Call<DeleteCommentResponse>,
-                                                    t: Throwable
-                                                ) {
-                                                    Log.i("댓글 삭제", "연결 실패")
-                                                }
-                                            })
-                                        commentViewModel.deleteComment(
-                                            data.value.commentId,
-                                            commentList)
-                                        scope.launch {
-                                            bottomSheetState.hide()
-                                        }
-
-                                    },
-                                shape = RoundedCornerShape(10.dp),
-                                backgroundColor = Color(0xFFFF7272),
-                                elevation = 0.dp
-                            ) {
-                                Text(
-                                    text = "삭제",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = Color.White,
-                                    modifier = Modifier
-                                        .padding(14.dp),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        }
+                                override fun onFailure(
+                                    call: Call<DeleteCommentResponse>,
+                                    t: Throwable
+                                ) {
+                                    TODO()
+                                }
+                            })
                     }
-                }
-                    }
-
+                )
 
             }
             else {
-                Card(
-                    modifier = Modifier
-                        .padding(10.dp),
-                    shape = RoundedCornerShape(15.dp)
+                ReportModal(
+                    type = "댓글",
+                    profileImage = data.value.profileImage,
+                    userId = data.value.userId,
+                    userName = data.value.nickname,
+                    title = data.value.comment,
+                    reportCategory = reportCategory,
+                    reportDialogState = reportDialogState,
+                    blockMessageState = blockMessageState,
+                    scope = scope,
+                    bottomSheetState = bottomSheetState
                 )
-                {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 18.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        // 회색 선
-                        Box(
-                            modifier = Modifier
-                                .width(40.dp)
-                                .height(5.dp)
-                                .background(moduGray_normal, RoundedCornerShape(30.dp))
-                                .alpha(0.2f)
-                        )
-                        Spacer(modifier = Modifier.size(30.dp))
-
-                        Column(
-                            modifier = Modifier
-                                .padding(horizontal = 18.dp)
-                        ) {
-                            Text(text = "댓글 신고", style = moduBold, fontSize = 20.sp)
-
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 18.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                GlideImage(
-                                    imageModel =
-                                    if(data.value.profileImage == null)
-                                        R.drawable.ic_default_profile
-                                    else data.value.profileImage,
-                                    contentDescription = "",
-                                    modifier = Modifier
-                                        .border(1.dp, moduGray_light, RoundedCornerShape(50.dp))
-                                        .size(25.dp)
-                                        .clip(CircleShape),
-                                    contentScale = ContentScale.Crop,
-                                    requestOptions = {
-                                        RequestOptions()
-                                            .override(25,25)
-                                    },
-                                    loading = {
-                                        ShowProgressBar()
-                                    }
-                                )
-                                Spacer(modifier = Modifier.size(18.dp))
-                                Text(
-                                    text = data.value.comment!!,
-                                    style = moduBold, fontSize = 14.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                            }
-                        }
-
-                        // 구분선
-                        Divider(
-                            color = moduGray_light, modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                        )
-
-                        // 신고 카테고리 리스트
-                        LazyColumn(
-                            modifier = Modifier
-                                .padding(horizontal = 18.dp)
-                        ) {
-                            itemsIndexed(
-                                listOf(
-                                    Report.ABUSE,
-                                    Report.TERROR,
-                                    Report.SEXUAL,
-                                    Report.FISHING,
-                                    Report.INAPPROPRIATE
-                                )
-                            ) { index, item ->
-                                ReportCategoryItem(
-                                    report = item,
-                                    reportCategory = reportCategory,
-                                    scope = scope,
-                                    bottomSheetState=bottomSheetState,
-                                    dialogState = reportDialogState
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.size(18.dp))
-                        // 구분선
-                        Divider(
-                            color = moduGray_light, modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                        )
-                        //댓글 작성자 차단
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(18.dp)
-                                .bounceClick {
-                                    scope.launch {
-                                        bottomSheetState.hide()
-                                    }
-                                    CoroutineScope(Dispatchers.IO).launch {
-                                        RetrofitBuilder.blockAPI
-                                            .blockUser(data.value.userId)
-                                            .execute()
-                                    }
-                                    blockMessageState.value =true
-                                },
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(text = data.value.nickname!!, style = moduBold, fontSize = 16.sp)
-                            Text(text = "님 차단하기", color = moduBlack, fontSize = 16.sp)
-                            Spacer(modifier = Modifier.weight(1f))
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_chevron_right),
-                                contentDescription = null, tint = moduGray_strong
-                            )
-                        }
-
-                    }
-
-
-                }
             }
 
         }) {
@@ -825,29 +575,12 @@ fun PostContentCommentScreen(
                                                                         )
                                                                     if (res != null) {
                                                                         comment = res.result
-                                                                        Log.i(
-                                                                            "댓글 작성",
-                                                                            comment.toString()
-                                                                        )
+                                                                        commentList.add(comment)
                                                                         // 답글 입력중이라면
                                                                         if (isReplying.value) {
-                                                                            commentViewModel.addComment(
-                                                                                comment,
-                                                                                commentList
-                                                                            )
                                                                             isReplying.value = false
-                                                                        } else //댓글일 때
-                                                                        {
-                                                                            commentViewModel.addComment(
-                                                                                comment,
-                                                                                commentList
-                                                                            )
                                                                         }
                                                                         fcmToken?.forEach { token ->
-                                                                            Log.d(
-                                                                                "onTokenResponse",
-                                                                                "sendNotification : $token"
-                                                                            )
                                                                             sendNotification(
                                                                                 notificationType = (if (comment.parentId == null) 1 else 2),
                                                                                 boardId,
@@ -863,27 +596,16 @@ fun PostContentCommentScreen(
                                                                         }
 
                                                                     }
-                                                                } else Log.i(
-                                                                    "댓글",
-                                                                    "${response.body()}"
-                                                                )
+                                                                } else {
+                                                                   TODO()
+                                                                }
                                                             }
 
                                                             override fun onFailure(
                                                                 call: Call<CommentDTO>,
                                                                 t: Throwable
                                                             ) {
-                                                                Toast
-                                                                    .makeText(
-                                                                        context,
-                                                                        "데이터를 받지 못했어요",
-                                                                        Toast.LENGTH_SHORT
-                                                                    )
-                                                                    .show()
-                                                                Log.d(
-                                                                    "comment-result",
-                                                                    t.message.toString()
-                                                                )
+                                                                TODO()
                                                             }
                                                         })
                                                     keyboardController?.hide()
