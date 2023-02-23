@@ -270,7 +270,7 @@ fun PostContentCommentScreen(
                                     response: Response<DeleteCommentResponse>
                                 ) {
                                     if (response.body()?.isSuccess == true) {
-                                            commentList.removeAll( commentList.filter { it.commentId==data.value.commentId || it.parentId==data.value.commentId})
+                                        commentList.removeAll( commentList.filter { it.commentId==data.value.commentId || it.parentId==data.value.commentId})
                                         scope.launch {
                                             bottomSheetState.hide()
                                         }

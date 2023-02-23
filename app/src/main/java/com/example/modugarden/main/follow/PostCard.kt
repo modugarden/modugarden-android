@@ -208,7 +208,9 @@ fun PostCard(
                                                 .build())
                                 })
                                 {       // 포스트 카드 이미지 슬라이드
-                                        Box() {
+                                        Box(modifier = Modifier
+                                                .fillMaxWidth()
+                                                .aspectRatio(1f)) {
                                                 // 포스트 카드 이미지 슬라이드
                                                 HorizontalPager(
                                                         count =data.image.size,
@@ -235,22 +237,29 @@ fun PostCard(
                                                         )
 
                                                 }
+                                                /*Box(modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .fillMaxHeight(0.2f)
+                                                                .background(
+                                                                        brush = Brush.verticalGradient(
+                                                                                colors = listOf(
+                                                                                        moduBlack.copy(
+                                                                                                alpha = 0.2f
+                                                                                        ),
+                                                                                        moduBlack.copy(
+                                                                                                alpha = 0f
+                                                                                        )
+                                                                                ),
+                                                                                startY = 0f,
+                                                                                endY = 100f
+                                                                        ),
+
+                                                                )
+                                                )*/
                                                 if(data.image.size>1) {// 포스트 카드 이미지 슬라이드 인디케이터
                                                         DotsIndicator(
                                                                 modifier = Modifier
                                                                         .fillMaxWidth()
-                                                                        .background(
-                                                                                brush = Brush.verticalGradient(
-                                                                                        colors = listOf(
-                                                                                                moduBlack.copy(
-                                                                                                        alpha = 0f
-                                                                                                ),
-                                                                                                moduBlack.copy(
-                                                                                                        alpha = 0.2f
-                                                                                                )
-                                                                                        )
-                                                                                )
-                                                                        )
                                                                         .align(Alignment.BottomCenter)
                                                                         .padding(25.dp),
                                                                 dotSize = 8,
@@ -261,6 +270,25 @@ fun PostCard(
                                                                 unSelectedColor = Color("#75FFFFFF".toColorInt())
                                                         )
                                                 }
+                                               /* Box(modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .fillMaxHeight(0.2f)
+                                                        .background(
+                                                                brush = Brush.verticalGradient(
+                                                                        colors = listOf(
+                                                                                moduBlack.copy(
+                                                                                        alpha = 0f
+                                                                                ),
+                                                                                moduBlack.copy(
+                                                                                        alpha = 0.2f
+                                                                                )
+                                                                        ),
+                                                                        startY = 100f,
+                                                                        endY = 300f
+                                                                )
+                                                        )
+                                                        .align(Alignment.BottomCenter)
+                                                )*/
 
                                         }
                                         Column(modifier = Modifier
@@ -344,7 +372,7 @@ fun PostCard(
                                                        )
                                                        intent.putExtra("board_id", data.board_id)
                                                        intent.putExtra("run", false)
-                                                       intent.putExtra("fcm_tokens",fcmTokens)
+                                                       intent.putExtra("fcm_tokens", fcmTokens)
                                                        mContext.startActivity(intent)
 
                                                },
