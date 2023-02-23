@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -23,8 +24,10 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.reflect.KFunction1
 
 val pages = listOf("팔로워", "팔로잉")
 
@@ -33,20 +36,18 @@ val pages = listOf("팔로워", "팔로잉")
 fun ProfileFollowMainScreen(
     id: Int,
     navController: NavController,
+    followerList: SnapshotStateList<FollowListDtoResContent>,
+    followingList: SnapshotStateList<FollowListDtoResContent>,
+    getFollowerList: KFunction1<Int, Job>,
+    getFollowingList: KFunction1<Int, Job>,
     onUserClick: (Int) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
     Log.d("userId", id.toString())
 
-    val newFollowerList = remember { mutableStateOf(
-        listOf(FollowListDtoResContent())
-    ) }
-    val newFollowingList = remember { mutableStateOf(
-        listOf(FollowListDtoResContent())
-    ) }
-    FollowService.getFollowingList(id, newFollowingList)
-    FollowService.getFollowerList(id, newFollowerList)
+    val newFollowerList = remember { followerList }
+    val newFollowingList = remember { followingList }
 
     Scaffold(
         modifier = Modifier
@@ -114,7 +115,7 @@ fun ProfileFollowMainScreen(
             ) { page ->
                 when (page) {
                     0 -> {
-                        FollowService.getFollowerList(id, newFollowerList)
+                        getFollowerList(id)
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize(),
@@ -122,7 +123,7 @@ fun ProfileFollowMainScreen(
                             contentPadding = PaddingValues(18.dp)
                         ) {
                             items(
-                                items = newFollowerList.value,
+                                items = newFollowerList,
                                 key = { user ->
                                     user.userId.toString() + user.follow
                                 }) { follower ->
@@ -146,7 +147,7 @@ fun ProfileFollowMainScreen(
                         }
                     }
                     1 -> {
-                        FollowService.getFollowingList(id, newFollowingList)
+                        getFollowingList(id)
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize(),
@@ -154,11 +155,11 @@ fun ProfileFollowMainScreen(
                             contentPadding = PaddingValues(18.dp)
                         ) {
                             items(
-                                items = newFollowingList.value,
+                                items = newFollowingList,
                                 key = { user -> user.userId }) {following ->
                                 ProfileCard(following, onUserClick) { isFollowing ->
                                     scope.launch{
-                                        val snackBar=scope.launch {
+                                        val snackBar = scope.launch {
                                             if (isFollowing)
                                                 scaffoldState.snackbarHostState.showSnackbar(
                                                     "${following.nickname} 님을 언팔로우 했어요."
