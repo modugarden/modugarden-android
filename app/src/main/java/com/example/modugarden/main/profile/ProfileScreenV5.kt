@@ -79,14 +79,12 @@ import kotlin.reflect.KFunction1
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
 @Composable
-fun ProfileScreenV4(
+fun ProfileScreenV5(
     userId: Int = 0,
     upperNavHostController: NavHostController,
     navController: NavController = NavController(LocalContext.current),
     userViewModel: UserViewModel,
-    getUserInfo: KFunction1<Int, Job>,
-    getUserPosts: KFunction1<Int, Job>,
-    getUserCurations: KFunction1<Int, Job>
+    profileViewModel: ProfileViewModel
 ) {
     val myId = sharedPreferences.getInt(clientId, 0)
 
@@ -96,79 +94,53 @@ fun ProfileScreenV4(
     val pagerState = rememberPagerState()
     val scaffoldState = rememberScaffoldState()
     val context = LocalContext.current
-    val data = remember { mutableStateOf( UserInfoResResult() ) }
-    val followState = remember { mutableStateOf(false) }
-    val loadingState = remember { mutableStateOf(true) }
+
+    var loadingState by remember { mutableStateOf(true) }
+
+    // 새로고침
     val refreshViewModel = RefreshViewModel()
     val isRefreshing by refreshViewModel.isRefreshing.collectAsState()
-    val blockDialogState = remember { mutableStateOf(false) }
-    val alreadyBlockDialogState = remember { mutableStateOf(false) }
-    val reportDialogState = remember { mutableStateOf(false) }
-    val blockState = remember { mutableStateOf(false) }
-    val blockedState = remember { mutableStateOf(false) }
-    val fcmTokenState = remember { mutableStateOf<List<String>>(listOf())}
 
-    val postList = remember {
-        mutableStateOf<List<PostDTO.GetUserPostResponseContent>?>(
-            listOf()
-        )
+    // 다이얼로그 상태유지
+    var blockDialogState = remember { mutableStateOf(false) }
+    var alreadyBlockDialogState = remember { mutableStateOf(false) }
+    var reportDialogState = remember { mutableStateOf(false) }
+
+    // 프로필 정보
+    var profileInfo by remember { profileViewModel.profileInfo }
+    profileViewModel.getProfileInfo(userId)
+
+    var profilePosts by remember { profileViewModel.profilePosts }
+    profileViewModel.getProfilePosts(userId)
+
+    var profileCurations by remember { profileViewModel.profileCurations }
+    if (profileInfo.userAuthority == UserAuthority.ROLE_CURATOR.name) {
+        profileViewModel.getProfileCurations(userId)
     }
 
-    val curationList = remember {
-        mutableStateOf<List<GetUserCurationsResponseContent>?>(
-            listOf()
-        )
-    }
+    val profileBlockState = remember { mutableStateOf(profileInfo.block) }
+    loadingState = false
 
     val launcher = rememberLauncherForActivityResult(contract =
     ActivityResultContracts.StartIntentSenderForResult()) {
-        loadingState.value = true
-        RetrofitBuilder.userAPI.readUserInfo(userId)
-            .enqueue(object : AuthCallBack<UserInfoRes>(context, "설정 -> 프로필 복귀 시 api") {
-                override fun onResponse(call: Call<UserInfoRes>, response: Response<UserInfoRes>) {
-                    super.onResponse(call, response)
-                    data.value = response.body()?.result!!
-                    followState.value = response.body()!!.result.follow
-                    blockState.value = response.body()!!.result.block
-                    blockedState.value = response.body()!!.result.blocked
-                    loadingState.value = false
-                }
-            })
+        loadingState = true
+        profileViewModel.getProfileInfo(userId)
+        loadingState = false
     }
 
     val postLauncher = rememberLauncherForActivityResult(contract =
     ActivityResultContracts.StartIntentSenderForResult()) {
-        loadingState.value = true
-        CoroutineScope(Dispatchers.IO).launch {
-            val postResponse = RetrofitBuilder.postAPI.getUserPost(userId).execute()
-            postList.value = postResponse.body()?.content
-            loadingState.value = false
-        }
+        loadingState = true
+        profileViewModel.getProfilePosts(userId)
+        loadingState = false
     }
 
     val curationLauncher = rememberLauncherForActivityResult(contract =
     ActivityResultContracts.StartIntentSenderForResult()) {
-        loadingState.value = true
-        CoroutineScope(Dispatchers.IO).launch {
-            val curationResponse = RetrofitBuilder.curationAPI.getUserCuration(userId).execute()
-            curationList.value = curationResponse.body()?.content
-            loadingState.value = false
-        }
+        loadingState = true
+        profileViewModel.getProfileCurations(userId)
+        loadingState = false
     }
-
-    RetrofitBuilder.userAPI.readUserInfo(userId)
-        .enqueue(object : AuthCallBack<UserInfoRes>(context, "유저 정보 불러오기") {
-            override fun onResponse(call: Call<UserInfoRes>, response: Response<UserInfoRes>) {
-                super.onResponse(call, response)
-                data.value = response.body()?.result!!
-                followState.value = response.body()!!.result.follow
-                blockState.value = response.body()!!.result.block
-                blockedState.value = response.body()!!.result.blocked
-                fcmTokenState.value = response.body()!!.result.fcmTokens
-                loadingState.value = false
-                sharedPreferences.edit().putStringSet(categorySetting, response.body()?.result?.categories!!.toSet()).apply()
-            }
-        })
 
     ModalBottomSheet(
         title = "",
@@ -190,7 +162,7 @@ fun ProfileScreenV4(
                 trailing = true,
                 modifier = Modifier.bounceClick {
                     scope.launch {
-                        if(blockState.value)
+                        if(profileInfo.block)
                             alreadyBlockDialogState.value = true
                         else
                             blockDialogState.value = true
@@ -219,8 +191,7 @@ fun ProfileScreenV4(
                     state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
                     onRefresh = {
                         refreshViewModel.refresh()
-                        refreshViewModel.getUserInfo(data, context, loadingState)
-                        followState.value = data.value.follow
+                        profileViewModel.getProfileInfo(userId)
                     }) {
 
                     if(alreadyBlockDialogState.value)
@@ -236,7 +207,7 @@ fun ProfileScreenV4(
 
                     if(blockDialogState.value)
                         SmallDialog(
-                            text = "${data.value.nickname}님을\n차단하시겠습니까?",
+                            text = "${profileInfo.nickname}님을\n차단하시겠습니까?",
                             textColor = moduBlack,
                             backgroundColor = Color.White,
                             positiveButtonText = "차단",
@@ -249,14 +220,15 @@ fun ProfileScreenV4(
                         ) {
                             CoroutineScope(Dispatchers.IO).launch {
                                 val blockResponse = RetrofitBuilder.blockAPI.blockUser(userId).execute()
-                                blockState.value = true
+                                profileViewModel.getProfileInfo(userId)
+                                profileBlockState.value = true
                                 Log.d("onResponse", blockResponse.toString())
                             }
                         }
 
                     if(reportDialogState.value)
                         SmallDialog(
-                            text = "${data.value.nickname}님을\n신고하시겠습니까?",
+                            text = "${profileInfo.nickname}님을\n신고하시겠습니까?",
                             textColor = moduBlack,
                             backgroundColor = Color.White,
                             positiveButtonText = "신고",
@@ -303,7 +275,7 @@ fun ProfileScreenV4(
                                     )
                                 }
                                 Spacer(modifier = Modifier.weight(1f))
-                                if (myId != data.value.id) {
+                                if (myId != profileInfo.id) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.ellipsis_vertical),
                                         contentDescription = null,
@@ -326,7 +298,7 @@ fun ProfileScreenV4(
                             ) {
                                 Spacer(modifier = Modifier.width(42.dp))
                                 Text(
-                                    text = data.value.nickname,
+                                    text = profileInfo.nickname,
                                     style = TextStyle(
                                         fontSize = 28.sp,
                                         fontWeight = FontWeight.Bold,
@@ -341,7 +313,7 @@ fun ProfileScreenV4(
                                         .align(CenterVertically)
                                         .size(24.dp)
                                         .bounceClick {
-                                            if (myId == data.value.id) {
+                                            if (myId == profileInfo.id) {
                                                 val intent =
                                                     Intent(context, SettingsActivity::class.java)
 
@@ -373,7 +345,7 @@ fun ProfileScreenV4(
                                             }
                                         },
                                     tint =
-                                    if (myId == data.value.id)
+                                    if (myId == profileInfo.id)
                                         moduGray_normal
                                     else
                                         Color.Transparent
@@ -381,7 +353,7 @@ fun ProfileScreenV4(
                             }
                             Spacer(modifier = Modifier.size(10.dp))
                             Text(
-                                text = data.value.categories.joinToString(", ", "", ""),
+                                text = profileInfo.categories.joinToString(", ", "", ""),
                                 style = TextStyle(
                                     color = moduGray_normal,
                                     fontWeight = FontWeight.Bold,
@@ -406,7 +378,7 @@ fun ProfileScreenV4(
                                 ) {
                                     Column {
                                         Text(
-                                            text = ((postList.value?.size ?: 0) + (curationList.value?.size ?: 0)).toString(),
+                                            text = ((profilePosts?.size ?: 0) + (profileCurations?.size ?: 0)).toString(),
                                             style = TextStyle(
                                                 color = moduBlack,
                                                 fontWeight = FontWeight.Bold,
@@ -431,20 +403,20 @@ fun ProfileScreenV4(
                                 ) {
                                     GlideImage(
                                         imageModel =
-                                        data.value.profileImage ?: R.drawable.ic_default_profile,
+                                        profileInfo.profileImage ?: R.drawable.ic_default_profile,
                                         modifier = Modifier
                                             .fillMaxHeight()
                                             .aspectRatio(1f)
                                             .clip(CircleShape)
                                             .bounceClick {
-                                                if (data.value.profileImage != null) {
+                                                if (profileInfo.profileImage != null) {
                                                     val intent = Intent(
                                                         context,
                                                         ProfileImageDetailActivity::class.java
                                                     )
                                                     intent.putExtra(
                                                         "imageUrl",
-                                                        data.value.profileImage
+                                                        profileInfo.profileImage
                                                     )
                                                     context.startActivity(intent)
                                                 }
@@ -457,7 +429,7 @@ fun ProfileScreenV4(
                                                 .override(256, 256)
                                         }
                                     )
-                                    if(data.value.userAuthority == UserAuthority.ROLE_CURATOR.name)
+                                    if(profileInfo.userAuthority == UserAuthority.ROLE_CURATOR.name)
                                         Image(
                                             painter = painterResource(id = R.drawable.ic_user_state),
                                             contentDescription = null,
@@ -478,7 +450,7 @@ fun ProfileScreenV4(
                                 ) {
                                     Column {
                                         Text(
-                                            text = data.value.followerCount.toString(),
+                                            text = profileInfo.followerCount.toString(),
                                             style = TextStyle(
                                                 color = moduBlack,
                                                 fontWeight = FontWeight.Bold,
@@ -500,7 +472,7 @@ fun ProfileScreenV4(
 
                             Spacer(modifier = Modifier.size(30.dp))
 
-                            if (myId != userId && !blockedState.value) {
+                            if (myId != userId && !profileInfo.blocked) {
                                 FollowCard(
                                     id = userId,
                                     modifier = Modifier
@@ -510,60 +482,33 @@ fun ProfileScreenV4(
                                     snackBarAction = {
                                         scope.launch {
                                             val snackBar  = scope.launch {
-                                            if (followState.value) scaffoldState.snackbarHostState.showSnackbar(
-                                                "${data.value.nickname} 님을 팔로우 했어요."
-                                            )
-                                            else scaffoldState.snackbarHostState.showSnackbar("${data.value.nickname} 님을 언팔로우 했어요.")
+                                            if (!profileInfo.follow)
+                                                scaffoldState.snackbarHostState.showSnackbar("${profileInfo.nickname} 님을 팔로우 했어요.")
+                                            else
+                                                scaffoldState.snackbarHostState.showSnackbar("${profileInfo.nickname} 님을 언팔로우 했어요.")
                                         }
                                             delay(900)
                                             snackBar.cancel()
                                         }
-
+                                        profileViewModel.getProfileInfo(userId)
                                     },
-                                    followState = followState,
-                                    blockState = blockState,
+                                    followState = remember { mutableStateOf(profileInfo.follow) },
+                                    blockState = profileBlockState,
                                     contentModifier = Modifier
                                         .padding(vertical = 8.dp, horizontal = 10.dp),
                                     unBlockSnackBarAction = {
                                         scope.launch{
                                             val snackBar = scope.launch {
-                                                scaffoldState.snackbarHostState.showSnackbar("${data.value.nickname} 님을 차단해제했어요.")
+                                                scaffoldState.snackbarHostState.showSnackbar("${profileInfo.nickname} 님을 차단해제했어요.")
                                             }
                                             delay(900)
                                             snackBar.cancel()
                                         }
                                     },
-                                    fcmTokenState = fcmTokenState
+                                    fcmTokenState = remember { mutableStateOf(profileInfo.fcmTokens) }
                                 )
                             }
 
-                            RetrofitBuilder.postAPI.getUserPost(userId)
-                                .enqueue(object :
-                                    AuthCallBack<PostDTO.GetUserPostResponse>(context, "성공!") {
-                                    override fun onResponse(
-                                        call: Call<PostDTO.GetUserPostResponse>,
-                                        response: Response<PostDTO.GetUserPostResponse>
-                                    ) {
-                                        super.onResponse(call, response)
-                                        if (response.body()?.content != null)
-                                            postList.value = response.body()?.content
-                                    }
-                                })
-
-                            if (data.value.postCount > 0) {
-                                RetrofitBuilder.curationAPI.getUserCuration(userId)
-                                    .enqueue(object :
-                                        AuthCallBack<GetUserCurationsResponse>(context, "성공!") {
-                                        override fun onResponse(
-                                            call: Call<GetUserCurationsResponse>,
-                                            response: Response<GetUserCurationsResponse>
-                                        ) {
-                                            super.onResponse(call, response)
-                                            if (response.body()?.content != null)
-                                                curationList.value = response.body()?.content
-                                        }
-                                    })
-                            }
                             Spacer(modifier = Modifier.size(12.dp)) // 290
 
                             Column(modifier = Modifier.height(screenHeight)) {
@@ -597,7 +542,7 @@ fun ProfileScreenV4(
                                             }
                                         })
                                     Spacer(modifier = Modifier.weight(1f))
-                                    if (myId == data.value.id) {
+                                    if (myId == profileInfo.id) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_profile_saved),
                                             contentDescription = null,
@@ -636,9 +581,11 @@ fun ProfileScreenV4(
                                 ) { page ->
                                     when (page) {
                                         0 -> {
-                                            if (blockedState.value) {
-                                                NoContentScreenV4(loadingState = loadingState, false)
-                                            } else if (postList.value != null && postList.value!!.isNotEmpty()) {
+                                            if (profileInfo.blocked) {
+                                                NoContentScreenV5(
+                                                    loadingState = remember { mutableStateOf(loadingState)},
+                                                    userId == myId)
+                                            } else if (profilePosts != null && profilePosts!!.isNotEmpty()) {
                                                 LazyVerticalGrid(
                                                     columns = GridCells.Fixed(2),
                                                     verticalArrangement = Arrangement.spacedBy(18.dp),
@@ -647,7 +594,7 @@ fun ProfileScreenV4(
                                                         .fillMaxSize(),
                                                     contentPadding = PaddingValues(18.dp)
                                                 ) {
-                                                        items(items = postList.value ?: listOf(), key = { it.id }) { postCard ->
+                                                        items(items = profilePosts ?: listOf(), key = { it.id }) { postCard ->
                                                         // 이미지가 들어간 버튼을 넣어야 함
                                                         Box(modifier = Modifier
                                                             .bounceClick {
@@ -710,20 +657,24 @@ fun ProfileScreenV4(
                                                     }
                                                 }
                                             } else {
-                                                NoContentScreenV4(loadingState, userId == myId)
+                                                NoContentScreenV5(
+                                                    remember { mutableStateOf(loadingState) },
+                                                    userId == myId)
                                             }
                                         }
                                         1 -> {
-                                            if (blockedState.value) {
-                                                NoContentScreenV4(loadingState = loadingState, false)
-                                            } else if (curationList.value != null && curationList.value!!.isNotEmpty()) {
+                                            if (profileInfo.blocked) {
+                                                NoContentScreenV5(
+                                                    loadingState = remember { mutableStateOf(loadingState) },
+                                                    userId == myId)
+                                            } else if (profileCurations != null && profileCurations!!.isNotEmpty()) {
                                                 LazyColumn(
                                                     modifier = Modifier
                                                         .fillMaxSize(),
                                                     verticalArrangement = Arrangement.spacedBy(15.dp),
                                                     contentPadding = PaddingValues(18.dp)
                                                 ) {
-                                                    items(items = curationList.value ?: listOf(), key = { it.id }) { curationCard ->
+                                                    items(items = profileCurations ?: listOf(), key = { it.id }) { curationCard ->
                                                         Row(
                                                             modifier = Modifier
                                                                 .height(90.dp)
@@ -840,7 +791,9 @@ fun ProfileScreenV4(
                                                     }
                                                 }
                                             } else {
-                                                NoContentScreenV4(loadingState, userId == myId)
+                                                NoContentScreenV5(
+                                                    remember { mutableStateOf(loadingState) },
+                                                    userId == myId)
                                             }
                                         }
                                     }
@@ -855,7 +808,7 @@ fun ProfileScreenV4(
 }
 
 @Composable
-fun NoContentScreenV4(
+fun NoContentScreenV5(
     loadingState: MutableState<Boolean>,
     isMyProfile: Boolean
 ) {
