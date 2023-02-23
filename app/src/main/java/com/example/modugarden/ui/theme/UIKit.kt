@@ -1937,13 +1937,14 @@ fun ReportModal( type:String,
                 }
             }
             Spacer(modifier = Modifier.size(18.dp))
-            // 구분선
-            Divider(
-                color = moduGray_light, modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-            )
             if(type=="댓글"){//댓글 작성자 차단
+
+                // 구분선
+                Divider(
+                    color = moduGray_light, modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

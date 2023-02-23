@@ -258,8 +258,8 @@ fun PostContentScreen(
                     val lat = remember { mutableStateOf(0.0) }
                     val lng = remember { mutableStateOf(0.0) }
                     val place_id = remember { mutableStateOf("") }
-                    val photoRef = remember { mutableStateOf("") }
-                    val photoURL = remember { mutableStateOf("") }
+                    val photoRef:MutableState<String?> = remember { mutableStateOf(null) }
+                    val photoURL:MutableState<String?>  = remember { mutableStateOf(null) }
 
                     if (locinfo.contains("``")) {
                         lat.value = locinfo.split("``")[1].toDouble()
@@ -273,16 +273,18 @@ fun PostContentScreen(
                                         val res = response.body()?.result?.photos?.get(0)
                                         if(res!=null){
                                             photoRef.value = res.photo_reference
+                                            Log.i("사진",photoRef.value.toString())
                                         }
                                         else
-                                            photoRef.value = ""
+                                            photoRef.value = null
                                     }
                                 }
 
                                 override fun onFailure(call: Call<MapsDetailRes>, t: Throwable) {
                                 }
                             })
-                        if(photoRef.value!="") {
+
+                        if(photoRef.value!=null) {
                             photoURL.value =
                                 "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + photoRef!!.value + "&key=" + BuildConfig.google_maps_key
                         }

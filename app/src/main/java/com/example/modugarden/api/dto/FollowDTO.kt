@@ -43,22 +43,3 @@ data class FollowRecommendationResContent(
     val profileImage: String = "",
     val userId: Int = 0
 )
-
-
-//{
-//    "content": [
-//    {
-//        "categories": [
-//        "string"
-//        ],
-//        "follow": true,
-//        "nickname": "string",
-//        "profileImage": "string",
-//        "userId": 0
-//    }
-//    ],
-//    "first": true,
-//    "hasNext": true,
-//    "last": true
-//}
-// 유저 팔로잉/팔로워 목록 끝

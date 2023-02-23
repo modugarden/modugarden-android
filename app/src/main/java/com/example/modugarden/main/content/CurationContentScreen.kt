@@ -119,6 +119,7 @@ fun CurationContentScreen(curation_id :Int) {
                              } else {
                                  reportMessage.value = response.body()!!.message
                              }
+                             messageDialogState.value = true
                          }
 
                          override fun onFailure(
@@ -128,7 +129,7 @@ fun CurationContentScreen(curation_id :Int) {
                             TODO()
                          }
                      })
-            messageDialogState.value = true
+
         }
     }
     if(messageDialogState.value)
@@ -266,8 +267,7 @@ fun CurationContentScreen(curation_id :Int) {
                     snackbarHostState=snackbarHostState)
 
                 // 메뉴 버튼
-                Icon(
-                    modifier = Modifier
+                Icon(modifier = Modifier
                         .bounceClick {
                             //버튼 클릭하면 바텀 모달 상태 변수 바뀜
                             if(curation.user_id==userId) modalType.value = modalDeletePost
@@ -308,9 +308,6 @@ fun CurationContentScreen(curation_id :Int) {
                 if (isLoading.value) ShowProgressBarV2()
             }
         }
-
-
-
 
         }
     }

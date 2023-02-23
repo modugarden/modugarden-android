@@ -88,17 +88,12 @@ class RefreshViewModel: ViewModel() {
                 ) {
                     if (response.isSuccessful) {
                         val res = response.body()
-                        Log.i("res",res.toString())
                         if (res != null) {
                             postRes.value = res
                         }
-                            Log.d("follow-post-result", res.toString())
                     }
                 }
                 override fun onFailure(call: Call<PostDTO.GetFollowFeedPost>, t: Throwable) {
-                    Toast.makeText(context, t.message + t.cause, Toast.LENGTH_SHORT).show()
-
-                    Log.d("follow-post", t.message + t.cause)
                 }
             })
 
@@ -114,22 +109,15 @@ class RefreshViewModel: ViewModel() {
                 ) {
                     if (response.isSuccessful) {
                         val res = response.body()
-                        Log.i("res",res.toString())
                         if (res != null) {
                             curationRes.value = res
                         }
-                        Log.d("follow-curation-result", res.toString())
                         }
                      else {
-                        Toast.makeText(context, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
-                        Log.d("follow-curation-result", response.toString())
                     }
                 }
 
                 override fun onFailure(call: Call<GetFollowFeedCuration>, t: Throwable) {
-                    Toast.makeText(context, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
-
-                    Log.d("follow-curation", "실패")
                 }
 
             })

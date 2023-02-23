@@ -122,7 +122,7 @@ fun PostContentMapScreen(navController: NavHostController,data:MapInfo) {
             .padding(18.dp)
             .align(Alignment.BottomCenter))
         { // 위치 사진
-            if (data.photoURL==""){
+            if (data.photoURL==null){
                 Box(
                     modifier = Modifier
                         .clip(CircleShape)
@@ -173,10 +173,3 @@ fun PostContentMapScreen(navController: NavHostController,data:MapInfo) {
 
     }
 
-/*
-@Preview
-@Composable
-fun PostContentMapPreview() {
-    val navController = rememberNavController()
-    PostContentMapScreen(navController = navController)
-}*/
