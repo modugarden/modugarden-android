@@ -1,6 +1,7 @@
 package com.example.modugarden.main.settings
 
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -50,6 +51,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Preview(showBackground = true)
 fun SettingsBlockScreen () {
@@ -109,7 +111,7 @@ fun SettingsBlockScreen () {
                     items = blockUserList,
                     key = { user -> user.id }
                 ) { blockedProfile ->
-                    BlockedProfileCard(blockedProfile) {
+                    BlockedProfileCard(blockedProfile, Modifier.animateItemPlacement()) {
                         scope.launch{
                             val snackBar = scope.launch {
                                 scaffoldState.snackbarHostState.showSnackbar("${blockedProfile.nickname} 님의 차단을 해제했습니다.")
@@ -131,10 +133,11 @@ fun SettingsBlockScreen () {
 @Composable
 fun BlockedProfileCard (
     user: GetBlockedListResponseContent,
+    modifier: Modifier,
     onClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
 
     ) {
         GlideImage(

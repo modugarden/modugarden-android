@@ -5,7 +5,6 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -13,7 +12,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -24,12 +22,10 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,20 +36,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.ApplicationClass
 import com.example.modugarden.R
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.PostDTO
-import com.example.modugarden.data.followPosts
 import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.main.content.modalDeletePost
-import com.example.modugarden.main.content.reportPost
+import com.example.modugarden.main.content.modalReportPost
 import com.example.modugarden.main.content.timeFomatter
 import com.example.modugarden.route.NAV_ROUTE_FOLLOW
 import com.example.modugarden.ui.theme.*
@@ -85,7 +78,7 @@ fun PostCard(
         modalTitle: MutableState<String>,
         modalImage: MutableState<String?>,
         modalId: MutableState<Int>,
-        feedLauncher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
+        launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
         fcmTokens: ArrayList<String>
 
 ) {
@@ -95,9 +88,8 @@ fun PostCard(
         val mContext = LocalContext.current
         val userId =
                 ApplicationClass.sharedPreferences.getInt(ApplicationClass.clientId, 0) //내 아이디
-
-
-        feedLauncher.let {
+        
+        launcher.let {
                 RetrofitBuilder.postAPI.getPostLikeState(data.board_id)
                         .enqueue(  object : Callback<PostDTO.GetPostLikeStateResponse> {
                                 override fun onResponse(
@@ -150,10 +142,6 @@ fun PostCard(
                                                 .padding(18.dp)
                                                 .bounceClick {
                                                         userViewModel.setUserId(data.user_id)
-                                                        Log.d(
-                                                                "postCardUserId",
-                                                                data.user_id.toString()
-                                                        )
                                                         navController.navigate(NAV_ROUTE_FOLLOW.USERPROFILE.routeName) {
                                                         }
                                                 },//프로필
@@ -215,12 +203,14 @@ fun PostCard(
                                                         )
                                         }
 
-                                        feedLauncher.launch(IntentSenderRequest
+                                        launcher.launch(IntentSenderRequest
                                                 .Builder(pendIntent)
                                                 .build())
                                 })
                                 {       // 포스트 카드 이미지 슬라이드
-                                        Box() {
+                                        Box(modifier = Modifier
+                                                .fillMaxWidth()
+                                                .aspectRatio(1f)) {
                                                 // 포스트 카드 이미지 슬라이드
                                                 HorizontalPager(
                                                         count =data.image.size,
@@ -247,22 +237,29 @@ fun PostCard(
                                                         )
 
                                                 }
-                                                if(data.image.size!=1) {// 포스트 카드 이미지 슬라이드 인디케이터
+                                                /*Box(modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .fillMaxHeight(0.2f)
+                                                                .background(
+                                                                        brush = Brush.verticalGradient(
+                                                                                colors = listOf(
+                                                                                        moduBlack.copy(
+                                                                                                alpha = 0.2f
+                                                                                        ),
+                                                                                        moduBlack.copy(
+                                                                                                alpha = 0f
+                                                                                        )
+                                                                                ),
+                                                                                startY = 0f,
+                                                                                endY = 100f
+                                                                        ),
+
+                                                                )
+                                                )*/
+                                                if(data.image.size>1) {// 포스트 카드 이미지 슬라이드 인디케이터
                                                         DotsIndicator(
                                                                 modifier = Modifier
                                                                         .fillMaxWidth()
-                                                                        .background(
-                                                                                brush = Brush.verticalGradient(
-                                                                                        colors = listOf(
-                                                                                                moduBlack.copy(
-                                                                                                        alpha = 0f
-                                                                                                ),
-                                                                                                moduBlack.copy(
-                                                                                                        alpha = 0.2f
-                                                                                                )
-                                                                                        )
-                                                                                )
-                                                                        )
                                                                         .align(Alignment.BottomCenter)
                                                                         .padding(25.dp),
                                                                 dotSize = 8,
@@ -273,6 +270,25 @@ fun PostCard(
                                                                 unSelectedColor = Color("#75FFFFFF".toColorInt())
                                                         )
                                                 }
+                                               /* Box(modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .fillMaxHeight(0.2f)
+                                                        .background(
+                                                                brush = Brush.verticalGradient(
+                                                                        colors = listOf(
+                                                                                moduBlack.copy(
+                                                                                        alpha = 0f
+                                                                                ),
+                                                                                moduBlack.copy(
+                                                                                        alpha = 0.2f
+                                                                                )
+                                                                        ),
+                                                                        startY = 100f,
+                                                                        endY = 300f
+                                                                )
+                                                        )
+                                                        .align(Alignment.BottomCenter)
+                                                )*/
 
                                         }
                                         Column(modifier = Modifier
@@ -346,9 +362,7 @@ fun PostCard(
                                                modifier = Modifier.padding(end = 18.dp),
                                                likeNum = null
                                        )
-//
-//
-                                       // 댓글
+                                    // 댓글
                                        Icon(modifier = Modifier
                                                .padding(end = 18.dp)
                                                .bounceClick {
@@ -358,7 +372,7 @@ fun PostCard(
                                                        )
                                                        intent.putExtra("board_id", data.board_id)
                                                        intent.putExtra("run", false)
-                                                       intent.putExtra("fcm_tokens",fcmTokens)
+                                                       intent.putExtra("fcm_tokens", fcmTokens)
                                                        mContext.startActivity(intent)
 
                                                },
@@ -380,7 +394,7 @@ fun PostCard(
                                                        modalTitle.value  = data.title
                                                        modalImage.value = data.user_profile_image
                                                        if (data.user_id==userId) modalType.value = modalDeletePost
-                                                       else modalType.value = reportPost
+                                                       else modalType.value = modalReportPost
                                                        modalId.value = data.board_id
                                                        scope.launch {
                                                                bottomSheetState.animateTo(
@@ -399,63 +413,6 @@ fun PostCard(
 
 }
 
-// 슬라이드 인디케이터 컴포넌트
-@Composable
-fun DotsIndicator(
-        modifier: Modifier,
-        dotSize: Int,
-        dotPadding:Int,
-        totalDots: Int,
-        selectedIndex: Int,
-        selectedColor: Color = moduGray_strong,
-        unSelectedColor: Color,
-){
-        LazyRow(
-                modifier = modifier
-        , horizontalArrangement = Arrangement.Center
-        , verticalAlignment = Alignment.Bottom
-
-        ) {
-                items(totalDots) { index ->
-                        if (index == selectedIndex) {
-                                Box(
-                                        modifier = Modifier
-                                                .size(dotSize.dp)
-                                                .clip(CircleShape)
-                                                .background(selectedColor)
-                                )
-                        } else {
-                                Box(
-                                        modifier = Modifier
-                                                .size(dotSize.dp)
-                                                .clip(CircleShape)
-                                                .background(unSelectedColor)
-                                )
-                        }
-
-                        if (index != totalDots - 1) {
-                                Spacer(modifier = Modifier.padding(horizontal = dotPadding.dp))
-                        }
-                }
-        }
-}
 
 
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterialApi::class)
-@Preview
-@Composable
-fun PostPreview(){
-        // 팔로우 스낵바 메세지 띄울 때 필요
-        val navController =  rememberNavController()
-        val scope = rememberCoroutineScope()
-        // 팔로우 스낵바 메세지 상태 변수
-        val snackbarHostState = remember { SnackbarHostState() }
-        val bottomSheetState= rememberModalBottomSheetState(
-                initialValue = ModalBottomSheetValue.Hidden)//바텀 시트
-        val followPost = followPosts[0]
-
-      /*  PostCard(navController, data = followPost, scope =scope , snackbarHostState = snackbarHostState,bottomSheetState, re)*/
-
-}
 

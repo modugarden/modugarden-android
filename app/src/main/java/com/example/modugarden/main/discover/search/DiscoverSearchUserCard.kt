@@ -49,7 +49,7 @@ fun DiscoverSearchUserCard(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth(0.8f)
+                .fillMaxWidth(0.7f)
                 .bounceClick {
                     userViewModel.setUserId(userData.userId)
                     navController.navigate(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHUSERPROFILE.routeName)
@@ -116,41 +116,42 @@ fun DiscoverSearchUserCard(
         }
         Spacer(modifier = Modifier.weight(1f))
 
-        FollowCard(
-            id = userData.userId,
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .wrapContentHeight()
-                .wrapContentWidth(),
-            snackBarAction = {
-                scope.launch {
-                    val snackBar = scope.launch {
-                    if(followState.value) snackbarHostState.showSnackbar("${userData.nickname} 님을 팔로우 했어요.")
-                    else snackbarHostState.showSnackbar("${userData.nickname} 님을 언팔로우 했어요.")
+        if(!userData.blocked) {
+            FollowCard(
+                id = userData.userId,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically),
+                snackBarAction = {
+                    scope.launch {
+                        val snackBar = scope.launch {
+                            if (followState.value) snackbarHostState.showSnackbar("${userData.nickname} 님을 팔로우 했어요.")
+                            else snackbarHostState.showSnackbar("${userData.nickname} 님을 언팔로우 했어요.")
 
-                }
-                delay(900)
-                    snackBar.cancel()
-                }
+                        }
+                        delay(900)
+                        snackBar.cancel()
+                    }
 
-            },
-            blockState = blockState,
-            followState = followState,
-            contentModifier = Modifier
-                .align(Alignment.CenterVertically)
-                .padding(vertical = 6.dp, horizontal = 10.dp),
-            unBlockSnackBarAction = {
-                scope.launch {
-                    val snackBar = scope.launch {
-                    snackbarHostState.showSnackbar("${userData.nickname} 님을 차단해제했어요.")
-                }
-                delay(900)
-                    snackBar.cancel()
-                }
+                },
+                blockState = blockState,
+                followState = followState,
+                contentModifier = Modifier
+                    .padding(vertical = 6.dp, horizontal = 10.dp),
+                unBlockSnackBarAction = {
+                    scope.launch {
+                        val snackBar = scope.launch {
+                            snackbarHostState.showSnackbar("${userData.nickname} 님을 차단해제했어요.")
+                        }
+                        delay(900)
+                        snackBar.cancel()
+                    }
 
-            },
-            fcmTokenState = remember { mutableStateOf(userData.fcmTokens) }
-        )
+                },
+                fcmTokenState = remember {
+                    mutableStateOf(userData.fcmTokens)
+                }
+            )
+        }
 
     }
 

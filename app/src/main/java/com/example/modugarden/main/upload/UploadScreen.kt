@@ -31,7 +31,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.modugarden.ApplicationClass.Companion.clientAuthority
+import com.example.modugarden.ApplicationClass.Companion.sharedPreferences
 import com.example.modugarden.R
+import com.example.modugarden.api.dto.UserAuthority
 import com.example.modugarden.data.Category
 import com.example.modugarden.data.UploadPost
 import com.example.modugarden.main.upload.curation.UploadCurationActivity
@@ -66,7 +69,9 @@ fun UploadInfoScreen() {
     val pagerState = rememberPagerState()
     val scope = rememberCoroutineScope()
     val pagerStateAuto = rememberPagerState()
-    val curator = remember { mutableStateOf(true) }
+    val curator = remember { mutableStateOf(
+        UserAuthority.ROLE_CURATOR.name == sharedPreferences.getString(clientAuthority, UserAuthority.ROLE_GENERAL.name)
+    ) }
 
     LaunchedEffect(key1 = pagerStateAuto) {
         launch {
@@ -407,6 +412,17 @@ fun BottomMakeButton(
 ) {
     val mContext = LocalContext.current
     val alpha = animateFloatAsState(if (pagerState.currentPage == 0) 1f else if (curator) 1f else 0.4f)
+    val noCuratorDialogState = remember { mutableStateOf(false) }
+    if(noCuratorDialogState.value)
+        OneButtonSmallDialog(
+            text = "큐레이터만 사용할 수 있는 기능이예요.",
+            textColor = moduBlack,
+            backgroundColor = Color.White,
+            buttonText = "네..",
+            buttonTextColor = Color.White,
+            buttonColor = moduPoint,
+            dialogState = noCuratorDialogState
+        )
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -419,8 +435,11 @@ fun BottomMakeButton(
                         mContext,
                         UploadPostActivity::class.java
                     )
-                )
-                else if(curator) mContext.startActivity(Intent(mContext, UploadCurationActivity::class.java))
+                ) else if (curator) {
+                    mContext.startActivity(Intent(mContext, UploadCurationActivity::class.java))
+                } else {
+                    noCuratorDialogState.value = true
+                }
             },
         backgroundColor = moduPoint,
         shape = RoundedCornerShape(15.dp),

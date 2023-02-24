@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.modugarden.route.NavigationGraphPostContent
-import com.example.modugarden.viewmodel.CommentViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 
 class PostContentActivity: ComponentActivity() {
@@ -37,13 +36,11 @@ class PostContentActivity: ComponentActivity() {
 @Composable
 fun PostContentNavScreen(board_id: Int, run: Boolean, fcmTokens: ArrayList<String>?) {
     val navController = rememberNavController()
-    val commentViewModel :CommentViewModel = viewModel()
     val userViewModel:UserViewModel = viewModel()
     if (run) NavigationGraphPostContent(navController, board_id = board_id)
     else PostContentCommentScreen(
         navController = navController,
         boardId = board_id,
-        commentViewModel = commentViewModel,
         run = run,
         userViewModel = userViewModel,
         fcmToken = fcmTokens)

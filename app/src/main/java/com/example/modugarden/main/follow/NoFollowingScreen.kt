@@ -54,9 +54,6 @@ fun NoFollowingScreen(
     navFollowController: NavHostController,
     userViewModel: UserViewModel,
     refreshViewModel: RefreshViewModel) {
-
-    val scope = rememberCoroutineScope()
-
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()//스크롤 상태 변수
 
@@ -172,21 +169,6 @@ fun NoFollowingScreen(
                                                 color = moduGray_strong
                                             )
                                         }
-                                        // 팔로우 버튼
-//                                            FollowCard(
-//                                                id = recommendList.value[i].userId,
-//                                                modifier = Modifier,
-//                                                snackBarAction = {
-//                                                    scope.launch {
-//                                                        if (!recommendList.value[i].isFollow) snackbarHostState.showSnackbar("${recommendList.value[i].nickname} 님을 팔로우 했어요.")
-//                                                        else snackbarHostState.showSnackbar("${recommendList.value[i].nickname} 님을 언팔로우 했어요.")
-//                                                    }
-//                                                },
-//                                                followState = remember { mutableStateOf(recommendList.value[i].isFollow) },
-//                                                contentModifier =
-//                                                Modifier
-//                                                    .padding(vertical = 6.dp, horizontal = 10.dp)
-//                                            )
 
                                     }
                                 }
@@ -361,14 +343,6 @@ fun FollowRecommendCard(
 
 }
 
-
-@Preview
-@Composable
-fun NoFollowingPreview() {
-    val navController = rememberNavController()
-    /*NoFollowingScreen()*/
-
-}
 
 
 

@@ -96,7 +96,7 @@ fun ProfileSettingsScreen(
             modifier = modifier.padding(innerPadding)
         ) {
             composable(route = SettingsScreen.Main.name) {
-                SettingsMainScreen(navController, settingViewModel)
+                SettingsMainScreen(navController)
             }
             composable(route = SettingsScreen.Profile.name) {
                 SettingsProfileScreen(settingViewModel) { navController.navigateUp() }

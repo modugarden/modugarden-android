@@ -13,9 +13,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.modugarden.main.profile.ProfileImageDetail
-import com.example.modugarden.main.profile.ProfileScreenV2
 import com.example.modugarden.main.profile.ProfileScreenV4
+import com.example.modugarden.main.profile.ProfileScreenV5
+import com.example.modugarden.main.profile.ProfileViewModel
 import com.example.modugarden.viewmodel.UserViewModel
 
 enum class ProfileFollowScreen (val title: String) {
@@ -49,6 +49,8 @@ fun ProfileFollow (
     onBNB: Boolean,
     upperNavController: NavHostController,
     viewModel: UserViewModel = viewModel(),
+    followViewModel: FollowViewModel = viewModel(),
+    profileViewModel: ProfileViewModel = viewModel(),
     navController: NavHostController = rememberNavController()
 ) {
     viewModel.setUserId(userId)
@@ -58,26 +60,29 @@ fun ProfileFollow (
         startDestination = ProfileFollowScreen.Profile.name,
     ) {
         composable(route = ProfileFollowScreen.Follow.name) {
-            ProfileFollowMainScreen(viewModel.getUserId(), navController) {
+            ProfileFollowMainScreen(
+                viewModel.getUserId(),
+                navController,
+                followViewModel.followerList,
+                followViewModel.followingList,
+                followViewModel::getFollowerList,
+                followViewModel::getFollowingList
+            ) {
                 viewModel.setNextUserId(it)
                 navController.navigate(ProfileFollowScreen.New.name)
             }
         }
         composable(route = ProfileFollowScreen.Profile.name) {
-            ProfileScreenV4(
+            ProfileScreenV5(
                 userId = viewModel.getUserId(),
                 navController = navController,
                 upperNavHostController = upperNavController,
-                userViewModel = viewModel
+                userViewModel = viewModel,
+                profileViewModel = profileViewModel
             )
         }
         composable(route = ProfileFollowScreen.New.name) {
             ProfileApp(userId = viewModel.getNextUserId(), false, upperNavController =  navController)
         }
-//        composable(route = ProfileFollowScreen.ProfileImage.name + "/{imageUrl}")
-//        { backStackEntry ->
-//            val imageUrl = backStackEntry.arguments?.getString("imageUrl") ?: ""
-//            ProfileImageDetail(navController = navController, imageUrl = imageUrl)
-//        }
     }
 }

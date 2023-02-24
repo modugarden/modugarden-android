@@ -36,7 +36,6 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 @Composable
 fun FollowScreen(navController: NavHostController,
                  navFollowController:NavHostController,
-                 UVforMain:UserViewModel,
                  UVforFollow: UserViewModel= viewModel(),
                  lazyScroll: LazyListState
 ){
@@ -105,7 +104,6 @@ fun FollowMainScreen(
     {
         // 포스트 수 + 큐레이션 수 1개 이상일 경우
         Box(){
-            Log.i("모드",mode.value.toString())
             if (mode.value==1) {
                 FollowingScreen(
                     posts.value!!,
@@ -115,10 +113,12 @@ fun FollowMainScreen(
                     userViewModel = userViewModel,
                     postLauncher = postLauncher,
                     curationLauncher = curationLauncher,
-                    lazyScroll = lazyScroll
+                    lazyScroll = lazyScroll,
+                    refreshViewModel = refreshViewModel,
+                    postRes = postres,
+                    context = context
                 )
             } else if(mode.value==2) {
-                Log.i("시점","else")
                 NoFollowingScreen(
                     navFollowController =navFollowController,
                     userViewModel =userViewModel,
