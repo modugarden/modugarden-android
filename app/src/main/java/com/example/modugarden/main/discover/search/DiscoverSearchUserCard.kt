@@ -152,37 +152,6 @@ fun DiscoverSearchUserCard(
             fcmTokenState = remember { mutableStateOf(userData.fcmTokens) }
         )
 
-//        //팔로우 버튼
-//        Card(
-//            modifier = Modifier
-//                .width(51.dp)
-//                .height(24.dp)
-//                .bounceClick {
-//                    followState.value = followState.value.not()
-//                    coroutineScope.launch {
-//                        snackbarHostState.showSnackbar(
-//                            "$userData 님을 팔로우 하였습니다.",
-//                            duration = SnackbarDuration.Short
-//                        )
-//                    }
-//                },
-//            backgroundColor =
-//            if(followState.value) moduBackground else Color(0xFF6CD09A),
-//            shape = RoundedCornerShape(5.dp)
-//        ){
-//            Box(contentAlignment = Alignment.Center) {
-//                Text(
-//                    text =  if(followState.value) "팔로잉" else "팔로우",
-//                    style = TextStyle(
-//                        color =  if(followState.value) moduBlack else Color.White,
-//                        fontWeight = FontWeight(700), fontSize = 11.sp
-//                    ),
-//
-//                )
-//            }
-//        }
-
-
     }
 
     Spacer(modifier = Modifier.height(18.dp))

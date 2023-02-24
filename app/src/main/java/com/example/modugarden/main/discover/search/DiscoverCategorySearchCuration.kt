@@ -48,14 +48,11 @@ fun DiscoverCategorySearchCuration(
                 }
                 else {
                     Toast.makeText(context, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
-                    Log.d("upload-result", response.toString())
                 }
             }
 
             override fun onFailure(call: Call<GetSearchCuration>, t: Throwable) {
                 Toast.makeText(context, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
-
-                Log.d("upload-result", "왜안됍")
             }
 
         })

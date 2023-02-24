@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,16 +31,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.request.RequestOptions
 import com.example.modugarden.R
-import com.example.modugarden.api.RetrofitBuilder
-import com.example.modugarden.api.dto.CurationLikeResponse
-import com.example.modugarden.api.dto.PostDTO
 import com.example.modugarden.api.dto.PostDTO.*
 import com.example.modugarden.main.content.PostContentActivity
 import com.example.modugarden.ui.theme.*
 import com.skydoves.landscapist.glide.GlideImage
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 
 //포스트, 큐레이션에 표시되는 카드들로 데이터 형식 알려주면 그때 넣겠삼삼
@@ -54,28 +47,9 @@ fun DiscoverSearchPostCard(
     val mContext = LocalContext.current
     val likeCnt = rememberSaveable{ mutableStateOf(postData.likeNum) }
 
-    //이걸로 intent불러서 activity 넘어가면 다시 돌아올때 안에 내용을 실행해줌 약간 onResume느낌으로 가라로 할 수 있을듯
     val launcher = rememberLauncherForActivityResult(contract =
     ActivityResultContracts.StartIntentSenderForResult()) {
         postList.value = GetSearchPost()
-//        RetrofitBuilder.postAPI.getPostLikeNum(postData.id)
-//            .enqueue(  object : Callback<CurationLikeResponse> {
-//                override fun onResponse(
-//                    call: Call<CurationLikeResponse>,
-//                    response: Response<CurationLikeResponse>
-//                ) {
-//                    likeCnt.value = response.body()?.result?.like_num ?: 0
-//                }
-//
-//                override fun onFailure(
-//                    call: Call<CurationLikeResponse>,
-//                    t: Throwable
-//                ) {
-//
-//                }
-//
-//            })
-//        Log.d("result-like", "작동댐??")
     }
 
     Row(
