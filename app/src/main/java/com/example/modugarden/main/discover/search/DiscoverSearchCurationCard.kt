@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -80,7 +79,6 @@ fun DiscoverSearchCurationCard(curationData: GetSearchCurationContent) {
 
                 intent.putExtras(bundle)
 
-                Log.d("result-like", "send : curation_id $curationData")
                 val pendIntent: PendingIntent
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     pendIntent = PendingIntent

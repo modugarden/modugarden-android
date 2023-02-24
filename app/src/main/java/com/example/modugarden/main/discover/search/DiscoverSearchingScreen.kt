@@ -94,62 +94,7 @@ fun DiscoverSearchingScreen(navController: NavHostController) {
                 )
 
             }
-//
-//            Spacer(modifier = Modifier.height(16.dp))
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .wrapContentHeight()
-//                    .padding(start = 18.dp, top = 14.dp, end = 18.dp, bottom = 0.dp),
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//
-//                //뒤로가기 버튼으로 누르면 stack 다 날라가고 discover main 스크린으로 이동하
-//                Image(
-//                    painter = painterResource(id = R.drawable.ic_arrow_left_bold),
-//                    contentDescription = null,
-//                    modifier = Modifier
-//                        .bounceClick {
-//                            navController.popBackStack(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERMAIN.routeName, inclusive = false)
-//                        }
-//                )
-//
-//                Spacer(modifier = Modifier.width(12.dp))
-//
-//                //검색창
-//                SearchTextField(
-//                    searchText =  searchText,
-//                    isTextFieldSearchFocused = isTextFieldSearchFocused,
-//                    focusManager = focusManager
-//                )
-//
-//                Spacer(modifier = Modifier.weight(1f))
-//
-//                //검색버튼
-//                Image(
-//                    painter = painterResource(id = R.drawable.ic_search_small),
-//                    contentDescription = null,
-//                    modifier = Modifier
-//                        .bounceClick {
-//                            if(searchText.value != "") {
-//                                //이미 전에 검색했던 거면 한번 지우고 다시 insert해줘서 맨 위로 올려줌
-//                                val checkData: RecentSearch? = db.recentSearchDao().findRecentSearchBySearchText(searchText.value)
-//                                checkData?.let {
-//                                    db.recentSearchDao().delete(
-//                                        it
-//                                    )
-//                                }
-//
-//                                db.recentSearchDao().insert(RecentSearch(searchText.value))
-//                                navController.navigate(route = NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHRESULT.routeName + "/" + searchText.value) {
-//                                    popUpTo(NAV_ROUTE_DISCOVER_SEARCH.DISCOVERSEARCHING.routeName)
-//                                }
-//
-//                            }
-//                        }
-//
-//                )
-//            }
+
             Text(
                 modifier = Modifier
                     .padding(top = 18.dp, start = 18.dp, bottom = 8.dp),

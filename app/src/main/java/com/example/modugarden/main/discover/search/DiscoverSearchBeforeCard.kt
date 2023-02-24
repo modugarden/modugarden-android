@@ -25,7 +25,6 @@ import com.example.modugarden.ui.theme.moduBackground
 import com.example.modugarden.ui.theme.moduBlack
 
 
-//이전에 검색했던 검색기록들을 보여주는 카드
 @Composable
 fun DiscoverSearchBeforeCard(
     navController: NavHostController,

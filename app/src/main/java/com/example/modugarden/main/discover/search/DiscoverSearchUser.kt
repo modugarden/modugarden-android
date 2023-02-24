@@ -1,11 +1,9 @@
 package com.example.modugarden.main.discover.search
 
-import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -45,20 +43,13 @@ fun DiscoverSearchUser(
                     val res = response.body()
                     if(res != null) {
                         responseBody = res
-                        Log.d("upload-result123", responseBody.toString())
                         isLoading = false
 
                     }
                 }
-                else {
-                    Log.d("upload-result", response.toString())
-                }
             }
-
             override fun onFailure(call: Call<FindByNicknameRes>, t: Throwable) {
-                Log.d("upload-result", "왜안됍")
             }
-
         })
 
     if(isLoading){
@@ -71,14 +62,6 @@ fun DiscoverSearchUser(
             DiscoverSearchNoResultScreen(searchStr)
         }
         else {
-//            LazyColumn(
-//                modifier = Modifier.fillMaxSize(),
-//                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp)
-//            ) {
-//                itemsIndexed(users) { idx, item ->
-//                    DiscoverSearchUserCard(item, coroutineScope, snackBarHostState, navController, userViewModel)
-//                }
-//            }
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp)

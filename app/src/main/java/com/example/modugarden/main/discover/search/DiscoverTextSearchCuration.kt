@@ -1,6 +1,5 @@
 package com.example.modugarden.main.discover.search
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +11,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.modugarden.api.RetrofitBuilder
 import com.example.modugarden.api.dto.GetSearchCuration
-import com.example.modugarden.data.Category
 import com.example.modugarden.ui.theme.ShowProgressBar
 import retrofit2.Call
 import retrofit2.Callback
@@ -38,20 +36,16 @@ fun DiscoverTextSearchCuration(
                     val res = response.body()
                     if(res != null) {
                         responseBody.value = res
-                        Log.d("upload-result123", responseBody.toString())
                         isLoading.value = false
                     }
                 }
                 else {
                     Toast.makeText(context, "데이터를 받지 못했어요", Toast.LENGTH_SHORT).show()
-                    Log.d("upload-result", response.toString())
                 }
             }
 
             override fun onFailure(call: Call<GetSearchCuration>, t: Throwable) {
                 Toast.makeText(context, "서버와 연결하지 못했어요", Toast.LENGTH_SHORT).show()
-
-                Log.d("upload-result", "왜안됍")
             }
 
         })

@@ -19,7 +19,6 @@ import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import androidx.room.Room
 import com.example.modugarden.R
-import com.example.modugarden.data.RecentSearch
 import com.example.modugarden.data.RecentSearchDatabase
 import com.example.modugarden.route.NAV_ROUTE_DISCOVER_SEARCH
 import com.example.modugarden.ui.theme.addFocusCleaner
