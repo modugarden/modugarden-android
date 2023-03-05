@@ -7,13 +7,13 @@
 | <img width="160px" src="https://avatars.githubusercontent.com/u/85955988?v=4"/> | <img width="160px" src="https://avatars.githubusercontent.com/u/107783650?v=4"/> | <img width="160px" src="https://avatars.githubusercontent.com/u/19889463?v=4"/> | <img width="160px" src="https://avatars.githubusercontent.com/u/99639919?v=4"/> |
 |[joowojr](https://github.com/joowojr)|[MinchoGreenT](https://github.com/MinchoGreenT)|[kimtaeyoon20031220](https://github.com/kimtaeyoon20031220)|[OJOJIN](https://github.com/OJOJIN)|
 
-
 ## 프로젝트 소개
 1. 페이지 분류, 기능 분류, (기능 상세) - [PascalCase] ex) PostLike(포스트 상세보기 페이지에서 좋아요 수 보기 창), SettingsProfileEdit(설정 페이지에서 프로필을 편집하는 창)
 <br/>
 
 ## 사용한 기술
 
+![Group 44](https://user-images.githubusercontent.com/19889463/222959028-26047167-5bad-44b9-9b61-5ac5760278d1.png)
 
 **layout 파일명 규칙**
 1. activity/fragment_기능  ex) activity_login, fragment_home
