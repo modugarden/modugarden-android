@@ -7,8 +7,11 @@
 |[joowojr](https://github.com/joowojr)|[MinchoGreenT](https://github.com/MinchoGreenT)|[kimtaeyoon20031220](https://github.com/kimtaeyoon20031220)|[OJOJIN](https://github.com/OJOJIN)|
 
 ## 프로젝트 소개
-![Group 357 (2)](https://user-images.githubusercontent.com/19889463/222959125-f35ad7f9-f3a9-4d3b-9d8c-496e14724b74.png)
-
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="https://user-images.githubusercontent.com/19889463/222959125-f35ad7f9-f3a9-4d3b-9d8c-496e14724b74.png">
+  <source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/19889463/222960801-2c213635-073e-4225-a007-3244a280dd58.png">
+  <img alt="IMAGE" src="https://user-images.githubusercontent.com/19889463/222959125-f35ad7f9-f3a9-4d3b-9d8c-496e14724b74.png">
+</picture>
 
 ## 사용한 기술
 
