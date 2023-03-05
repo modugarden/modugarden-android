@@ -3,7 +3,7 @@
 ## 프론트엔드 참가 인원
 |다나 (서주원)|마라 (이은섭)|양털 (김태윤)|펭귄 (오진영)|
 |:------:|:---:|:------:|:---:|
-| <img width="160px" src="https://avatars.githubusercontent.com/u/85955988?v=4"/> | <img width="160px" src="https://avatars.githubusercontent.com/u/107783650?v=4"/> | <img width="160px" src="https://avatars.githubusercontent.com/u/19889463?v=4"/> | <img width="160px" src="https://avatars.githubusercontent.com/u/99639919?v=4"/> |
+| <img width="160px" src="https://avatars.githubusercontent.com/u/85955988?v=4"/> | <img width="160px" src="https://avatars.githubusercontent.com/u/107783650?v=4"/> | <img width="160px" src="https://user-images.githubusercontent.com/19889463/222960700-8d15fd95-6c49-4722-a654-e10daf7b4458.jpeg"/> | <img width="160px" src="https://avatars.githubusercontent.com/u/99639919?v=4"/> |
 |[joowojr](https://github.com/joowojr)|[MinchoGreenT](https://github.com/MinchoGreenT)|[kimtaeyoon20031220](https://github.com/kimtaeyoon20031220)|[OJOJIN](https://github.com/OJOJIN)|
 
 ## 프로젝트 소개
