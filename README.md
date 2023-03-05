@@ -14,5 +14,8 @@
 
 ## 사용한 기술
 
-![Group 44]({https://user-images.githubusercontent.com/19889463/222959028-26047167-5bad-44b9-9b61-5ac5760278d1.png}#gh-light-mode-only)
-![Group 45]({https://user-images.githubusercontent.com/19889463/222959639-9563dd1c-9325-49eb-b730-b3eb1cd84f7c.png}#gh-dark-mode-only)
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="https://user-images.githubusercontent.com/19889463/222959028-26047167-5bad-44b9-9b61-5ac5760278d1.png">
+  <source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/19889463/222959639-9563dd1c-9325-49eb-b730-b3eb1cd84f7c.png">
+  <img alt="IMAGE" src="https://user-images.githubusercontent.com/19889463/222959028-26047167-5bad-44b9-9b61-5ac5760278d1.png">
+</picture>
