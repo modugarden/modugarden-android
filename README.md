@@ -1,15 +1,12 @@
-# modugarden-android
+# 모두의 정원
 
-**아이콘 이름 규칙**
-1. ic_기능_모양
-2. 화살표 같은 경우는 ic_arrow_방향  ex) ic_back, ic_like
-3. 선택 여부가 있는 아이콘은 ic_기능_모양과 ic_기능_모양_selected 로 구분
-4. 색은 안넣어도 될 거 같습니다 왜냐 코드에서 tint로 변경 가능 각자 변경해서 쓰기 ....
-<br/>
 
-**Composable 이름 규칙**
+## 프로젝트 소개
 1. 페이지 분류, 기능 분류, (기능 상세) - [PascalCase] ex) PostLike(포스트 상세보기 페이지에서 좋아요 수 보기 창), SettingsProfileEdit(설정 페이지에서 프로필을 편집하는 창)
 <br/>
+
+## 사용한 기술
+
 
 **layout 파일명 규칙**
 1. activity/fragment_기능  ex) activity_login, fragment_home
