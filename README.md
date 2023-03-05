@@ -1,4 +1,5 @@
 # 모두의 정원
+![Group 357 (2)](https://user-images.githubusercontent.com/19889463/222959125-f35ad7f9-f3a9-4d3b-9d8c-496e14724b74.png)
 
 ## 참가 인원
 ### 프론트엔드
