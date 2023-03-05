@@ -14,4 +14,4 @@
 
 ## 사용한 기술
 
-![Group 44](https://user-images.githubusercontent.com/19889463/222959028-26047167-5bad-44b9-9b61-5ac5760278d1.png)
+![Group 44]({https://user-images.githubusercontent.com/19889463/222959028-26047167-5bad-44b9-9b61-5ac5760278d1.png}#gh-light-mode-only)
