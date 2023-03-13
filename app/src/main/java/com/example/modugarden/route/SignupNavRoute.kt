@@ -22,6 +22,7 @@ enum class NAV_ROUTE_SIGNUP(val routeName: String, val description: String) { //
     EMAIL_CERT("SIGNUP_EMAIL_CERT", "이메일 인증"),
     PASSWORD("SIGNUP_PASSWORD", "비밀번호"),
     TERMS("SIGNUP_TERMS", "이용 약관"),
+    TERMS_NOTION("SIGNUP_TERMS_NOTION", "이용 약관 노션 페이지"),
     INFO("SIGNUP_INFO", "닉네임, 생년월일"),
     CATEGORY("SIGNUP_CATEGORY", "카테고리"),
     END("SIGNUP_END", "가입 축하")
@@ -143,6 +144,27 @@ fun NavigationGraphSignup(
             },
         ) { backStackEntry ->
             SignupTermsScreen(navController, data, signupViewModel, social, social_email, social_name)
+        }
+        composable(
+            NAV_ROUTE_SIGNUP.TERMS_NOTION.routeName,
+            enterTransition = {
+                slideIntoContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeIn(tween(500))
+            },
+            exitTransition =  {
+                slideOutOfContainer(AnimatedContentScope.SlideDirection.Left, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeOut(tween(500))
+            },
+            popEnterTransition = {
+                slideIntoContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeIn(tween(500))
+            },
+            popExitTransition = {
+                slideOutOfContainer(AnimatedContentScope.SlideDirection.Right, animationSpec = tween(500, easing = EaseOutExpo)) +
+                        fadeOut(tween(500))
+            },
+        ) { backStackEntry ->
+            SignupTermsNotionScreen(navController)
         }
         composable(
             NAV_ROUTE_SIGNUP.INFO.routeName,

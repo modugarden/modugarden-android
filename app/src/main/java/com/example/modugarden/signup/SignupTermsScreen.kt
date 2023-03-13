@@ -70,9 +70,7 @@ fun SignupTermsScreen(navController: NavHostController, data: Signup, signupView
                 Card(
                     modifier = Modifier
                         .bounceClick {
-                            Toast
-                                .makeText(mContext, "이용 약관 페이지로 넘어가요", Toast.LENGTH_SHORT)
-                                .show()
+                            navController.navigate(NAV_ROUTE_SIGNUP.TERMS_NOTION.routeName)
                         }
                         .fillMaxWidth(),
                     border = BorderStroke(1.dp, moduGray_light),
@@ -119,14 +117,12 @@ fun SignupTermsScreen(navController: NavHostController, data: Signup, signupView
             Card(
                 modifier = Modifier
                     .bounceClick {
-                        if (isTermsCheck.value) {
-                            navController.navigate(NAV_ROUTE_SIGNUP.INFO.routeName)
-                            if(social) {
-                                signupViewModel.saveEmail(social_email)
-                                signupViewModel.savePassword("")
-                                signupViewModel.saveName(social_name)
-                                signupViewModel.saveSocial(social)
-                            }
+                        navController.navigate(NAV_ROUTE_SIGNUP.INFO.routeName)
+                        if(social) {
+                            signupViewModel.saveEmail(social_email)
+                            signupViewModel.savePassword("")
+                            signupViewModel.saveName(social_name)
+                            signupViewModel.saveSocial(social)
                         }
                     }
                     .padding(18.dp)
