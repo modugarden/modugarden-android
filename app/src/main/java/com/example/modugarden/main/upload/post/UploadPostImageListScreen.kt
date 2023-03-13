@@ -176,13 +176,22 @@ fun UploadPostImageListScreen(
                         bottom = 16.dp
                     ),
                     content = {
-                        itemsIndexed(data.image) { index, item ->
+                        itemsIndexed(
+                            items = data.image
+                        ) { index, item ->
                             UploadPostImageListItem(
                                 index = index,
                                 data = data,
                                 deleteState = deleteState,
                                 navController = navController,
                                 uploadPostViewModel = uploadPostViewModel,
+                                modifier = Modifier
+                                    .animateItemPlacement()
+                                    .bounceClick {
+                                        Log.d("composeindex", data.image.size.toString())
+                                        navController.navigate(NAV_ROUTE_UPLOAD_POST.IMAGEDETAIL.routeName + "/${index}")
+                                    }
+                                    .padding(8.dp)
                             )
                         }
                     }
@@ -253,16 +262,12 @@ fun UploadPostImageListItem(
     deleteState: MutableState<Boolean>,
     navController: NavHostController,
     uploadPostViewModel: UploadPostViewModel,
+    modifier: Modifier
 ) {
 
     Box() {
         Card(
-            modifier = Modifier
-                .bounceClick {
-                    Log.d("composeindex", data.image.size.toString())
-                    navController.navigate(NAV_ROUTE_UPLOAD_POST.IMAGEDETAIL.routeName + "/${index}")
-                }
-                .padding(8.dp),
+            modifier = modifier,
             shape = RoundedCornerShape(10.dp),
             border = BorderStroke(1.dp, moduGray_light)
         ) {

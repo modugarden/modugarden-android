@@ -7,12 +7,7 @@ import android.view.HapticFeedbackConstants
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.keyframes
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -126,7 +121,7 @@ fun Modifier.bounceClick(onClick: () -> Unit) = composed {
                     coroutineScope.launch {
                         scale.animateTo(
                             scaleDown,
-                            animationSpec = tween(animationDuration),
+                            animationSpec = tween(animationDuration, easing = EaseOutCirc),
                         )
                     }
                     val up = waitForUpOrCancellation()
@@ -137,7 +132,7 @@ fun Modifier.bounceClick(onClick: () -> Unit) = composed {
                         )
                         scale.animateTo(
                             1f,
-                            animationSpec = tween(animationDuration),
+                            animationSpec = tween(animationDuration, easing = EaseOutCirc),
                         )
                     }
                     if (up.toString() != "null") {

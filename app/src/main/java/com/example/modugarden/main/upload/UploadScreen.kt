@@ -303,7 +303,7 @@ fun UploadPostEx(
             }
         }
         HorizontalPager(
-            count = 5, userScrollEnabled = false, reverseLayout = true, itemSpacing = 0.dp, state = pagerStateAuto,
+            count = 4, userScrollEnabled = false, reverseLayout = true, itemSpacing = 0.dp, state = pagerStateAuto,
             modifier = Modifier.fillMaxWidth()
         ) { page ->
             Image(
@@ -313,7 +313,6 @@ fun UploadPostEx(
                     1 -> R.drawable.test_image2
                     2 -> R.drawable.test_image3
                     3 -> R.drawable.test_image4
-                    4 -> R.drawable.test_image5
                     else -> R.drawable.test_image1
                 }),
                 contentDescription = null,

@@ -18,8 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Card
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -543,17 +542,41 @@ fun MainLoginScreen(navController: NavController) {
                                                         res.result.userId.toString()
                                                     )
                                                     editor.clear()
-                                                    editor.putString(accessToken, res.result.accessToken)
-                                                    editor.putString(refreshToken, res.result.refreshToken)
+                                                    editor.putString(
+                                                        accessToken,
+                                                        res.result.accessToken
+                                                    )
+                                                    editor.putString(
+                                                        refreshToken,
+                                                        res.result.refreshToken
+                                                    )
                                                     editor.putInt(clientId, res.result.userId)
-                                                    editor.putString(clientNickname, res.result.nickname)
-                                                    editor.putString(clientAuthority, res.result.userAuthority)
-                                                    editor.putString(profileImage, res.result.profileImage)
-                                                    if(autoLoginState.value) {
+                                                    editor.putString(
+                                                        clientNickname,
+                                                        res.result.nickname
+                                                    )
+                                                    editor.putString(
+                                                        clientAuthority,
+                                                        res.result.userAuthority
+                                                    )
+                                                    editor.putString(
+                                                        profileImage,
+                                                        res.result.profileImage
+                                                    )
+                                                    if (autoLoginState.value) {
                                                         editor.putBoolean(autoLoginSetting, true)
-                                                        editor.putString(autoLoginId, textFieldId.value)
-                                                        editor.putString(autoLoginPw, textFieldPw.value)
-                                                        editor.putString(autoLoginOption, normalLogin)
+                                                        editor.putString(
+                                                            autoLoginId,
+                                                            textFieldId.value
+                                                        )
+                                                        editor.putString(
+                                                            autoLoginPw,
+                                                            textFieldPw.value
+                                                        )
+                                                        editor.putString(
+                                                            autoLoginOption,
+                                                            normalLogin
+                                                        )
                                                     } else {
                                                         editor.putBoolean(autoLoginSetting, false)
                                                     }
